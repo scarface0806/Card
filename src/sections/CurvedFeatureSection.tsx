@@ -78,15 +78,15 @@ function FeatureCard({ icon, title, description, className = '', floatVariant = 
     >
       <motion.div
         animate={getFloatAnimation()}
-        className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl shadow-teal-900/5 rounded-2xl p-6 max-w-[280px]"
+        className="card card-padding max-w-[280px]"
       >
-        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
           {icon}
         </div>
-        <h3 className="text-lg font-bold text-[#0f2e25] font-space-grotesk mb-2">
+        <h3 className="heading-3 section-title font-space-grotesk mb-2">
           {title}
         </h3>
-        <p className="text-sm text-[#4a6d63] leading-relaxed">
+        <p className="body-base text-[#4a6d63] leading-relaxed">
           {description}
         </p>
       </motion.div>
@@ -149,22 +149,22 @@ export default function CurvedFeatureSection() {
       <div className="absolute bottom-40 right-40 w-2 h-2 rounded-full bg-teal-400/50 hidden lg:block" />
 
       {/* Content Container */}
-      <div className="relative container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12 py-16 md:py-20 lg:py-24">
+      <div className="relative site-container section-spacing">
         {/* Header */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
-          className="text-center mb-12 md:mb-14"
+          className="section-header"
         >
           {/* Small Label */}
           <motion.div
             variants={fadeInUp}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-teal-500/10 border border-teal-500/20 rounded-full mb-6"
+            className="section-badge"
           >
-            <Sparkles className="w-4 h-4 text-teal-600" />
-            <span className="text-sm font-medium text-teal-700">
+            <Sparkles className="w-4 h-4" />
+            <span>
               The Future of Networking, Today
             </span>
           </motion.div>
@@ -172,10 +172,10 @@ export default function CurvedFeatureSection() {
           {/* Large Heading */}
           <motion.h2
             variants={fadeInUp}
-            className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk leading-tight max-w-4xl mx-auto"
+            className="heading-1 section-title font-space-grotesk leading-tight max-w-4xl mx-auto"
           >
             NFC built for effortless{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-gradient">
               digital sharing.
             </span>
           </motion.h2>
@@ -223,15 +223,15 @@ export default function CurvedFeatureSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="bg-white/80 backdrop-blur-xl border border-white/60 shadow-xl shadow-teal-900/5 rounded-2xl p-6"
+              className="card card-padding"
             >
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
                 {feature.icon}
               </div>
-              <h3 className="text-lg font-bold text-[#0f2e25] font-space-grotesk mb-2">
+              <h3 className="heading-3 section-title font-space-grotesk mb-2">
                 {feature.title}
               </h3>
-              <p className="text-sm text-[#4a6d63] leading-relaxed">
+              <p className="body-base text-[#4a6d63] leading-relaxed">
                 {feature.description}
               </p>
             </motion.div>

@@ -14,11 +14,11 @@ function OrderSuccessContent() {
   const orderId = searchParams.get('orderId') || 'ORD-XXXX-XXXX';
 
   const containerVariants = {
-    hidden: { opacity: 0, scale: 0.9 },
+    hidden: { opacity: 0, y: 10 },
     visible: {
       opacity: 1,
-      scale: 1,
-      transition: { duration: 0.6 },
+      y: 0,
+      transition: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1] },
     },
   };
 
@@ -33,7 +33,7 @@ function OrderSuccessContent() {
 
   return (
     <main className="pt-32 pb-20 min-h-screen flex items-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
-      <div className="container mx-auto max-w-3xl px-4 w-full lg:px-8">
+      <div className="site-container w-full">
         <motion.div
           variants={containerVariants}
           initial="hidden"
@@ -41,13 +41,12 @@ function OrderSuccessContent() {
           className="text-center space-y-8"
         >
           <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
+            initial={{ scale: 0.9, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
             transition={{
-              delay: 0.2,
-              type: 'spring',
-              stiffness: 200,
-              damping: 15,
+              delay: 0.1,
+              duration: 0.32,
+              ease: [0.25, 0.1, 0.25, 1],
             }}
             className="flex justify-center"
           >
@@ -161,9 +160,10 @@ function OrderSuccessContent() {
           >
             <Link href={ROUTES.HOME}>
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-300"
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 1 }}
+                transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-220"
               >
                 <Home className="w-4 h-4" />
                 Back to Home
@@ -171,9 +171,10 @@ function OrderSuccessContent() {
             </Link>
             <Link href={ROUTES.CARDS}>
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-300"
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 1 }}
+                transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-220"
               >
                 <Layout className="w-4 h-4" />
                 Browse More Templates

@@ -43,7 +43,7 @@ export default function Navbar() {
           : 'bg-transparent'
       }`}
     >
-      <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+      <div className="site-container">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
           <Link href={ROUTES.HOME} className="flex items-center gap-2 group">

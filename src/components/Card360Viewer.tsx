@@ -97,20 +97,20 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
   };
 
   return (
-    <div className="w-full space-y-0">
+    <div className="w-full" style={{ overflow: 'visible' }}>
       {/* 360 Viewer Container */}
-      <div className="relative flex flex-col items-center justify-center w-full h-full">
+      <div className="relative flex flex-col items-center justify-center w-full" style={{ overflow: 'visible' }}>
         {/* Interactive Card Viewer */}
         <motion.div
           ref={containerRef}
-          className="relative w-full h-[380px] sm:h-[480px] md:h-[600px] lg:h-[700px] rounded-3xl overflow-hidden cursor-grab active:cursor-grabbing bg-transparent"
+          className="relative w-full h-[220px] sm:h-[260px] md:h-[300px] lg:h-[320px] rounded-3xl cursor-grab active:cursor-grabbing bg-transparent"
           onMouseMove={handleMouseMove}
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => {
             setIsHovered(false);
             setRotation(0);
           }}
-          style={{ perspective: '1200px' }}
+          style={{ perspective: '1200px', overflow: 'visible' }}
         >
           {/* Background instruction text - Hidden */}
           {!isHovered && (
@@ -121,28 +121,30 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
             </div>
           )}
 
-          {/* 3D Card with 360 Rotation */}
+          {/* 3D Card with 360 Rotation - GPU accelerated, no spring */}
           <motion.div
             className="absolute inset-0 flex items-center justify-center"
             animate={{
               rotateY: rotation,
             }}
             transition={{
-              type: 'spring',
-              stiffness: 300,
-              damping: 30,
+              type: 'tween',
+              duration: 0.15,
+              ease: [0.25, 0.1, 0.25, 1],
             }}
             style={{
               transformStyle: 'preserve-3d',
+              willChange: 'transform',
             } as React.CSSProperties}
           >
             {/* Front of Card */}
             <motion.div
-              className={`absolute w-[360px] sm:w-[420px] md:w-[500px] lg:w-[560px] h-[220px] sm:h-[260px] md:h-[310px] lg:h-[360px] rounded-3xl overflow-hidden bg-gradient-to-br ${card.gradient} border border-white/15`}
+              className={`absolute w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] h-[175px] sm:h-[200px] md:h-[240px] lg:h-[260px] rounded-2xl overflow-hidden bg-gradient-to-br ${card.gradient} border border-white/15`}
               style={{
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
                 boxShadow: '0 40px 80px rgba(0, 0, 0, 0.2), 0 15px 40px rgba(0, 0, 0, 0.1)',
+                transformOrigin: 'center center',
               } as React.CSSProperties}
             >
               {/* Top-left glow gradient */}
@@ -158,58 +160,50 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
               />
 
               {/* Card Content */}
-              <div className="relative h-full flex flex-col justify-between p-5 md:p-6 lg:p-8 text-white">
+              <div className="relative h-full flex flex-col justify-between p-4 md:p-5 lg:p-6 text-white">
                 {/* Top: Brand/Label */}
                 <div>
-                  <p className="text-xs md:text-sm lg:text-base font-semibold tracking-widest text-white/60 uppercase">
+                  <p className="text-xs md:text-xs lg:text-sm font-semibold tracking-widest text-white/60 uppercase">
                     NFC Card
                   </p>
-                  <p className="text-xs md:text-sm lg:text-base text-white/50 mt-1">{card.name}</p>
+                  <p className="text-xs md:text-xs lg:text-sm text-white/50 mt-0.5">{card.name}</p>
                 </div>
 
                 {/* Bottom: Details */}
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <div>
-                    <p className="text-xs md:text-sm lg:text-base text-white/70 mb-1">Cardholder</p>
-                    <h3 className="text-xl md:text-2xl lg:text-3xl font-bold">John Doe</h3>
-                    <p className="text-xs md:text-sm lg:text-base text-white/70 mt-1">Product Designer</p>
+                    <p className="text-xs md:text-xs lg:text-sm text-white/70 mb-0.5">Cardholder</p>
+                    <h3 className="text-lg md:text-xl lg:text-2xl font-bold">John Doe</h3>
+                    <p className="text-xs md:text-xs lg:text-sm text-white/70 mt-0.5">Product Designer</p>
                   </div>
-                  <div className="flex justify-between pt-4 border-t border-white/10">
+                  <div className="flex justify-between pt-2 border-t border-white/10">
                     <div>
                       <p className="text-xs text-white/50 uppercase tracking-wider">ID</p>
-                      <p className="text-xs md:text-sm lg:text-base font-mono tracking-wider mt-1">1234...9010</p>
+                      <p className="text-xs md:text-xs lg:text-sm font-mono tracking-wider mt-0.5">1234...9010</p>
                     </div>
                     <div className="text-right">
                       <p className="text-xs text-white/50 uppercase tracking-wider">Valid</p>
-                      <p className="text-xs md:text-sm lg:text-base font-mono mt-1">09/25</p>
+                      <p className="text-xs md:text-xs lg:text-sm font-mono mt-0.5">09/25</p>
                     </div>
                   </div>
                 </div>
               </div>
 
-              {/* Shine animation */}
-              <motion.div
-                className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent`}
-                animate={{
-                  x: ['-100%', '100%'],
-                }}
-                transition={{
-                  duration: 3,
-                  repeat: Infinity,
-                  ease: 'easeInOut',
-                  delay: 1,
-                }}
+              {/* Subtle shine - static gradient */}
+              <div
+                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-50 pointer-events-none"
               />
             </motion.div>
 
             {/* Back of Card (Rotated 180 degrees) */}
             <motion.div
-              className={`absolute w-[360px] sm:w-[420px] md:w-[500px] lg:w-[560px] h-[220px] sm:h-[260px] md:h-[310px] lg:h-[360px] rounded-3xl overflow-hidden bg-gradient-to-br ${card.gradient} border border-white/15`}
+              className={`absolute w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] h-[175px] sm:h-[200px] md:h-[240px] lg:h-[260px] rounded-2xl overflow-hidden bg-gradient-to-br ${card.gradient} border border-white/15`}
               style={{
                 rotateY: 180,
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
                 boxShadow: '0 40px 80px rgba(0, 0, 0, 0.2), 0 15px 40px rgba(0, 0, 0, 0.1)',
+                transformOrigin: 'center center',
               } as React.CSSProperties}
             >
               {/* Gradient overlay */}
@@ -226,13 +220,13 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
 
               {/* Back Side Content */}
               <div className="relative h-full flex items-center justify-center text-white">
-                <div className="text-center space-y-4 px-4">
-                  <div className="text-5xl md:text-6xl lg:text-8xl">{card.icon}</div>
+                <div className="text-center space-y-2 px-4">
+                  <div className="text-3xl md:text-4xl lg:text-5xl">{card.icon}</div>
                   <div>
-                    <p className="text-sm md:text-base lg:text-lg font-semibold">{card.description}</p>
-                    <p className="text-xs md:text-xs lg:text-sm text-white/60 mt-1">Tap to unlock profile</p>
+                    <p className="text-xs md:text-sm lg:text-sm font-semibold">{card.description}</p>
+                    <p className="text-xs text-white/60 mt-0.5">Tap to unlock profile</p>
                   </div>
-                  <div className="pt-3 border-t border-white/20">
+                  <div className="pt-2 border-t border-white/20">
                     <p className="text-xs text-white/50 uppercase tracking-wider">NFC Enabled</p>
                   </div>
                 </div>

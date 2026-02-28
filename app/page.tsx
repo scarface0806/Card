@@ -12,6 +12,7 @@ import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import TestimonialsSection from '@/sections/TestimonialsSection';
 import FAQSection from '@/sections/FAQSection';
 import ContactModal, { ContactSource } from '@/components/ContactModal';
+import StickyMobileCTA from '@/components/StickyMobileCTA';
 
 function HomeContent() {
 	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -29,11 +30,14 @@ function HomeContent() {
 				<HeroSection />
 				<HowItWorksSection />			<InteractiveCardShowcaseSection />				<FeaturesSection />
 				<CardDesignsHomeSection onContactClick={handleContactClick} />
-				<OtherCardsSolutionsSection onContactClick={handleContactClick} />
 				<TestimonialsSection />
+				<OtherCardsSolutionsSection onContactClick={handleContactClick} />
 				<FAQSection />
 			</main>
 			<Footer />
+
+			{/* Sticky Mobile CTA */}
+			<StickyMobileCTA />
 
 			{/* Contact Modal */}
 			<ContactModal

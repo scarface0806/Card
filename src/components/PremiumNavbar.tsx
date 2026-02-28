@@ -67,7 +67,7 @@ export default function PremiumNavbar() {
               setAuthMode('signup');
               setIsAuthOpen(true);
             }}
-            className="relative flex items-center gap-2 px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-[1.03] overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
+            className="relative flex items-center gap-2 px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             <span className="relative">Sign Up</span>

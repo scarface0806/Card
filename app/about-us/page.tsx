@@ -67,7 +67,7 @@ export default function AboutUsPage() {
             <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
           </div>
 
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -97,7 +97,7 @@ export default function AboutUsPage() {
 
         {/* Our Story */}
         <section className="py-20 md:py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -142,7 +142,7 @@ export default function AboutUsPage() {
 
         {/* Core Values */}
         <section className="py-20 md:py-32">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -182,7 +182,7 @@ export default function AboutUsPage() {
 
         {/* Stats */}
         <section className="py-20 md:py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
@@ -215,7 +215,7 @@ export default function AboutUsPage() {
 
         {/* CTA Section */}
         <section className="py-20 md:py-32">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}

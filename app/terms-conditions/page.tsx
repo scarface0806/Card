@@ -52,7 +52,7 @@ export default function TermsPage() {
     <>
       <Navbar />
       <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
-        <div className="container mx-auto max-w-4xl px-4 lg:px-8">
+        <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

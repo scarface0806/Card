@@ -88,13 +88,13 @@ export default function InteractiveCard3D({
               rotateZ: isHovered ? -8 + idx * 4 : -12 + idx * 4,
               y: idx * 20,
               x: idx * 24,
-              scale: isHovered ? 1.02 + idx * 0.01 : 1,
+              scale: isHovered ? 1.01 : 1,
             }}
             transition={{
-              type: 'spring',
-              stiffness: 100,
-              damping: 15,
-              delay: idx * 0.05,
+              type: 'tween',
+              duration: 0.22,
+              ease: [0.25, 0.1, 0.25, 1],
+              delay: idx * 0.03,
             }}
           >
             {/* Glossy Shine Effect */}
@@ -166,8 +166,8 @@ export default function InteractiveCard3D({
         {statsData && statsData.length > 0 && (
           <motion.div
             className="mb-8 p-4 bg-white rounded-xl shadow-lg border border-gray-100"
-            whileHover={{ scale: 1.02, y: -5 }}
-            transition={{ type: 'spring', stiffness: 200 }}
+            whileHover={{ y: -4 }}
+            transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
           >
             <div className="flex items-center justify-between">
               {statsData.map((stat, idx) => (
@@ -196,8 +196,8 @@ export default function InteractiveCard3D({
         {/* Contact Information Card */}
         <motion.div
           className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100"
-          whileHover={{ y: -5, boxShadow: '0 20px 40px rgba(15, 118, 110, 0.15)' }}
-          transition={{ type: 'spring', stiffness: 200 }}
+          whileHover={{ y: -4 }}
+          transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className="bg-gradient-to-r from-[#0d9488] to-emerald-600 p-6">
             <h3 className="text-white font-bold text-lg">{fullName}</h3>
@@ -208,7 +208,8 @@ export default function InteractiveCard3D({
             {/* Phone */}
             <motion.div
               className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-              whileHover={{ x: 5 }}
+              whileHover={{ x: 3 }}
+              transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <div className="p-2 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
                 <Phone className="w-5 h-5 text-teal-600" />
@@ -222,7 +223,8 @@ export default function InteractiveCard3D({
             {/* Email */}
             <motion.div
               className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-              whileHover={{ x: 5 }}
+              whileHover={{ x: 3 }}
+              transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
                 <Mail className="w-5 h-5 text-emerald-600" />
@@ -236,7 +238,8 @@ export default function InteractiveCard3D({
             {/* Website */}
             <motion.div
               className="flex items-center gap-4 p-3 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer group"
-              whileHover={{ x: 5 }}
+              whileHover={{ x: 3 }}
+              transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <div className="p-2 bg-cyan-100 rounded-lg group-hover:bg-cyan-200 transition-colors">
                 <Globe className="w-5 h-5 text-cyan-600" />

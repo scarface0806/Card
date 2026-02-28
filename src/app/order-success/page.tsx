@@ -34,7 +34,7 @@ function OrderSuccessContent() {
 
   return (
     <main className="pt-32 pb-20 min-h-screen flex items-center">
-      <div className="container mx-auto max-w-3xl px-4 w-full">
+      <div className="site-container w-full">
         <motion.div
           variants={containerVariants}
           initial="hidden"

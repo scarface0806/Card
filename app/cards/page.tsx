@@ -81,7 +81,7 @@ export default function CardsPage() {
     <>
       <Navbar />
       <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
-        <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+        <div className="site-container">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -101,7 +101,7 @@ export default function CardsPage() {
               </span>
             </h1>
             <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
-              Choose your style. Lifetime digital website included.
+              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>.
             </p>
           </motion.div>
 
@@ -179,7 +179,7 @@ export default function CardsPage() {
                       {card.type === 'custom' ? '₹599' : card.price}
                     </p>
                     <p className="text-sm text-[#4b635d]">
-                      {card.type === 'custom' ? 'Base NFC Card Price' : 'Includes Free Lifetime Website'}
+                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>}
                     </p>
                   </div>
 
@@ -236,7 +236,7 @@ export default function CardsPage() {
 
       {/* Lifetime Website Info Section */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+        <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -247,7 +247,7 @@ export default function CardsPage() {
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-10">
                 <h2 className="text-3xl md:text-4xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
-                  Every Card Includes a Free Lifetime Website
+                  Every Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>
                 </h2>
                 <p className="text-lg text-[#4b635d]">
                   Your personal digital profile that works forever — no hidden costs.
@@ -278,7 +278,7 @@ export default function CardsPage() {
 
       {/* Need Help Choosing Section */}
       <section className="py-20 bg-white">
-        <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+        <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

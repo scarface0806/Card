@@ -94,7 +94,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="relative bg-white rounded-3xl shadow-lg max-w-md w-full p-10 pointer-events-auto\">
+            <div className="relative bg-white rounded-3xl shadow-lg max-w-md w-full p-10 pointer-events-auto">
               {/* Close Button */}
               <button
                 onClick={onClose}

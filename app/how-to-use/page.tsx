@@ -54,7 +54,7 @@ export default function HowToUsePage() {
             <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl" />
           </div>
 
-          <div className="container mx-auto max-w-5xl px-4 lg:px-8 text-center">
+          <div className="site-container text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -92,7 +92,7 @@ export default function HowToUsePage() {
 
         {/* Steps Section */}
         <section className="py-16 md:py-24">
-          <div className="container mx-auto max-w-6xl px-4 lg:px-8">
+          <div className="site-container">
             <div className="space-y-8">
               {steps.map((step, index) => (
                 <motion.div
@@ -129,7 +129,11 @@ export default function HowToUsePage() {
                       {step.highlight && (
                         <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-full">
                           <CheckCircle2 className="w-4 h-4 text-teal-600" />
-                          <span className="text-sm font-semibold text-teal-700">{step.highlight}</span>
+                          <span className="text-sm font-semibold text-teal-700">
+                            {step.highlight === 'Free Lifetime Website Included' ? (
+                              <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="hover:text-teal-800">Free Lifetime Website</a>
+                            ) : step.highlight}
+                          </span>
                         </div>
                       )}
                     </div>
@@ -147,7 +151,7 @@ export default function HowToUsePage() {
 
         {/* Benefits Section */}
         <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto max-w-5xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               {...fadeInUp}
               className="text-center mb-12"
@@ -188,7 +192,7 @@ export default function HowToUsePage() {
 
         {/* Customization CTA Section */}
         <section className="py-16 md:py-24">
-          <div className="container mx-auto max-w-5xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -209,7 +213,7 @@ export default function HowToUsePage() {
                   Contact our team to modify design, add features, or personalize your NFC experience.
                 </p>
                 <Link href={ROUTES.CONTACT}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-700 font-semibold rounded-full hover:bg-teal-50 transition-all duration-300 shadow-lg hover:shadow-xl hover:scale-[1.03] group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-700 font-semibold rounded-full hover:bg-teal-50 transition-all duration-220 shadow-lg hover:shadow-xl hover:-translate-y-1 group">
                     <span>Contact Us</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
@@ -221,7 +225,7 @@ export default function HowToUsePage() {
 
         {/* Final CTA */}
         <section className="py-16 md:py-24 bg-white">
-          <div className="container mx-auto max-w-4xl px-4 lg:px-8 text-center">
+          <div className="site-container text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -235,9 +239,9 @@ export default function HowToUsePage() {
                 Order your premium NFC digital business card today and start networking smarter.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href={ROUTES.ORDER}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 hover:shadow-lg text-white font-semibold rounded-full transition-all duration-300 shadow-md hover:scale-[1.03] group">
-                    <span>Order Now</span>
+                <Link href={ROUTES.CREATE_CARD}>
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 hover:shadow-lg text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:-translate-y-1 group">
+                    <span>Create Your Card</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </Link>

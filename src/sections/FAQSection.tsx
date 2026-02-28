@@ -51,24 +51,24 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-white">
+    <section className="relative w-full section-spacing overflow-hidden bg-white">
       {/* Content Container */}
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12 relative z-10">
+      <div className="site-container relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="text-center mb-12 md:mb-14"
+          className="section-header"
         >
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             Frequently Asked{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-gradient">
               Questions
             </span>
           </h2>
-          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="body-lg section-subtitle">
             Everything you need to know about Tapvyo NFC cards
           </p>
         </motion.div>
@@ -98,7 +98,7 @@ export default function FAQSection() {
                   hover:shadow-md"
               >
                 {/* Question Text */}
-                <span className="text-base md:text-lg font-semibold text-gray-900 pr-4 leading-relaxed hover:text-teal-700 transition-colors duration-300">
+                <span className="body-lg font-semibold text-gray-900 pr-4 leading-relaxed hover:text-teal-700 transition-colors duration-300">
                   {item.title}
                 </span>
 
@@ -122,7 +122,7 @@ export default function FAQSection() {
                     transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="px-6 md:px-7 py-5 md:py-6 text-gray-700 leading-relaxed text-sm md:text-base
+                    <div className="px-6 md:px-7 py-5 md:py-6 body-base text-gray-700 leading-relaxed
                       border-t border-gray-200 mt-0.5 ml-0 mr-0
                       bg-gray-50 rounded-b-xl md:rounded-b-2xl">
                       {item.content}
@@ -142,11 +142,11 @@ export default function FAQSection() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="mt-14 md:mt-16 text-center"
         >
-          <p className="text-gray-600 mb-4">Still have questions?</p>
+          <p className="body-base text-gray-600 mb-4">Still have questions?</p>
           <a
             href="#contact"
             className="inline-block px-8 py-3 bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-semibold
-              rounded-xl hover:shadow-lg hover:shadow-teal-600/30 transition-all duration-300 transform hover:scale-105"
+              rounded-xl hover:shadow-lg transition-all duration-220 hover:-translate-y-1"
           >
             Get in Touch
           </a>

@@ -118,7 +118,7 @@ function CreateCardContent() {
     <>
       <Navbar />
       <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
-        <div className="container mx-auto max-w-6xl px-4 lg:px-8">
+        <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -160,10 +160,11 @@ function CreateCardContent() {
                     {currentStep > 1 && (
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ y: 1 }}
+                        transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                         onClick={() => setCurrentStep(currentStep - 1)}
-                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-300"
+                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-220"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         Previous
@@ -171,10 +172,11 @@ function CreateCardContent() {
                     )}
                     <motion.button
                       type="submit"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ y: 1 }}
+                      transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                       disabled={isSubmitting}
-                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-220 disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />

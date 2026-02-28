@@ -56,35 +56,35 @@ interface OtherCardsSolutionsSectionProps {
 
 export default function OtherCardsSolutionsSection({ onContactClick }: OtherCardsSolutionsSectionProps) {
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-white">
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12">
+    <section className="section-spacing bg-white">
+      <div className="site-container">
           {/* Section Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-12 md:mb-14"
+            className="section-header"
           >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full mb-6">
-              <Sparkles className="w-4 h-4 text-teal-600" />
-              <span className="text-sm font-medium text-teal-700">Enterprise Solutions</span>
+            <div className="section-badge">
+              <Sparkles className="w-4 h-4" />
+              <span>Enterprise Solutions</span>
             </div>
 
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+            <h2 className="heading-1 section-title font-space-grotesk">
               Other NFC Card{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-gradient">
                 Solutions
               </span>
             </h2>
-            <p className="text-base md:text-lg text-[#4b635d] max-w-2xl mx-auto">
+            <p className="body-lg section-subtitle">
               Bulk NFC card solutions for schools, businesses, and organizations.
             </p>
           </motion.div>
 
           {/* Cards Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {bulkSolutions.map((solution, idx) => (
               <motion.div
                 key={solution.id}
@@ -112,7 +112,7 @@ export default function OtherCardsSolutionsSection({ onContactClick }: OtherCard
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-center mt-16"
           >
-            <p className="text-[#6b7f78]">
+            <p className="body-base text-[#6b7f78]">
               Need a custom solution?{' '}
               <button
                 onClick={() => onContactClick('custom')}

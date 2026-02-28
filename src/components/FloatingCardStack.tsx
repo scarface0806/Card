@@ -57,10 +57,10 @@ export default function FloatingCardStack({ onMouseMove }: FloatingCardStackProp
               rotateZ: isHovered ? card.rotation * 1.2 : card.rotation,
             }}
             transition={{
-              type: 'spring',
-              stiffness: 200,
-              damping: 30,
-              delay: index * 0.05,
+              type: 'tween',
+              duration: 0.32,
+              ease: [0.25, 0.1, 0.25, 1],
+              delay: index * 0.03,
             }}
           >
             {/* Card Body */}
@@ -92,9 +92,9 @@ export default function FloatingCardStack({ onMouseMove }: FloatingCardStackProp
                   </div>
                   <motion.div
                     animate={{
-                      scale: isHovered ? 1.2 : 1,
+                      scale: isHovered ? 1.1 : 1,
                     }}
-                    transition={{ duration: 0.3 }}
+                    transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                     className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center"
                   >
                     <Wifi className="w-4 h-4 text-white rotate-45" />

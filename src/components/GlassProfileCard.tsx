@@ -35,7 +35,8 @@ export default function GlassProfileCard() {
         {/* Phone */}
         <motion.div
           className="flex items-center gap-3 group cursor-pointer"
-          whileHover={{ x: 4 }}
+          whileHover={{ x: 3 }}
+          transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/10 to-teal-500/10 
                           flex items-center justify-center border border-cyan-400/20
@@ -51,7 +52,8 @@ export default function GlassProfileCard() {
         {/* Email */}
         <motion.div
           className="flex items-center gap-3 group cursor-pointer"
-          whileHover={{ x: 4 }}
+          whileHover={{ x: 3 }}
+          transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/10 to-teal-500/10 
                           flex items-center justify-center border border-cyan-400/20
@@ -67,7 +69,8 @@ export default function GlassProfileCard() {
         {/* Website */}
         <motion.div
           className="flex items-center gap-3 group cursor-pointer"
-          whileHover={{ x: 4 }}
+          whileHover={{ x: 3 }}
+          transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
           <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/10 to-teal-500/10 
                           flex items-center justify-center border border-cyan-400/20

@@ -40,7 +40,7 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
             transition={{ duration: 0.3, ease: 'easeOut' }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="relative bg-white rounded-3xl shadow-lg max-w-lg w-full p-8 pointer-events-auto\">
+            <div className="relative bg-white rounded-3xl shadow-lg max-w-lg w-full p-8 pointer-events-auto">
               {/* Close Button */}
               <button
                 onClick={onClose}
@@ -117,7 +117,7 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                   <p className="text-2xl font-bold text-teal-700 mb-2">{card.price}</p>
                 )}
                 <p className="text-sm text-[#4b635d]">
-                  Includes Free Lifetime Website
+                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 relative z-10 cursor-pointer" onClick={(e) => e.stopPropagation()}>Free Lifetime Website</a>
                 </p>
               </div>
             </div>

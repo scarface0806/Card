@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Smartphone, Zap, Shield, Globe, BarChart3, Lock } from 'lucide-react';
+import { Smartphone, Zap, Shield, Globe, BarChart3, Lock, ArrowRight } from 'lucide-react';
+import { ROUTES } from '@/utils/constants';
 
 const features = [
   {
@@ -57,37 +59,36 @@ const itemVariants = {
 
 export default function FeaturesSection() {
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-white">
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12">
+    <section className="section-spacing bg-white">
+      <div className="site-container">
+        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          className="section-header"
         >
-          {/* Small Label */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full mb-6">
-            <span className="text-sm font-medium text-teal-700">Why Choose Us</span>
+          <div className="section-badge">
+            <span>Why Choose Us</span>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             Powerful{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
-              Features
-            </span>
+            <span className="text-gradient">Features</span>
           </h2>
-          <p className="text-base md:text-lg text-[#4b635d] max-w-2xl mx-auto">
+          <p className="body-lg section-subtitle">
             Everything you need to make a lasting impression
           </p>
         </motion.div>
 
+        {/* Features Grid - 3 columns */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {features.map((feature, index) => {
             const Icon = feature.icon;
@@ -96,16 +97,37 @@ export default function FeaturesSection() {
                 key={index}
                 variants={itemVariants}
                 whileHover={{ y: -4 }}
-                className="bg-white rounded-2xl p-8 border border-teal-100 shadow-md hover:shadow-lg hover:border-teal-200 transition-all duration-300"
+                className="card card-padding"
               >
-                <div className="w-14 h-14 rounded-xl bg-teal-50 flex items-center justify-center mb-6">
-                  <Icon className="w-7 h-7 text-teal-600" />
+                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-teal-50 flex items-center justify-center mb-4 md:mb-6">
+                  <Icon className="w-6 h-6 md:w-7 md:h-7 text-teal-600" />
                 </div>
-                <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk mb-3">{feature.title}</h3>
-                <p className="text-[#4b635d] leading-relaxed">{feature.description}</p>
+                <h3 className="heading-3 text-[#0f2e25] font-space-grotesk mb-2 md:mb-3">{feature.title}</h3>
+                <p className="body-base text-[#4b635d]">{feature.description}</p>
               </motion.div>
             );
           })}
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center mt-12 md:mt-16"
+        >
+          <Link href={ROUTES.CREATE_CARD}>
+            <motion.button
+              whileHover={{ y: -3 }}
+              whileTap={{ y: 1 }}
+              className="btn btn-lg btn-primary"
+            >
+              Get Your Card Now
+              <ArrowRight className="w-5 h-5" />
+            </motion.button>
+          </Link>
+          <p className="body-base text-gray-500 mt-3"><a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a></p>
         </motion.div>
       </div>
     </section>

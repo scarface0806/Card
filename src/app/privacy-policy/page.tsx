@@ -42,7 +42,7 @@ export default function PrivacyPolicyPage() {
     <>
       <Navbar />
       <main className="pt-32 pb-20 min-h-screen bg-gray-50">
-        <div className="container mx-auto max-w-4xl px-4">
+        <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}

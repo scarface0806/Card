@@ -99,7 +99,7 @@ export default function ProductsPage() {
             <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
           </div>
 
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8 text-center">
+          <div className="site-container text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -137,7 +137,7 @@ export default function ProductsPage() {
 
         {/* Pricing Cards */}
         <section className="py-20 md:py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <div className="grid md:grid-cols-3 gap-8">
               {products.map((product, index) => {
                 const Icon = product.icon;
@@ -216,7 +216,7 @@ export default function ProductsPage() {
 
         {/* Features Showcase */}
         <section className="py-20 md:py-32">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Why Choose Tapvyo?</h2>
               <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
@@ -251,7 +251,7 @@ export default function ProductsPage() {
 
         {/* Comparison Table */}
         <section className="py-20 md:py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Detailed Comparison</h2>
             </motion.div>
@@ -297,7 +297,7 @@ export default function ProductsPage() {
 
         {/* FAQ */}
         <section className="py-20 md:py-32">
-          <div className="container mx-auto max-w-4xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Common Questions</h2>
             </motion.div>
@@ -339,7 +339,7 @@ export default function ProductsPage() {
 
         {/* CTA */}
         <section className="py-20 md:py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -351,7 +351,7 @@ export default function ProductsPage() {
               <p className="text-lg text-[#4b635d] mb-8 max-w-2xl mx-auto relative z-10">
                 Choose your plan and start sharing professionally today
               </p>
-              <Link href={ROUTES.ORDER}>
+              <Link href={ROUTES.CREATE_CARD}>
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}

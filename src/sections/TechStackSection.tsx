@@ -189,12 +189,13 @@ interface TechLogoProps {
 function TechLogo({ name, svg, color }: TechLogoProps) {
   return (
     <motion.div
-      whileHover={{ scale: 1.1 }}
+      whileHover={{ y: -3 }}
+      transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
       className="flex-shrink-0 flex flex-col items-center gap-3 cursor-default group"
     >
       {/* Logo Container */}
       <div
-        className={`w-16 h-16 md:w-20 md:h-20 rounded-lg bg-gradient-to-br ${color} p-3 flex items-center justify-center shadow-sm group-hover:shadow-lg group-hover:shadow-teal-500/20 transition-all duration-300`}
+        className={`w-14 h-14 md:w-16 md:h-16 rounded-lg bg-gradient-to-br ${color} p-3 flex items-center justify-center shadow-sm group-hover:shadow-lg group-hover:shadow-teal-500/20 transition-all duration-300`}
       >
         <div className="w-full h-full flex items-center justify-center text-white filter grayscale-[80%] group-hover:grayscale-0 transition-all duration-300">
           {svg}
@@ -202,7 +203,7 @@ function TechLogo({ name, svg, color }: TechLogoProps) {
       </div>
 
       {/* Label */}
-      <span className="text-xs md:text-sm font-semibold text-gray-700 group-hover:text-teal-600 transition-colors duration-300 whitespace-nowrap text-center">
+      <span className="body-base font-semibold text-gray-700 group-hover:text-teal-600 transition-colors duration-300 whitespace-nowrap text-center">
         {name}
       </span>
     </motion.div>
@@ -211,23 +212,23 @@ function TechLogo({ name, svg, color }: TechLogoProps) {
 
 export default function TechStackSection() {
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-gradient-to-b from-white/80 via-white to-[#f8fffe] overflow-hidden">
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12 mb-20">
+    <section className="section-spacing bg-gradient-to-b from-white/80 via-white to-[#f8fffe] overflow-hidden">
+      <div className="site-container mb-20">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center"
+          className="section-header !mb-0"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             Our Technology{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-gradient">
               Stack
             </span>
           </h2>
-          <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
+          <p className="body-lg section-subtitle">
             Technologies powering our digital solutions.
           </p>
         </motion.div>

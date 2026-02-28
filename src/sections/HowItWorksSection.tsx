@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { UserPlus, Cpu, Share2 } from 'lucide-react';
+import { UserPlus, Cpu, Share2, ArrowRight } from 'lucide-react';
+import { ROUTES } from '@/utils/constants';
 
 const steps = [
   {
@@ -46,45 +48,40 @@ const itemVariants = {
 
 export default function HowItWorksSection() {
   return (
-    <section className="relative py-16 md:py-20 lg:py-24 bg-white overflow-hidden">
-      {/* Subtle background gradient - minimal */}
+    <section className="relative section-spacing bg-white overflow-hidden">
+      {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-white to-white pointer-events-none" />
 
-      <div className="relative container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12">
-        {/* Header - Centered */}
+      <div className="relative site-container">
+        {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-100px' }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-14"
+          className="section-header"
         >
-          {/* Small Label */}
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-teal-50 border border-teal-200 rounded-full mb-4">
-            <span className="text-xs font-semibold text-teal-700 uppercase tracking-wide">How It Works</span>
+          <div className="section-badge">
+            <span>How It Works</span>
           </div>
 
-          {/* Main Heading */}
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk leading-tight mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             NFC Sharing in{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
-              3 Simple Steps
-            </span>
+            <span className="text-gradient">3 Simple Steps</span>
           </h2>
 
-          {/* Subheading */}
-          <p className="text-base md:text-lg text-[#4b635d] max-w-2xl mx-auto leading-relaxed">
+          <p className="body-lg section-subtitle">
             Set up your digital profile and start sharing instantly.
           </p>
         </motion.div>
 
-        {/* Steps Grid - Clean 3 Column Layout */}
+        {/* Steps Grid - 3 columns */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
         >
           {steps.map((step, index) => {
             const Icon = step.icon;
@@ -93,47 +90,52 @@ export default function HowItWorksSection() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                whileHover={{
-                  y: -6,
-                  transition: { duration: 0.2 },
-                }}
+                whileHover={{ y: -6, transition: { duration: 0.2 } }}
                 className="group relative"
               >
-                {/* Premium Card */}
-                <div className="h-full bg-white rounded-3xl p-8 border border-gray-200 shadow-sm hover:shadow-lg transition-shadow duration-200">
-                  {/* Step Badge - Top Right Corner */}
-                  <div className="absolute top-6 right-6">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-teal-50 border border-teal-200">
-                      <span className="text-xs font-bold text-teal-700">{index + 1}</span>
-                    </div>
-                  </div>
-
-                  {/* Icon Container - Top */}
+                <div className="h-full card card-padding">
+                  {/* Icon */}
                   <motion.div
                     className="flex items-center justify-center mb-6"
-                    whileHover={{
-                      scale: 1.08,
-                      transition: { duration: 0.2 },
-                    }}
+                    whileHover={{ y: -2, transition: { duration: 0.22 } }}
                   >
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/30 group-hover:shadow-teal-500/50 transition-shadow duration-200">
-                      <Icon className="w-7 h-7 text-white" />
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
+                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
                     </div>
                   </motion.div>
 
-                  {/* Title - Middle */}
-                  <h3 className="text-xl font-bold text-[#0f2e25] mb-3 text-center leading-snug">
+                  <h3 className="heading-3 text-[#0f2e25] mb-2 md:mb-3 text-center">
                     {step.title}
                   </h3>
 
-                  {/* Description - Below */}
-                  <p className="text-[#4b635d] text-center leading-relaxed text-sm">
+                  <p className="body-base text-[#4b635d] text-center">
                     {step.description}
                   </p>
                 </div>
               </motion.div>
             );
           })}
+        </motion.div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+          className="text-center mt-12 md:mt-16"
+        >
+          <Link href={ROUTES.CREATE_CARD}>
+            <motion.button
+              whileHover={{ y: -3 }}
+              whileTap={{ y: 1 }}
+              className="btn btn-lg btn-primary"
+            >
+              Start Creating Now
+              <ArrowRight className="w-5 h-5" />
+            </motion.button>
+          </Link>
+          <p className="body-base text-gray-500 mt-3">Takes less than 5 minutes</p>
         </motion.div>
       </div>
     </section>

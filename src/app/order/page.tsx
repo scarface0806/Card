@@ -99,7 +99,7 @@ export default function OrderPage() {
     <>
       <Navbar />
       <main className="pt-32 pb-20 min-h-screen bg-gray-50">
-        <div className="container mx-auto max-w-6xl px-4">
+        <div className="site-container">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}

@@ -25,6 +25,7 @@ export const ROUTES = {
   FEATURES: '/features',
   CARDS: '/cards',
   HOW_IT_WORKS: '/how-it-works',
+  CREATE_CARD: '/create-card',
   COMPANY: '/company',
   ABOUT: '/about-us',
   HOW_TO_USE: '/how-to-use',

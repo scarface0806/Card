@@ -55,27 +55,27 @@ export default function PricingPreviewSection() {
   };
 
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-white">
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12">
+    <section className="section-spacing bg-white">
+      <div className="site-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-14"
+          className="section-header"
         >
           {/* Small Label */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full mb-6">
-            <span className="text-sm font-medium text-teal-700">Pricing</span>
+          <div className="section-badge">
+            <span>Pricing</span>
           </div>
           
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             Simple, Transparent{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-gradient">
               Pricing
             </span>
           </h2>
-          <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
+          <p className="body-lg section-subtitle">
             Choose the plan that works best for you
           </p>
         </motion.div>
@@ -93,7 +93,7 @@ export default function PricingPreviewSection() {
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-3 gap-8"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
           >
             {plans.map((plan) => (
               <motion.div
@@ -111,9 +111,9 @@ export default function PricingPreviewSection() {
                     Most Popular
                   </div>
                 )}
-                <div className="p-8">
-                  <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk mb-2">{plan.name}</h3>
-                  <p className="text-[#6b7f78] text-sm mb-6">{plan.description}</p>
+                <div className="card-padding">
+                  <h3 className="heading-3 section-title font-space-grotesk mb-2">{plan.name}</h3>
+                  <p className="body-base text-[#6b7f78] mb-6">{plan.description}</p>
 
                   <div className="mb-6">
                     <span className="text-4xl font-bold text-[#0f2e25]">

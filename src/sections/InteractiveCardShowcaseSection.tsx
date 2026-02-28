@@ -15,23 +15,23 @@ export default function InteractiveCardShowcaseSection() {
   const [selectedCard, setSelectedCard] = useState(0);
 
   return (
-    <section className="relative w-full py-16 md:py-20 lg:py-24 overflow-hidden bg-white">
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12 relative z-10">
+    <section className="relative w-full section-spacing overflow-hidden bg-white">
+      <div className="site-container relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="text-center mb-12 md:mb-14"
+          className="section-header"
         >
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-bold text-gray-900 mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             Your Card.{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-gradient">
               In Motion.
             </span>
           </h2>
-          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="body-lg section-subtitle">
             See your NFC card come to life. Interact, rotate, and transform.
           </p>
         </motion.div>
@@ -59,10 +59,10 @@ export default function InteractiveCardShowcaseSection() {
             <motion.button
               key={variant.id}
               onClick={() => setSelectedCard(idx)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 25 }}
-              className={`px-6 md:px-7 py-2.5 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-300 whitespace-nowrap ${
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 1 }}
+              transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+              className={`px-6 md:px-7 py-2.5 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-220 whitespace-nowrap ${
                 selectedCard === idx
                   ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'

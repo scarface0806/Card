@@ -203,10 +203,15 @@ export default function ServicesPage() {
     <>
       <Navbar />
 
-      {/* Hero Banner - 100vh, Centered, Antigravity Design */}
-      <section className="relative w-full min-h-screen max-h-screen flex items-center justify-center overflow-hidden bg-white">
-        <div className="w-full min-h-screen flex items-center justify-center">
-          <div className="container mx-auto max-w-5xl px-6 sm:px-8 md:px-10 lg:px-12">
+      {/* Hero Banner - Premium Compact Design */}
+      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-20 lg:pt-44 lg:pb-24 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
+        {/* Background decorations */}
+        <div className="absolute inset-0 -z-10">
+          <div className="absolute top-20 right-10 w-72 h-72 bg-teal-200/20 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl" />
+        </div>
+        
+        <div className="site-container">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -214,7 +219,7 @@ export default function ServicesPage() {
                 staggerChildren: 0.12,
                 delayChildren: 0.2,
               }}
-              className="w-full text-center space-y-12 md:space-y-16"
+              className="w-full text-center space-y-6 md:space-y-8"
             >
               {/* Badge */}
               <motion.div
@@ -230,15 +235,14 @@ export default function ServicesPage() {
                 </div>
               </motion.div>
 
-              {/* Headline - Ultra Bold */}
+              {/* Headline - Single Line */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.1 }}
               >
-                <h1 className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-black leading-tight text-gray-900 tracking-tight">
-                  Our
-                  <br />
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-tight text-gray-900 tracking-tight">
+                  Our{' '}
                   <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                     Services
                   </span>
@@ -250,7 +254,7 @@ export default function ServicesPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.2 }}
-                className="text-lg md:text-xl text-gray-600 leading-relaxed max-w-3xl mx-auto"
+                className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto px-4"
               >
                 Comprehensive digital solutions to grow your brand and connect with your audience.
               </motion.p>
@@ -260,13 +264,13 @@ export default function ServicesPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.3 }}
-                className="flex justify-center pt-8"
+                className="flex justify-center pt-4"
               >
                 <motion.button
-                  whileHover={{ y: -4, boxShadow: '0 20px 40px rgba(13, 148, 136, 0.15)' }}
-                  whileTap={{ y: -2 }}
-                  transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-                  className="group inline-flex items-center justify-center gap-2 px-10 py-4 rounded-xl font-bold text-white text-lg bg-gradient-to-r from-teal-600 to-emerald-500 hover:shadow-2xl transition-all duration-300"
+                  whileHover={{ y: -3 }}
+                  whileTap={{ y: 1 }}
+                  transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-3 md:px-10 md:py-4 rounded-xl font-bold text-white text-base md:text-lg bg-gradient-to-r from-teal-600 to-emerald-500 shadow-md transition-shadow duration-220"
                 >
                   Get Started Now
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -274,11 +278,10 @@ export default function ServicesPage() {
               </motion.div>
             </motion.div>
           </div>
-        </div>
       </section>
 
       <main className="min-h-screen bg-white">
-        <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12 py-16 md:py-20 lg:py-24">
+        <div className="site-container py-16 md:py-20 lg:py-24">
 
           {/* Section 1: NFC Card Solutions */}
           <section className="mb-24">
@@ -468,7 +471,7 @@ export default function ServicesPage() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative z-10 container mx-auto max-w-5xl px-4 lg:px-8 text-center"
+          className="relative z-10 site-container text-center"
         >
           <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-space-grotesk mb-6 leading-tight">
             Let&apos;s Build Something{' '}
@@ -484,7 +487,7 @@ export default function ServicesPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => openContactModal('general')}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-900 font-semibold rounded-full hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-900 font-semibold rounded-full hover:-translate-y-1 transition-all duration-220 shadow-lg hover:shadow-xl"
             >
               <span>Talk to Our Team</span>
               <ArrowRight className="w-5 h-5" />

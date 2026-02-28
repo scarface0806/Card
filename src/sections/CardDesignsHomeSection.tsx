@@ -52,30 +52,46 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
   return (
     <>
-      <section className="py-16 md:py-20 lg:py-24 bg-white">
-        <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12">
+      <section className="section-spacing bg-white">
+        <div className="site-container">
           {/* Header */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="text-center mb-16"
+            className="section-header"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full mb-6">
-              <Sparkles className="w-4 h-4 text-teal-600" />
-              <span className="text-sm font-medium text-teal-700">Premium NFC Cards</span>
+            <div className="section-badge">
+              <Sparkles className="w-4 h-4" />
+              <span>Premium NFC Cards</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+            <h2 className="heading-1 section-title font-space-grotesk">
               Our NFC{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-gradient">
                 Card Designs
               </span>
             </h2>
-            <p className="text-base md:text-lg text-[#4b635d] max-w-2xl mx-auto">
-              Choose your style. Lifetime digital website included.
+            <p className="body-lg section-subtitle">
+              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>.
             </p>
+
+            {/* Subtle urgency signal */}
+            <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
+              <span className="inline-flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
+                <Check className="w-4 h-4 text-teal-600" />
+                No Hidden Charges
+              </span>
+              <span className="inline-flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
+                <Check className="w-4 h-4 text-teal-600" />
+                No Renewal Fees
+              </span>
+              <span className="inline-flex items-center gap-2 text-sm text-amber-700 bg-amber-50 px-4 py-2 rounded-full font-medium">
+                <Sparkles className="w-4 h-4" />
+                Limited Custom Designs Available
+              </span>
+            </div>
           </motion.div>
 
           {/* Card Grid */}
@@ -84,13 +100,13 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 items-stretch"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20 items-stretch"
           >
             {cardDesigns.map((card) => (
               <motion.div
                 key={card.id}
                 variants={itemVariants}
-                className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-teal-100 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
+                className="group flex flex-col h-full card overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
               >
                 {/* Card Preview */}
                 <div className="relative aspect-[1.6/1] overflow-hidden">
@@ -129,31 +145,20 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                 </div>
 
                 {/* Card Details */}
-                <div className="flex flex-col flex-grow p-6">
-                  <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">
+                <div className="flex flex-col flex-grow card-padding">
+                  <div className="mb-3">
+                    <h3 className="heading-3 section-title font-space-grotesk">
                       {card.name}
                     </h3>
-                    <span
-                      className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                        card.type === 'premium'
-                          ? 'bg-amber-100 text-amber-700'
-                          : card.type === 'custom'
-                          ? 'bg-purple-100 text-purple-700'
-                          : 'bg-teal-100 text-teal-700'
-                      }`}
-                    >
-                      {card.type === 'custom' ? 'Custom' : card.type === 'premium' ? 'Premium' : 'Basic'}
-                    </span>
                   </div>
 
                   {/* Price Section */}
                   <div className="mb-3">
-                    <p className="text-2xl font-bold text-teal-700">
+                    <p className="heading-3 text-teal-700">
                       {card.type === 'custom' ? '₹599' : card.price}
                     </p>
-                    <p className="text-sm text-[#4b635d]">
-                      {card.type === 'custom' ? 'Base NFC Card Price' : 'Includes Free Lifetime Website'}
+                    <p className="body-base text-[#4b635d]">
+                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>}
                     </p>
                   </div>
 
@@ -212,16 +217,16 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
             className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-3xl p-10 md:p-14 border border-teal-100"
           >
             <div className="max-w-3xl mx-auto text-center">
-              <h3 className="text-3xl md:text-4xl font-bold text-[#0f2e25] font-space-grotesk mb-3">
-                Every NFC Card Includes a Free Lifetime Website
+              <h3 className="heading-1 text-[#0f2e25] font-space-grotesk mb-3">
+                Every NFC Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>
               </h3>
-              <p className="text-lg text-[#4b635d] mb-8">
+              <p className="body-lg text-[#4b635d] mb-8">
                 No hidden charges. No renewal fees.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href={ROUTES.ORDER}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 group">
+                <Link href={ROUTES.CREATE_CARD}>
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-1 group">
                     <span>Get Your NFC Card</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>

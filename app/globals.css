@@ -1,74 +1,597 @@
 @import "tailwindcss";
 
+/* ========================================
+   DESIGN TOKENS - Color System
+   Single source of truth for all colors
+   ======================================== */
 :root {
-  --background: #f4f7f6;
-  --foreground: #0f2e25;
-  --accent: #0f766e;
-  --accent-soft: #14b8a6;
-  --text-primary: #0f2e25;
-  --text-secondary: #4b635d;
-  --text-muted: #6b7f78;
+  /* Primary Colors */
+  --color-primary: #0f766e;
+  --color-primary-dark: #0d5f59;
+  --color-primary-light: #14b8a6;
+  --color-primary-soft: rgba(15, 118, 110, 0.08);
+  
+  /* Text Colors */
+  --color-text-dark: #0f2e25;
+  --color-text-medium: #3d5a52;
+  --color-text-light: #6b7f78;
+  --color-text-muted: #94a3a0;
+  
+  /* Background Colors */
+  --color-bg-base: #ffffff;
+  --color-bg-subtle: #f8fafa;
+  --color-bg-muted: #f0f5f4;
+  
+  /* Border Colors */
+  --color-border-light: rgba(15, 118, 110, 0.08);
+  --color-border-medium: rgba(15, 118, 110, 0.15);
+  --color-border-dark: rgba(15, 118, 110, 0.25);
+  
+  /* Shadow Colors */
+  --shadow-color: 166 46% 25%;
+  
+  /* ========================================
+     MOTION SYSTEM - Premium, Restrained
+     Fast: 150ms | Standard: 220ms | Slow: 320ms
+     Single easing: No bounce, no spring
+     ======================================== */
+  --duration-fast: 150ms;
+  --duration-standard: 220ms;
+  --duration-slow: 320ms;
+  
+  /* Premium easing - smooth, no overshoot */
+  --ease-premium: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out-premium: cubic-bezier(0.33, 1, 0.68, 1);
+  
+  /* Button interaction values */
+  --btn-hover-lift: -3px;
+  --btn-press-down: 1px;
+  --btn-hover-shadow: 0 6px 16px rgba(15, 118, 110, 0.15);
+  
+  /* Card interaction values */
+  --card-hover-lift: -4px;
+  --card-hover-shadow: 0 8px 24px rgba(15, 118, 110, 0.08);
+  
+  /* Legacy aliases for compatibility */
+  --transition-fast: var(--duration-fast);
+  --transition-base: var(--duration-standard);
+  --transition-slow: var(--duration-slow);
+  --ease-out: var(--ease-premium);
+  --ease-in-out: var(--ease-out-premium);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: var(--color-bg-base);
+  --color-foreground: var(--color-text-dark);
   --font-inter: var(--font-inter);
   --font-space-grotesk: var(--font-space-grotesk);
 }
 
+/* ========================================
+   BASE STYLES
+   ======================================== */
 html {
   scroll-behavior: smooth;
   color-scheme: light;
 }
 
 body {
-  background: linear-gradient(to bottom right, #f4f7f6, #e8f2ef, #ffffff);
-  color: var(--foreground);
+  background: var(--color-bg-base);
+  color: var(--color-text-dark);
   font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Premium Gradient Utilities */
-.bg-gradient-radial {
-  background: radial-gradient(circle, var(--tw-gradient-stops));
+/* ========================================
+   TYPOGRAPHY SYSTEM
+   Strict scale: Display/H1/H2/H3/Body-lg/Body/Small
+   ======================================== */
+
+/* Display - Hero headlines: 64-72px */
+.heading-display {
+  font-size: 2.75rem;
+  line-height: 1.08;
+  font-weight: 800;
+  letter-spacing: -0.025em;
+  color: var(--color-text-dark);
 }
 
-.text-gradient-teal {
-  background: linear-gradient(to right, #0f766e, #14b8a6);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-/* Soft Shadow Utilities */
-.shadow-soft {
-  box-shadow: 0 4px 20px rgba(15, 118, 110, 0.08);
-}
-
-.shadow-soft-lg {
-  box-shadow: 0 8px 30px rgba(15, 118, 110, 0.12);
-}
-
-/* Animation Classes */
-@keyframes float {
-  0%, 100% {
-    transform: translateY(-8px);
-  }
-  50% {
-    transform: translateY(8px);
+@media (min-width: 640px) {
+  .heading-display {
+    font-size: 3.5rem;
   }
 }
 
-.animate-float {
-  animation: float 6s ease-in-out infinite;
+@media (min-width: 1024px) {
+  .heading-display {
+    font-size: 4rem;
+    line-height: 1.05;
+  }
 }
 
-@keyframes fade-in-up {
+@media (min-width: 1280px) {
+  .heading-display {
+    font-size: 4.5rem;
+  }
+}
+
+/* H1 - Section titles: 40-48px */
+.heading-1 {
+  font-size: 2rem;
+  line-height: 1.15;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-text-dark);
+}
+
+@media (min-width: 768px) {
+  .heading-1 {
+    font-size: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heading-1 {
+    font-size: 3rem;
+  }
+}
+
+/* H2 - Card titles, subsections: 28-32px */
+.heading-2 {
+  font-size: 1.5rem;
+  line-height: 1.2;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text-dark);
+}
+
+@media (min-width: 768px) {
+  .heading-2 {
+    font-size: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heading-2 {
+    font-size: 2rem;
+  }
+}
+
+/* H3 - Card titles, small headings: 20-24px */
+.heading-3 {
+  font-size: 1.125rem;
+  line-height: 1.3;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text-dark);
+}
+
+@media (min-width: 768px) {
+  .heading-3 {
+    font-size: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .heading-3 {
+    font-size: 1.5rem;
+  }
+}
+
+/* Body Large: 18-20px */
+.body-lg {
+  font-size: 1rem;
+  line-height: 1.65;
+  font-weight: 400;
+  color: var(--color-text-medium);
+}
+
+@media (min-width: 768px) {
+  .body-lg {
+    font-size: 1.125rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .body-lg {
+    font-size: 1.25rem;
+    line-height: 1.6;
+  }
+}
+
+/* Body Base: 16px */
+.body-base {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--color-text-medium);
+}
+
+@media (min-width: 768px) {
+  .body-base {
+    font-size: 1rem;
+  }
+}
+
+/* Small: 14px */
+.text-small {
+  font-size: 0.875rem;
+  line-height: 1.5;
+  font-weight: 400;
+  color: var(--color-text-light);
+}
+
+/* Label text */
+.text-label {
+  font-size: 0.75rem;
+  line-height: 1.4;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+/* ========================================
+   SHADOW SYSTEM - 3 Elevation Levels
+   Premium shadows: soft, barely visible
+   ======================================== */
+
+/* Level 1 - Subtle (cards at rest) */
+.shadow-1 {
+  box-shadow: 
+    0 1px 2px hsl(var(--shadow-color) / 0.02),
+    0 2px 4px hsl(var(--shadow-color) / 0.02),
+    0 4px 8px hsl(var(--shadow-color) / 0.02);
+}
+
+/* Level 2 - Medium (hover states, elevated cards) */
+.shadow-2 {
+  box-shadow: 
+    0 2px 4px hsl(var(--shadow-color) / 0.02),
+    0 4px 8px hsl(var(--shadow-color) / 0.03),
+    0 8px 16px hsl(var(--shadow-color) / 0.03),
+    0 16px 32px hsl(var(--shadow-color) / 0.02);
+}
+
+/* Level 3 - High (modals, dropdowns) */
+.shadow-3 {
+  box-shadow: 
+    0 4px 8px hsl(var(--shadow-color) / 0.02),
+    0 8px 16px hsl(var(--shadow-color) / 0.04),
+    0 16px 32px hsl(var(--shadow-color) / 0.04),
+    0 32px 64px hsl(var(--shadow-color) / 0.03);
+}
+
+/* ========================================
+   GLOBAL CONTAINER SYSTEM
+   Standardized spacing across all pages
+   ======================================== */
+.site-container {
+  width: 100%;
+  max-width: 1280px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 24px;
+  padding-right: 24px;
+}
+
+@media (min-width: 640px) {
+  .site-container {
+    padding-left: 48px;
+    padding-right: 48px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .site-container {
+    padding-left: 80px;
+    padding-right: 80px;
+  }
+}
+
+/* ========================================
+   8PT SPACING SCALE
+   Allowed: 8, 16, 24, 32, 40, 48, 64, 80, 96, 120
+   ======================================== */
+
+/* Section Vertical Padding - Consistent across all sections */
+.section-spacing {
+  padding-top: 64px;
+  padding-bottom: 64px;
+}
+
+@media (min-width: 768px) {
+  .section-spacing {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-spacing {
+    padding-top: 96px;
+    padding-bottom: 96px;
+  }
+}
+
+/* Section spacing variants */
+.section-spacing-sm {
+  padding-top: 48px;
+  padding-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+  .section-spacing-sm {
+    padding-top: 64px;
+    padding-bottom: 64px;
+  }
+}
+
+.section-spacing-lg {
+  padding-top: 80px;
+  padding-bottom: 80px;
+}
+
+@media (min-width: 768px) {
+  .section-spacing-lg {
+    padding-top: 96px;
+    padding-bottom: 96px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .section-spacing-lg {
+    padding-top: 120px;
+    padding-bottom: 120px;
+  }
+}
+
+/* ========================================
+   GRID SYSTEM
+   12-column grid for complex layouts
+   ======================================== */
+.grid-12 {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap: 24px;
+}
+
+@media (min-width: 768px) {
+  .grid-12 {
+    gap: 32px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid-12 {
+    gap: 40px;
+  }
+}
+
+/* Common grid spans */
+.col-span-full { grid-column: span 12; }
+.col-span-6 { grid-column: span 12; }
+.col-span-4 { grid-column: span 12; }
+.col-span-3 { grid-column: span 6; }
+
+@media (min-width: 768px) {
+  .col-span-6 { grid-column: span 6; }
+  .col-span-4 { grid-column: span 6; }
+  .col-span-3 { grid-column: span 3; }
+}
+
+@media (min-width: 1024px) {
+  .col-span-4 { grid-column: span 4; }
+}
+
+/* ========================================
+   BUTTON SYSTEM - Premium Consistency
+   Same height, radius, padding across site
+   ======================================== */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  height: 48px;
+  padding: 0 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all var(--transition-base) var(--ease-out);
+}
+
+.btn-sm {
+  height: 40px;
+  padding: 0 16px;
+  font-size: 0.875rem;
+  border-radius: 10px;
+}
+
+.btn-md {
+  height: 48px;
+  padding: 0 24px;
+}
+
+.btn-lg {
+  height: 56px;
+  padding: 0 32px;
+  font-size: 1rem;
+  border-radius: 14px;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  color: white;
+  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12);
+  transition: 
+    transform var(--duration-standard) var(--ease-premium),
+    box-shadow var(--duration-standard) var(--ease-premium);
+}
+
+.btn-primary:hover {
+  transform: translateY(var(--btn-hover-lift));
+  box-shadow: var(--btn-hover-shadow);
+}
+
+.btn-primary:active {
+  transform: translateY(var(--btn-press-down));
+  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.1);
+}
+
+.btn-secondary {
+  background: var(--color-bg-base);
+  color: var(--color-text-dark);
+  border: 1px solid var(--color-border-medium);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+  transition: 
+    transform var(--duration-standard) var(--ease-premium),
+    border-color var(--duration-fast) var(--ease-premium),
+    color var(--duration-fast) var(--ease-premium),
+    background var(--duration-fast) var(--ease-premium);
+}
+
+.btn-secondary:hover {
+  transform: translateY(var(--btn-hover-lift));
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: var(--color-primary-soft);
+}
+
+.btn-secondary:active {
+  transform: translateY(var(--btn-press-down));
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-primary);
+  transition: 
+    background var(--duration-fast) var(--ease-premium),
+    transform var(--duration-standard) var(--ease-premium);
+}
+
+.btn-ghost:hover {
+  background: var(--color-primary-soft);
+  transform: translateY(-1px);
+}
+
+.btn-ghost:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   CARD SYSTEM - Premium Consistency
+   Same radius, padding, shadow, hover
+   ======================================== */
+.card {
+  background: var(--color-bg-base);
+  border-radius: 16px;
+  border: 1px solid var(--color-border-light);
+  transition: 
+    transform var(--duration-standard) var(--ease-premium),
+    box-shadow var(--duration-standard) var(--ease-premium),
+    border-color var(--duration-fast) var(--ease-premium);
+}
+
+.card:hover {
+  border-color: var(--color-border-medium);
+  box-shadow: var(--card-hover-shadow);
+  transform: translateY(var(--card-hover-lift));
+}
+
+.card-flat {
+  background: var(--color-bg-base);
+  border-radius: 16px;
+  border: 1px solid var(--color-border-light);
+}
+
+.card-elevated {
+  background: var(--color-bg-base);
+  border-radius: 16px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: 
+    0 2px 4px rgba(15, 118, 110, 0.03),
+    0 4px 12px rgba(15, 118, 110, 0.05);
+}
+
+.card-padding {
+  padding: 24px;
+}
+
+@media (min-width: 768px) {
+  .card-padding {
+    padding: 32px;
+  }
+}
+
+.card-padding-sm {
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .card-padding-sm {
+    padding: 20px;
+  }
+}
+
+/* ========================================
+   SECTION HEADER - Consistent Pattern
+   ======================================== */
+.section-header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+@media (min-width: 768px) {
+  .section-header {
+    margin-bottom: 64px;
+  }
+}
+
+.section-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: var(--color-primary-soft);
+  border: 1px solid var(--color-border-medium);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-primary);
+  margin-bottom: 16px;
+}
+
+.section-title {
+  color: var(--color-text-dark);
+  margin-bottom: 16px;
+}
+
+.section-subtitle {
+  color: var(--color-text-medium);
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* ========================================
+   ANIMATION SYSTEM - Premium Controlled Motion
+   All animations use consistent timing
+   ======================================== */
+
+/* Page transition - subtle fade + lift */
+@keyframes page-enter {
   from {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(10px);
   }
   to {
     opacity: 1;
@@ -76,6 +599,129 @@ body {
   }
 }
 
-.animate-fade-in-up {
-  animation: fade-in-up 0.6s ease-out forwards;
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Modal animations */
+@keyframes modal-backdrop {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-content {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Page enter animation */
+.animate-page-enter {
+  animation: page-enter var(--duration-standard) var(--ease-premium) forwards;
+}
+
+.animate-fade-in {
+  animation: fade-in var(--duration-standard) var(--ease-premium) forwards;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up var(--duration-slow) var(--ease-premium) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in var(--duration-standard) var(--ease-premium) forwards;
+}
+
+/* Staggered animation delays */
+.animate-delay-1 { animation-delay: 50ms; }
+.animate-delay-2 { animation-delay: 100ms; }
+.animate-delay-3 { animation-delay: 150ms; }
+.animate-delay-4 { animation-delay: 200ms; }
+
+/* Hover transitions - premium timing */
+.hover-lift {
+  transition: transform var(--duration-standard) var(--ease-premium);
+}
+
+.hover-lift:hover {
+  transform: translateY(var(--card-hover-lift));
+}
+
+/* Interactive states */
+.interactive {
+  transition: 
+    transform var(--duration-standard) var(--ease-premium),
+    box-shadow var(--duration-standard) var(--ease-premium);
+}
+
+.interactive:hover {
+  transform: translateY(-2px);
+}
+
+.interactive:active {
+  transform: translateY(0);
+}
+
+/* ========================================
+   UTILITY CLASSES
+   ======================================== */
+.text-gradient {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Text colors using tokens */
+.text-dark { color: var(--color-text-dark); }
+.text-medium { color: var(--color-text-medium); }
+.text-light { color: var(--color-text-light); }
+.text-muted { color: var(--color-text-muted); }
+.text-primary { color: var(--color-primary); }
+
+/* Background colors */
+.bg-base { background: var(--color-bg-base); }
+.bg-subtle { background: var(--color-bg-subtle); }
+.bg-muted { background: var(--color-bg-muted); }
+
+/* Overflow utility */
+.overflow-visible-all {
+  overflow: visible !important;
+}
+
+.overflow-visible-all * {
+  overflow: visible !important;
+}
+
+/* Content max-widths for readability */
+.max-w-content { max-width: 680px; }
+.max-w-content-lg { max-width: 800px; }
+.max-w-content-xl { max-width: 960px; }

@@ -8,20 +8,20 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black border-t border-white/10">
-      <div className="container mx-auto max-w-7xl px-4 lg:px-8 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+    <footer className="bg-[#0a1f1c] border-t border-teal-900/30">
+      <div className="site-container section-spacing-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10 mb-12">
           {/* Brand */}
           <div>
             <Link href={ROUTES.HOME} className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 flex items-center justify-center">
                 <Wifi className="w-5 h-5 text-white rotate-45" />
               </div>
-              <span className="text-xl font-bold text-white font-space-grotesk">
+              <span className="heading-3 text-white font-space-grotesk">
                 Tapvyo
               </span>
             </Link>
-            <p className="text-gray-400 leading-relaxed">
+            <p className="body-base text-gray-400">
               Modern NFC Digital Business Card Platform. Share your professional presence with a single tap.
             </p>
           </div>

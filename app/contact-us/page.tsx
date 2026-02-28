@@ -92,7 +92,7 @@ export default function ContactUsPage() {
             <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
           </div>
 
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div
               variants={containerVariants}
               initial="hidden"
@@ -132,10 +132,10 @@ export default function ContactUsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                    whileHover={{ y: -6 }}
+                    whileHover={{ y: -4 }}
                     className="p-8 rounded-2xl border border-teal-100 bg-white shadow-md hover:shadow-lg transition-all text-center group"
                   >
-                    <div className={`w-16 h-16 mx-auto rounded-xl ${method.color} mb-6 flex items-center justify-center group-hover:scale-105 transition-transform`}>
+                    <div className={`w-16 h-16 mx-auto rounded-xl ${method.color} mb-6 flex items-center justify-center transition-transform duration-220`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{method.title}</h3>
@@ -150,7 +150,7 @@ export default function ContactUsPage() {
 
         {/* Contact Form & Info */}
         <section className="py-20 md:py-32 bg-white">
-          <div className="container mx-auto max-w-7xl px-4 lg:px-8">
+          <div className="site-container">
             <div className="grid md:grid-cols-2 gap-12">
               {/* Form */}
               <motion.div
@@ -320,7 +320,7 @@ export default function ContactUsPage() {
 
         {/* FAQ */}
         <section className="py-20 md:py-32">
-          <div className="container mx-auto max-w-4xl px-4 lg:px-8">
+          <div className="site-container">
             <motion.div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Frequently Asked Questions</h2>
               <p className="text-lg text-[#4b635d]">Find answers to common questions</p>

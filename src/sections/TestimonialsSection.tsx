@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Star, Quote } from 'lucide-react';
+import { Star, Quote, ArrowRight } from 'lucide-react';
+import { ROUTES } from '@/utils/constants';
 
 interface Testimonial {
   id: number;
@@ -53,27 +55,27 @@ export default function TestimonialsSection() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="py-16 md:py-20 lg:py-24 bg-white">
-      <div className="container mx-auto max-w-6xl px-6 sm:px-8 md:px-10 lg:px-12">
+    <section className="section-spacing bg-white">
+      <div className="site-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="text-center mb-12 md:mb-14"
+          className="section-header"
         >
           {/* Small Label */}
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-teal-200 rounded-full mb-6">
-            <span className="text-sm font-medium text-teal-700">Testimonials</span>
+          <div className="section-badge">
+            <span>Testimonials</span>
           </div>
           
-          <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+          <h2 className="heading-1 section-title font-space-grotesk">
             What Customers{' '}
-            <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+            <span className="text-gradient">
               Say
             </span>
           </h2>
-          <p className="text-base md:text-lg text-[#4b635d]">
+          <p className="body-lg section-subtitle">
             Join thousands of satisfied users
           </p>
         </motion.div>
@@ -83,11 +85,11 @@ export default function TestimonialsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-white rounded-2xl p-8 md:p-12 border border-teal-100 shadow-lg text-center relative"
+          className="card card-padding md:p-12 text-center relative"
         >
           {/* Quote Icon */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 bg-teal-600 rounded-full flex items-center justify-center">
-            <Quote className="w-6 h-6 text-white" />
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 bg-teal-600 rounded-full flex items-center justify-center">
+            <Quote className="w-5 h-5 md:w-6 md:h-6 text-white" />
           </div>
 
           <div className="flex justify-center gap-1 mb-6 mt-4">
@@ -96,13 +98,13 @@ export default function TestimonialsSection() {
             ))}
           </div>
 
-          <blockquote className="text-2xl md:text-3xl font-semibold text-[#0f2e25] mb-6 leading-relaxed font-space-grotesk">
+          <blockquote className="heading-3 text-[#0f2e25] mb-6 leading-relaxed font-space-grotesk">
             &ldquo;{current.text}&rdquo;
           </blockquote>
 
           <div>
             <p className="font-bold text-[#0f2e25] text-lg">{current.name}</p>
-            <p className="text-[#6b7f78]">
+            <p className="body-base text-[#6b7f78]">
               {current.role} at {current.company}
             </p>
           </div>
@@ -122,6 +124,26 @@ export default function TestimonialsSection() {
             />
           ))}
         </div>
+
+        {/* CTA */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="text-center mt-12"
+        >
+          <Link href={ROUTES.CREATE_CARD}>
+            <motion.button
+              whileHover={{ y: -3 }}
+              whileTap={{ y: 1 }}
+              className="btn btn-lg btn-primary"
+            >
+              Join Thousands of Happy Users
+              <ArrowRight className="w-5 h-5" />
+            </motion.button>
+          </Link>
+        </motion.div>
       </div>
     </section>
   );
