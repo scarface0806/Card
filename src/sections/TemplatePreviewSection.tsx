@@ -133,7 +133,7 @@ export default function TemplatePreviewSection() {
           transition={{ delay: 0.5 }}
           className="text-center mt-12"
         >
-          <Link href={ROUTES.TEMPLATES}>
+          <Link href={ROUTES.CARDS}>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

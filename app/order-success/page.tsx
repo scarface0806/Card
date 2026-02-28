@@ -18,7 +18,7 @@ function OrderSuccessContent() {
     visible: {
       opacity: 1,
       y: 0,
-      transition: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1] },
+      transition: { duration: 0.32, ease: [0.25, 0.1, 0.25, 1] as const },
     },
   };
 
@@ -46,7 +46,7 @@ function OrderSuccessContent() {
             transition={{
               delay: 0.1,
               duration: 0.32,
-              ease: [0.25, 0.1, 0.25, 1],
+              ease: [0.25, 0.1, 0.25, 1] as const,
             }}
             className="flex justify-center"
           >

@@ -160,7 +160,7 @@ export default function PricingPreviewSection() {
           transition={{ delay: 0.5 }}
           className="text-center mt-12"
         >
-          <Link href={ROUTES.PRICING}>
+          <Link href={ROUTES.ORDER}>
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}

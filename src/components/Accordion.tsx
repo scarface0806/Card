@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // Premium motion config - consistent across site
 const motionConfig = {
   duration: 0.22,
-  ease: [0.25, 0.1, 0.25, 1],
+  ease: [0.25, 0.1, 0.25, 1] as const,
 };
 
 interface AccordionItem {
@@ -51,7 +51,7 @@ export default function Accordion({ items }: AccordionProps) {
                 animate={{ height: 'auto', opacity: 1 }}
                 exit={{ height: 0, opacity: 0 }}
                 transition={{ 
-                  height: { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] },
+                  height: { duration: 0.22, ease: [0.25, 0.1, 0.25, 1] as const },
                   opacity: { duration: 0.15, ease: 'linear' }
                 }}
                 className="border-t border-gray-100 bg-gray-50/50"

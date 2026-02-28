@@ -8,9 +8,10 @@ import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare } from 'lucide-re
 import CardPreviewModal from '@/components/CardPreviewModal';
 import { cardTemplates, CardTemplate } from '@/utils/cardTemplates';
 import { ROUTES } from '@/utils/constants';
+import { ContactSource } from '@/components/ContactModal';
 
 interface CardDesignsHomeSectionProps {
-  onContactClick?: (source: string) => void;
+  onContactClick?: (source: ContactSource) => void;
 }
 
 export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHomeSectionProps) {
