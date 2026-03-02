@@ -126,7 +126,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
                 >
                   <span>
                     {loading
@@ -202,4 +202,5 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
     </AnimatePresence>
   );
 }
+
 

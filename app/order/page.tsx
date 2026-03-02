@@ -94,7 +94,7 @@ export default function OrderPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <main className="pt-32 pb-20 min-h-screen bg-linear-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
         <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -110,7 +110,7 @@ export default function OrderPage() {
             
             <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
               Create Your{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                 Digital Card
               </span>
             </h1>
@@ -173,7 +173,7 @@ export default function OrderPage() {
                   <Sparkles className="w-5 h-5 text-teal-600" />
                   <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Preview</h3>
                 </div>
-                <div className="bg-gradient-to-br from-teal-50 to-emerald-50 rounded-xl pt-[150%] relative flex items-center justify-center border border-teal-100">
+                <div className="bg-linear-to-br from-teal-50 to-emerald-50 rounded-xl pt-[150%] relative flex items-center justify-center border border-teal-100">
                   <span className="absolute inset-0 flex items-center justify-center text-[#6b7f78]">Your card preview</span>
                 </div>
                 <p className="text-sm text-[#6b7f78] mt-4 text-center">
@@ -188,3 +188,4 @@ export default function OrderPage() {
     </>
   );
 }
+

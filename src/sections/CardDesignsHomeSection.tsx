@@ -146,7 +146,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                 </div>
 
                 {/* Card Details */}
-                <div className="flex flex-col flex-grow card-padding">
+                <div className="flex flex-col grow card-padding">
                   <div className="mb-3">
                     <h3 className="heading-3 section-title font-space-grotesk">
                       {card.name}
@@ -188,7 +188,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-full transition-all duration-300 group/btn ${
                         card.type === 'custom'
                           ? 'bg-[#0f2e25] hover:bg-[#1a4a3d] text-white'
-                          : 'bg-gradient-to-r from-teal-600 to-green-600 text-white shadow-md hover:shadow-lg'
+                          : 'bg-linear-to-r from-teal-600 to-green-600 text-white shadow-md hover:shadow-lg'
                       }`}
                     >
                       {card.type === 'custom' ? (
@@ -215,7 +215,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-3xl p-10 md:p-14 border border-teal-100"
+            className="bg-linear-to-r from-teal-50 to-emerald-50 rounded-3xl p-10 md:p-14 border border-teal-100"
           >
             <div className="max-w-3xl mx-auto text-center">
               <h3 className="heading-1 text-[#0f2e25] font-space-grotesk mb-3">
@@ -227,7 +227,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href={ROUTES.CREATE_CARD}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-1 group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-1 group">
                     <span>Get Your NFC Card</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
@@ -253,3 +253,4 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
     </>
   );
 }
+

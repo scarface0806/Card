@@ -64,7 +64,7 @@ export default function InteractiveCardShowcaseSection() {
               transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
               className={`px-6 md:px-7 py-2.5 md:py-3 rounded-lg font-semibold text-sm md:text-base transition-all duration-220 whitespace-nowrap ${
                 selectedCard === idx
-                  ? 'bg-gradient-to-r from-teal-600 to-emerald-500 text-white shadow-md'
+                  ? 'bg-linear-to-r from-teal-600 to-emerald-500 text-white shadow-md'
                   : 'bg-gray-100 text-gray-700 hover:bg-gray-200 border border-gray-200'
               }`}
             >
@@ -76,3 +76,4 @@ export default function InteractiveCardShowcaseSection() {
     </section>
   );
 }
+
