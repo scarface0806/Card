@@ -120,7 +120,7 @@ export default function PremiumBentoSection() {
                 <GlassCard hover glow className="h-full">
                   <div className="flex flex-col h-full gap-4">
                     {/* Icon */}
-                    <div className="w-12 h-12 bg-gradient-to-br from-violet-600 to-cyan-500 rounded-lg flex items-center justify-center">
+                    <div className="w-12 h-12 bg-linear-to-br from-violet-600 to-cyan-500 rounded-lg flex items-center justify-center">
                       <Icon className="w-6 h-6 text-white" />
                     </div>
 
@@ -159,3 +159,4 @@ export default function PremiumBentoSection() {
     </section>
   );
 }
+

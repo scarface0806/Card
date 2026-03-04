@@ -170,7 +170,7 @@ export default function OrderPage() {
               <Card>
                 <div className="p-8 sticky top-32">
                   <h3 className="text-xl font-bold text-black mb-6">Preview</h3>
-                  <div className="bg-gradient-to-br from-gray-300 to-gray-400 rounded-lg pt-[150%] flex items-center justify-center text-gray-600">
+                  <div className="bg-linear-to-br from-gray-300 to-gray-400 rounded-lg pt-[150%] flex items-center justify-center text-gray-600">
                     <span className="text-center">Your card preview</span>
                   </div>
                   <p className="text-sm text-gray-500 mt-4 text-center">
@@ -186,3 +186,4 @@ export default function OrderPage() {
     </>
   );
 }
+

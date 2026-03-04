@@ -14,7 +14,7 @@ export default function Footer() {
           {/* Brand */}
           <div>
             <Link href={ROUTES.HOME} className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 flex items-center justify-center">
+              <div className="w-10 h-10 rounded-xl bg-linear-to-br from-teal-600 to-emerald-500 flex items-center justify-center">
                 <Wifi className="w-5 h-5 text-white rotate-45" />
               </div>
               <span className="heading-3 text-white font-space-grotesk">
@@ -75,7 +75,7 @@ export default function Footer() {
             <h4 className="font-semibold text-white mb-4 font-space-grotesk">Contact</h4>
             <ul className="space-y-3 text-gray-300">
               <li className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center shrink-0">
                   <Mail className="w-4 h-4 text-teal-400" />
                 </div>
                 <a href={`mailto:${SUPPORT_EMAIL}`} className="hover:text-teal-400 transition-colors">
@@ -83,7 +83,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center shrink-0">
                   <Phone className="w-4 h-4 text-teal-400" />
                 </div>
                 <a href={`tel:${SUPPORT_PHONE}`} className="hover:text-teal-400 transition-colors">
@@ -91,7 +91,7 @@ export default function Footer() {
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center flex-shrink-0">
+                <div className="w-8 h-8 rounded-lg bg-teal-600/20 flex items-center justify-center shrink-0">
                   <MapPin className="w-4 h-4 text-teal-400" />
                 </div>
                 <span>India</span>
@@ -120,3 +120,4 @@ export default function Footer() {
     </footer>
   );
 }
+

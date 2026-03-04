@@ -117,7 +117,7 @@ function CreateCardContent() {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <main className="pt-32 pb-20 min-h-screen bg-linear-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
         <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -133,7 +133,7 @@ function CreateCardContent() {
             
             <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
               Create Your{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-linear-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                 Digital Card
               </span>
             </h1>
@@ -251,7 +251,7 @@ function CreateCardContent() {
 export default function CreateCardPage() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
       </div>
     }>
@@ -259,3 +259,4 @@ export default function CreateCardPage() {
     </Suspense>
   );
 }
+

@@ -23,7 +23,7 @@ export default function BulkCard({ icon: Icon, title, features, cardGradient = '
       className="bg-white rounded-3xl shadow-lg border border-teal-100 p-8 flex flex-col h-full"
     >
       {/* Card Preview Visual */}
-      <div className="h-40 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center mb-6 shadow-inner border border-teal-100/50">
+      <div className="h-40 rounded-2xl bg-linear-to-br from-teal-50 to-white flex items-center justify-center mb-6 shadow-inner border border-teal-100/50">
         <div 
           className="w-48 h-28 rounded-xl shadow-lg relative overflow-hidden"
           style={{ background: cardGradient }}
@@ -50,10 +50,10 @@ export default function BulkCard({ icon: Icon, title, features, cardGradient = '
       </h3>
 
       {/* Features */}
-      <ul className="space-y-3 mb-8 flex-grow">
+      <ul className="space-y-3 mb-8 grow">
         {features.map((feature, idx) => (
           <li key={idx} className="flex items-start gap-3">
-            <div className="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <div className="w-5 h-5 rounded-full bg-teal-100 flex items-center justify-center shrink-0 mt-0.5">
               <Check className="w-3 h-3 text-teal-600" />
             </div>
             <span className="text-[#4b635d] text-sm leading-relaxed">{feature}</span>
@@ -74,3 +74,4 @@ export default function BulkCard({ icon: Icon, title, features, cardGradient = '
     </motion.div>
   );
 }
+

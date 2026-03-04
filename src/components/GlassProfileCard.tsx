@@ -10,12 +10,12 @@ export default function GlassProfileCard() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.8, delay: 0.3 }}
-      className="backdrop-blur-2xl bg-gradient-to-br from-white/5 to-white/[0.02] 
+      className="backdrop-blur-2xl bg-linear-to-br from-white/5 to-white/[0.02] 
                  border border-white/10 rounded-2xl p-6 md:p-8
                  shadow-2xl hover:border-cyan-400/30 transition-all duration-300"
     >
       {/* Animated glow background on hover */}
-      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-cyan-500/0 via-cyan-500/5 to-teal-500/0 
+      <div className="absolute inset-0 rounded-2xl bg-linear-to-r from-cyan-500/0 via-cyan-500/5 to-teal-500/0 
                       opacity-0 hover:opacity-100 transition-opacity duration-300 blur-xl -z-10" />
 
       {/* Profile Header */}
@@ -24,7 +24,7 @@ export default function GlassProfileCard() {
           <h3 className="text-white font-bold text-lg">John Doe</h3>
           <p className="text-white/60 text-sm">Product Designer @ Creative Studio</p>
         </div>
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyan-400/20 to-teal-500/20 
+        <div className="w-12 h-12 rounded-xl bg-linear-to-br from-cyan-400/20 to-teal-500/20 
                         flex items-center justify-center border border-cyan-400/20">
           <span className="text-lg font-bold text-cyan-300">JD</span>
         </div>
@@ -38,7 +38,7 @@ export default function GlassProfileCard() {
           whileHover={{ x: 3 }}
           transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/10 to-teal-500/10 
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-cyan-400/10 to-teal-500/10 
                           flex items-center justify-center border border-cyan-400/20
                           group-hover:border-cyan-400/40 transition-colors duration-300">
             <Phone className="w-4 h-4 text-cyan-300" />
@@ -55,7 +55,7 @@ export default function GlassProfileCard() {
           whileHover={{ x: 3 }}
           transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/10 to-teal-500/10 
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-cyan-400/10 to-teal-500/10 
                           flex items-center justify-center border border-cyan-400/20
                           group-hover:border-cyan-400/40 transition-colors duration-300">
             <Mail className="w-4 h-4 text-cyan-300" />
@@ -72,7 +72,7 @@ export default function GlassProfileCard() {
           whileHover={{ x: 3 }}
           transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
         >
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-cyan-400/10 to-teal-500/10 
+          <div className="w-9 h-9 rounded-lg bg-linear-to-br from-cyan-400/10 to-teal-500/10 
                           flex items-center justify-center border border-cyan-400/20
                           group-hover:border-cyan-400/40 transition-colors duration-300">
             <Globe className="w-4 h-4 text-cyan-300" />
@@ -86,3 +86,4 @@ export default function GlassProfileCard() {
     </motion.div>
   );
 }
+

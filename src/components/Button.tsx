@@ -66,10 +66,10 @@ export default function Button({
       )}
       {children}
       {showIcon && !loading && (
-        <span className={`flex-shrink-0 ${iconSizes[size]} relative bg-white rounded-full grid place-items-center overflow-hidden ${iconColors[variant]}`}>
+        <span className={`shrink-0 ${iconSizes[size]} relative bg-white rounded-full grid place-items-center overflow-hidden ${iconColors[variant]}`}>
           <svg
             width="10"
-            className="transition-transform duration-300 ease-in-out group-hover:translate-x-[150%] group-hover:translate-y-[100%]"
+            className="transition-transform duration-300 ease-in-out group-hover:translate-x-[150%] group-hover:translate-y-full"
             xmlns="http://www.w3.org/2000/svg"
             fill="none"
             viewBox="0 0 14 15"
@@ -80,7 +80,7 @@ export default function Button({
             />
           </svg>
           <svg
-            className="absolute transition-transform duration-300 ease-in-out delay-100 -translate-x-[150%] -translate-y-[100%] group-hover:translate-x-0 group-hover:translate-y-0"
+            className="absolute transition-transform duration-300 ease-in-out delay-100 -translate-x-[150%] -translate-y-full group-hover:translate-x-0 group-hover:translate-y-0"
             xmlns="http://www.w3.org/2000/svg"
             width="10"
             fill="none"
@@ -96,3 +96,4 @@ export default function Button({
     </motion.button>
   );
 }
+

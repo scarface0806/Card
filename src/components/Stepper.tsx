@@ -22,7 +22,7 @@ export default function Stepper({ steps, currentStep }: StepperProps) {
             <motion.div
               initial={{ scale: 0.8 }}
               animate={{ scale: 1 }}
-              className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all flex-shrink-0 ${
+              className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg transition-all shrink-0 ${
                 step.id < currentStep
                   ? 'bg-green-500 text-white'
                   : step.id === currentStep
@@ -51,3 +51,4 @@ export default function Stepper({ steps, currentStep }: StepperProps) {
     </div>
   );
 }
+

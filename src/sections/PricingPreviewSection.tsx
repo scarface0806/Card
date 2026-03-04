@@ -140,7 +140,7 @@ export default function PricingPreviewSection() {
                   <div className="space-y-3">
                     {plan.features.slice(0, 4).map((feature, index) => (
                       <div key={index} className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center flex-shrink-0 mt-0.5">
+                        <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5">
                           <Check className="w-3 h-3 text-emerald-600" />
                         </div>
                         <span className="text-[#4b635d] text-sm">{feature}</span>
@@ -175,3 +175,4 @@ export default function PricingPreviewSection() {
     </section>
   );
 }
+

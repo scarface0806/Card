@@ -90,7 +90,7 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                     initial={{ x: '-100%' }}
                     animate={{ x: '200%' }}
                     transition={{ duration: 1.5, delay: 0.5, ease: 'easeInOut' }}
-                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                    className="absolute inset-0 w-1/2 bg-linear-to-r from-transparent via-white/20 to-transparent skew-x-12"
                   />
                 </motion.div>
               </div>
@@ -127,3 +127,4 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
     </AnimatePresence>
   );
 }
+
