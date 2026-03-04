@@ -34,6 +34,11 @@ async function verifyJWT(token: string): Promise<JWTPayload | null> {
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
+  // ✨ Development mode: skip auth for admin routes
+  if (process.env.NODE_ENV === 'development' && pathname.startsWith('/admin')) {
+    return NextResponse.next();
+  }
+
   // Get token from cookie or Authorization header
   let token = request.cookies.get("auth-token")?.value;
   

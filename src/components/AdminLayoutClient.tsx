@@ -1,11 +1,15 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import AdminSidebar from '@/components/AdminSidebar';
 import AdminTopbar from '@/components/AdminTopbar';
 
 export default function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isDevMode] = useState(() => {
+    // Check if running in development
+    return typeof window !== 'undefined';
+  });
 
   return (
     <div className="flex h-screen bg-gray-50">
@@ -29,7 +33,7 @@ export default function AdminLayoutClient({ children }: { children: React.ReactN
 
       {/* Main content area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        <AdminTopbar onMenuClick={() => setSidebarOpen((o) => !o)} />
+        <AdminTopbar />
         <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>

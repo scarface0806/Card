@@ -51,9 +51,18 @@ export default function LoginPage() {
           localStorage.setItem('rememberMe', 'true');
         }
 
-        // Simulate redirect to dashboard (in production, you'd have a proper dashboard)
+        // Store user data if available
+        if (response.data?.user) {
+          localStorage.setItem('user', JSON.stringify(response.data.user));
+          localStorage.setItem('userEmail', response.data.user.email);
+        } else {
+          // Store email from login for mock auth
+          localStorage.setItem('userEmail', data.email);
+        }
+
+        // Redirect to dashboard
         setTimeout(() => {
-          router.push('/');
+          router.push('/dashboard');
         }, 500);
       } else {
         setServerError(response.message || 'Login failed. Please try again.');

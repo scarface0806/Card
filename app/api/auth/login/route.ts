@@ -13,6 +13,52 @@ const loginSchema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    // ✨ Development mode: Allow mock login for testing
+    if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
+      const body = await request.json();
+      const parsed = loginSchema.safeParse(body);
+      if (!parsed.success) {
+        return errorResponse(
+          "Invalid email or password format", 
+          400,
+          { validationErrors: parsed.error.issues }
+        );
+      }
+      const { email, password } = parsed.data;
+
+      // Mock admin user for development
+      if (email === 'admin@tapvyo.com' && password === 'admin123') {
+        const token = generateToken({
+          userId: 'mock-admin-id',
+          email: 'admin@tapvyo.com',
+          role: 'ADMIN',
+        });
+
+        const userData = {
+          id: 'mock-admin-id',
+          email: 'admin@tapvyo.com',
+          name: 'Admin User',
+          role: 'ADMIN',
+        };
+
+        const response = successResponse({
+          message: 'Login successful (dev mode)',
+          token,
+          user: userData,
+        }, 200);
+
+        response.headers.set(
+          'Set-Cookie',
+          `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`
+        );
+
+        console.log('[Auth] Mock dev login successful for:', email);
+        return response;
+      }
+
+      return errorResponse('Invalid credentials (dev mode)', 401);
+    }
+
     const rateCheck = checkRateLimit(request, 10);
     if (!rateCheck.ok) {
       const res = errorResponse("Too many login attempts. Please try again later.", 429);
