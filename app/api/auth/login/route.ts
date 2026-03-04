@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
   try {
     const rateCheck = checkRateLimit(request, 10);
     if (!rateCheck.ok) {
-      const res = errorResponse("Too many requests", 429);
+      const res = errorResponse("Too many login attempts. Please try again later.", 429);
       if (rateCheck.retryAfter) res.headers.set("Retry-After", String(rateCheck.retryAfter));
       return res;
     }
@@ -23,7 +23,11 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {
-      return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
+      return errorResponse(
+        "Invalid email or password format", 
+        400,
+        { validationErrors: parsed.error.issues }
+      );
     }
     const { email, password } = parsed.data;
 
@@ -32,36 +36,27 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
+      console.warn(`[Auth] Failed login attempt for non-existent email: ${email}`);
+      return errorResponse("Invalid email or password", 401);
     }
 
     // Check if user has a password (might be OAuth user)
     if (!user.password) {
-      return NextResponse.json(
-        { error: "Please login using your social account" },
-        { status: 401 }
-      );
+      return errorResponse("Please login using your social account", 401);
     }
 
     // Check if user is active
     if (!user.isActive) {
-      return NextResponse.json(
-        { error: "Account deactivated." },
-        { status: 403 }
-      );
+      console.warn(`[Auth] Login attempt for deactivated account: ${email}`);
+      return errorResponse("Account has been deactivated", 403);
     }
 
     // Verify password
     const isValidPassword = await verifyPassword(password, user.password);
 
     if (!isValidPassword) {
-      return NextResponse.json(
-        { error: "Invalid email or password" },
-        { status: 401 }
-      );
+      console.warn(`[Auth] Failed login attempt for user: ${email}`);
+      return errorResponse("Invalid email or password", 401);
     }
 
     // Generate JWT token
@@ -74,11 +69,13 @@ export async function POST(request: NextRequest) {
     // Return user data (without password)
     const { password: _, ...userWithoutPassword } = user;
 
-    const response = NextResponse.json({
+    console.info(`[Auth] User logged in successfully: ${email}`);
+
+    const response = successResponse({
       message: "Login successful",
       user: userWithoutPassword,
       token,
-    });
+    }, 200);
 
     // Set HTTP-only cookie for secure storage
     response.cookies.set("auth-token", token, {
@@ -91,7 +88,11 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
-
-    return errorResponse("Internal server error", 500);
+    console.error("[Auth] Login error:", {
+      error: error instanceof Error ? error.message : String(error),
+      status: 500,
+      timestamp: new Date().toISOString()
+    });
+    return errorResponse("Internal server error. Please try again later.", 500);
   }
 }

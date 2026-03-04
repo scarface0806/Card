@@ -30,8 +30,14 @@ const checks = [
 let passedChecks = 0;
 let failedChecks = 0;
 
-function runCheck(check, index) {
-  return new Promise((resolve) => {
+interface CheckItem {
+  name: string;
+  command: string;
+  args: string[];
+}
+
+function runCheck(check: CheckItem, index: number) {
+  return new Promise<void>((resolve) => {
     console.log(`\n[${index + 1}/${checks.length}] Checking: ${check.name}...`);
 
     const process = spawn(check.command, check.args, {

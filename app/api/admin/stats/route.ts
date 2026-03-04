@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 import { Role } from "@prisma/client";
+import { errorResponse, successResponse } from "@/lib/responses";
 
 /**
  * GET /api/admin/stats
@@ -15,11 +16,14 @@ export async function GET(request: NextRequest) {
 
     // Check if user is authenticated and has ADMIN role
     if (!user || user.role !== Role.ADMIN) {
-      return NextResponse.json(
-        { error: error || "Admin access required" },
-        { status: 403 }
-      );
+      console.warn(`[Admin Stats] Unauthorized access attempt`, { 
+        hasUser: !!user, 
+        role: user?.role 
+      });
+      return errorResponse("Admin access required", 403);
     }
+
+    console.info(`[Admin Stats] Fetching statistics for admin: ${user.email}`);
 
     // Fetch all stats in parallel for performance
     const [totalCustomers, totalOrders, totalCards, totalProducts] = await Promise.all([
@@ -38,24 +42,21 @@ export async function GET(request: NextRequest) {
       prisma.product.count(),
     ]);
 
-    return NextResponse.json(
-      {
-        success: true,
-        stats: {
-          totalCustomers,
-          totalOrders,
-          totalCards,
-          totalProducts,
-        },
-        timestamp: new Date().toISOString(),
+    return successResponse({
+      stats: {
+        totalCustomers,
+        totalOrders,
+        totalCards,
+        totalProducts,
       },
-      { status: 200 }
-    );
+      timestamp: new Date().toISOString(),
+    }, 200);
   } catch (error) {
-    console.error("Error fetching stats:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch statistics" },
-      { status: 500 }
-    );
+    console.error("[Admin Stats] Error fetching stats:", {
+      error: error instanceof Error ? error.message : String(error),
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
+    return errorResponse("Failed to fetch statistics. Please try again.", 500);
   }
 }
