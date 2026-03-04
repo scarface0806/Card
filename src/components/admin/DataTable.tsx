@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Database } from 'lucide-react';
 
 interface ColumnConfig {
   key: string;
@@ -41,45 +41,49 @@ export default function DataTable({
   const currentData = data.slice(startIndex, endIndex);
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+    <div className="bg-[#161b2e] border border-white/5 rounded-xl overflow-hidden">
       {title && (
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-900">{title}</h3>
+        <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+          <h3 className="text-base font-semibold text-white">{title}</h3>
+          <span className="text-xs text-gray-600 bg-white/5 px-2.5 py-1 rounded-full">
+            {data.length} records
+          </span>
         </div>
       )}
 
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
+          <thead>
+            <tr className="bg-[#1e2440] border-b border-white/5">
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider ${
-                    column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
-                  }`}
+                  className={`px-5 py-3.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-widest ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
+                    }`}
                   style={{ width: column.width }}
                 >
                   {column.label}
                 </th>
               ))}
               {actions && (
-                <th className="px-6 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">
+                <th className="px-5 py-3.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-white/5">
             {currentData.length > 0 ? (
               currentData.map((row, rowIndex) => (
-                <tr key={rowIndex} className="hover:bg-gray-50 transition-colors">
+                <tr
+                  key={rowIndex}
+                  className="hover:bg-white/[0.02] transition-colors duration-150 group"
+                >
                   {columns.map((column) => (
                     <td
                       key={`${rowIndex}-${column.key}`}
-                      className={`px-6 py-4 text-sm ${
-                        column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
-                      }`}
+                      className={`px-5 py-4 text-sm text-gray-300 ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
+                        }`}
                     >
                       {column.render
                         ? column.render(row[column.key], row)
@@ -87,12 +91,12 @@ export default function DataTable({
                     </td>
                   ))}
                   {actions && (
-                    <td className="px-6 py-4 text-sm">
+                    <td className="px-5 py-4 text-sm">
                       <div className="flex items-center gap-2">
                         {onView && (
                           <button
                             onClick={() => onView(row)}
-                            className="text-blue-600 hover:text-blue-800 font-medium"
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-blue-400 hover:bg-blue-400/10 transition-all active:scale-95"
                           >
                             View
                           </button>
@@ -100,7 +104,7 @@ export default function DataTable({
                         {onEdit && (
                           <button
                             onClick={() => onEdit(row)}
-                            className="text-amber-600 hover:text-amber-800 font-medium"
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-orange-400 hover:bg-orange-400/10 transition-all active:scale-95"
                           >
                             Edit
                           </button>
@@ -108,7 +112,7 @@ export default function DataTable({
                         {onDelete && (
                           <button
                             onClick={() => onDelete(row)}
-                            className="text-red-600 hover:text-red-800 font-medium"
+                            className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:bg-red-400/10 transition-all active:scale-95"
                           >
                             Delete
                           </button>
@@ -122,9 +126,14 @@ export default function DataTable({
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
-                  className="px-6 py-8 text-center text-gray-500"
+                  className="px-6 py-20 text-center"
                 >
-                  No data available
+                  <div className="flex flex-col items-center justify-center space-y-3">
+                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
+                      <Database className="w-6 h-6 text-gray-700" />
+                    </div>
+                    <p className="text-sm text-gray-500 font-medium tracking-tight">No records found</p>
+                  </div>
                 </td>
               </tr>
             )}
@@ -133,35 +142,38 @@ export default function DataTable({
       </div>
 
       {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
-          <p className="text-sm text-gray-600">
-            Showing {startIndex + 1} to {Math.min(endIndex, data.length)} of {data.length} results
+        <div className="px-5 py-3.5 border-t border-white/5 flex items-center justify-between bg-[#0d1117]/30">
+          <p className="text-xs text-gray-500 font-medium">
+            Showing <span className="text-gray-300">{startIndex + 1}</span> to{' '}
+            <span className="text-gray-300">{Math.min(endIndex, data.length)}</span> of{' '}
+            <span className="text-gray-300">{data.length}</span> records
           </p>
-          <div className="flex gap-2">
+          <div className="flex items-center gap-1">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
+              className="p-2 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-gray-400 hover:text-white transition-all active:scale-90"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded-lg text-sm font-medium ${
-                  page === currentPage
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            <div className="flex items-center gap-1 mx-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-semibold transition-all duration-200 ${page === currentPage
+                    ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95'
+                    : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
+                    }`}
+                >
+                  {page}
+                </button>
+              ))}
+            </div>
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg"
+              className="p-2 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-gray-400 hover:text-white transition-all active:scale-90"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

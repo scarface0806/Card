@@ -82,47 +82,39 @@ export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> =>
  */
 export const registerUser = async (payload: RegisterPayload): Promise<AuthResponse> => {
   try {
-    // Mock API call - in production use real endpoint
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    const response = await fetch('/api/auth/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        email: payload.email,
+        password: payload.password,
+        name: payload.fullName,
+      }),
+    });
 
-    // Mock validation
-    if (!payload.fullName || !payload.email || !payload.password) {
+    const data = await response.json();
+
+    if (!response.ok) {
       return {
         success: false,
-        message: 'All fields are required',
+        message: data.error || 'Registration failed',
       };
     }
 
-    if (payload.password !== payload.confirmPassword) {
-      return {
-        success: false,
-        message: 'Passwords do not match',
-      };
-    }
-
-    if (payload.password.length < 6) {
-      return {
-        success: false,
-        message: 'Password must be at least 6 characters',
-      };
-    }
-
-    // Mock successful response
-    const mockResponse: AuthResponse = {
+    return {
       success: true,
-      message: 'Account created successfully',
+      message: data.message || 'Account created successfully',
       data: {
-        token: 'mock_jwt_token_' + Date.now(),
+        token: data.token,
         user: {
-          id: 'user_' + Date.now(),
-          email: payload.email,
-          fullName: payload.fullName,
+          id: data.user.id,
+          email: data.user.email,
+          fullName: data.user.name,
         },
       },
     };
-
-    return mockResponse;
   } catch (error) {
     return {
       success: false,

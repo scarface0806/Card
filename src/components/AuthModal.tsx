@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, ArrowRight } from 'lucide-react';
+import { loginUser, registerUser, setAuthToken } from '@/services/auth';
+import { useRouter } from 'next/navigation';
 
 type AuthMode = 'login' | 'signup';
 
@@ -14,16 +16,47 @@ interface AuthModalProps {
 }
 
 export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthModalProps) {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setLoading(false);
+    setError(null);
+
+    try {
+      let result;
+      if (mode === 'login') {
+        result = await loginUser({ email, password });
+      } else {
+        result = await registerUser({
+          fullName: name,
+          email,
+          password,
+          confirmPassword: password // Simple case for now
+        });
+      }
+
+      if (result.success && result.data) {
+        setAuthToken(result.data.token);
+        localStorage.setItem('user', JSON.stringify(result.data.user));
+        onClose();
+
+        // Redirect based on role if possible, or just dashboard
+        router.push('/dashboard');
+        router.refresh();
+      } else {
+        setError(result.message);
+      }
+    } catch (err) {
+      setError('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGoogleAuth = () => {
@@ -73,8 +106,13 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 </p>
               </div>
 
-              {/* Form */}
               <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+                {error && (
+                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">
+                    {error}
+                  </div>
+                )}
+
                 {/* Name Field (Signup only) */}
                 {mode === 'signup' && (
                   <div>
@@ -126,14 +164,14 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-linear-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
                 >
                   <span>
                     {loading
                       ? 'Processing...'
                       : mode === 'login'
-                      ? 'Login'
-                      : 'Create Account'}
+                        ? 'Login'
+                        : 'Create Account'}
                   </span>
                   {!loading && <ArrowRight className="w-4 h-4" />}
                 </button>
@@ -198,8 +236,9 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
             </div>
           </motion.div>
         </>
-      )}
-    </AnimatePresence>
+      )
+      }
+    </AnimatePresence >
   );
 }
 

@@ -119,7 +119,7 @@ export default function PremiumPricingSection() {
               >
                 {plan.highlighted && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                    <span className="bg-linear-to-r from-violet-600 to-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-full">
+                    <span className="bg-gradient-to-r from-violet-600 to-cyan-500 text-white text-xs font-bold px-4 py-1 rounded-full">
                       MOST POPULAR
                     </span>
                   </div>
@@ -145,7 +145,7 @@ export default function PremiumPricingSection() {
                 <div className="space-y-3 mb-8">
                   {plan.features.map((feature, idx) => (
                     <div key={idx} className="flex items-start gap-3">
-                      <div className="w-5 h-5 rounded-full bg-linear-to-br from-violet-500 to-cyan-500 flex items-center justify-center shrink-0 mt-0.5">
+                      <div className="w-5 h-5 rounded-full bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center shrink-0 mt-0.5">
                         <Check className="w-3 h-3 text-white" />
                       </div>
                       <span className="text-white/80 text-sm">{feature}</span>

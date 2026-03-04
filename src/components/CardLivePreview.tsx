@@ -28,10 +28,10 @@ export default function CardLivePreview({
       </div>
       
       {/* Shine effect */}
-      <div className="absolute inset-0 bg-linear-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
       
       {/* Card Content Preview */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-linear-to-t from-black/70 via-black/40 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
         <AnimatePresence mode="wait">
           <motion.h3
             key={fullName || 'name-placeholder'}

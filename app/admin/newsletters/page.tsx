@@ -2,12 +2,13 @@
 
 import React, { useState } from 'react';
 import DataTable from '@/components/admin/DataTable';
-import { RotateCw } from 'lucide-react';
+import StatusBadge from '@/components/admin/StatusBadge';
+import { RotateCw, Mail, Send, Filter } from 'lucide-react';
 
 const newslettersData = [
   { sno: 1, email: 'john@example.com', date: '2024-01-15', status: 'active' },
   { sno: 2, email: 'jane@example.com', date: '2024-01-20', status: 'active' },
-  { sno: 3, email: 'bob@example.com', date: '2024-02-01', status: 'unsubscribed' },
+  { sno: 3, email: 'bob@example.com', date: '2024-02-01', status: 'inactive' },
   { sno: 4, email: 'alice@example.com', date: '2024-02-10', status: 'active' },
   { sno: 5, email: 'charlie@example.com', date: '2024-02-15', status: 'active' },
 ];
@@ -25,44 +26,37 @@ export default function NewslettersPage() {
 
   return (
     <main className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Newsletters</h1>
-          <p className="text-gray-600 mt-1">Manage newsletter subscribers</p>
+          <h1 className="text-2xl font-semibold text-white">Newsletters</h1>
+          <p className="text-gray-400 text-sm mt-1">Manage your email subscriber list and newsletter campaigns</p>
         </div>
-        <button
-          onClick={handleRefresh}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          <RotateCw className="w-5 h-5" />
-          Refresh
-        </button>
+        <div className="flex items-center gap-3">
+          <button className="flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/5">
+            <Send className="w-4 h-4 text-orange-400" />
+            Send Campaign
+          </button>
+          <button
+            onClick={handleRefresh}
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+          >
+            <RotateCw className="w-4 h-4" />
+            Refresh
+          </button>
+        </div>
       </div>
 
       <DataTable
         columns={[
           { key: 'sno', label: 'S.NO', width: '60px' },
-          { key: 'email', label: 'Email ID' },
-          { key: 'date', label: 'Subscription Date' },
+          { key: 'email', label: 'Email Address' },
+          { key: 'date', label: 'Subscribed On' },
           {
             key: 'status',
             label: 'Status',
-            render: (status) => {
-              const colors = {
-                active: 'bg-green-100 text-green-800',
-                unsubscribed: 'bg-red-100 text-red-800',
-              };
-              return (
-                <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                  colors[status as keyof typeof colors] || 'bg-gray-100 text-gray-800'
-                }`}>
-                  <span className={`inline-block w-2 h-2 rounded-full ${
-                    status === 'active' ? 'bg-green-500' : 'bg-red-500'
-                  }`}></span>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>
-              );
-            },
+            render: (status) => (
+              <StatusBadge status={status === 'inactive' ? 'cancelled' : status as any} />
+            ),
           },
         ]}
         data={data}

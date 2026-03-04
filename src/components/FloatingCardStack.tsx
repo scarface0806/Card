@@ -65,7 +65,7 @@ export default function FloatingCardStack({ onMouseMove }: FloatingCardStackProp
           >
             {/* Card Body */}
             <div
-              className={`relative w-full h-full rounded-3xl bg-linear-to-br ${card.gradient} 
+              className={`relative w-full h-full rounded-3xl bg-gradient-to-br ${card.gradient} 
                 shadow-2xl overflow-hidden transform perspective`}
               style={{
                 boxShadow: `0 24px 48px rgba(0, 0, 0, 0.4), 
@@ -74,7 +74,7 @@ export default function FloatingCardStack({ onMouseMove }: FloatingCardStackProp
             >
               {/* Shine effect overlay */}
               <div
-                className="absolute inset-0 bg-linear-to-br from-white/5 via-transparent to-transparent"
+                className="absolute inset-0 bg-gradient-to-br from-white/5 via-transparent to-transparent"
                 style={{
                   animation: `shine 3s ease-in-out infinite`,
                 }}
@@ -111,7 +111,7 @@ export default function FloatingCardStack({ onMouseMove }: FloatingCardStackProp
 
               {/* Animated glow border (top) */}
               <motion.div
-                className="absolute inset-x-0 top-0 h-px bg-linear-to-r from-transparent via-white/30 to-transparent"
+                className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/30 to-transparent"
                 animate={{
                   opacity: isHovered ? 0.6 : 0.3,
                 }}

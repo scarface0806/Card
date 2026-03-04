@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import Stepper from '@/components/Stepper';
@@ -14,7 +14,9 @@ import PaymentForm from '@/forms/PaymentForm';
 import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
-import { ArrowLeft, ArrowRight, CreditCard, Sparkles } from 'lucide-react';
+import { getTemplateBySlug, getDefaultTemplate, CardTemplate } from '@/utils/cardTemplates';
+import CardLivePreview from '@/components/CardLivePreview';
+import { ArrowLeft, ArrowRight, CreditCard, Sparkles, Check } from 'lucide-react';
 
 interface FormData {
   personalDetails: {
@@ -47,16 +49,36 @@ interface FormData {
   };
 }
 
-export default function OrderPage() {
+function CreateCardContent() {
+  const searchParams = useSearchParams();
+  const templateSlug = searchParams.get('template');
+  
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedTemplate, setSelectedTemplate] = useState<CardTemplate>(getDefaultTemplate());
   const router = useRouter();
+  
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, watch } = methods;
+  
+  // Watch specific fields for live preview - real-time updates
+  const fullName = watch('personalDetails.name', '');
+  const designation = watch('personalDetails.designation', '');
+  const company = watch('personalDetails.company', '');
+
+  // Load template from URL on mount
+  useEffect(() => {
+    if (templateSlug) {
+      const template = getTemplateBySlug(templateSlug);
+      if (template) {
+        setSelectedTemplate(template);
+      }
+    }
+  }, [templateSlug]);
 
   const onSubmit = async (data: FormData) => {
     if (currentStep < 5) {
@@ -77,6 +99,7 @@ export default function OrderPage() {
         businessDetails: data.businessDetails,
         socialLinks: data.socialLinks,
         uploads,
+        template: selectedTemplate.slug,
       });
 
       if (result.success) {
@@ -94,7 +117,7 @@ export default function OrderPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-linear-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
         <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -110,12 +133,12 @@ export default function OrderPage() {
             
             <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
               Create Your{' '}
-              <span className="bg-linear-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                 Digital Card
               </span>
             </h1>
             <p className="text-lg text-[#4b635d]">
-              Complete the form below to customize your professional card
+              Complete the form below to customize your <span className="font-semibold text-teal-700">{selectedTemplate.name}</span> card
             </p>
           </motion.div>
 
@@ -130,17 +153,18 @@ export default function OrderPage() {
                     {currentStep === 2 && <BusinessDetailsForm />}
                     {currentStep === 3 && <SocialLinksForm />}
                     {currentStep === 4 && <UploadForm />}
-                    {currentStep === 5 && <PaymentForm />}
+                    {currentStep === 5 && <PaymentForm template={selectedTemplate} />}
                   </FormProvider>
 
                   <div className="flex gap-4 pt-8 border-t border-teal-100">
                     {currentStep > 1 && (
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ y: 1 }}
+                        transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                         onClick={() => setCurrentStep(currentStep - 1)}
-                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-300"
+                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-220"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         Previous
@@ -148,10 +172,11 @@ export default function OrderPage() {
                     )}
                     <motion.button
                       type="submit"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ y: 1 }}
+                      transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                       disabled={isSubmitting}
-                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-300 disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-220 disabled:opacity-50"
                     >
                       {isSubmitting ? (
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -167,16 +192,50 @@ export default function OrderPage() {
               </div>
             </div>
 
+            {/* Preview Sidebar */}
             <div className="hidden lg:block">
               <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-8 sticky top-32">
                 <div className="flex items-center gap-2 mb-6">
                   <Sparkles className="w-5 h-5 text-teal-600" />
-                  <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Preview</h3>
+                  <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Card Preview</h3>
                 </div>
-                <div className="bg-linear-to-br from-teal-50 to-emerald-50 rounded-xl pt-[150%] relative flex items-center justify-center border border-teal-100">
-                  <span className="absolute inset-0 flex items-center justify-center text-[#6b7f78]">Your card preview</span>
+                
+                {/* Selected Template Badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm text-[#6b7f78]">Selected Template</span>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                    selectedTemplate.type === 'premium' 
+                      ? 'bg-amber-100 text-amber-700' 
+                      : 'bg-teal-100 text-teal-700'
+                  }`}>
+                    {selectedTemplate.type.charAt(0).toUpperCase() + selectedTemplate.type.slice(1)}
+                  </span>
                 </div>
-                <p className="text-sm text-[#6b7f78] mt-4 text-center">
+
+                {/* Card Preview */}
+                <CardLivePreview
+                  fullName={fullName}
+                  designation={designation}
+                  company={company}
+                  template={selectedTemplate}
+                />
+
+                <div className="mt-4 text-center">
+                  <p className="text-lg font-bold text-[#0f2e25]">{selectedTemplate.name}</p>
+                  <p className="text-2xl font-bold text-teal-600 mt-1">{selectedTemplate.price}</p>
+                </div>
+
+                {/* Features */}
+                <div className="mt-6 pt-6 border-t border-teal-100 space-y-3">
+                  {['Free hosting forever', 'NFC card included', 'QR code access', 'Mobile responsive'].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-teal-600" />
+                      <span className="text-sm text-[#4b635d]">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-xs text-[#6b7f78] mt-4 text-center">
                   Updates in real-time as you fill the form
                 </p>
               </div>
@@ -186,6 +245,18 @@ export default function OrderPage() {
       </main>
       <Footer />
     </>
+  );
+}
+
+export default function CreateCardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+      </div>
+    }>
+      <CreateCardContent />
+    </Suspense>
   );
 }
 

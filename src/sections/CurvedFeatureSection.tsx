@@ -80,7 +80,7 @@ function FeatureCard({ icon, title, description, className = '', floatVariant = 
         animate={getFloatAnimation()}
         className="card card-padding max-w-[280px]"
       >
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-linear-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
           {icon}
         </div>
         <h3 className="heading-3 section-title font-space-grotesk mb-2">
@@ -116,7 +116,7 @@ export default function CurvedFeatureSection() {
   return (
     <section className="relative min-h-[900px] lg:min-h-[1000px] overflow-hidden">
       {/* Base Background */}
-      <div className="absolute inset-0 bg-linear-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]" />
+      <div className="absolute inset-0 bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]" />
 
       {/* Radial Gradient Overlay */}
       <div 
@@ -225,7 +225,7 @@ export default function CurvedFeatureSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="card card-padding"
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-linear-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
                 {feature.icon}
               </div>
               <h3 className="heading-3 section-title font-space-grotesk mb-2">
@@ -248,8 +248,8 @@ export default function CurvedFeatureSection() {
         >
           {/* Glowing orb */}
           <div className="relative">
-            <div className="w-32 h-32 rounded-full bg-linear-to-br from-teal-400/20 to-emerald-400/20 blur-2xl" />
-            <div className="absolute inset-4 rounded-full bg-linear-to-br from-teal-500/30 to-emerald-500/30 blur-xl" />
+            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-teal-400/20 to-emerald-400/20 blur-2xl" />
+            <div className="absolute inset-4 rounded-full bg-gradient-to-br from-teal-500/30 to-emerald-500/30 blur-xl" />
           </div>
         </motion.div>
       </div>

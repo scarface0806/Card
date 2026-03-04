@@ -2,7 +2,8 @@
 
 import React, { useState } from 'react';
 import DataTable from '@/components/admin/DataTable';
-import { Plus } from 'lucide-react';
+import StatusBadge from '@/components/admin/StatusBadge';
+import { Plus, UserPlus } from 'lucide-react';
 
 const customerData = [
   { sno: 1, name: 'John Doe', mobile: '+1 234 567 8900', country: 'USA', createdDate: '2024-02-15', status: 'active' },
@@ -18,14 +19,14 @@ export default function CustomersPage() {
 
   return (
     <main className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Customers</h1>
-          <p className="text-gray-600 mt-1">Manage all your customers</p>
+          <h1 className="text-2xl font-semibold text-white">Customers</h1>
+          <p className="text-gray-400 text-sm mt-1">Manage all your customer accounts and their information</p>
         </div>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-          <Plus className="w-5 h-5" />
-          Add New
+        <button className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95">
+          <UserPlus className="w-4 h-4" />
+          Add New Customer
         </button>
       </div>
 
@@ -40,14 +41,9 @@ export default function CustomersPage() {
             key: 'status',
             label: 'Status',
             render: (status) => (
-              <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-              }`}>
-                <span className={`inline-block w-2 h-2 rounded-full ${
-                  status === 'active' ? 'bg-green-500' : 'bg-gray-500'
-                }`}></span>
-                {status.charAt(0).toUpperCase() + status.slice(1)}
-              </span>
+              <StatusBadge
+                status={status === 'active' ? 'active' : 'inactive'}
+              />
             ),
           },
         ]}

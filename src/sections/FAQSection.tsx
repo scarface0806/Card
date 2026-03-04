@@ -145,7 +145,7 @@ export default function FAQSection() {
           <p className="body-base text-gray-600 mb-4">Still have questions?</p>
           <a
             href="#contact"
-            className="inline-block px-8 py-3 bg-linear-to-r from-teal-600 to-emerald-500 text-white font-semibold
+            className="inline-block px-8 py-3 bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-semibold
               rounded-xl hover:shadow-lg transition-all duration-220 hover:-translate-y-1"
           >
             Get in Touch

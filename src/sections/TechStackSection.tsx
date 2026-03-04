@@ -195,7 +195,7 @@ function TechLogo({ name, svg, color }: TechLogoProps) {
     >
       {/* Logo Container */}
       <div
-        className={`w-14 h-14 md:w-16 md:h-16 rounded-lg bg-linear-to-br ${color} p-3 flex items-center justify-center shadow-sm group-hover:shadow-lg group-hover:shadow-teal-500/20 transition-all duration-300`}
+        className={`w-14 h-14 md:w-16 md:h-16 rounded-lg bg-gradient-to-br ${color} p-3 flex items-center justify-center shadow-sm group-hover:shadow-lg group-hover:shadow-teal-500/20 transition-all duration-300`}
       >
         <div className="w-full h-full flex items-center justify-center text-white filter grayscale-[80%] group-hover:grayscale-0 transition-all duration-300">
           {svg}
@@ -212,7 +212,7 @@ function TechLogo({ name, svg, color }: TechLogoProps) {
 
 export default function TechStackSection() {
   return (
-    <section className="section-spacing bg-linear-to-b from-white/80 via-white to-[#f8fffe] overflow-hidden">
+    <section className="section-spacing bg-gradient-to-b from-white/80 via-white to-[#f8fffe] overflow-hidden">
       <div className="site-container mb-20">
         {/* Section Header */}
         <motion.div
@@ -237,7 +237,7 @@ export default function TechStackSection() {
       {/* Carousels Container */}
       <div className="relative overflow-hidden">
         {/* Left Fade Mask */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-48 bg-linear-to-r from-white/80 from-0% via-white/40 to-transparent z-20 pointer-events-none" />
+        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-48 bg-gradient-to-r from-white/80 from-0% via-white/40 to-transparent z-20 pointer-events-none" />
 
         {/* Right Fade Mask */}
         <div className="absolute right-0 top-0 bottom-0 w-32 md:w-48 bg-gradient-to-l from-white/80 from-0% via-white/40 to-transparent z-20 pointer-events-none" />

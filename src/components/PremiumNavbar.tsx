@@ -24,7 +24,7 @@ export default function PremiumNavbar() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href={ROUTES.HOME} className="flex items-center gap-3 z-10 group">
-          <div className="w-9 h-9 bg-linear-to-br from-teal-400 to-teal-600 rounded-xl shadow-lg group-hover:shadow-teal-500/25 transition-all duration-300" />
+          <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl shadow-lg group-hover:shadow-teal-500/25 transition-all duration-300" />
           <span className="font-bold text-xl text-teal-900 tracking-tight font-[family-name:var(--font-space-grotesk)]">Tapvyo</span>
         </Link>
 
@@ -58,7 +58,7 @@ export default function PremiumNavbar() {
             href={ROUTES.SIGNUP}
             className="relative flex items-center gap-2 px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
           >
-            <span className="absolute inset-0 w-full h-full bg-linear-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
+            <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             <span className="relative">Sign Up</span>
             <ArrowRight className="relative w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
           </Link>

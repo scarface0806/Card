@@ -18,13 +18,13 @@ export default function CardsPage() {
 
   return (
     <main className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">Cards</h1>
-          <p className="text-gray-600 mt-1">Manage NFC card designs and variations</p>
+          <h1 className="text-2xl font-semibold text-white">Cards</h1>
+          <p className="text-gray-400 text-sm mt-1">Manage and customize NFC card products and designs</p>
         </div>
-        <button className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">
-          <Plus className="w-5 h-5" />
+        <button className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95">
+          <Plus className="w-4 h-4 ml-[-5px]" />
           Add New Card
         </button>
       </div>
@@ -34,7 +34,7 @@ export default function CardsPage() {
           { key: 'sno', label: 'S.NO', width: '60px' },
           { key: 'name', label: 'Card Name' },
           { key: 'description', label: 'Description' },
-          { key: 'type', label: 'Card Type', width: '100px' },
+          { key: 'type', label: 'Card Type', width: '120px' },
           { key: 'material', label: 'Material', width: '100px' },
           { key: 'price', label: 'Price', width: '100px' },
         ]}

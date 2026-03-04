@@ -98,7 +98,7 @@ export default function TemplatePreviewSection() {
                 whileHover={{ y: -4 }}
                 className="group card overflow-hidden transition-all duration-300"
               >
-                <div className="relative pt-[100%] bg-linear-to-br from-teal-50 to-emerald-50 overflow-hidden">
+                <div className="relative pt-[100%] bg-gradient-to-br from-teal-50 to-emerald-50 overflow-hidden">
                   <span className="absolute inset-0 flex items-center justify-center text-[#6b7f78]">
                     Template Preview
                   </span>

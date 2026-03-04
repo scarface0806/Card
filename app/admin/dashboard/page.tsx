@@ -3,7 +3,9 @@
 import React, { useState } from 'react';
 import StatCard from '@/components/admin/StatCard';
 import DataTable from '@/components/admin/DataTable';
-import { Users, CreditCard, Package, ShoppingCart } from 'lucide-react';
+import StatusBadge from '@/components/admin/StatusBadge';
+import { Users, CreditCard, ShoppingCart, Mail, ArrowUpRight } from 'lucide-react';
+import Link from 'next/link';
 
 // Mock data for tables
 const recentCustomers = [
@@ -19,9 +21,9 @@ const recentCards = [
 ];
 
 const recentOrders = [
-  { id: 1, orderNum: 'ORD-001', customer: 'John Doe', date: '2024-03-01', total: '$299.99', status: 'completed' },
-  { id: 2, orderNum: 'ORD-002', customer: 'Jane Smith', date: '2024-03-02', total: '$149.99', status: 'pending' },
-  { id: 3, orderNum: 'ORD-003', customer: 'Bob Johnson', date: '2024-03-03', total: '$399.99', status: 'cancelled' },
+  { id: 1, orderNum: 'ORD-001', customer: 'John Doe', date: '2024-03-01', total: '₹299', status: 'completed' },
+  { id: 2, orderNum: 'ORD-002', customer: 'Jane Smith', date: '2024-03-02', total: '₹149', status: 'pending' },
+  { id: 3, orderNum: 'ORD-003', customer: 'Bob Johnson', date: '2024-03-03', total: '₹399', status: 'cancelled' },
 ];
 
 export default function Dashboard() {
@@ -33,126 +35,150 @@ export default function Dashboard() {
   });
 
   return (
-    <main className="space-y-8">
+    <div className="space-y-6">
       {/* Page Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-gray-600 mt-1">Welcome back! Here's your business overview.</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-0.5">
+            Welcome back, Admin. Here&apos;s your business overview.
+          </p>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-gray-600 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
+            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+          </span>
+        </div>
       </div>
 
       {/* Stat Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Customers"
           value={stats.totalCustomers}
-          icon="👥"
+          icon={<Users className="w-5 h-5" />}
           trend={{ value: 12, isPositive: true }}
           color="blue"
         />
         <StatCard
           label="Total Cards"
           value={stats.totalCards}
-          icon="🎨"
+          icon={<CreditCard className="w-5 h-5" />}
           trend={{ value: 8, isPositive: true }}
           color="purple"
         />
         <StatCard
           label="Total Orders"
           value={stats.totalOrders}
-          icon="🛒"
+          icon={<ShoppingCart className="w-5 h-5" />}
           trend={{ value: 5, isPositive: false }}
-          color="green"
+          color="orange"
         />
         <StatCard
-          label="Total Subscriptions"
+          label="Subscriptions"
           value={stats.totalSubscriptions}
-          icon="📧"
+          icon={<Mail className="w-5 h-5" />}
           trend={{ value: 15, isPositive: true }}
-          color="orange"
+          color="green"
         />
       </div>
 
       {/* Tables Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         {/* Recent Customers */}
-        <DataTable
-          title="Recent Customers"
-          columns={[
-            { key: 'name', label: 'Name' },
-            { key: 'email', label: 'Email' },
-            { key: 'phone', label: 'Phone' },
-            {
-              key: 'status',
-              label: 'Status',
-              render: (status) => (
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>
-              ),
-            },
-          ]}
-          data={recentCustomers}
-          actions={false}
-          itemsPerPage={5}
-        />
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Recent Customers</h2>
+            <Link
+              href="/admin/customers"
+              className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              View all <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <DataTable
+            columns={[
+              { key: 'name', label: 'Name' },
+              { key: 'email', label: 'Email' },
+              {
+                key: 'status',
+                label: 'Status',
+                render: (status) => (
+                  <StatusBadge status={status as any} />
+                ),
+              },
+            ]}
+            data={recentCustomers}
+            actions={false}
+            itemsPerPage={5}
+          />
+        </div>
 
         {/* Recent Cards */}
+        <div>
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Recent Cards</h2>
+            <Link
+              href="/admin/cards"
+              className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition-colors"
+            >
+              View all <ArrowUpRight className="w-3 h-3" />
+            </Link>
+          </div>
+          <DataTable
+            columns={[
+              { key: 'name', label: 'Card Name' },
+              { key: 'description', label: 'Description' },
+              {
+                key: 'status',
+                label: 'Status',
+                render: (status) => (
+                  <StatusBadge status={status as any} />
+                ),
+              },
+            ]}
+            data={recentCards}
+            actions={false}
+            itemsPerPage={5}
+          />
+        </div>
+      </div>
+
+      {/* Recent Orders — Full Width */}
+      <div>
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Recent Orders</h2>
+          <Link
+            href="/admin/orders"
+            className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition-colors"
+          >
+            View all <ArrowUpRight className="w-3 h-3" />
+          </Link>
+        </div>
         <DataTable
-          title="Recent Cards"
           columns={[
-            { key: 'name', label: 'Card Name' },
-            { key: 'description', label: 'Description' },
+            { key: 'orderNum', label: 'Order ID', width: '120px' },
+            { key: 'customer', label: 'Customer' },
+            { key: 'date', label: 'Date', width: '120px' },
+            { key: 'total', label: 'Total', width: '80px' },
             {
               key: 'status',
               label: 'Status',
               render: (status) => (
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  status === 'active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
-                }`}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>
+                <StatusBadge status={status as any} />
               ),
             },
           ]}
-          data={recentCards}
+          data={recentOrders}
           actions={false}
-          itemsPerPage={5}
+          itemsPerPage={10}
         />
       </div>
 
-      {/* Recent Orders */}
-      <DataTable
-        title="Recent Orders"
-        columns={[
-          { key: 'orderNum', label: 'Order ID', width: '120px' },
-          { key: 'customer', label: 'Customer' },
-          { key: 'date', label: 'Date', width: '120px' },
-          { key: 'total', label: 'Total', width: '100px' },
-          {
-            key: 'status',
-            label: 'Status',
-            render: (status) => {
-              const statusColors = {
-                completed: 'bg-blue-100 text-blue-800',
-                pending: 'bg-yellow-100 text-yellow-800',
-                cancelled: 'bg-red-100 text-red-800',
-              };
-              return (
-                <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  statusColors[status as keyof typeof statusColors] || 'bg-gray-100 text-gray-800'
-                }`}>
-                  {status.charAt(0).toUpperCase() + status.slice(1)}
-                </span>
-              );
-            },
-          },
-        ]}
-        data={recentOrders}
-        actions={false}
-        itemsPerPage={10}
-      />
-    </main>
+      {/* Footer */}
+      <p className="text-xs text-gray-700 text-center mt-10 pb-4">
+        © {new Date().getFullYear()} Tapvyo Admin Panel · All rights reserved
+      </p>
+    </div>
   );
 }

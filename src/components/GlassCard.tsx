@@ -38,7 +38,7 @@ export default function GlassCard({
   return (
     <div className={baseClasses}>
       {glow && (
-        <div className="absolute inset-0 rounded-2xl bg-linear-to-br from-violet-500/10 to-indigo-500/5 pointer-events-none" />
+        <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-violet-500/10 to-indigo-500/5 pointer-events-none" />
       )}
       <div className="relative z-10">
         {children}

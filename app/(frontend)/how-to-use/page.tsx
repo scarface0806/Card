@@ -45,7 +45,7 @@ export default function HowToUsePage() {
   return (
     <>
       <Navbar />
-      <main className="bg-linear-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] min-h-screen">
+      <main className="bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] min-h-screen">
         {/* Hero Section */}
         <section className="relative pt-32 pb-16 md:pt-44 md:pb-24 overflow-hidden">
           {/* Background decorations */}
@@ -74,7 +74,7 @@ export default function HowToUsePage() {
               className="text-4xl md:text-6xl font-bold mb-6 text-[#0f2e25] font-space-grotesk leading-tight"
             >
               Your NFC Digital Card in{' '}
-              <span className="bg-linear-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                 3 Simple Steps
               </span>
             </motion.h1>
@@ -106,7 +106,7 @@ export default function HowToUsePage() {
                   <div className="flex flex-col md:flex-row items-start gap-6 md:gap-10">
                     {/* Icon */}
                     <div className="shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-linear-to-br from-teal-50 to-emerald-50 border border-teal-100 flex items-center justify-center shadow-sm">
+                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-100 flex items-center justify-center shadow-sm">
                         <step.icon className="w-8 h-8 md:w-10 md:h-10 text-teal-600" />
                       </div>
                     </div>
@@ -127,7 +127,7 @@ export default function HowToUsePage() {
                       </p>
 
                       {step.highlight && (
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-linear-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-full">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-full">
                           <CheckCircle2 className="w-4 h-4 text-teal-600" />
                           <span className="text-sm font-semibold text-teal-700">
                             {step.highlight === 'Free Lifetime Website Included' ? (
@@ -141,7 +141,7 @@ export default function HowToUsePage() {
 
                   {/* Connecting line (except for last item) */}
                   {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute -bottom-8 left-[2.5rem] md:left-[3.25rem] w-0.5 h-8 bg-linear-to-b from-teal-200 to-transparent" />
+                    <div className="hidden md:block absolute -bottom-8 left-[2.5rem] md:left-[3.25rem] w-0.5 h-8 bg-gradient-to-b from-teal-200 to-transparent" />
                   )}
                 </motion.div>
               ))}
@@ -180,7 +180,7 @@ export default function HowToUsePage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-linear-to-br from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
+                  className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
                 >
                   <span className="text-3xl mb-3 block">{item.icon}</span>
                   <span className="text-sm font-semibold text-[#0f2e25]">{item.label}</span>
@@ -198,7 +198,7 @@ export default function HowToUsePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative bg-linear-to-br from-teal-700 to-emerald-600 rounded-3xl p-10 md:p-16 text-center overflow-hidden"
+              className="relative bg-gradient-to-br from-teal-700 to-emerald-600 rounded-3xl p-10 md:p-16 text-center overflow-hidden"
             >
               {/* Background decoration */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -240,7 +240,7 @@ export default function HowToUsePage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href={ROUTES.CREATE_CARD}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-linear-to-r from-teal-600 to-green-600 hover:shadow-lg text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:-translate-y-1 group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 hover:shadow-lg text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:-translate-y-1 group">
                     <span>Create Your Card</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>

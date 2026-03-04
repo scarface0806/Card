@@ -55,7 +55,7 @@ export default function StickyMobileCTA() {
 
               {/* CTA Button */}
               <Link href={ROUTES.CREATE_CARD}>
-                <button className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-linear-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-md hover:shadow-lg transition-all duration-220">
+                <button className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-md hover:shadow-lg transition-all duration-220">
                   Create Your Card
                   <ArrowRight className="w-4 h-4" />
                 </button>

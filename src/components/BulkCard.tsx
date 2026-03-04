@@ -23,7 +23,7 @@ export default function BulkCard({ icon: Icon, title, features, cardGradient = '
       className="bg-white rounded-3xl shadow-lg border border-teal-100 p-8 flex flex-col h-full"
     >
       {/* Card Preview Visual */}
-      <div className="h-40 rounded-2xl bg-linear-to-br from-teal-50 to-white flex items-center justify-center mb-6 shadow-inner border border-teal-100/50">
+      <div className="h-40 rounded-2xl bg-gradient-to-br from-teal-50 to-white flex items-center justify-center mb-6 shadow-inner border border-teal-100/50">
         <div 
           className="w-48 h-28 rounded-xl shadow-lg relative overflow-hidden"
           style={{ background: cardGradient }}

@@ -50,7 +50,7 @@ export default function HowItWorksSection() {
   return (
     <section className="relative section-spacing bg-white overflow-hidden">
       {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-linear-to-b from-gray-50/50 via-white to-white pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-white to-white pointer-events-none" />
 
       <div className="relative site-container">
         {/* Section Header */}
@@ -99,7 +99,7 @@ export default function HowItWorksSection() {
                     className="flex items-center justify-center mb-6"
                     whileHover={{ y: -2, transition: { duration: 0.22 } }}
                   >
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-linear-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
+                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
                       <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
                     </div>
                   </motion.div>
