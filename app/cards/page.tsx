@@ -10,12 +10,9 @@ import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare } from 'lucide-react';
+import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare, Loader2 } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
-import { cardTemplates, CardTemplate } from '@/utils/cardTemplates';
-
-// Use shared card templates
-const cardDesigns = cardTemplates;
+import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 
 const lifetimeFeatures = [
   'Free hosting forever',
@@ -27,10 +24,13 @@ const lifetimeFeatures = [
 
 export default function CardsPage() {
   const router = useRouter();
-  const [selectedCard, setSelectedCard] = useState<CardTemplate | null>(null);
+  const [selectedCard, setSelectedCard] = useState<CardDesign | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
+  
+  // Use dynamic card designs
+  const { cardDesigns, loading } = useCardDesigns();
   
   // Contact Modal State (lifted up for reuse)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -45,12 +45,12 @@ export default function CardsPage() {
     setIsContactModalOpen(false);
   };
 
-  const handlePreview = (card: CardTemplate) => {
+  const handlePreview = (card: CardDesign) => {
     setSelectedCard(card);
     setIsPreviewOpen(true);
   };
 
-  const handleBuyNow = (card: CardTemplate) => {
+  const handleBuyNow = (card: CardDesign) => {
     if (card.type === 'custom') {
       openContactModal('custom');
       return;
@@ -106,6 +106,11 @@ export default function CardsPage() {
           </motion.div>
 
           {/* Card Grid */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+            </div>
+          ) : (
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -175,9 +180,16 @@ export default function CardsPage() {
 
                   {/* Price Section */}
                   <div className="mb-3">
-                    <p className="text-2xl font-bold text-teal-700">
-                      {card.type === 'custom' ? '₹599' : card.price}
-                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="text-2xl font-bold text-teal-700">
+                        {card.price}
+                      </p>
+                      {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
+                        <p className="text-sm text-gray-400 line-through">
+                          {card.salePrice}
+                        </p>
+                      )}
+                    </div>
                     <p className="text-sm text-[#4b635d]">
                       {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>}
                     </p>
@@ -228,6 +240,7 @@ export default function CardsPage() {
               </motion.div>
             ))}
           </motion.div>
+          )}
         </div>
       </main>
 

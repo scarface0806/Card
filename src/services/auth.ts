@@ -40,34 +40,36 @@ export interface AuthResponse {
  */
 export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> => {
   try {
-    // Mock API call - in production use real endpoint
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    // Call real API endpoint
+    const response = await fetch('/api/auth/login', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(payload),
+    });
 
-    // Mock validation
-    if (!payload.email || !payload.password) {
+    const data = await response.json();
+
+    if (!response.ok) {
       return {
         success: false,
-        message: 'Email and password are required',
+        message: data.error || 'Login failed',
       };
     }
 
-    // Mock successful response
-    const mockResponse: AuthResponse = {
+    return {
       success: true,
-      message: 'Login successful',
+      message: data.message || 'Login successful',
       data: {
-        token: 'mock_jwt_token_' + Date.now(),
+        token: data.token,
         user: {
-          id: 'user_123',
-          email: payload.email,
+          id: data.user.id,
+          email: data.user.email,
         },
       },
     };
-
-    return mockResponse;
   } catch (error) {
-    console.error('[AUTH SERVICE] Login error:', error);
     return {
       success: false,
       message: 'An error occurred during login. Please try again.',
@@ -122,7 +124,6 @@ export const registerUser = async (payload: RegisterPayload): Promise<AuthRespon
 
     return mockResponse;
   } catch (error) {
-    console.error('[AUTH SERVICE] Registration error:', error);
     return {
       success: false,
       message: 'An error occurred during registration. Please try again.',
@@ -138,7 +139,7 @@ export const logoutUser = (): void => {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
   } catch (error) {
-    console.error('[AUTH SERVICE] Logout error:', error);
+    // Silently fail
   }
 };
 
@@ -149,7 +150,6 @@ export const getAuthToken = (): string | null => {
   try {
     return localStorage.getItem('authToken');
   } catch (error) {
-    console.error('[AUTH SERVICE] Error retrieving auth token:', error);
     return null;
   }
 };
@@ -161,7 +161,7 @@ export const setAuthToken = (token: string): void => {
   try {
     localStorage.setItem('authToken', token);
   } catch (error) {
-    console.error('[AUTH SERVICE] Error storing auth token:', error);
+    // Silently fail
   }
 };
 

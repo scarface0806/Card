@@ -1,0 +1,304 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+// ==================== ENUMS ====================
+
+enum Role {
+  ADMIN
+  CUSTOMER
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+}
+
+enum CardStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  EXPIRED
+}
+
+// ==================== MODELS ====================
+
+model User {
+  id            String  @id @default(auto()) @map("_id") @db.ObjectId
+  email         String  @unique
+  password      String?
+  name          String?
+  phone         String?
+  avatar        String?
+  role          Role    @default(CUSTOMER)
+  emailVerified Boolean @default(false)
+  isActive      Boolean @default(true)
+
+  // Relations
+  orders Order[]
+  cards  Card[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Product {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  slug        String   @unique
+  description String?
+  price       Float
+  salePrice   Float?
+  images      String[]
+  category    String?
+  tags        String[]
+  sku         String?  @unique
+  stock       Int      @default(0)
+  isActive    Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+
+  // NFC Card specific fields
+  cardType String? // e.g., "standard", "premium", "metal"
+  material String?
+  color    String?
+
+  // Relations
+  orderItems OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("products")
+}
+
+model Order {
+  id          String @id @default(auto()) @map("_id") @db.ObjectId
+  orderNumber String @unique
+
+  // Customer info
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  // Guest checkout info
+  guestEmail String?
+  guestName  String?
+  guestPhone String?
+
+  // Order details
+  items    OrderItem[]
+  subtotal Float
+  discount Float       @default(0)
+  shipping Float       @default(0)
+  tax      Float       @default(0)
+  total    Float
+
+  // Status
+  status        OrderStatus   @default(PENDING)
+  paymentStatus PaymentStatus @default(PENDING)
+  paymentMethod String?
+  paymentId     String? // External payment reference
+
+  // Shipping address
+  shippingAddress Address?
+
+  // Billing address
+  billingAddress Address?
+
+  // Associated Card (created when order is confirmed)
+  cardId String? @db.ObjectId
+
+  // NFC link email tracking
+  nfcLinkEmailSent Boolean @default(false)
+
+  notes String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("orders")
+}
+
+type Address {
+  fullName     String
+  addressLine1 String
+  addressLine2 String?
+  city         String
+  state        String
+  postalCode   String
+  country      String
+  phone        String?
+}
+
+type OrderItem {
+  productId   String @db.ObjectId
+  productName String
+  quantity    Int
+  price       Float
+  total       Float
+}
+
+model Card {
+  id   String @id @default(auto()) @map("_id") @db.ObjectId
+  slug String @unique
+
+  // Owner
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  // Card info
+  cardType String?
+  nfcId    String?    @unique // Physical NFC chip ID
+  status   CardStatus @default(PENDING)
+
+  // Card details (embedded)
+  details CardDetail?
+
+  // Analytics
+  views      Int       @default(0)
+  taps       Int       @default(0)
+  lastTapped DateTime?
+
+  // Leads captured
+  leads CardLead[]
+
+  isActive  Boolean   @default(true)
+  expiresAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("cards")
+}
+
+type CardDetail {
+  // Personal info
+  firstName String?
+  lastName  String?
+  title     String?
+  company   String?
+  bio       String?
+
+  // Contact info
+  email   String?
+  phone   String?
+  website String?
+
+  // Profile image
+  profileImage String?
+  coverImage   String?
+  logo         String?
+
+  // Social links
+  socialLinks SocialLinks?
+
+  // Custom fields
+  customFields CustomField[]
+
+  // Theme/styling
+  theme           String?
+  primaryColor    String?
+  backgroundColor String?
+}
+
+type SocialLinks {
+  linkedin  String?
+  twitter   String?
+  facebook  String?
+  instagram String?
+  youtube   String?
+  tiktok    String?
+  github    String?
+  whatsapp  String?
+  telegram  String?
+  snapchat  String?
+}
+
+type CustomField {
+  label String
+  value String
+  type  String // text, link, email, phone
+  icon  String?
+}
+
+model CardLead {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Associated card
+  cardId String @db.ObjectId
+  card   Card   @relation(fields: [cardId], references: [id], onDelete: Cascade)
+
+  // Lead info
+  name    String?
+  email   String?
+  phone   String?
+  company String?
+  message String?
+
+  // Metadata
+  source    String? // qr, nfc, link
+  ipAddress String?
+  userAgent String?
+
+  isRead Boolean @default(false)
+
+  createdAt DateTime @default(now())
+
+  @@map("card_leads")
+}
+
+model NewsletterSubscriber {
+  id       String  @id @default(auto()) @map("_id") @db.ObjectId
+  email    String  @unique
+  name     String?
+  isActive Boolean @default(true)
+  source   String? // website, checkout, popup
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletter_subscribers")
+}
+
+model Newsletter {
+  id          String  @id @default(auto()) @map("_id") @db.ObjectId
+  subject     String
+  slug        String  @unique
+  content     String // HTML content
+  previewText String?
+
+  // Stats
+  sentCount  Int @default(0)
+  openCount  Int @default(0)
+  clickCount Int @default(0)
+
+  isSent      Boolean   @default(false)
+  sentAt      DateTime?
+  scheduledAt DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("newsletters")
+}

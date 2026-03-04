@@ -7,7 +7,7 @@ interface CardPreviewModalProps {
   isOpen: boolean;
   onClose: () => void;
   card: {
-    id: number;
+    id: string | number;
     name: string;
     type: 'basic' | 'premium' | 'custom';
     price: string;

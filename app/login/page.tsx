@@ -60,7 +60,6 @@ export default function LoginPage() {
       }
     } catch (error) {
       setServerError('An error occurred. Please try again later.');
-      console.error('Login error:', error);
     } finally {
       setIsLoading(false);
     }
@@ -189,7 +188,7 @@ export default function LoginPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">OR</span>
+                <span className="px-4 bg-white text-gray-500">Or continue with</span>
               </div>
             </div>
 

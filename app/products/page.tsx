@@ -3,72 +3,234 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { Check, Zap, Award, Smartphone, Palette, Shield, TrendingUp, ArrowRight, Sparkles } from 'lucide-react';
+import { Check, Zap, Award, Smartphone, Palette, Shield, TrendingUp, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { ROUTES } from '@/utils/constants';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import type { LucideIcon } from 'lucide-react';
+
+interface Product {
+  id: string;
+  name: string;
+  price: string;
+  priceValue: number;
+  period: string;
+  description: string;
+  color: string;
+  features: string[];
+  icon: LucideIcon;
+  popular: boolean;
+}
+
+// Icon mapping based on price range
+function getProductIcon(price: number): LucideIcon {
+  if (price < 700) return Smartphone;
+  if (price < 1500) return Award;
+  return TrendingUp;
+}
+
+// Color mapping based on price range
+function getProductColor(price: number): string {
+  if (price < 700) return 'bg-teal-600';
+  if (price < 1500) return 'bg-emerald-600';
+  return 'bg-cyan-700';
+}
+
+// Generate features based on product data
+function getProductFeatures(product: any): string[] {
+  const baseFeatures = [
+    'Premium NFC chip',
+    'Free lifetime website',
+    'Personal info',
+    'Social links',
+    'QR code backup',
+  ];
+
+  const premiumFeatures = [
+    'All templates unlocked',
+    'Business branding',
+    'Advanced analytics',
+    'Multiple profiles',
+    'Analytics dashboard',
+    'Priority support',
+  ];
+
+  const enterpriseFeatures = [
+    'Unlimited NFC cards',
+    'Team management',
+    'White-label options',
+    'Advanced analytics',
+    'Custom integrations',
+    '24/7 dedicated support',
+    'API access',
+    'Team collaboration',
+  ];
+
+  if (product.price < 700) return baseFeatures;
+  if (product.price < 1500) return [...baseFeatures, ...premiumFeatures];
+  return [...baseFeatures, ...premiumFeatures, ...enterpriseFeatures];
+}
 
 export default function ProductsPage() {
-  const [hoveredProduct, setHoveredProduct] = useState<number | null>(null);
+  const router = useRouter();
+  const { data: session, status } = useSession();
+  const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [buyingProductId, setBuyingProductId] = useState<string | null>(null);
 
-  const products = [
-    {
-      id: 1,
-      name: 'Starter Card',
-      price: '₹499',
-      period: 'One-time',
-      description: 'Perfect for getting started with NFC',
-      color: 'bg-teal-600',
-      features: [
-        'Premium NFC chip',
-        'Basic templates',
-        'Personal info',
-        'Social links',
-        'QR code backup',
-      ],
-      icon: Smartphone,
-      popular: false,
-    },
-    {
-      id: 2,
-      name: 'Professional Card',
-      price: '₹999',
-      period: 'One-time',
-      description: 'For the ambitious professional',
-      color: 'bg-emerald-600',
-      features: [
-        'Premium NFC chip',
-        'All templates unlocked',
-        'Business branding',
-        'Advanced analytics',
-        'Multiple profiles',
-        'Analytics dashboard',
-        'Priority support',
-      ],
-      icon: Award,
-      popular: true,
-    },
-    {
-      id: 3,
-      name: 'Enterprise Card',
-      price: '₹2999',
-      period: 'Per month',
-      description: 'For organizations at scale',
-      color: 'bg-cyan-700',
-      features: [
-        'Unlimited NFC cards',
-        'Team management',
-        'White-label options',
-        'Advanced analytics',
-        'Custom integrations',
-        '24/7 dedicated support',
-        'API access',
-        'Team collaboration',
-      ],
-      icon: TrendingUp,
-      popular: false,
-    },
-  ];
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('/api/products?limit=10&sortBy=price&sortOrder=asc');
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch products');
+        }
+
+        const data = await response.json();
+        
+        // Transform API products to match UI structure
+        const transformedProducts: Product[] = data.products.map((product: any, index: number) => {
+          const priceValue = product.salePrice || product.price;
+          return {
+            id: product.id,
+            name: product.name,
+            price: `₹${priceValue.toFixed(0)}`,
+            priceValue: priceValue,
+            period: 'One-time',
+            description: product.description || 'Premium NFC digital business card',
+            color: getProductColor(priceValue),
+            features: getProductFeatures(product),
+            icon: getProductIcon(priceValue),
+            popular: product.isFeatured || index === 1, // Mark featured or middle product as popular
+          };
+        });
+
+        setProducts(transformedProducts);
+      } catch (error) {
+        console.error('Error fetching products:', error);
+        // Fallback to default products if API fails
+        setProducts([
+          {
+            id: '1',
+            name: 'Starter Card',
+            price: '₹499',
+            priceValue: 499,
+            period: 'One-time',
+            description: 'Perfect for getting started with NFC',
+            color: 'bg-teal-600',
+            features: [
+              'Premium NFC chip',
+              'Basic templates',
+              'Personal info',
+              'Social links',
+              'QR code backup',
+            ],
+            icon: Smartphone,
+            popular: false,
+          },
+          {
+            id: '2',
+            name: 'Professional Card',
+            price: '₹999',
+            priceValue: 999,
+            period: 'One-time',
+            description: 'For the ambitious professional',
+            color: 'bg-emerald-600',
+            features: [
+              'Premium NFC chip',
+              'All templates unlocked',
+              'Business branding',
+              'Advanced analytics',
+              'Multiple profiles',
+              'Analytics dashboard',
+              'Priority support',
+            ],
+            icon: Award,
+            popular: true,
+          },
+          {
+            id: '3',
+            name: 'Enterprise Card',
+            price: '₹2999',
+            priceValue: 2999,
+            period: 'Per month',
+            description: 'For organizations at scale',
+            color: 'bg-cyan-700',
+            features: [
+              'Unlimited NFC cards',
+              'Team management',
+              'White-label options',
+              'Advanced analytics',
+              'Custom integrations',
+              '24/7 dedicated support',
+              'API access',
+              'Team collaboration',
+            ],
+            icon: TrendingUp,
+            popular: false,
+          },
+        ]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
+  const handleBuyNow = async (productId: string) => {
+    // Check if user is logged in
+    if (status === 'unauthenticated') {
+      // Redirect to login with return URL
+      router.push(`${ROUTES.LOGIN}?redirect=${encodeURIComponent(ROUTES.PRODUCTS)}`);
+      return;
+    }
+
+    // If still loading session, wait
+    if (status === 'loading') {
+      return;
+    }
+
+    try {
+      setBuyingProductId(productId);
+
+      // POST to Order API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          productId,
+          quantity: 1,
+        }),
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Failed to create order');
+      }
+
+      const data = await response.json();
+
+      // Redirect to order success page
+      if (data.order?.id) {
+        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${data.order.id}`);
+      } else {
+        router.push(ROUTES.ORDER_SUCCESS);
+      }
+    } catch (error) {
+      console.error('Order error:', error);
+      alert(error instanceof Error ? error.message : 'Failed to create order. Please try again.');
+    } finally {
+      setBuyingProductId(null);
+    }
+  };
 
   const features = [
     {
@@ -138,6 +300,11 @@ export default function ProductsPage() {
         {/* Pricing Cards */}
         <section className="py-20 md:py-32 bg-white">
           <div className="site-container">
+            {loading ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+              </div>
+            ) : (
             <div className="grid md:grid-cols-3 gap-8">
               {products.map((product, index) => {
                 const Icon = product.icon;
@@ -176,20 +343,29 @@ export default function ProductsPage() {
                         <p className="text-[#6b7f78] text-sm">{product.period}</p>
                       </div>
 
-                      <Link href={ROUTES.ORDER} className="w-full block">
-                        <motion.button
-                          whileHover={{ scale: 1.02 }}
-                          whileTap={{ scale: 0.98 }}
-                          className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all ${
-                            product.popular
-                              ? 'bg-teal-600 text-white hover:bg-teal-700'
-                              : 'bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100'
-                          }`}
-                        >
-                          Get Started
-                          <ArrowRight className="w-4 h-4" />
-                        </motion.button>
-                      </Link>
+                      <motion.button
+                        whileHover={{ scale: 1.02 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleBuyNow(product.id)}
+                        disabled={buyingProductId === product.id || status === 'loading'}
+                        className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                          product.popular
+                            ? 'bg-teal-600 text-white hover:bg-teal-700'
+                            : 'bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100'
+                        }`}
+                      >
+                        {buyingProductId === product.id ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            Processing...
+                          </>
+                        ) : (
+                          <>
+                            Buy Now
+                            <ArrowRight className="w-4 h-4" />
+                          </>
+                        )}
+                      </motion.button>
 
                       <div className="mt-8 space-y-4">
                         {product.features.map((feature, idx) => (
@@ -211,6 +387,7 @@ export default function ProductsPage() {
                 );
               })}
             </div>
+            )}
           </div>
         </section>
 

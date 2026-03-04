@@ -5,14 +5,9 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
-import AuthModal from '@/components/AuthModal';
-
-type AuthMode = 'login' | 'signup';
 
 export default function PremiumNavbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
   const pathname = usePathname();
 
   const navItems = [
@@ -52,27 +47,21 @@ export default function PremiumNavbar() {
 
         {/* Right Actions */}
         <div className="hidden md:flex items-center gap-4 z-10">
-          <button
-            onClick={() => {
-              setAuthMode('login');
-              setIsAuthOpen(true);
-            }}
+          <Link
+            href={ROUTES.LOGIN}
             className="relative text-teal-700 hover:text-teal-900 font-medium transition-all duration-300 font-[family-name:var(--font-space-grotesk)] group py-2"
           >
             Login
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300 ease-out" />
-          </button>
-          <button
-            onClick={() => {
-              setAuthMode('signup');
-              setIsAuthOpen(true);
-            }}
-            className="relative flex items-center gap-2 px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
+          </Link>
+          <Link
+            href={ROUTES.SIGNUP}
+            className="relative flex items-center gap-2 px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             <span className="relative">Sign Up</span>
             <ArrowRight className="relative w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-          </button>
+          </Link>
         </div>
 
         {/* Mobile Menu Button */}
@@ -97,45 +86,30 @@ export default function PremiumNavbar() {
                     ? 'text-teal-600 bg-teal-50 border-l-2 border-teal-600'
                     : 'text-teal-800 hover:text-teal-600 hover:bg-teal-50'
                 }`}
-                onClick={() => setIsOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
             <div className="pt-4 space-y-3 border-t border-gray-100">
-              <button
-                onClick={() => {
-                  setAuthMode('login');
-                  setIsAuthOpen(true);
-                  setIsOpen(false);
-                }}
+              <Link
+                href={ROUTES.LOGIN}
+                onClick={() => setIsOpen(false)}
                 className="block w-full px-4 py-3 text-teal-700 hover:text-teal-900 font-medium rounded-xl transition-all duration-300 text-center border border-teal-200 hover:border-teal-300 hover:bg-teal-50 font-[family-name:var(--font-space-grotesk)]"
               >
                 Login
-              </button>
-              <button
-                onClick={() => {
-                  setAuthMode('signup');
-                  setIsAuthOpen(true);
-                  setIsOpen(false);
-                }}
+              </Link>
+              <Link
+                href={ROUTES.SIGNUP}
+                onClick={() => setIsOpen(false)}
                 className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg font-[family-name:var(--font-space-grotesk)] group"
               >
                 <span>Sign Up</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </button>
+              </Link>
             </div>
           </div>
         </div>
       )}
-
-      {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        mode={authMode}
-        onClose={() => setIsAuthOpen(false)}
-        onModeChange={setAuthMode}
-      />
     </nav>
   );
 }

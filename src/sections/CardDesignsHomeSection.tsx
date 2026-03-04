@@ -4,9 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare } from 'lucide-react';
+import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
-import { cardTemplates, CardTemplate } from '@/utils/cardTemplates';
+import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
 import { ContactSource } from '@/components/ContactModal';
 
@@ -16,17 +16,17 @@ interface CardDesignsHomeSectionProps {
 
 export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHomeSectionProps) {
   const router = useRouter();
-  const [selectedCard, setSelectedCard] = useState<CardTemplate | null>(null);
+  const [selectedCard, setSelectedCard] = useState<CardDesign | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  
+  const { cardDesigns, loading } = useCardDesigns();
 
-  const cardDesigns = cardTemplates;
-
-  const handlePreview = (card: CardTemplate) => {
+  const handlePreview = (card: CardDesign) => {
     setSelectedCard(card);
     setIsPreviewOpen(true);
   };
 
-  const handleBuyNow = (card: CardTemplate) => {
+  const handleBuyNow = (card: CardDesign) => {
     if (card.type === 'custom') {
       onContactClick?.('custom');
       return;
@@ -96,6 +96,11 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
           </motion.div>
 
           {/* Card Grid */}
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+            </div>
+          ) : (
           <motion.div
             variants={containerVariants}
             initial="hidden"
@@ -155,9 +160,16 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
                   {/* Price Section */}
                   <div className="mb-3">
-                    <p className="heading-3 text-teal-700">
-                      {card.type === 'custom' ? '₹599' : card.price}
-                    </p>
+                    <div className="flex items-baseline gap-2">
+                      <p className="heading-3 text-teal-700">
+                        {card.price}
+                      </p>
+                      {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
+                        <p className="text-sm text-gray-400 line-through">
+                          {card.salePrice}
+                        </p>
+                      )}
+                    </div>
                     <p className="body-base text-[#4b635d]">
                       {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>}
                     </p>
@@ -208,6 +220,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
               </motion.div>
             ))}
           </motion.div>
+          )}
 
           {/* CTA: Lifetime Website Benefit */}
           <motion.div
