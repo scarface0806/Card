@@ -3,20 +3,6 @@
   "devCommand": "npm run dev",
   "installCommand": "npm install",
   "framework": "nextjs",
-  "env": {
-    "DATABASE_URL": "@database_url",
-    "JWT_SECRET": "@jwt_secret",
-    "JWT_EXPIRES_IN": "7d",
-    "NODE_ENV": "production",
-    "NEXT_PUBLIC_SITE_URL": "@next_public_site_url",
-    "EMAIL_HOST": "@email_host",
-    "EMAIL_PORT": "@email_port",
-    "EMAIL_USER": "@email_user",
-    "EMAIL_PASS": "@email_pass",
-    "EMAIL_SECURE": "true",
-    "SMTP_FROM": "@smtp_from",
-    "SMTP_FROM_NAME": "Tapvyo"
-  },
   "regions": ["iad1"],
   "git": {
     "deploymentEnabled": true
