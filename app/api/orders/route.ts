@@ -6,12 +6,37 @@ import { createOrderSchema } from "@/lib/validators";
 import { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
+import { MongoClient } from "mongodb";
 
 // Generate unique order number
 function generateOrderNumber(): string {
   const timestamp = Date.now().toString(36).toUpperCase();
   const random = Math.random().toString(36).substring(2, 6).toUpperCase();
   return `ORD-${timestamp}-${random}`;
+}
+
+function toValidObjectIdOrNull(value: string | undefined | null) {
+  if (!value) return null;
+  return /^[a-fA-F0-9]{24}$/.test(value) ? value : null;
+}
+
+function isReplicaSetRequiredError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    (error as { code?: string }).code === "P2031"
+  );
+}
+
+function getDatabaseNameFromUri(uri: string) {
+  try {
+    const parsed = new URL(uri);
+    const pathname = parsed.pathname.replace(/^\//, "").trim();
+    return pathname || "tapvyo-nfc";
+  } catch {
+    return "tapvyo-nfc";
+  }
 }
 
 // GET /api/orders - Get user's orders
@@ -32,7 +57,13 @@ export async function GET(request: NextRequest) {
     const skip = (page - 1) * limit;
     const status = searchParams.get("status") as OrderStatus | null;
 
-    const where: Record<string, unknown> = { userId: user.id };
+    const where: Record<string, unknown> = {};
+    const isAdmin = user.role === "ADMIN";
+
+    if (!isAdmin) {
+      where.userId = user.id;
+    }
+
     if (status) {
       where.status = status;
     }
@@ -48,6 +79,7 @@ export async function GET(request: NextRequest) {
     ]);
 
     return NextResponse.json({
+      success: true,
       orders,
       pagination: {
         page,
@@ -59,7 +91,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Get orders error:", error);
     return NextResponse.json(
-      { error: "Failed to fetch orders" },
+      { success: false, message: "Failed to fetch orders" },
       { status: 500 }
     );
   }
@@ -96,9 +128,11 @@ export async function POST(request: NextRequest) {
       const submittedPrice = price ?? 0;
       const submittedCardType = cardType || templateSlug || "NFC Digital Card";
 
-      const guestOrderData = {
+        const validUserId = toValidObjectIdOrNull(user?.id);
+
+        const guestOrderData = {
           orderNumber: generateOrderNumber(),
-          userId: user?.id,
+          userId: validUserId,
           guestName: name || null,
           guestEmail: email || user?.email || null,
           guestPhone: phone || null,
@@ -127,9 +161,48 @@ export async function POST(request: NextRequest) {
             : null,
       } as Prisma.OrderUncheckedCreateInput;
 
-      const order = await prisma.order.create({
-        data: guestOrderData,
-      });
+      let order = await (async () => {
+        try {
+          return await prisma.order.create({
+            data: guestOrderData,
+          });
+        } catch (error) {
+          if (!isReplicaSetRequiredError(error)) {
+            throw error;
+          }
+
+          const databaseUrl = process.env.DATABASE_URL;
+          if (!databaseUrl) {
+            throw new Error("DATABASE_URL is not configured");
+          }
+
+          const client = new MongoClient(databaseUrl);
+          const dbName = getDatabaseNameFromUri(databaseUrl);
+
+          try {
+            await client.connect();
+            const db = client.db(dbName);
+            const orders = db.collection("orders");
+
+            const now = new Date();
+            const insertResult = await orders.insertOne({
+              ...guestOrderData,
+              createdAt: now,
+              updatedAt: now,
+            });
+
+            return {
+              id: String(insertResult.insertedId),
+              orderNumber: String(guestOrderData.orderNumber),
+              total: Number(guestOrderData.total || 0),
+              status: guestOrderData.status || OrderStatus.PENDING,
+              createdAt: now,
+            };
+          } finally {
+            await client.close();
+          }
+        }
+      })();
 
       const recipientEmail = email || user?.email;
       if (recipientEmail) {
@@ -209,9 +282,11 @@ export async function POST(request: NextRequest) {
 
     // Create order with PENDING status
     // Note: shippingAddress expects an Address object with required fields, so we set it to null for now
+    const validUserId = toValidObjectIdOrNull(user.id);
+
     const productOrderData = {
         orderNumber: generateOrderNumber(),
-        userId: user.id,
+      userId: validUserId,
         guestName: null,
         guestEmail: user.email || null,
         guestPhone: null,
