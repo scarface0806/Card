@@ -59,6 +59,29 @@ function normalizeUrl(url?: string | null) {
   return `https://${url}`;
 }
 
+function normalizeMapEmbedSrc(value?: string | null) {
+  if (!value) return null;
+
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  const iframeSrcMatch = trimmed.match(/<iframe[^>]*\ssrc=["']([^"']+)["'][^>]*>/i);
+  const candidate = (iframeSrcMatch?.[1] || trimmed).replace(/&amp;/g, '&').trim();
+
+  if (!candidate || (!candidate.startsWith('http://') && !candidate.startsWith('https://'))) {
+    return null;
+  }
+
+  try {
+    const parsed = new URL(candidate);
+    const isGoogleHost = parsed.hostname === 'google.com' || parsed.hostname === 'www.google.com' || parsed.hostname.endsWith('.google.com');
+    const isEmbedPath = parsed.pathname.startsWith('/maps/embed');
+    return isGoogleHost && isEmbedPath ? parsed.toString() : null;
+  } catch {
+    return null;
+  }
+}
+
 export default function CustomerProfileView({ customer }: CustomerProfileViewProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [form, setForm] = useState<ContactFormState>({ name: '', phone: '', email: '', subject: '', message: '' });
@@ -103,6 +126,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
     ].filter((item) => item.enabled && item.url),
     [customer]
   );
+
+  const mapEmbedSrc = useMemo(() => normalizeMapEmbedSrc(customer.mapEmbedUrl), [customer.mapEmbedUrl]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -598,10 +623,10 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
             </div>
           </section>
 
-          {customer.mapEmbedUrl ? (
+          {mapEmbedSrc ? (
             <section className="digi-map-section">
               <iframe
-                src={customer.mapEmbedUrl}
+                src={mapEmbedSrc}
                 width="100%"
                 height="350"
                 style={{ border: 0 }}
