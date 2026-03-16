@@ -7,6 +7,8 @@ import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 export async function GET(request: NextRequest) {
   try {
     const customerDelegate = (prisma as unknown as { customer: { count: (args?: unknown) => Promise<number> } }).customer;
+    const mainLeadDelegate =
+      prisma as unknown as { mainWebsiteLead: { count: (args?: unknown) => Promise<number> } };
     const { user, error } = await authenticate(request);
 
     if (!user || user.role !== Role.ADMIN) {
@@ -46,7 +48,6 @@ export async function GET(request: NextRequest) {
       
       // Lead metrics
       totalLeads,
-      unreadLeads,
       leadsThisMonth,
       
       // Recent orders
@@ -147,15 +148,10 @@ export async function GET(request: NextRequest) {
       }),
       
       // Total leads
-      prisma.cardLead.count(),
-      
-      // Unread leads
-      prisma.cardLead.count({
-        where: { isRead: false },
-      }),
+      mainLeadDelegate.mainWebsiteLead.count(),
       
       // Leads this month
-      prisma.cardLead.count({
+      mainLeadDelegate.mainWebsiteLead.count({
         where: {
           createdAt: {
             gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
@@ -247,7 +243,7 @@ export async function GET(request: NextRequest) {
       },
       leads: {
         total: totalLeads,
-        unread: unreadLeads,
+        unread: 0,
         thisMonth: leadsThisMonth,
       },
       recentOrders: (recentOrders as Array<{

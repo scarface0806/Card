@@ -1,7 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { checkRateLimit } from "@/lib/rate-limit";
-import { customerLeadSchema } from "@/lib/validators";
+import { customerLeadSchema, mainWebsiteLeadSchema } from "@/lib/validators";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { sendCustomerLeadNotificationEmail } from "@/lib/email";
 import { MongoClient, ObjectId } from "mongodb";
@@ -66,6 +66,44 @@ async function createLeadWithMongoFallback(data: {
   }
 }
 
+async function createMainWebsiteLeadWithMongoFallback(data: {
+  name: string;
+  phone: string;
+  email?: string | null;
+  subject?: string | null;
+  message?: string | null;
+  service?: string | null;
+}) {
+  const databaseUrl = process.env.DATABASE_URL;
+  if (!databaseUrl) {
+    throw new Error("DATABASE_URL is not configured");
+  }
+
+  const client = new MongoClient(databaseUrl);
+  const dbName = getDatabaseNameFromUri(databaseUrl);
+
+  try {
+    await client.connect();
+    const db = client.db(dbName);
+    const leads = db.collection("main_website_leads");
+
+    const result = await leads.insertOne({
+      source: "main-website",
+      name: data.name,
+      phone: data.phone,
+      email: data.email || null,
+      subject: data.subject || null,
+      message: data.message || null,
+      service: data.service || null,
+      createdAt: new Date(),
+    });
+
+    return String(result.insertedId);
+  } finally {
+    await client.close();
+  }
+}
+
 export async function POST(request: NextRequest) {
   try {
     const rl = checkRateLimit(request, 12);
@@ -78,6 +116,58 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json();
+
+    const isCustomerSubmission = typeof body?.customerId === "string" && body.customerId.trim().length > 0;
+
+    if (!isCustomerSubmission) {
+      const parsedMainLead = mainWebsiteLeadSchema.safeParse(body);
+
+      if (!parsedMainLead.success) {
+        return errorResponse(parsedMainLead.error.issues.map((issue) => issue.message).join(", "), 400);
+      }
+
+      let leadId: string;
+      const leadSource = "main-website";
+
+      try {
+        const createdLead = await prisma.mainWebsiteLead.create({
+          data: {
+            source: leadSource,
+            name: parsedMainLead.data.name,
+            phone: parsedMainLead.data.phone,
+            email: parsedMainLead.data.email || null,
+            subject: parsedMainLead.data.subject || null,
+            message: parsedMainLead.data.message || null,
+            service: parsedMainLead.data.service || null,
+          },
+        });
+
+        leadId = createdLead.id;
+      } catch (error) {
+        if (!isReplicaSetRequiredError(error)) {
+          throw error;
+        }
+
+        leadId = await createMainWebsiteLeadWithMongoFallback({
+          name: parsedMainLead.data.name,
+          phone: parsedMainLead.data.phone,
+          email: parsedMainLead.data.email || null,
+          subject: parsedMainLead.data.subject || null,
+          message: parsedMainLead.data.message || null,
+          service: parsedMainLead.data.service || null,
+        });
+      }
+
+      return successResponse(
+        {
+          message: "Lead submitted successfully",
+          leadId,
+          source: leadSource,
+        },
+        201
+      );
+    }
+
     const parsed = customerLeadSchema.safeParse(body);
 
     if (!parsed.success) {

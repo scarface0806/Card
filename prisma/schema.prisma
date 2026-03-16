@@ -339,6 +339,20 @@ model Lead {
   @@map("leads")
 }
 
+model MainWebsiteLead {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  source    String   @default("main-website")
+  name      String
+  phone     String
+  email     String?
+  subject   String?
+  message   String?
+  service   String?
+  createdAt DateTime @default(now())
+
+  @@map("main_website_leads")
+}
+
 model NewsletterSubscriber {
   id       String  @id @default(auto()) @map("_id") @db.ObjectId
   email    String  @unique

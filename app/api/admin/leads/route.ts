@@ -14,6 +14,51 @@ async function getHandler(request: NextRequest, user: AuthUser) {
     const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 200) : 50;
     const skip = (page - 1) * limit;
     const search = searchParams.get("search")?.trim();
+    const type = searchParams.get("type") === "nfc" ? "nfc" : "main";
+
+    if (type === "nfc") {
+      const where = search
+        ? {
+            OR: [
+              { name: { contains: search, mode: "insensitive" as const } },
+              { phone: { contains: search, mode: "insensitive" as const } },
+              { email: { contains: search, mode: "insensitive" as const } },
+              { message: { contains: search, mode: "insensitive" as const } },
+              { customer: { name: { contains: search, mode: "insensitive" as const } } },
+            ],
+          }
+        : {};
+
+      const [leads, total] = await Promise.all([
+        prisma.lead.findMany({
+          where,
+          skip,
+          take: limit,
+          orderBy: { createdAt: "desc" },
+          include: {
+            customer: {
+              select: {
+                id: true,
+                name: true,
+                slug: true,
+              },
+            },
+          },
+        }),
+        prisma.lead.count({ where }),
+      ]);
+
+      return successResponse({
+        type,
+        leads,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+        },
+      });
+    }
 
     const where = search
       ? {
@@ -21,32 +66,33 @@ async function getHandler(request: NextRequest, user: AuthUser) {
             { name: { contains: search, mode: "insensitive" as const } },
             { phone: { contains: search, mode: "insensitive" as const } },
             { email: { contains: search, mode: "insensitive" as const } },
+            { subject: { contains: search, mode: "insensitive" as const } },
             { message: { contains: search, mode: "insensitive" as const } },
-            { customer: { name: { contains: search, mode: "insensitive" as const } } },
+            { service: { contains: search, mode: "insensitive" as const } },
           ],
         }
       : {};
 
+    const mainLeadDelegate =
+      prisma as unknown as {
+        mainWebsiteLead: {
+          findMany: (args: unknown) => Promise<unknown[]>;
+          count: (args: unknown) => Promise<number>;
+        };
+      };
+
     const [leads, total] = await Promise.all([
-      prisma.lead.findMany({
+      mainLeadDelegate.mainWebsiteLead.findMany({
         where,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
-        include: {
-          customer: {
-            select: {
-              id: true,
-              name: true,
-              slug: true,
-            },
-          },
-        },
       }),
-      prisma.lead.count({ where }),
+      mainLeadDelegate.mainWebsiteLead.count({ where }),
     ]);
 
     return successResponse({
+      type,
       leads,
       pagination: {
         page,

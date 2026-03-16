@@ -9,6 +9,7 @@ import { useState } from 'react';
 export default function ContactUsPage() {
   const [formData, setFormData] = useState({
     name: '',
+    phone: '',
     email: '',
     subject: '',
     message: '',
@@ -16,6 +17,7 @@ export default function ContactUsPage() {
 
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState('');
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
@@ -27,14 +29,39 @@ export default function ContactUsPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    setSubmitted(true);
-    setIsLoading(false);
-    setTimeout(() => {
-      setFormData({ name: '', email: '', subject: '', message: '' });
-      setSubmitted(false);
-    }, 3000);
+    setSubmitError('');
+
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          phone: formData.phone,
+          email: formData.email,
+          subject: formData.subject,
+          message: formData.message,
+          service: 'Contact Us',
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || 'Failed to submit message');
+      }
+
+      setSubmitted(true);
+      setTimeout(() => {
+        setFormData({ name: '', phone: '', email: '', subject: '', message: '' });
+        setSubmitted(false);
+      }, 3000);
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit message');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const contactMethods = [
@@ -178,6 +205,20 @@ export default function ContactUsPage() {
                   </div>
 
                   <div>
+                    <label className="block text-sm font-semibold text-[#4b635d] mb-2">Phone</label>
+                    <motion.input
+                      whileFocus={{ scale: 1.01 }}
+                      type="tel"
+                      name="phone"
+                      value={formData.phone}
+                      onChange={handleChange}
+                      placeholder="9999999999"
+                      required
+                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-teal-100 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                    />
+                  </div>
+
+                  <div>
                     <label className="block text-sm font-semibold text-[#4b635d] mb-2">Email</label>
                     <motion.input
                       whileFocus={{ scale: 1.01 }}
@@ -247,6 +288,10 @@ export default function ContactUsPage() {
                       </motion.span>
                     )}
                   </motion.button>
+
+                  {submitError ? (
+                    <p className="text-sm text-red-600">{submitError}</p>
+                  ) : null}
                 </form>
               </motion.div>
 

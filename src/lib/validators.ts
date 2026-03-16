@@ -160,4 +160,13 @@ export const customerLeadSchema = z.object({
   skipEmail: z.boolean().optional().default(false),
 });
 
+export const mainWebsiteLeadSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  phone: z.string().trim().min(6, "Phone is required").max(30),
+  email: z.string().trim().email("Please enter a valid email").optional().or(z.literal("")),
+  subject: z.string().trim().max(250).optional().or(z.literal("")),
+  message: z.string().trim().max(2000).optional().or(z.literal("")),
+  service: z.string().trim().max(120).optional().or(z.literal("")),
+});
+
 // Add additional schemas as needed for other endpoints

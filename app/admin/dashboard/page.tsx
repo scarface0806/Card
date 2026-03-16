@@ -4,7 +4,7 @@ import React from 'react';
 import StatCard from '@/components/admin/StatCard';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { Users, UserCheck, UserX, ShoppingCart, ArrowUpRight } from 'lucide-react';
+import { Users, UserCheck, UserX, ShoppingCart, ArrowUpRight, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useDashboard, formatCurrency } from '@/hooks/useDashboard';
 
@@ -80,7 +80,7 @@ export default function Dashboard() {
       </div>
 
       {/* Stat Cards Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         <StatCard
           label="Total Customers"
           value={metrics.customers.total}
@@ -108,6 +108,13 @@ export default function Dashboard() {
           icon={<ShoppingCart className="w-5 h-5" />}
           description={`${metrics.orders.pending} pending`}
           color="orange"
+        />
+        <StatCard
+          label="Total Leads"
+          value={metrics.leads.total}
+          icon={<MessageSquare className="w-5 h-5" />}
+          description={`${metrics.leads.thisMonth} this month`}
+          color="green"
         />
       </div>
 

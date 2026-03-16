@@ -18,6 +18,7 @@ interface FormData {
   contactNumber: string;
   message: string;
   hasOwnDesign: string;
+  email: string;
 }
 
 const sourceConfig: Record<ContactSource, { title: string; subtitle: string }> = {
@@ -50,8 +51,10 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
     contactNumber: '',
     message: '',
     hasOwnDesign: '',
+    email: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const config = sourceConfig[source] || sourceConfig.general;
 
@@ -63,13 +66,38 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitError(null);
 
-    // Simulate API delay
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    try {
+      const service = source === 'general' ? formData.companyName.trim() || 'General Inquiry' : source;
 
-    setIsSubmitting(false);
-    setFormData({ fullName: '', companyName: '', contactNumber: '', message: '', hasOwnDesign: '' });
-    onClose();
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: formData.fullName,
+          phone: formData.contactNumber,
+          email: formData.email,
+          subject: `${config.title}${formData.hasOwnDesign ? ` (${formData.hasOwnDesign})` : ''}`,
+          message: `${formData.message}${formData.companyName ? `\nCompany/School: ${formData.companyName}` : ''}`,
+          service,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok) {
+        throw new Error(payload.error || 'Failed to submit inquiry');
+      }
+
+      setFormData({ fullName: '', companyName: '', contactNumber: '', message: '', hasOwnDesign: '', email: '' });
+      onClose();
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit inquiry');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -157,6 +185,18 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                   />
                 </div>
 
+                <div className="relative">
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    placeholder="Email Address *"
+                    required
+                    className="w-full px-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
+                  />
+                </div>
+
                 {/* Design Option - Only for Custom Card */}
                 {source === 'custom' && (
                   <div className="relative">
@@ -208,6 +248,10 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     'Submit Inquiry'
                   )}
                 </motion.button>
+
+                {submitError ? (
+                  <p className="text-sm text-red-600 text-center">{submitError}</p>
+                ) : null}
               </form>
 
               <p className="text-xs text-[#6b7f78] text-center mt-6">

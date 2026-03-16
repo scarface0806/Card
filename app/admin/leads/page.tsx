@@ -8,9 +8,10 @@ import AdminToast from '@/components/admin/AdminToast';
 interface LeadRow {
   id: string;
   sno: number;
-  customerName: string;
-  visitorName: string;
+  name: string;
   phone: string;
+  email: string;
+  service: string;
   message: string;
   date: string;
 }
@@ -31,7 +32,7 @@ export default function AdminLeadsPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/admin/leads?limit=200', {
+      const response = await fetch('/api/admin/leads?type=main&limit=200', {
         credentials: 'include',
       });
       const payload = await response.json();
@@ -43,10 +44,11 @@ export default function AdminLeadsPage() {
       const mapped: LeadRow[] = (payload.leads || []).map((lead: any, index: number) => ({
         id: lead.id,
         sno: index + 1,
-        customerName: lead.customer?.name || 'Unknown customer',
-        visitorName: lead.name,
+        name: lead.name || '-',
         phone: lead.phone,
-        message: lead.message,
+        email: lead.email || '-',
+        service: lead.service || '-',
+        message: lead.message || '-',
         date: new Date(lead.createdAt).toLocaleString(),
       }));
 
@@ -66,8 +68,8 @@ export default function AdminLeadsPage() {
     <main className="space-y-6">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">NFC Leads</h1>
-          <p className="mt-1 text-sm text-gray-400">Messages submitted from live NFC profile pages.</p>
+          <h1 className="text-2xl font-semibold text-white">Main Website Leads</h1>
+          <p className="mt-1 text-sm text-gray-400">Leads captured from website service and contact forms.</p>
         </div>
         <button
           type="button"
@@ -85,9 +87,10 @@ export default function AdminLeadsPage() {
       <DataTable
         columns={[
           { key: 'sno', label: 'S.NO', width: '60px' },
-          { key: 'customerName', label: 'Customer Name' },
-          { key: 'visitorName', label: 'Visitor Name' },
+          { key: 'name', label: 'Name' },
           { key: 'phone', label: 'Phone' },
+          { key: 'email', label: 'Email' },
+          { key: 'service', label: 'Service' },
           {
             key: 'message',
             label: 'Message',
@@ -96,7 +99,7 @@ export default function AdminLeadsPage() {
           { key: 'date', label: 'Date' },
         ]}
         data={loading ? [] : rows}
-        onView={(row: LeadRow) => setToast({ variant: 'info', message: `${row.visitorName} -> ${row.customerName}: ${row.message}` })}
+        onView={(row: LeadRow) => setToast({ variant: 'info', message: `${row.name} (${row.phone}) -> ${row.message}` })}
       />
     </main>
   );
