@@ -10,6 +10,9 @@
 const { spawn } = require("child_process");
 const path = require("path");
 
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "santhoshuxui2023@gmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "KGTPS6565P";
+
 function run(command, args = [], options = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn(command, args, {
@@ -62,8 +65,8 @@ async function setupLocal() {
     console.log("=".repeat(70) + "\n");
 
     console.log("📊 ADMIN CREDENTIALS:\n");
-    console.log("   Email:    admin@tapvyo.com");
-    console.log("   Password: admin123");
+    console.log(`   Email:    ${ADMIN_EMAIL}`);
+    console.log(`   Password: ${ADMIN_PASSWORD}`);
     console.log("   Role:     ADMIN\n");
 
     console.log("🚀 To start development server:\n");

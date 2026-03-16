@@ -50,13 +50,14 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       const result = await response.json();
 
       if (response.ok && result.success) {
-        // Store admin token
+        // Store token mirror in localStorage for client-only guards.
+        localStorage.setItem('authToken', result.token);
         localStorage.setItem('admin_token', result.token);
 
         // Redirect to dashboard
         router.push(redirectTo);
       } else {
-        setServerError(result.message || 'Invalid email or password.');
+        setServerError(result.error || result.message || 'Invalid email or password.');
       }
     } catch (error) {
       setServerError('An error occurred. Please try again.');

@@ -3,7 +3,8 @@
 export interface DashboardMetrics {
   customers: {
     total: number;
-    newThisMonth: number;
+    active: number;
+    disabled: number;
   };
   orders: {
     total: number;

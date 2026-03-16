@@ -28,6 +28,7 @@ const menuItems = [
     section: 'MANAGEMENT',
     items: [
       { label: 'Customers', href: '/admin/customers', icon: Users },
+      { label: 'Leads', href: '/admin/leads', icon: MessageSquare },
       { label: 'Cards', href: '/admin/cards', icon: CreditCard },
       { label: 'Products', href: '/admin/products', icon: Package },
       { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },

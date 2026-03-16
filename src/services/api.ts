@@ -43,6 +43,12 @@ export interface OrderData {
     gallery?: File[];
   };
   template?: string;
+  templateName?: string;
+  templatePrice?: number;
+  payment?: {
+    method?: string;
+    terms?: boolean;
+  };
 }
 
 export interface PaymentData {
@@ -53,12 +59,56 @@ export interface PaymentData {
 
 // Mock API functions
 export const createOrder = async (data: OrderData) => {
-  await mockApiCall(1000);
+  const cardType = data.templateName || (data.template
+    ? data.template
+        .split('-')
+        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+        .join(' ')
+    : 'NFC Digital Card');
+
+  const priceMap: Record<string, number> = {
+    basic: 599,
+    premium: 799,
+    custom: 0,
+  };
+
+  const inferredTemplateType = data.template?.includes('custom')
+    ? 'custom'
+    : data.template?.includes('gradient') || data.template?.includes('gold')
+      ? 'premium'
+      : 'basic';
+
+  const response = await fetch('/api/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      name: data.personalDetails.name,
+      email: data.personalDetails.email,
+      phone: data.personalDetails.mobile,
+      designation: data.personalDetails.designation,
+      company: data.personalDetails.company,
+      website: data.businessDetails.website,
+      address: data.businessDetails.address,
+      cardType,
+      price: data.templatePrice ?? priceMap[inferredTemplateType] ?? 599,
+      paymentMethod: data.payment?.method || 'card',
+      templateSlug: data.template,
+      profileData: data,
+    }),
+  });
+
+  const payload = await response.json();
+  if (!response.ok || !payload.success) {
+    throw new Error(payload.error || payload.message || 'Failed to create order');
+  }
+
   return {
     success: true,
-    orderId: `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`,
-    message: 'Order created successfully',
-    data,
+    orderId: payload.orderId,
+    message: payload.message || 'Order created successfully',
+    data: payload.order,
   };
 };
 

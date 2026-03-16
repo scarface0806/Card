@@ -1,12 +1,18 @@
 'use client';
 
-import React, { useState } from 'react';
-import { User, Upload } from 'lucide-react';
+import React, { useEffect, useMemo, useState } from 'react';
+import { Upload } from 'lucide-react';
 
 export default function AccountPage() {
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
-    name: 'Admin User',
-    email: 'admin@tapvyo.com',
+    name: '',
+    email: '',
+    avatar: '',
     photo: null as File | null,
   });
 
@@ -14,9 +20,53 @@ export default function AccountPage() {
     'https://ui-avatars.com/api/?name=Admin+User&background=0D8ABC&color=fff'
   );
 
+  const fallbackPreviewUrl = useMemo(() => {
+    const safeName = encodeURIComponent(formData.name || 'Admin User');
+    return `https://ui-avatars.com/api/?name=${safeName}&background=0D8ABC&color=fff`;
+  }, [formData.name]);
+
+  useEffect(() => {
+    const loadAccount = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const response = await fetch('/api/admin/account', {
+          credentials: 'include',
+        });
+        const payload = await response.json();
+
+        if (!response.ok || !payload.success) {
+          throw new Error(payload.error || 'Failed to load account');
+        }
+
+        const user = payload.user;
+        setFormData((prev) => ({
+          ...prev,
+          name: user.name || 'Admin User',
+          email: user.email || '',
+          avatar: user.avatar || '',
+        }));
+        const safeName = encodeURIComponent(user.name || 'Admin User');
+        setPreviewUrl(
+          user.avatar || `https://ui-avatars.com/api/?name=${safeName}&background=0D8ABC&color=fff`
+        );
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to load account');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadAccount();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === 'avatar') {
+      setPreviewUrl(value || fallbackPreviewUrl);
+    }
   };
 
   const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -25,15 +75,48 @@ export default function AccountPage() {
       setFormData((prev) => ({ ...prev, photo: file }));
       const reader = new FileReader();
       reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
+        const dataUrl = reader.result as string;
+        setPreviewUrl(dataUrl);
+        setFormData((prev) => ({ ...prev, avatar: dataUrl }));
       };
       reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Profile settings saved successfully!');
+    try {
+      setSaving(true);
+      setError(null);
+      setSuccess(null);
+
+      const response = await fetch('/api/admin/account', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          avatar: formData.avatar,
+        }),
+      });
+      const payload = await response.json();
+
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || 'Failed to save account settings');
+      }
+
+      setSuccess(payload.message || 'Profile settings saved successfully');
+      if (payload.user?.avatar) {
+        setPreviewUrl(payload.user.avatar);
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save account settings');
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -44,6 +127,10 @@ export default function AccountPage() {
       </div>
 
       <div className="max-w-2xl bg-[#1f2436] rounded-2xl border border-white/5 p-8 shadow-xl">
+        {loading && <p className="text-sm text-gray-400 mb-4">Loading account details...</p>}
+        {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+        {success && <p className="text-sm text-emerald-400 mb-4">{success}</p>}
+
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Profile Photo */}
           <div>
@@ -71,7 +158,14 @@ export default function AccountPage() {
                       className="hidden"
                     />
                   </label>
-                  <button type="button" className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFormData((prev) => ({ ...prev, avatar: '', photo: null }));
+                      setPreviewUrl(fallbackPreviewUrl);
+                    }}
+                    className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                  >
                     Remove
                   </button>
                 </div>
@@ -92,6 +186,7 @@ export default function AccountPage() {
                 name="name"
                 value={formData.name}
                 onChange={handleChange}
+                disabled={loading || saving}
                 className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
               />
             </div>
@@ -107,6 +202,23 @@ export default function AccountPage() {
                 name="email"
                 value={formData.email}
                 onChange={handleChange}
+                disabled={loading || saving}
+                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
+              />
+            </div>
+
+            <div className="space-y-2 md:col-span-2">
+              <label htmlFor="avatar" className="block text-sm font-medium text-gray-300">
+                Avatar URL (Optional)
+              </label>
+              <input
+                type="url"
+                id="avatar"
+                name="avatar"
+                value={formData.avatar}
+                onChange={handleChange}
+                disabled={loading || saving}
+                placeholder="https://example.com/avatar.png"
                 className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
               />
             </div>
@@ -122,9 +234,10 @@ export default function AccountPage() {
             </button>
             <button
               type="submit"
+              disabled={loading || saving}
               className="px-8 py-2.5 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-xl font-semibold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all active:scale-95"
             >
-              Save Changes
+              {saving ? 'Saving...' : 'Save Changes'}
             </button>
           </div>
         </form>

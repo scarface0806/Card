@@ -22,6 +22,16 @@ interface LeadNotificationData {
   cardSlug: string;
 }
 
+interface CustomerLeadNotificationData {
+  to: string;
+  customerName: string;
+  customerSlug: string;
+  visitorName: string;
+  visitorPhone: string;
+  visitorMessage: string;
+  visitorEmail?: string;
+}
+
 interface EmailOptions {
   to: string;
   subject: string;
@@ -230,6 +240,63 @@ Reply to them by emailing: ${data.leadEmail}
 This lead was captured from your digital card: ${cardUrl}
 Powered by Tapvyo
 `;
+
+  return sendEmail({
+    to: data.to,
+    subject,
+    html,
+    text,
+  });
+}
+
+export async function sendCustomerLeadNotificationEmail(
+  data: CustomerLeadNotificationData
+): Promise<boolean> {
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const profileUrl = `${siteUrl}/card/${data.customerSlug}`;
+  const subject = `New NFC Profile Message from ${data.visitorName}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New NFC Profile Message</title>
+</head>
+<body style="margin:0;padding:0;background:#f6f2ea;font-family:Segoe UI,Arial,sans-serif;">
+  <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="max-width:640px;margin:0 auto;padding:32px 16px;">
+    <tr>
+      <td style="background:#ffffff;border-radius:20px;overflow:hidden;border:1px solid #eadfce;">
+        <div style="background:linear-gradient(135deg,#dc6b2f 0%,#f2a24c 100%);padding:28px 32px;color:#ffffff;">
+          <h1 style="margin:0;font-size:26px;font-weight:700;">New visitor message</h1>
+          <p style="margin:8px 0 0;font-size:14px;opacity:0.92;">Your NFC profile just received a new enquiry.</p>
+        </div>
+        <div style="padding:32px;">
+          <p style="margin:0 0 20px;color:#382d21;font-size:16px;line-height:1.6;">Hi ${data.customerName},</p>
+          <p style="margin:0 0 24px;color:#5a4938;font-size:15px;line-height:1.6;">A visitor submitted the contact form on your NFC digital profile.</p>
+          <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background:#fbf7f0;border:1px solid #eadfce;border-radius:14px;">
+            <tr><td style="padding:20px;">
+              <p style="margin:0 0 10px;color:#8a725c;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;">Visitor Name</p>
+              <p style="margin:0 0 18px;color:#221b14;font-size:18px;font-weight:600;">${data.visitorName}</p>
+              <p style="margin:0 0 10px;color:#8a725c;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;">Phone</p>
+              <p style="margin:0 0 18px;color:#221b14;font-size:16px;font-weight:600;">${data.visitorPhone}</p>
+              ${data.visitorEmail ? `<p style="margin:0 0 10px;color:#8a725c;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;">Email</p><p style="margin:0 0 18px;color:#221b14;font-size:16px;font-weight:600;">${data.visitorEmail}</p>` : ""}
+              <p style="margin:0 0 10px;color:#8a725c;font-size:12px;text-transform:uppercase;letter-spacing:0.08em;">Message</p>
+              <p style="margin:0;color:#3a2f24;font-size:15px;line-height:1.7;white-space:pre-line;">${data.visitorMessage}</p>
+            </td></tr>
+          </table>
+          <p style="margin:24px 0 0;">
+            <a href="${profileUrl}" style="display:inline-block;padding:12px 18px;border-radius:999px;background:#221b14;color:#ffffff;text-decoration:none;font-weight:600;">Open NFC profile</a>
+          </p>
+        </div>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>`;
+
+  const text = `New visitor message\n\nHi ${data.customerName},\n\nA visitor submitted the contact form on your NFC profile.\n\nVisitor Name: ${data.visitorName}\nPhone: ${data.visitorPhone}${data.visitorEmail ? `\nEmail: ${data.visitorEmail}` : ""}\nMessage: ${data.visitorMessage}\n\nProfile: ${profileUrl}`;
 
   return sendEmail({
     to: data.to,

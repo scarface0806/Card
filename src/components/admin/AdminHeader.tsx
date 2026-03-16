@@ -10,6 +10,21 @@ interface AdminHeaderProps {
 export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const [profileOpen, setProfileOpen] = useState(false);
 
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch {
+      // No-op
+    } finally {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('admin_token');
+      window.location.href = '/admin/login';
+    }
+  };
+
   const toggleFullscreen = () => {
     if (!document.fullscreenElement) {
       document.documentElement.requestFullscreen();
@@ -107,10 +122,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   </a>
                   <div className="border-t border-white/5 mt-1 pt-1">
                     <button
-                      onClick={() => {
-                        localStorage.removeItem('authToken');
-                        window.location.href = '/login';
-                      }}
+                      onClick={handleLogout}
                       className="w-full text-left flex items-center gap-3 px-4 py-2.5 hover:bg-red-500/10 text-red-400 hover:text-red-300 text-sm transition-colors"
                     >
                       <LogOut className="w-4 h-4" />

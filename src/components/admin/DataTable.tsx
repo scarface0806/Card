@@ -19,6 +19,17 @@ interface DataTableProps {
   onView?: (row: any) => void;
   onEdit?: (row: any) => void;
   onDelete?: (row: any) => void;
+  actionLabels?: {
+    view?: string;
+    edit?: string;
+    delete?: string;
+  };
+  extraActions?: Array<{
+    key: string;
+    label: string | ((row: any) => string);
+    onClick: (row: any) => void;
+    tone?: 'neutral' | 'warning' | 'danger' | 'success';
+  }>;
   itemsPerPage?: number;
   actions?: boolean;
 }
@@ -30,6 +41,8 @@ export default function DataTable({
   onView,
   onEdit,
   onDelete,
+  actionLabels,
+  extraActions,
   itemsPerPage = 10,
   actions = true,
 }: DataTableProps) {
@@ -98,7 +111,7 @@ export default function DataTable({
                             onClick={() => onView(row)}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-blue-400 hover:bg-blue-400/10 transition-all active:scale-95"
                           >
-                            View
+                            {actionLabels?.view || 'View'}
                           </button>
                         )}
                         {onEdit && (
@@ -106,7 +119,7 @@ export default function DataTable({
                             onClick={() => onEdit(row)}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-orange-400 hover:bg-orange-400/10 transition-all active:scale-95"
                           >
-                            Edit
+                            {actionLabels?.edit || 'Edit'}
                           </button>
                         )}
                         {onDelete && (
@@ -114,9 +127,28 @@ export default function DataTable({
                             onClick={() => onDelete(row)}
                             className="px-3 py-1.5 rounded-lg text-xs font-medium text-red-400 hover:bg-red-400/10 transition-all active:scale-95"
                           >
-                            Delete
+                            {actionLabels?.delete || 'Delete'}
                           </button>
                         )}
+                        {(extraActions || []).map((action) => {
+                          const toneClass = action.tone === 'danger'
+                            ? 'text-red-400 hover:bg-red-400/10'
+                            : action.tone === 'warning'
+                              ? 'text-amber-400 hover:bg-amber-400/10'
+                              : action.tone === 'success'
+                                ? 'text-emerald-400 hover:bg-emerald-400/10'
+                                : 'text-gray-300 hover:bg-white/10';
+
+                          return (
+                            <button
+                              key={action.key}
+                              onClick={() => action.onClick(row)}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${toneClass}`}
+                            >
+                              {typeof action.label === 'function' ? action.label(row) : action.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </td>
                   )}

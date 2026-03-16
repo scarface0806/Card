@@ -80,6 +80,7 @@ export default function OrderPage() {
         businessDetails: data.businessDetails,
         socialLinks: data.socialLinks,
         uploads,
+        payment: data.payment,
       });
 
       if (result.success) {

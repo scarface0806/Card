@@ -100,6 +100,9 @@ function CreateCardContent() {
         socialLinks: data.socialLinks,
         uploads,
         template: selectedTemplate.slug,
+        templateName: selectedTemplate.name,
+        templatePrice: selectedTemplate.priceValue,
+        payment: data.payment,
       });
 
       if (result.success) {

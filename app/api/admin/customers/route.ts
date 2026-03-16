@@ -2,11 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { withAdmin } from "@/lib/auth-middleware";
 import { AuthUser } from "@/lib/auth";
-import { Role } from "@prisma/client";
+import { successResponse, errorResponse } from "@/lib/responses";
+
+type CustomerAdminDelegate = {
+  findMany: (args: unknown) => Promise<any[]>;
+  count: (args: unknown) => Promise<number>;
+};
 
 // GET /api/admin/customers - Get all customers (admin only)
 async function handler(request: NextRequest, user: AuthUser) {
   try {
+    const customerDelegate = (prisma as unknown as { customer: CustomerAdminDelegate }).customer;
     const { searchParams } = new URL(request.url);
     const rawPage = parseInt(searchParams.get("page") || "1");
     const rawLimit = parseInt(searchParams.get("limit") || "50");
@@ -14,40 +20,57 @@ async function handler(request: NextRequest, user: AuthUser) {
     const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 200) : 50;
     const skip = (page - 1) * limit;
 
+    const search = searchParams.get("search")?.trim();
+
+    const where = search
+      ? {
+          OR: [
+            { name: { contains: search, mode: "insensitive" as const } },
+            { company: { contains: search, mode: "insensitive" as const } },
+            { phone: { contains: search, mode: "insensitive" as const } },
+            { email: { contains: search, mode: "insensitive" as const } },
+            { slug: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
+      : {};
+
     const [customers, total] = await Promise.all([
-      prisma.user.findMany({
-        where: { role: Role.CUSTOMER },
+      customerDelegate.findMany({
+        where,
         skip,
         take: limit,
         orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          name: true,
-          email: true,
-          createdAt: true,
-          isActive: true,
+        include: {
           _count: {
             select: {
-              orders: true,
-              cards: true,
+              galleries: true,
+              leads: true,
             },
           },
         },
       }),
-      prisma.user.count({ where: { role: Role.CUSTOMER } }),
+      customerDelegate.count({ where }),
     ]);
 
-    const data = customers.map((customer) => ({
+    const data = customers.map((customer: Awaited<typeof customers>[number]) => ({
       id: customer.id,
       name: customer.name,
+      phone: customer.phone,
       email: customer.email,
+      designation: customer.designation,
+      company: customer.company,
+      slug: customer.slug,
+      logo: customer.logo,
+      profileImage: customer.profileImage,
+      isActive: customer.isActive,
+      status: customer.isActive ? "Active" : "Disabled",
       createdAt: customer.createdAt,
-      isActive: customer.isActive ?? true,
-      totalOrders: customer._count.orders,
-      totalCards: customer._count.cards,
+      totalGalleryImages: customer._count.galleries,
+      totalLeads: customer._count.leads,
+      nfcLink: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/card/${customer.slug}`,
     }));
 
-    return NextResponse.json({
+    return successResponse({
       customers: data,
       pagination: {
         page,
@@ -58,10 +81,7 @@ async function handler(request: NextRequest, user: AuthUser) {
     });
   } catch (error) {
     console.error("Get customers error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch customers" },
-      { status: 500 }
-    );
+    return errorResponse("Failed to fetch customers", 500);
   }
 }
 

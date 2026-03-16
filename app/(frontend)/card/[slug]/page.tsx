@@ -3,12 +3,24 @@ import { notFound } from 'next/navigation';
 import { cache } from 'react';
 import prisma from '@/lib/prisma';
 import CardProfileView from '@/components/CardProfileView';
+import CustomerProfileView from '@/components/customer/CustomerProfileView';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
 }
 
 // Cache card fetch for 60 seconds to improve performance
+const getCustomerProfile = cache(async (slug: string) => {
+  return prisma.customer.findUnique({
+    where: { slug },
+    include: {
+      galleries: {
+        orderBy: { id: 'desc' },
+      },
+    },
+  });
+});
+
 const getCard = cache(async (slug: string) => {
   return prisma.card.findUnique({
     where: { slug },
@@ -37,12 +49,47 @@ const getCard = cache(async (slug: string) => {
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
+  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+  const metadataBase = new URL(siteUrl);
   
   try {
+    const customer = await getCustomerProfile(slug);
+
+    if (customer) {
+      const title = `${customer.name} | NFC Digital Profile`;
+      const description = [customer.designation, customer.company].filter(Boolean).join(' at ') || customer.about || `Connect with ${customer.name}`;
+      const image = customer.profileImage || customer.logo || '/og-default.png';
+      const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/card/${slug}`;
+
+      return {
+        metadataBase,
+        title,
+        description,
+        openGraph: {
+          title,
+          description,
+          type: 'profile',
+          url: canonicalUrl,
+          images: [{ url: image, width: 1200, height: 630, alt: customer.name }],
+          siteName: 'Tapvyo NFC',
+        },
+        twitter: {
+          card: 'summary_large_image',
+          title,
+          description,
+          images: [image],
+        },
+        alternates: {
+          canonical: canonicalUrl,
+        },
+      };
+    }
+
     const card = await getCard(slug);
 
     if (!card || !card.isActive) {
       return {
+        metadataBase,
         title: 'Card Not Found | Tapvyo',
         description: 'The requested digital business card could not be found.',
         robots: {
@@ -69,6 +116,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const pageTitle = `${fullName} | NFC Digital Card`;
 
     return {
+      metadataBase,
       title: pageTitle,
       description: description || `Connect with ${fullName}`,
       openGraph: {
@@ -107,6 +155,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     };
   } catch (error) {
     return {
+      metadataBase,
       title: 'Digital Business Card | Tapvyo',
       description: 'View this digital business card powered by Tapvyo NFC.',
     };
@@ -120,6 +169,15 @@ export const revalidate = 60;
 
 export default async function CardPage({ params }: PageProps) {
   const { slug } = await params;
+
+  const customer = await getCustomerProfile(slug);
+  if (customer && !customer.isActive) {
+    notFound();
+  }
+
+  if (customer) {
+    return <CustomerProfileView customer={customer} />;
+  }
 
   // Fetch card from database (cached)
   const card = await getCard(slug);

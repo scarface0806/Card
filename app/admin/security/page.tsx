@@ -4,6 +4,10 @@ import React, { useState } from 'react';
 import { Eye, EyeOff, CheckCircle } from 'lucide-react';
 
 export default function SecurityPage() {
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
+
   const [showPasswords, setShowPasswords] = useState({
     current: false,
     new: false,
@@ -46,21 +50,55 @@ export default function SecurityPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+    setSuccess(null);
 
     if (formData.newPassword !== formData.confirmPassword) {
-      alert('Passwords do not match!');
+      setError('Passwords do not match');
       return;
     }
 
     if (!Object.values(passwordStrength).every(Boolean)) {
-      alert('Password does not meet all requirements!');
+      setError('Password does not meet all requirements');
       return;
     }
 
-    alert('Password changed successfully!');
-    setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    try {
+      setSubmitting(true);
+      const response = await fetch('/api/admin/security/password', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          currentPassword: formData.currentPassword,
+          newPassword: formData.newPassword,
+          confirmPassword: formData.confirmPassword,
+        }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload.success) {
+        throw new Error(payload.error || 'Failed to update password');
+      }
+
+      setSuccess(payload.message || 'Password changed successfully');
+      setFormData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+      setPasswordStrength({
+        hasUpper: false,
+        hasLower: false,
+        hasNumber: false,
+        hasSpecial: false,
+        isLongEnough: false,
+      });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to update password');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const strengthScore = Object.values(passwordStrength).filter(Boolean).length;
@@ -80,6 +118,9 @@ export default function SecurityPage() {
             Change Password
           </h2>
 
+          {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
+          {success && <p className="text-sm text-emerald-400 mb-4">{success}</p>}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
               <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-300">
@@ -93,12 +134,14 @@ export default function SecurityPage() {
                   value={formData.currentPassword}
                   onChange={handleChange}
                   placeholder="Enter current password"
+                  disabled={submitting}
                   className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => toggleShowPassword('current')}
+                    disabled={submitting}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-400 transition-colors"
                 >
                   {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -119,12 +162,14 @@ export default function SecurityPage() {
                     value={formData.newPassword}
                     onChange={handleChange}
                     placeholder="Min. 8 characters"
+                    disabled={submitting}
                     className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => toggleShowPassword('new')}
+                    disabled={submitting}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-400 transition-colors"
                   >
                     {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -144,12 +189,14 @@ export default function SecurityPage() {
                     value={formData.confirmPassword}
                     onChange={handleChange}
                     placeholder="Repeat new password"
+                    disabled={submitting}
                     className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => toggleShowPassword('confirm')}
+                    disabled={submitting}
                     className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-400 transition-colors"
                   >
                     {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -167,9 +214,10 @@ export default function SecurityPage() {
               </button>
               <button
                 type="submit"
+                disabled={submitting}
                 className="px-8 py-2.5 bg-gradient-to-r from-orange-500 to-orange-400 text-white rounded-xl font-semibold shadow-lg shadow-orange-500/20 hover:shadow-orange-500/30 transition-all active:scale-95"
               >
-                Update Password
+                {submitting ? 'Updating...' : 'Update Password'}
               </button>
             </div>
           </form>

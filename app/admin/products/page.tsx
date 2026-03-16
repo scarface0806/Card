@@ -1,20 +1,115 @@
 'use client';
 
-import React from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { Plus, Package, Clock, Filter } from 'lucide-react';
+import AdminToast from '@/components/admin/AdminToast';
+import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
+import { Package, Clock, RefreshCw } from 'lucide-react';
 
-const productsData = [
-  { sno: 1, customer: 'John Doe', mobile: '+1 234 567 8900', country: 'USA', createdDate: '2024-02-15', expiredDate: '2025-02-15', status: 'active' },
-  { sno: 2, customer: 'Jane Smith', mobile: '+1 234 567 8901', country: 'USA', createdDate: '2024-02-16', expiredDate: '2025-02-16', status: 'active' },
-  { sno: 3, customer: 'Bob Johnson', mobile: '+1 234 567 8902', country: 'UK', createdDate: '2024-02-17', expiredDate: '2024-08-17', status: 'inactive' },
-  { sno: 4, customer: 'Alice Brown', mobile: '+1 234 567 8903', country: 'Canada', createdDate: '2024-02-18', expiredDate: '2025-02-18', status: 'active' },
-];
+interface ProductRow {
+  id: string;
+  sno: number;
+  name: string;
+  category: string;
+  cardType: string;
+  stock: number;
+  price: string;
+  createdDate: string;
+  status: 'active' | 'inactive';
+}
+
+interface ToastState {
+  variant: 'success' | 'error' | 'info';
+  message: string;
+}
 
 export default function ProductsPage() {
-  const handleView = (row: any) => alert(`Viewing product for: ${row.customer}`);
-  const handleDelete = (row: any) => alert(`Deleting product for: ${row.customer}`);
+  const [products, setProducts] = useState<ProductRow[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [toast, setToast] = useState<ToastState | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<ProductRow | null>(null);
+  const [confirmLoading, setConfirmLoading] = useState(false);
+
+  const fetchProducts = useCallback(async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      const response = await fetch('/api/products?showAll=true&limit=200', {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to fetch products');
+      }
+
+      const data = await response.json();
+      const mapped: ProductRow[] = (data.products || []).map((product: any, index: number) => ({
+        id: product.id,
+        sno: index + 1,
+        name: product.name,
+        category: product.category || '-',
+        cardType: product.cardType || '-',
+        stock: product.stock || 0,
+        price: `₹${(product.salePrice || product.price || 0).toLocaleString()}`,
+        createdDate: new Date(product.createdAt).toLocaleDateString(),
+        status: product.isActive ? 'active' : 'inactive',
+      }));
+
+      setProducts(mapped);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to fetch products');
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
+
+  const handleView = (row: ProductRow) => {
+    setToast({ variant: 'info', message: `Product ${row.name} | ${row.cardType} | ${row.price}` });
+  };
+
+  const handleDelete = (row: ProductRow) => {
+    setConfirmTarget(row);
+  };
+
+  const confirmToggle = async () => {
+    if (!confirmTarget) return;
+
+    const nextIsActive = confirmTarget.status !== 'active';
+    const actionLabel = nextIsActive ? 'activate' : 'deactivate';
+
+    try {
+      setConfirmLoading(true);
+      const response = await fetch(`/api/products/${confirmTarget.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ isActive: nextIsActive }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || `Failed to ${actionLabel} product`);
+      }
+
+      await fetchProducts();
+      setToast({ variant: 'success', message: `Product ${confirmTarget.name} ${actionLabel}d successfully` });
+      setConfirmTarget(null);
+    } catch (err) {
+      setToast({ variant: 'error', message: err instanceof Error ? err.message : `Failed to ${actionLabel} product` });
+    } finally {
+      setConfirmLoading(false);
+    }
+  };
 
   return (
     <main className="space-y-6">
@@ -28,6 +123,13 @@ export default function ProductsPage() {
             <Clock className="w-4 h-4 text-orange-400" />
             Remind Expiring
           </button>
+          <button
+            onClick={fetchProducts}
+            className="flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/5"
+          >
+            <RefreshCw className="w-4 h-4" />
+            Refresh
+          </button>
           <button className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95">
             <Package className="w-4 h-4 ml-[-5px]" />
             New Link
@@ -35,23 +137,36 @@ export default function ProductsPage() {
         </div>
       </div>
 
+      {error && <AdminToast variant="error" message={error} onClose={() => setError(null)} />}
+      {toast && <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
+
+      <AdminConfirmPanel
+        open={!!confirmTarget}
+        title="Confirm product status"
+        description={confirmTarget ? `${confirmTarget.status === 'active' ? 'Deactivate' : 'Activate'} ${confirmTarget.name}?` : ''}
+        confirmText="Update Product"
+        onCancel={() => setConfirmTarget(null)}
+        onConfirm={confirmToggle}
+        loading={confirmLoading}
+        tone="warning"
+      />
+
       <DataTable
         columns={[
           { key: 'sno', label: 'S.NO', width: '60px' },
-          { key: 'customer', label: 'Customer' },
-          { key: 'mobile', label: 'Mobile' },
-          { key: 'country', label: 'Country' },
+          { key: 'name', label: 'Product' },
+          { key: 'category', label: 'Category' },
+          { key: 'cardType', label: 'Card Type' },
+          { key: 'stock', label: 'Stock', width: '80px' },
+          { key: 'price', label: 'Price', width: '100px' },
           { key: 'createdDate', label: 'Created' },
-          { key: 'expiredDate', label: 'Expires' },
           {
             key: 'status',
             label: 'Status',
-            render: (status) => (
-              <StatusBadge status={status === 'active' ? 'active' : 'cancelled'} />
-            ),
+            render: (status) => <StatusBadge status={status === 'active' ? 'active' : 'inactive'} />,
           },
         ]}
-        data={productsData}
+        data={loading ? [] : products}
         onView={handleView}
         onDelete={handleDelete}
       />

@@ -106,6 +106,16 @@ model Order {
   guestName  String?
   guestPhone String?
 
+  // Purchase form details
+  designation String?
+  company     String?
+  website     String?
+  address     String?
+  cardType    String?
+  price       Float?
+  templateSlug String?
+  profileData Json?
+
   // Order details
   items    OrderItem[]
   subtotal Float
@@ -266,6 +276,67 @@ model CardLead {
   createdAt DateTime @default(now())
 
   @@map("card_leads")
+}
+
+model Customer {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  name         String
+  designation  String?
+  company      String?
+  about        String?
+  phone        String
+  email        String
+  mailApiEndpoint String?
+  website      String?
+  websiteEnabled   Boolean @default(false)
+  linkedin         String?
+  linkedinEnabled  Boolean @default(false)
+  whatsapp         String?
+  whatsappEnabled  Boolean @default(false)
+  instagram        String?
+  instagramEnabled Boolean @default(false)
+  facebook         String?
+  facebookEnabled  Boolean @default(false)
+  behance          String?
+  behanceEnabled   Boolean @default(false)
+  address      String?
+  mapEmbedUrl  String?
+  logo         String?
+  profileImage String?
+  isActive     Boolean  @default(true)
+  slug         String   @unique
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  galleries Gallery[]
+  leads     Lead[]
+
+  @@map("customers")
+}
+
+model Gallery {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  image      String
+  hoverText  String?
+  slot       Int
+
+  @@unique([customerId, slot])
+  @@map("galleries")
+}
+
+model Lead {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  customerId String   @db.ObjectId
+  customer   Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  name       String
+  phone      String
+  email      String?
+  message    String
+  createdAt  DateTime @default(now())
+
+  @@map("leads")
 }
 
 model NewsletterSubscriber {

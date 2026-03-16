@@ -3,8 +3,8 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-const ADMIN_EMAIL = "admin@tapvyo.com";
-const ADMIN_PASSWORD = "admin123";
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "santhoshuxui2023@gmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "KGTPS6565P";
 const BCRYPT_ROUNDS = 12; // Match the rounds used in auth endpoints
 
 async function createAdmin() {

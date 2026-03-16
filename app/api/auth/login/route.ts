@@ -11,6 +11,9 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
+const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
+const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
 export async function POST(request: NextRequest) {
   try {
     // ✨ Development mode: Allow mock login for testing
@@ -27,16 +30,16 @@ export async function POST(request: NextRequest) {
       const { email, password } = parsed.data;
 
       // Mock admin user for development
-      if (email === 'admin@tapvyo.com' && password === 'admin123') {
+      if (email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
         const token = generateToken({
           userId: 'mock-admin-id',
-          email: 'admin@tapvyo.com',
+          email: DEV_ADMIN_EMAIL,
           role: 'ADMIN',
         });
 
         const userData = {
           id: 'mock-admin-id',
-          email: 'admin@tapvyo.com',
+          email: DEV_ADMIN_EMAIL,
           name: 'Admin User',
           role: 'ADMIN',
         };
@@ -47,10 +50,13 @@ export async function POST(request: NextRequest) {
           user: userData,
         }, 200);
 
-        response.headers.set(
-          'Set-Cookie',
-          `authToken=${token}; Path=/; HttpOnly; Secure; SameSite=Strict; Max-Age=${7 * 24 * 60 * 60}`
-        );
+        response.cookies.set('auth-token', token, {
+          httpOnly: true,
+          secure: false,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
 
         console.log('[Auth] Mock dev login successful for:', email);
         return response;

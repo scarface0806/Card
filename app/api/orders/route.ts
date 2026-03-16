@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
-import { OrderStatus, PaymentStatus } from "@prisma/client";
+import { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
 
@@ -68,19 +68,106 @@ export async function GET(request: NextRequest) {
 // POST /api/orders - Create new order
 export async function POST(request: NextRequest) {
   try {
-    // Require authentication
-    const { user, error } = await authenticate(request);
-
-    if (!user) {
-      return errorResponse(error || "Authentication required. Please login.", 401);
-    }
+    const { user } = await authenticate(request);
 
     const body = await request.json();
     const parsed = createOrderSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
     }
-    const { productId, quantity, address } = parsed.data;
+    const {
+      productId,
+      quantity,
+      address,
+      name,
+      email,
+      phone,
+      designation,
+      company,
+      website,
+      cardType,
+      price,
+      paymentMethod,
+      templateSlug,
+      profileData,
+    } = parsed.data;
+
+    if (!productId) {
+      const submittedPrice = price ?? 0;
+      const submittedCardType = cardType || templateSlug || "NFC Digital Card";
+
+      const guestOrderData = {
+          orderNumber: generateOrderNumber(),
+          userId: user?.id,
+          guestName: name || null,
+          guestEmail: email || user?.email || null,
+          guestPhone: phone || null,
+          designation: designation || null,
+          company: company || null,
+          website: website || null,
+          address: address || null,
+          cardType: submittedCardType,
+          price: submittedPrice,
+          templateSlug: templateSlug || null,
+          profileData: profileData ?? body,
+          items: [],
+          subtotal: submittedPrice,
+          discount: 0,
+          shipping: 0,
+          tax: 0,
+          total: submittedPrice,
+          status: OrderStatus.PENDING,
+          paymentStatus: PaymentStatus.PENDING,
+          paymentMethod: paymentMethod || null,
+          paymentId: null,
+          shippingAddress: null,
+          billingAddress: null,
+          notes: company || designation
+            ? `Company: ${company || '-'} | Designation: ${designation || '-'}`
+            : null,
+      } as Prisma.OrderUncheckedCreateInput;
+
+      const order = await prisma.order.create({
+        data: guestOrderData,
+      });
+
+      const recipientEmail = email || user?.email;
+      if (recipientEmail) {
+        const supportEmail = SUPPORT_EMAIL || "support@tapvyo-nfc.com";
+        const supportPhone = SUPPORT_PHONE || "+91 9999999999";
+        const siteUrl = APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com";
+        const orderLink = `${siteUrl}/order-success?orderId=${encodeURIComponent(order.id)}`;
+
+        sendEmail({
+          to: recipientEmail,
+          subject: `Order received - ${order.orderNumber}`,
+          html: `<p>Hi ${name || "there"},</p><p>Your order for <strong>${submittedCardType}</strong> has been received.</p><p>Order ID: <strong>${order.orderNumber}</strong></p><p>Total: <strong>₹${submittedPrice.toLocaleString()}</strong></p><p>You can track it here: <a href="${orderLink}">${orderLink}</a></p><p>Support: ${supportEmail} | ${supportPhone}</p>`,
+          text: `Your order has been received. Order ID: ${order.orderNumber}. Card Type: ${submittedCardType}. Total: ₹${submittedPrice}. Track here: ${orderLink}. Support: ${supportEmail} | ${supportPhone}`,
+        }).catch((emailError) => {
+          console.error("Guest order confirmation email failed:", emailError);
+        });
+      }
+
+      return NextResponse.json(
+        {
+          success: true,
+          message: "Order created successfully",
+          orderId: order.id,
+          order: {
+            id: order.id,
+            orderNumber: order.orderNumber,
+            total: order.total,
+            status: order.status,
+            createdAt: order.createdAt,
+          },
+        },
+        { status: 201 }
+      );
+    }
+
+    if (!user) {
+      return errorResponse("Authentication required. Please login.", 401);
+    }
 
     const qty = quantity || 1;
 
@@ -122,10 +209,20 @@ export async function POST(request: NextRequest) {
 
     // Create order with PENDING status
     // Note: shippingAddress expects an Address object with required fields, so we set it to null for now
-    const order = await prisma.order.create({
-      data: {
+    const productOrderData = {
         orderNumber: generateOrderNumber(),
         userId: user.id,
+        guestName: null,
+        guestEmail: user.email || null,
+        guestPhone: null,
+        designation: designation || null,
+        company: company || null,
+        website: website || null,
+        address: address || null,
+        cardType: product.cardType || cardType || product.name,
+        price: itemPrice,
+        templateSlug: templateSlug || null,
+        profileData: profileData ?? null,
         items: [orderItem],
         subtotal,
         discount: 0,
@@ -139,7 +236,10 @@ export async function POST(request: NextRequest) {
         shippingAddress: null,
         billingAddress: null,
         notes: address ? `Address: ${address}` : null,
-      },
+    } as Prisma.OrderUncheckedCreateInput;
+
+    const order = await prisma.order.create({
+      data: productOrderData,
     });
 
     // Send confirmation email (best-effort)
@@ -220,6 +320,7 @@ export async function POST(request: NextRequest) {
       {
         success: true,
         message: "Order created successfully",
+        orderId: order.id,
         order: {
           id: order.id,
           orderNumber: order.orderNumber,

@@ -44,10 +44,34 @@ export const loginSchema = z.object({
 
 // Order creation
 export const createOrderSchema = z.object({
-  productId: z.string().uuid().or(z.string().min(1)),
+  productId: z.string().uuid().or(z.string().min(1)).optional(),
   quantity: z.number().int().positive().optional().default(1),
   address: z.string().optional(),
-  // add other fields as needed
+  name: z.string().min(1).optional(),
+  email: z.string().email().optional(),
+  phone: z.string().min(6).optional(),
+  designation: z.string().optional(),
+  company: z.string().optional(),
+  website: z.string().optional(),
+  cardType: z.string().optional(),
+  price: z.preprocess(
+    (val) => (val === undefined || val === null || val === "" ? undefined : parseFloat(String(val))),
+    z.number().nonnegative().optional()
+  ),
+  paymentMethod: z.string().optional(),
+  templateSlug: z.string().optional(),
+  profileData: z.unknown().optional(),
+}).superRefine((data, ctx) => {
+  const hasProductCheckout = Boolean(data.productId);
+  const hasFormCheckout = Boolean(data.name && data.email && data.phone && data.cardType && data.price !== undefined);
+
+  if (!hasProductCheckout && !hasFormCheckout) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Either product checkout data or card purchase form data is required",
+      path: ["productId"],
+    });
+  }
 });
 
 // Card update schema allows partial details
@@ -95,6 +119,45 @@ export const leadSchema = z.object({
   message: z.string().max(2000).optional(),
   source: z.string().optional(),
   website: z.string().optional(), // honeypot
+});
+
+export const customerCreateSchema = z.object({
+  name: z.string().trim().min(1, "Name is required").max(120),
+  designation: z.string().trim().max(120).optional().or(z.literal("")),
+  company: z.string().trim().max(120).optional().or(z.literal("")),
+  about: z.string().trim().max(3000).optional().or(z.literal("")),
+  phone: z.string().trim().min(6, "Phone is required").max(30),
+  email: z.string().trim().email("A valid email is required"),
+  mailApiEndpoint: z.string().trim().max(2000).optional().or(z.literal("")),
+  website: z.string().trim().max(255).optional().or(z.literal("")),
+  websiteEnabled: z.boolean().optional().default(false),
+  linkedin: z.string().trim().max(255).optional().or(z.literal("")),
+  linkedinEnabled: z.boolean().optional().default(false),
+  whatsapp: z.string().trim().max(255).optional().or(z.literal("")),
+  whatsappEnabled: z.boolean().optional().default(false),
+  instagram: z.string().trim().max(255).optional().or(z.literal("")),
+  instagramEnabled: z.boolean().optional().default(false),
+  facebook: z.string().trim().max(255).optional().or(z.literal("")),
+  facebookEnabled: z.boolean().optional().default(false),
+  behance: z.string().trim().max(255).optional().or(z.literal("")),
+  behanceEnabled: z.boolean().optional().default(false),
+  address: z.string().trim().max(500).optional().or(z.literal("")),
+  mapEmbedUrl: z.string().trim().max(2000).optional().or(z.literal("")),
+  isActive: z.boolean().optional().default(true),
+});
+
+export const customerUpdateSchema = customerCreateSchema.extend({
+  id: z.string().min(1),
+});
+
+export const customerLeadSchema = z.object({
+  customerId: z.string().min(1, "Customer is required"),
+  name: z.string().trim().min(1, "Name is required").max(120),
+  phone: z.string().trim().min(6, "Phone is required").max(30),
+  email: z.string().trim().email("Please enter a valid email").optional().or(z.literal("")),
+  subject: z.string().trim().max(250).optional().or(z.literal("")),
+  message: z.string().trim().min(1, "Message is required").max(2000),
+  skipEmail: z.boolean().optional().default(false),
 });
 
 // Add additional schemas as needed for other endpoints

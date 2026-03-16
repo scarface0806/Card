@@ -6,6 +6,7 @@ import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 // GET /api/admin/dashboard - Get dashboard metrics
 export async function GET(request: NextRequest) {
   try {
+    const customerDelegate = (prisma as unknown as { customer: { count: (args?: unknown) => Promise<number> } }).customer;
     const { user, error } = await authenticate(request);
 
     if (!user || user.role !== Role.ADMIN) {
@@ -19,7 +20,8 @@ export async function GET(request: NextRequest) {
     const [
       // User metrics
       totalCustomers,
-      newCustomersThisMonth,
+      activeCustomers,
+      disabledCustomers,
       
       // Order metrics
       totalOrders,
@@ -57,19 +59,13 @@ export async function GET(request: NextRequest) {
       ordersByPayment,
     ] = await Promise.all([
       // Total customers (non-admin users)
-      prisma.user.count({
-        where: { role: Role.CUSTOMER },
-      }),
-      
-      // New customers this month
-      prisma.user.count({
-        where: {
-          role: Role.CUSTOMER,
-          createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          },
-        },
-      }),
+      customerDelegate.count(),
+
+      // Active customers
+      customerDelegate.count({ where: { isActive: true } }),
+
+      // Disabled customers
+      customerDelegate.count({ where: { isActive: false } }),
       
       // Total orders
       prisma.order.count(),
@@ -203,8 +199,8 @@ export async function GET(request: NextRequest) {
     ]);
 
     // Format order status distribution
-    const orderStatusDistribution = ordersByStatus.reduce(
-      (acc, item) => {
+    const orderStatusDistribution = (ordersByStatus as Array<{ status: string; _count: { status: number } }>).reduce(
+      (acc: Record<string, number>, item) => {
         acc[item.status] = item._count.status;
         return acc;
       },
@@ -212,8 +208,8 @@ export async function GET(request: NextRequest) {
     );
 
     // Format payment status distribution
-    const paymentStatusDistribution = ordersByPayment.reduce(
-      (acc, item) => {
+    const paymentStatusDistribution = (ordersByPayment as Array<{ paymentStatus: string; _count: { paymentStatus: number } }>).reduce(
+      (acc: Record<string, number>, item) => {
         acc[item.paymentStatus] = item._count.paymentStatus;
         return acc;
       },
@@ -223,7 +219,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({
       customers: {
         total: totalCustomers,
-        newThisMonth: newCustomersThisMonth,
+        active: activeCustomers,
+        disabled: disabledCustomers,
       },
       orders: {
         total: totalOrders,
@@ -253,7 +250,17 @@ export async function GET(request: NextRequest) {
         unread: unreadLeads,
         thisMonth: leadsThisMonth,
       },
-      recentOrders: recentOrders.map((order) => ({
+      recentOrders: (recentOrders as Array<{
+        id: string;
+        orderNumber: string;
+        total: number;
+        status: string;
+        paymentStatus: string;
+        createdAt: Date;
+        user: { name: string | null; email: string } | null;
+        guestEmail: string | null;
+        guestName: string | null;
+      }>).map((order) => ({
         id: order.id,
         orderNumber: order.orderNumber,
         total: order.total,

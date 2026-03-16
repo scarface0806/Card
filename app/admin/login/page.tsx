@@ -8,12 +8,28 @@ import AdminLoginForm from '@/components/admin/AdminLoginForm';
 export default function AdminLoginPage() {
   const router = useRouter();
 
-  // Redirect guard - check if admin_token already exists
+  // Redirect guard - validate active admin session.
   useEffect(() => {
-    const adminToken = localStorage.getItem('admin_token');
-    if (adminToken) {
-      router.push('/admin/dashboard');
-    }
+    const validateAdminSession = async () => {
+      try {
+        const response = await fetch('/api/auth/me', {
+          credentials: 'include',
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = await response.json();
+        if (data?.user?.role === 'ADMIN') {
+          router.push('/admin/dashboard');
+        }
+      } catch {
+        // No-op: stay on login page.
+      }
+    };
+
+    validateAdminSession();
   }, [router]);
 
   return (

@@ -1,38 +1,66 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import StatCard from '@/components/admin/StatCard';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { Users, CreditCard, ShoppingCart, Mail, ArrowUpRight } from 'lucide-react';
+import { Users, UserCheck, UserX, ShoppingCart, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
+import { useDashboard, formatCurrency } from '@/hooks/useDashboard';
 
-// Mock data for tables
-const recentCustomers = [
-  { id: 1, name: 'John Doe', email: 'john@example.com', phone: '+1 234 567 8900', status: 'active' },
-  { id: 2, name: 'Jane Smith', email: 'jane@example.com', phone: '+1 234 567 8901', status: 'active' },
-  { id: 3, name: 'Bob Johnson', email: 'bob@example.com', phone: '+1 234 567 8902', status: 'inactive' },
-];
-
-const recentCards = [
-  { id: 1, name: 'Premium Card', description: 'Gold plated card', status: 'active' },
-  { id: 2, name: 'Silver Card', description: 'Silver design', status: 'active' },
-  { id: 3, name: 'Bronze Card', description: 'Bronze finish', status: 'inactive' },
-];
-
-const recentOrders = [
-  { id: 1, orderNum: 'ORD-001', customer: 'John Doe', date: '2024-03-01', total: '₹299', status: 'completed' },
-  { id: 2, orderNum: 'ORD-002', customer: 'Jane Smith', date: '2024-03-02', total: '₹149', status: 'pending' },
-  { id: 3, orderNum: 'ORD-003', customer: 'Bob Johnson', date: '2024-03-03', total: '₹399', status: 'cancelled' },
-];
+function mapOrderStatusToBadge(status: string): 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled' {
+  const normalized = status?.toUpperCase();
+  if (normalized === 'PENDING' || normalized === 'PROCESSING' || normalized === 'SHIPPED') {
+    return 'pending';
+  }
+  if (normalized === 'DELIVERED' || normalized === 'CONFIRMED') {
+    return 'completed';
+  }
+  if (normalized === 'CANCELLED' || normalized === 'REFUNDED') {
+    return 'cancelled';
+  }
+  return 'inactive';
+}
 
 export default function Dashboard() {
-  const [stats] = useState({
-    totalCustomers: 1234,
-    totalCards: 456,
-    totalOrders: 789,
-    totalSubscriptions: 345,
-  });
+  const { metrics, loading, error, refetch } = useDashboard(false);
+
+  const recentOrders = (metrics?.recentOrders || []).map((order) => ({
+    id: order.id,
+    orderNum: order.orderNumber,
+    customer: order.customer,
+    date: new Date(order.createdAt).toLocaleDateString(),
+    total: formatCurrency(order.total),
+    status: mapOrderStatusToBadge(order.status),
+  }));
+
+  if (loading) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">Dashboard</h1>
+          <p className="text-sm text-gray-500 mt-0.5">Loading live metrics...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error || !metrics) {
+    return (
+      <div className="space-y-6">
+        <div>
+          <h1 className="text-2xl font-semibold text-white tracking-tight">Dashboard</h1>
+          <p className="text-sm text-red-400 mt-0.5">{error || 'Failed to load dashboard metrics'}</p>
+        </div>
+        <button
+          onClick={refetch}
+          className="px-4 py-2 rounded-lg bg-orange-500 text-white hover:bg-orange-400 transition-colors"
+        >
+          Retry
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -55,42 +83,42 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           label="Total Customers"
-          value={stats.totalCustomers}
+          value={metrics.customers.total}
           icon={<Users className="w-5 h-5" />}
-          trend={{ value: 12, isPositive: true }}
+          description="NFC profile customers"
           color="blue"
         />
         <StatCard
-          label="Total Cards"
-          value={stats.totalCards}
-          icon={<CreditCard className="w-5 h-5" />}
-          trend={{ value: 8, isPositive: true }}
+          label="Active Customers"
+          value={metrics.customers.active}
+          icon={<UserCheck className="w-5 h-5" />}
+          description="Live profile links"
+          color="green"
+        />
+        <StatCard
+          label="Disabled Customers"
+          value={metrics.customers.disabled}
+          icon={<UserX className="w-5 h-5" />}
+          description="Profile access blocked"
           color="purple"
         />
         <StatCard
           label="Total Orders"
-          value={stats.totalOrders}
+          value={metrics.orders.total}
           icon={<ShoppingCart className="w-5 h-5" />}
-          trend={{ value: 5, isPositive: false }}
+          description={`${metrics.orders.pending} pending`}
           color="orange"
-        />
-        <StatCard
-          label="Subscriptions"
-          value={stats.totalSubscriptions}
-          icon={<Mail className="w-5 h-5" />}
-          trend={{ value: 15, isPositive: true }}
-          color="green"
         />
       </div>
 
       {/* Tables Section */}
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {/* Recent Customers */}
+        {/* Order Status Summary */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Recent Customers</h2>
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Order Status Summary</h2>
             <Link
-              href="/admin/customers"
+              href="/admin/orders"
               className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition-colors"
             >
               View all <ArrowUpRight className="w-3 h-3" />
@@ -98,28 +126,30 @@ export default function Dashboard() {
           </div>
           <DataTable
             columns={[
-              { key: 'name', label: 'Name' },
-              { key: 'email', label: 'Email' },
+              { key: 'status', label: 'Status' },
+              { key: 'count', label: 'Count' },
               {
-                key: 'status',
-                label: 'Status',
-                render: (status) => (
-                  <StatusBadge status={status as any} />
-                ),
+                key: 'health',
+                label: 'Health',
+                render: (_value, row) => <StatusBadge status={row.health as any} />,
               },
             ]}
-            data={recentCustomers}
+            data={Object.entries(metrics.orders.byStatus).map(([status, count]) => ({
+              status,
+              count,
+              health: mapOrderStatusToBadge(status),
+            }))}
             actions={false}
             itemsPerPage={5}
           />
         </div>
 
-        {/* Recent Cards */}
+        {/* Revenue Snapshot */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Recent Cards</h2>
+            <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Revenue Snapshot</h2>
             <Link
-              href="/admin/cards"
+              href="/admin/orders"
               className="flex items-center gap-1 text-xs text-orange-400 hover:text-orange-300 transition-colors"
             >
               View all <ArrowUpRight className="w-3 h-3" />
@@ -127,17 +157,15 @@ export default function Dashboard() {
           </div>
           <DataTable
             columns={[
-              { key: 'name', label: 'Card Name' },
-              { key: 'description', label: 'Description' },
-              {
-                key: 'status',
-                label: 'Status',
-                render: (status) => (
-                  <StatusBadge status={status as any} />
-                ),
-              },
+              { key: 'label', label: 'Metric' },
+              { key: 'value', label: 'Value' },
             ]}
-            data={recentCards}
+            data={[
+              { label: 'Total Revenue', value: formatCurrency(metrics.revenue.total) },
+              { label: 'This Month', value: formatCurrency(metrics.revenue.thisMonth) },
+              { label: 'Completed Orders', value: metrics.orders.completed.toLocaleString() },
+              { label: 'Cancelled Orders', value: metrics.orders.cancelled.toLocaleString() },
+            ]}
             actions={false}
             itemsPerPage={5}
           />

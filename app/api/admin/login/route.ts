@@ -10,17 +10,28 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
+const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
+const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+
 export async function POST(request: NextRequest) {
   try {
-    // Rate limiting
-    const rateCheck = checkRateLimit(request, 10);
-    if (!rateCheck.ok) {
-      const res = errorResponse("Too many login attempts. Please try again later.", 429);
-      if (rateCheck.retryAfter) res.headers.set("Retry-After", String(rateCheck.retryAfter));
-      return res;
+    // Keep strict throttling in production, but avoid local-dev lockouts.
+    if (process.env.NODE_ENV === 'production') {
+      const rateCheck = checkRateLimit(request, 10);
+      if (!rateCheck.ok) {
+        const res = errorResponse("Too many login attempts. Please try again later.", 429);
+        if (rateCheck.retryAfter) res.headers.set("Retry-After", String(rateCheck.retryAfter));
+        return res;
+      }
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return errorResponse("Invalid request body. Please send valid JSON.", 400);
+    }
+
     const parsed = loginSchema.safeParse(body);
     
     if (!parsed.success) {
@@ -33,11 +44,52 @@ export async function POST(request: NextRequest) {
     
     const { email, password } = parsed.data;
 
+    if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
+      if (email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
+        const token = generateToken({
+          userId: 'mock-admin-id',
+          email: DEV_ADMIN_EMAIL,
+          role: 'ADMIN',
+        });
+
+        const response = successResponse({
+          message: 'Login successful (dev mode)',
+          user: {
+            id: 'mock-admin-id',
+            email: DEV_ADMIN_EMAIL,
+            name: 'Admin User',
+            role: 'ADMIN',
+          },
+          token,
+        }, 200);
+
+        response.cookies.set('auth-token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
+
+        response.cookies.set('admin-token', token, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
+
+        return response;
+      }
+
+      return errorResponse('Invalid email or password', 401);
+    }
+
     // Find admin user
-    const user = await prisma.user.findUnique({
-      where: { 
+    const user = await prisma.user.findFirst({
+      where: {
         email: email.toLowerCase(),
-        role: 'ADMIN' // Only allow admin users
+        role: 'ADMIN', // Only allow admin users
       },
     });
 
@@ -85,12 +137,21 @@ export async function POST(request: NextRequest) {
       token,
     }, 200);
 
-    // Set HTTP-only cookie for secure storage
-    response.cookies.set("admin-token", token, {
+    // Keep a single canonical auth cookie for middleware/API auth checks.
+    response.cookies.set("auth-token", token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
+      path: "/",
+    });
+
+    // Backward-compatible admin cookie for any old client checks.
+    response.cookies.set("admin-token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 60 * 60 * 24 * 7,
       path: "/",
     });
 

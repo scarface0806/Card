@@ -12,6 +12,23 @@ function getIdFromUrl(url: string): string {
   return parts[parts.length - 1].split("?")[0];
 }
 
+function normalizeOrderStatus(status: unknown): OrderStatus | undefined {
+  if (typeof status !== "string") {
+    return undefined;
+  }
+
+  const normalized = status.toUpperCase();
+  if (normalized === "ACCEPTED") {
+    return OrderStatus.CONFIRMED;
+  }
+  if (normalized === "REJECTED") {
+    return OrderStatus.CANCELLED;
+  }
+  return Object.values(OrderStatus).includes(normalized as OrderStatus)
+    ? (normalized as OrderStatus)
+    : undefined;
+}
+
 // GET /api/admin/orders/:id - Get single order details (Admin only)
 export async function GET(request: NextRequest) {
   try {
@@ -63,7 +80,8 @@ export async function PATCH(request: NextRequest) {
 
     const id = getIdFromUrl(request.url);
     const body = await request.json();
-    const { status, paymentStatus, notes } = body;
+    const normalizedStatus = normalizeOrderStatus(body?.status);
+    const { paymentStatus, notes } = body;
 
     // Check if order exists
     const existingOrder = await prisma.order.findUnique({
@@ -84,9 +102,9 @@ export async function PATCH(request: NextRequest) {
     }
 
     // Validate status if provided
-    if (status && !Object.values(OrderStatus).includes(status)) {
+    if (body?.status && !normalizedStatus) {
       return errorResponse(
-        `Invalid status. Must be one of: ${Object.values(OrderStatus).join(", ")}`,
+        `Invalid status. Must be one of: ${[...Object.values(OrderStatus), "ACCEPTED", "REJECTED"].join(", ")}`,
         400
       );
     }
@@ -102,8 +120,8 @@ export async function PATCH(request: NextRequest) {
     // Build update data
     const updateData: Record<string, unknown> = {};
 
-    if (status) {
-      updateData.status = status;
+    if (normalizedStatus) {
+      updateData.status = normalizedStatus;
     }
 
     if (paymentStatus) {
@@ -116,7 +134,7 @@ export async function PATCH(request: NextRequest) {
 
     // Auto-create card when status is updated to CONFIRMED
     let createdCard: { id: string; slug: string } | null = null;
-    if (status === OrderStatus.CONFIRMED && !existingOrder.cardId && existingOrder.userId) {
+    if (normalizedStatus === OrderStatus.CONFIRMED && !existingOrder.cardId && existingOrder.userId) {
       try {
         // Generate unique slug
         const userIdPrefix = existingOrder.userId.substring(0, 6);
@@ -168,7 +186,7 @@ export async function PATCH(request: NextRequest) {
 
     // Send NFC link email when order is CONFIRMED (only once)
     if (
-      status === OrderStatus.CONFIRMED &&
+      normalizedStatus === OrderStatus.CONFIRMED &&
       !existingOrder.nfcLinkEmailSent
     ) {
       const recipientEmail = existingOrder.user?.email || existingOrder.guestEmail || null;
