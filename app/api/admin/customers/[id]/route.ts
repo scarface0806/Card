@@ -86,20 +86,64 @@ async function deleteHandler(request: NextRequest, user: AuthUser, context: Rout
     const customerDelegate = (prisma as unknown as { customer: CustomerDetailDelegate }).customer;
     const { id } = await context.params;
 
-    const existingCustomer = await customerDelegate.findUnique({
-      where: { id },
-      select: { id: true },
-    });
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Customer not found", 404);
+    }
+
+    let existingCustomer: { id: string } | null = null;
+
+    try {
+      existingCustomer = await customerDelegate.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+    } catch (error) {
+      if (!isReplicaSetRequiredError(error)) {
+        throw error;
+      }
+
+      existingCustomer = await withMongo(async (db) => {
+        const customers = db.collection("customers");
+        const found = await customers.findOne({ _id: new ObjectId(id) }, { projection: { _id: 1 } });
+        return found ? { id } : null;
+      });
+    }
 
     if (!existingCustomer) {
       return errorResponse("Customer not found", 404);
     }
 
-    await customerDelegate.delete({ where: { id } });
+    try {
+      await customerDelegate.delete({ where: { id } });
+    } catch (error) {
+      if (!isReplicaSetRequiredError(error)) {
+        throw error;
+      }
+
+      await withMongo(async (db) => {
+        const customerObjectId = new ObjectId(id);
+        const customers = db.collection("customers");
+        const galleries = db.collection("galleries");
+        const leads = db.collection("leads");
+
+        await galleries.deleteMany({ customerId: customerObjectId });
+        await leads.deleteMany({ customerId: customerObjectId });
+        const deleted = await customers.deleteOne({ _id: customerObjectId });
+
+        if (deleted.deletedCount === 0) {
+          throw new Error("Customer not found");
+        }
+      });
+    }
 
     return successResponse({ message: "Customer deleted successfully" });
   } catch (error) {
-    return errorResponse("Failed to delete customer", 500);
+    if (error instanceof Error && error.message === "Customer not found") {
+      return errorResponse("Customer not found", 404);
+    }
+
+    const message = error instanceof Error ? error.message : "Unknown error";
+    return errorResponse("Failed to delete customer", 500, { message });
   }
 }
 
