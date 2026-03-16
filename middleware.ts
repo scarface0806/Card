@@ -33,11 +33,7 @@ async function verifyJWT(token: string): Promise<JWTPayload | null> {
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-
-  // ✨ Development mode: skip auth for admin routes
-  if (process.env.NODE_ENV === 'development' && pathname.startsWith('/admin')) {
-    return NextResponse.next();
-  }
+  const isAdminLoginRoute = pathname === "/admin/login";
 
   // Get token from cookie or Authorization header
   let token = request.cookies.get("auth-token")?.value;
@@ -55,24 +51,27 @@ export async function middleware(request: NextRequest) {
   );
 
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
+  const isAdminProtectedRoute = isAdminRoute && !isAdminLoginRoute;
 
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
   // If accessing protected or admin route without token, redirect to login
-  if ((isProtectedRoute || isAdminRoute) && !token) {
-    const loginUrl = new URL("/login", request.url);
+  if ((isProtectedRoute || isAdminProtectedRoute) && !token) {
+    const loginPath = isAdminProtectedRoute ? "/admin/login" : "/login";
+    const loginUrl = new URL(loginPath, request.url);
     loginUrl.searchParams.set("redirect", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Verify token and check role for admin routes
-  if (isAdminRoute && token) {
+  if (isAdminProtectedRoute && token) {
     const payload = await verifyJWT(token);
 
     // Invalid or expired token
     if (!payload) {
-      const response = NextResponse.redirect(new URL("/login", request.url));
+      const response = NextResponse.redirect(new URL("/admin/login", request.url));
       response.cookies.delete("auth-token");
+      response.cookies.delete("admin-token");
       return response;
     }
 

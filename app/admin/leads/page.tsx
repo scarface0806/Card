@@ -68,7 +68,7 @@ export default function AdminLeadsPage() {
 
   return (
     <main className="space-y-6">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-2xl font-semibold text-white">Main Website Leads</h1>
           <p className="mt-1 text-sm text-gray-400">Leads captured from website service and contact forms.</p>
@@ -76,7 +76,7 @@ export default function AdminLeadsPage() {
         <button
           type="button"
           onClick={fetchLeads}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-white/5 bg-[#2a3048] px-4 py-2.5 font-medium text-white transition hover:bg-[#313755]"
+          className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#2a3048] px-4 py-2.5 font-medium text-white transition hover:bg-[#313755]"
         >
           <RefreshCw className="h-4 w-4" />
           Refresh
@@ -111,31 +111,31 @@ export default function AdminLeadsPage() {
         title="Lead Details"
       >
         {viewLead && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <span className="text-xs text-gray-500">Name</span>
-                <div className="font-semibold text-gray-900">{viewLead.name}</div>
+                <div className="font-semibold text-gray-100">{viewLead.name}</div>
               </div>
               <div>
                 <span className="text-xs text-gray-500">Phone</span>
-                <div className="font-semibold text-gray-900">{viewLead.phone}</div>
+                <div className="font-semibold text-gray-100">{viewLead.phone}</div>
               </div>
               <div>
                 <span className="text-xs text-gray-500">Email</span>
-                <div className="font-semibold text-gray-900">{viewLead.email}</div>
+                <div className="font-semibold text-gray-100 break-all">{viewLead.email}</div>
               </div>
               <div>
                 <span className="text-xs text-gray-500">Service</span>
-                <div className="font-semibold text-gray-900">{viewLead.service}</div>
+                <div className="font-semibold text-gray-100">{viewLead.service}</div>
               </div>
               <div className="col-span-2">
                 <span className="text-xs text-gray-500">Message</span>
-                <div className="text-gray-800 bg-gray-100 rounded-lg p-3 mt-1 whitespace-pre-line">{viewLead.message}</div>
+                <div className="text-gray-200 bg-[#0f1424] border border-white/10 rounded-lg p-3 mt-1 whitespace-pre-line">{viewLead.message}</div>
               </div>
               <div className="col-span-2">
                 <span className="text-xs text-gray-500">Date</span>
-                <div className="text-gray-700">{viewLead.date}</div>
+                <div className="text-gray-300">{viewLead.date}</div>
               </div>
             </div>
           </div>

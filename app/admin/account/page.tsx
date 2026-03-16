@@ -126,7 +126,7 @@ export default function AccountPage() {
         <p className="text-gray-400 text-sm mt-1">Update your profile information and account details</p>
       </div>
 
-      <div className="max-w-2xl bg-[#1f2436] rounded-2xl border border-white/5 p-8 shadow-xl">
+      <div className="max-w-3xl bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
         {loading && <p className="text-sm text-gray-400 mb-4">Loading account details...</p>}
         {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
         {success && <p className="text-sm text-emerald-400 mb-4">{success}</p>}
@@ -137,7 +137,7 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-gray-300 mb-4">
               Profile Photo
             </label>
-            <div className="flex items-center gap-8">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
               <div className="relative group">
                 <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-orange-500/50 transition-colors">
                   <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
@@ -174,7 +174,7 @@ export default function AccountPage() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Name Field */}
             <div className="space-y-2">
               <label htmlFor="name" className="block text-sm font-medium text-gray-300">

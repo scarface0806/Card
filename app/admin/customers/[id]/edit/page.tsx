@@ -290,7 +290,7 @@ export default function EditCustomerPage() {
 
       {toast ? <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} /> : null}
 
-      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-white/5 bg-[#161b2e] p-6">
+      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-white/10 bg-[#161b2e] p-4 sm:p-5 lg:p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-sm font-medium text-gray-200">Name
             <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" required />
@@ -339,7 +339,7 @@ export default function EditCustomerPage() {
             const isEnabled = Boolean(form[enabledKey]);
             const value = String(form[valueKey] || '');
             return (
-              <div key={field.key} className="grid gap-3 md:grid-cols-[120px_1fr] md:items-center">
+              <div key={field.key} className="grid gap-3 lg:grid-cols-[120px_1fr] lg:items-center">
                 <label className="inline-flex items-center gap-2 text-sm text-gray-200">
                   <input type="checkbox" checked={isEnabled} onChange={(e) => setToggle(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
                   <span>{field.label}</span>
@@ -360,7 +360,7 @@ export default function EditCustomerPage() {
           </div>
 
           {form.enableGallery ? (
-            <div className="grid gap-3 md:grid-cols-3">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {form.gallery.map((item) => (
                 <div key={item.slot} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Image {item.slot}</p>

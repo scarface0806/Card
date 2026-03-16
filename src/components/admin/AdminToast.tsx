@@ -29,7 +29,7 @@ function ToastIcon({ variant }: { variant: ToastVariant }) {
 
 export default function AdminToast({ message, variant = 'info', onClose }: AdminToastProps) {
   return (
-    <div className={`rounded-xl border p-4 text-sm flex items-start justify-between gap-3 ${styleMap[variant]}`}>
+    <div className={`rounded-2xl border p-3.5 sm:p-4 text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${styleMap[variant]}`}>
       <div className="flex items-start gap-2">
         <ToastIcon variant={variant} />
         <p>{message}</p>
@@ -38,7 +38,7 @@ export default function AdminToast({ message, variant = 'info', onClose }: Admin
         <button
           type="button"
           onClick={onClose}
-          className="text-xs px-2 py-1 rounded-md bg-black/20 hover:bg-black/30 transition-colors"
+          className="text-xs px-2.5 py-1.5 rounded-lg bg-black/20 hover:bg-black/30 transition-colors"
         >
           Dismiss
         </button>

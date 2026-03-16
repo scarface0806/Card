@@ -53,6 +53,8 @@ interface ContactFormState {
 const DEFAULT_ABOUT =
   "We are here to help you grow with an NFC-powered digital profile. Reach out through the contact form and we will respond shortly.";
 
+type MailDeliveryMode = 'internal' | 'endpoint' | 'web3forms';
+
 function normalizeUrl(url?: string | null) {
   if (!url) return null;
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
@@ -82,8 +84,6 @@ function normalizeMapEmbedSrc(value?: string | null) {
   }
 }
 
-type MailDeliveryMode = 'internal' | 'endpoint' | 'web3forms';
-
 function hasExplicitMailEndpoint(value?: string | null) {
   const trimmed = value?.trim();
   if (!trimmed) return false;
@@ -103,7 +103,7 @@ function getMailDeliveryMode(value?: string | null): MailDeliveryMode {
 }
 
 export default function CustomerProfileView({ customer }: CustomerProfileViewProps) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [form, setForm] = useState<ContactFormState>({ name: '', phone: '', email: '', subject: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
@@ -248,29 +248,41 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           --dark-text: #2d3436;
           --border-color: #e0e0e0;
           --card-bg: #ffffff;
-          --body-bg: #f0f0f0;
+          --surface-1: #ffffff;
+          --surface-2: #f8fafc;
+          --body-bg: #eef2f7;
         }
 
         body.dark {
-          --white: #0d0d1a;
-          --light-gray: #1a1a2e;
-          --gray: #8b8b9e;
-          --dark-text: #f0f0f5;
-          --border-color: rgba(0, 184, 148, 0.15);
-          --card-bg: #12121f;
-          --body-bg: #08080f;
+          --white: #0f162b;
+          --light-gray: #131c33;
+          --gray: #93a5ca;
+          --dark-text: #edf3ff;
+          --border-color: rgba(148, 163, 184, 0.24);
+          --card-bg: #0c1428;
+          --surface-1: #111b31;
+          --surface-2: #0f182d;
+          --body-bg: #060d1b;
         }
 
         * { box-sizing: border-box; }
         body { background: var(--body-bg); }
 
+        .digi-page-shell {
+          min-height: 100vh;
+          width: 100%;
+          background: var(--body-bg);
+          padding: 16px 14px 28px;
+        }
+
         .digi-card-container {
           max-width: 1000px;
-          margin: 20px auto;
-          background: var(--white);
+          margin: 0 auto;
+          background: var(--card-bg);
           border-radius: 16px;
           overflow: hidden;
-          box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+          border: 1px solid var(--border-color);
+          box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
         }
 
         .digi-navbar {
@@ -279,7 +291,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           align-items: center;
           padding: 15px 30px;
           border-bottom: 1px solid var(--border-color);
-          background: var(--white);
+          background: var(--surface-1);
         }
 
         .digi-logo {
@@ -351,6 +363,102 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           background: #d2ddff;
         }
 
+        body.dark .digi-card-container {
+          background: #0b1020;
+          border: 1px solid rgba(148, 163, 184, 0.16);
+          box-shadow: 0 20px 55px rgba(0, 0, 0, 0.55);
+        }
+
+        body.dark .digi-navbar {
+          background: rgba(8, 12, 24, 0.92);
+          border-bottom-color: rgba(148, 163, 184, 0.2);
+        }
+
+        body.dark .digi-name,
+        body.dark .digi-about-title,
+        body.dark .digi-form-main-title,
+        body.dark .digi-talk-title,
+        body.dark .digi-works-title {
+          color: #eef4ff;
+        }
+
+        body.dark .digi-company,
+        body.dark .digi-about-text,
+        body.dark .digi-form-subtitle,
+        body.dark .digi-talk-text,
+        body.dark .digi-contact-link {
+          color: #a8b6da;
+        }
+
+        body.dark .digi-contact-link:hover {
+          color: #39dbc5;
+        }
+
+        body.dark .digi-profile-section {
+          background: linear-gradient(180deg, #0c1225 0%, #0a1021 100%);
+        }
+
+        body.dark .digi-profile-image img {
+          border-color: rgba(148, 163, 184, 0.24);
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+        }
+
+        body.dark .digi-form-section {
+          background: linear-gradient(180deg, #0a1021 0%, #090f1e 100%);
+        }
+
+        body.dark .digi-map-section {
+          background: #0a1020;
+        }
+
+        body.dark .digi-map-section iframe {
+          border-color: rgba(148, 163, 184, 0.2);
+        }
+
+        body.dark .digi-form-group input,
+        body.dark .digi-form-group textarea {
+          background: #0f1730;
+          border-color: #2b3b63;
+          color: #e7efff;
+        }
+
+        body.dark .digi-form-group input::placeholder,
+        body.dark .digi-form-group textarea::placeholder {
+          color: #7f93c5;
+        }
+
+        body.dark .digi-form-group input:focus,
+        body.dark .digi-form-group textarea:focus {
+          border-color: #27e1cd;
+          box-shadow: 0 0 0 3px rgba(39, 225, 205, 0.15);
+        }
+
+        body.dark .digi-submit-btn {
+          background: linear-gradient(135deg, #00bfa6 0%, #00d8cc 100%);
+          color: #03131b;
+          font-weight: 700;
+        }
+
+        body.dark .digi-submit-btn:disabled {
+          opacity: 0.8;
+          color: #1f2937;
+        }
+
+        body.dark .digi-work-overlay p {
+          color: #f2f7ff;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
+        }
+
+        body.dark .digi-footer {
+          background: #070b16;
+          color: #9fb0d8;
+          border-top: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        body.dark .digi-brand-name {
+          color: #31ddc9;
+        }
+
         .digi-main-content { padding: 0; }
 
         .digi-profile-section {
@@ -359,6 +467,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           gap: 35px;
           padding: 48px 40px;
           align-items: center;
+          background: linear-gradient(180deg, var(--surface-1) 0%, var(--surface-2) 100%);
         }
 
         .digi-profile-image img {
@@ -366,6 +475,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           border-radius: 22px;
           object-fit: cover;
           aspect-ratio: 1/1;
+          border: 1px solid var(--border-color);
+          box-shadow: 0 10px 24px rgba(2, 6, 23, 0.2);
         }
 
         .digi-name { font-size: 2rem; margin: 0 0 6px; color: #1c1c1c; }
@@ -396,10 +507,20 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
         .digi-social-icon:hover { transform: translateY(-2px); background: #00b894; color: white; }
 
-        .digi-works-section { padding: 45px 40px; background: #fbfbfb; }
-        .digi-works-header { text-align: center; margin-bottom: 24px; }
-        .digi-works-title { margin: 0 0 8px; }
-        .digi-works-subtitle { margin: 0; color: #666; }
+        .digi-works-section {
+          padding: 50px 40px;
+          background:
+            radial-gradient(circle at 5% 10%, rgba(0, 184, 148, 0.08), transparent 40%),
+            radial-gradient(circle at 95% 90%, rgba(0, 206, 201, 0.08), transparent 40%),
+            var(--light-gray);
+        }
+        .digi-works-header { text-align: center; margin-bottom: 26px; }
+        .digi-works-title {
+          margin: 0;
+          font-size: 1.9rem;
+          letter-spacing: 0.02em;
+          color: var(--dark-text);
+        }
 
         .digi-works-grid {
           display: grid;
@@ -409,8 +530,16 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
         .digi-work-item {
           position: relative;
-          border-radius: 14px;
+          border-radius: 18px;
           overflow: hidden;
+          border: 1px solid rgba(0, 0, 0, 0.05);
+          box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
+          transition: transform 0.25s ease, box-shadow 0.25s ease;
+        }
+
+        .digi-work-item:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
         }
 
         .digi-work-item img {
@@ -418,12 +547,15 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           height: 220px;
           object-fit: cover;
           display: block;
+          transition: transform 0.45s ease;
         }
+
+        .digi-work-item:hover img { transform: scale(1.07); }
 
         .digi-work-overlay {
           position: absolute;
           inset: auto 0 0 0;
-          background: linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0));
+          background: linear-gradient(to top, rgba(5, 8, 18, 0.9), rgba(5, 8, 18, 0));
           color: white;
           padding: 16px 14px;
           transform: translateY(100%);
@@ -431,10 +563,25 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
         }
 
         .digi-work-item:hover .digi-work-overlay { transform: translateY(0); }
-        .digi-work-overlay h4 { margin: 0 0 4px; font-size: 0.95rem; }
-        .digi-work-overlay p { margin: 0; font-size: 0.82rem; opacity: 0.9; }
+        .digi-work-overlay p { margin: 0; font-size: 0.88rem; opacity: 0.95; font-weight: 500; }
 
-        .digi-form-section { padding: 45px 40px; }
+        body.dark .digi-works-section {
+          background:
+            radial-gradient(circle at 5% 10%, rgba(0, 184, 148, 0.14), transparent 45%),
+            radial-gradient(circle at 95% 90%, rgba(0, 206, 201, 0.14), transparent 45%),
+            #0f1324;
+        }
+
+        body.dark .digi-work-item {
+          border-color: rgba(148, 163, 184, 0.22);
+          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+        }
+
+        body.dark .digi-work-item:hover {
+          box-shadow: 0 20px 44px rgba(0, 0, 0, 0.55);
+        }
+
+        .digi-form-section { padding: 45px 40px; background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface-1) 100%); }
         .digi-form-header { text-align: center; margin-bottom: 30px; }
         .digi-form-main-title { margin: 0 0 10px; }
         .digi-form-subtitle { margin: 0; color: #666; }
@@ -485,6 +632,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           border-radius: 10px;
           padding: 12px 13px;
           font: inherit;
+          background: #ffffff;
+          color: #1e293b;
           outline: none;
           transition: border-color .2s ease;
         }
@@ -507,8 +656,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
         .digi-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
 
-        .digi-map-section { padding: 0 40px 40px; }
-        .digi-map-section iframe { border-radius: 14px; }
+        .digi-map-section { padding: 0 40px 40px; background: var(--surface-1); }
+        .digi-map-section iframe { border-radius: 14px; border: 1px solid var(--border-color); }
 
         .digi-footer {
           background: #111;
@@ -530,6 +679,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
         .digi-message.error { background: rgba(235, 87, 87, 0.12); color: #eb5757; }
 
         @media (max-width: 900px) {
+          .digi-page-shell { padding: 12px 10px 20px; }
+
           .digi-profile-section,
           .digi-form-content,
           .digi-form-row { grid-template-columns: 1fr; }
@@ -546,6 +697,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
         }
       `}</style>
 
+      <div className="digi-page-shell">
       <div className="digi-card-container">
         <nav className="digi-navbar">
           <a href="#" className="digi-logo">
@@ -599,15 +751,13 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           {gallerySlots.length > 0 ? (
             <section className="digi-works-section" id="works">
               <div className="digi-works-header">
-                <h2 className="digi-works-title">Our Works</h2>
-                <p className="digi-works-subtitle">Take a look at some of our completed projects</p>
+                <h2 className="digi-works-title">Our Gallery</h2>
               </div>
               <div className="digi-works-grid">
                 {gallerySlots.map((gallery, index) => (
                   <div key={gallery.id} className="digi-work-item">
                     <img src={gallery.image || '/no-image-placeholder.svg'} alt={`Gallery ${index + 1}`} />
                     <div className="digi-work-overlay">
-                      <h4>Work {index + 1}</h4>
                       <p>{gallery.hoverText || 'No Image'}</p>
                     </div>
                   </div>
@@ -704,6 +854,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
             <a href="https://tapvyo.com" target="_blank" rel="noopener noreferrer" className="digi-brand-name">Tapvyo.</a>
           </p>
         </footer>
+      </div>
       </div>
     </>
   );

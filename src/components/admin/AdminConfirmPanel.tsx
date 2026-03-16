@@ -35,17 +35,17 @@ export default function AdminConfirmPanel({
   const confirmTone = tone === 'danger' ? 'bg-red-500 hover:bg-red-400' : 'bg-amber-500 hover:bg-amber-400';
 
   return (
-    <div className={`rounded-2xl border p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 ${panelTone}`}>
+    <div className={`rounded-2xl border p-4 sm:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4 ${panelTone}`}>
       <div className="space-y-1">
         <h3 className="text-sm font-semibold">{title}</h3>
         <p className="text-sm opacity-90">{description}</p>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex w-full md:w-auto items-center gap-2">
         <button
           type="button"
           onClick={onCancel}
           disabled={loading}
-          className="px-4 py-2 rounded-lg bg-white/10 text-white hover:bg-white/20 disabled:opacity-60"
+          className="flex-1 md:flex-none px-4 py-2 rounded-xl bg-white/10 text-white hover:bg-white/20 disabled:opacity-60"
         >
           {cancelText}
         </button>
@@ -53,7 +53,7 @@ export default function AdminConfirmPanel({
           type="button"
           onClick={onConfirm}
           disabled={loading}
-          className={`px-4 py-2 rounded-lg text-white disabled:opacity-60 ${confirmTone}`}
+          className={`flex-1 md:flex-none px-4 py-2 rounded-xl text-white disabled:opacity-60 ${confirmTone}`}
         >
           {loading ? 'Working...' : confirmText}
         </button>

@@ -49,8 +49,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-[#0f1219] text-white flex items-center justify-center">
-        <div className="text-sm text-gray-400">Checking admin session...</div>
+      <div className="min-h-screen bg-[#0b1020] text-white flex items-center justify-center">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-gray-300">
+          Checking admin session...
+        </div>
       </div>
     );
   }
@@ -59,8 +61,16 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return null;
   }
 
+  if (pathname === '/admin/login') {
+    return (
+      <div className="admin-shell min-h-screen">
+        {children}
+      </div>
+    );
+  }
+
   return (
-    <div className="flex h-screen bg-[#0f1219] overflow-hidden">
+    <div className="admin-shell flex h-screen overflow-hidden bg-[#0b1020] text-white">
       {/* Sidebar */}
       <AdminSidebar
         mobileOpen={mobileMenuOpen}
@@ -68,13 +78,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+      <div className="flex-1 flex min-w-0 flex-col overflow-hidden">
         {/* Header */}
         <AdminHeader onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
         {/* Main Area */}
         <main className="flex-1 overflow-y-auto">
-          <div className="max-w-[1400px] mx-auto px-4 md:px-6 py-6">
+          <div className="mx-auto w-full px-3 py-4 sm:px-4 md:px-6 md:py-6 xl:px-8">
             {children}
           </div>
         </main>

@@ -146,16 +146,16 @@ export default function CustomersPage() {
 
   return (
     <main className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-white">Customers</h1>
           <p className="text-gray-400 text-sm mt-1">Manage all your customer accounts and their information</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             type="button"
             onClick={fetchCustomers}
-            className="flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/5"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -163,7 +163,7 @@ export default function CustomersPage() {
           <button
             type="button"
             onClick={() => router.push('/admin/customers/create')}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
             Create NFC Customer

@@ -55,8 +55,8 @@ export default function StatCard({
 
   return (
     <div
-      className={`relative bg-[#161b2e] border border-white/5 rounded-xl p-6 
-        hover:-translate-y-0.5 hover:shadow-xl hover:border-white/10 
+      className={`relative bg-[#141d31] border border-white/10 rounded-2xl p-5 sm:p-6 
+        hover:-translate-y-0.5 hover:shadow-xl hover:border-white/20 
         transition-all duration-200 group overflow-hidden`}
     >
       {/* Subtle gradient shimmer on hover */}
@@ -64,7 +64,7 @@ export default function StatCard({
 
       <div className="flex items-start justify-between mb-4">
         {/* Label */}
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{label}</p>
+        <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest">{label}</p>
 
         {/* Icon */}
         {icon && (
@@ -75,7 +75,7 @@ export default function StatCard({
       </div>
 
       {/* Value */}
-      <p className="text-3xl font-bold text-white tracking-tight">
+      <p className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
 

@@ -49,7 +49,7 @@ export default function StatusBadge({ status, label }: StatusBadgeProps) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold ring-1 ${config.bg} ${config.text} ${config.ring}`}
+      className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold ring-1 ${config.bg} ${config.text} ${config.ring}`}
     >
       <span className={`relative flex h-1.5 w-1.5`}>
         {status === 'active' && (

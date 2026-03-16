@@ -66,18 +66,18 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-[#0d1117] border-r border-white/5 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto
+        className={`fixed left-0 top-0 h-screen w-64 bg-[#0b1222] border-r border-white/10 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto shadow-[0_0_40px_rgba(0,0,0,0.35)]
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Logo */}
-        <div className="px-6 py-6 border-b border-white/5 flex-shrink-0">
+        <div className="px-6 py-5 border-b border-white/10 flex-shrink-0 bg-white/[0.02]">
           <Link href="/admin/dashboard" className="flex items-center gap-3 group">
             <div className="w-9 h-9 bg-gradient-to-br from-orange-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 transition-all duration-200">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <div>
               <span className="text-base font-bold text-white tracking-tight">Tapvyo</span>
-              <p className="text-[10px] text-gray-500 font-medium tracking-widest uppercase">Admin</p>
+              <p className="text-[10px] text-gray-400 font-medium tracking-widest uppercase">Admin</p>
             </div>
           </Link>
         </div>
@@ -86,7 +86,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
         <nav className="flex-1 px-3 py-5 space-y-6 overflow-y-auto">
           {menuItems.map((section) => (
             <div key={section.section}>
-              <p className="px-3 mb-2 text-[10px] font-semibold text-gray-600 uppercase tracking-widest">
+              <p className="px-3 mb-2 text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
                 {section.section}
               </p>
               <div className="space-y-0.5">
@@ -99,17 +99,17 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
                       key={item.href}
                       href={item.href}
                       onClick={onMobileClose}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 group relative
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
                         ${active
-                          ? 'bg-gradient-to-r from-orange-500/20 to-orange-400/10 text-orange-400 border border-orange-500/20'
-                          : 'text-gray-500 hover:text-gray-200 hover:bg-white/5'
+                          ? 'bg-gradient-to-r from-orange-500/25 to-orange-400/10 text-orange-300 border border-orange-500/30 shadow-[0_8px_20px_rgba(249,115,22,0.14)]'
+                          : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
                         }`}
                     >
                       {active && (
                         <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-orange-400 rounded-r-full" />
                       )}
                       <Icon className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${active ? 'text-orange-400' : 'group-hover:scale-110'}`} />
-                      <span className="text-sm font-medium">{item.label}</span>
+                      <span className="text-sm font-medium tracking-tight">{item.label}</span>
                       {active && <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-70" />}
                     </Link>
                   );
@@ -120,8 +120,8 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
         </nav>
 
         {/* Footer */}
-        <div className="flex-shrink-0 px-4 py-4 border-t border-white/5">
-          <p className="text-[10px] text-gray-600 text-center">
+        <div className="flex-shrink-0 px-4 py-4 border-t border-white/10 bg-white/[0.02]">
+          <p className="text-[10px] text-gray-500 text-center">
             © {new Date().getFullYear()} Tapvyo. All rights reserved.
           </p>
         </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import StatCard from '@/components/admin/StatCard';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
@@ -25,14 +25,46 @@ function mapOrderStatusToBadge(status: string): 'active' | 'inactive' | 'pending
 export default function Dashboard() {
   const { metrics, loading, error, refetch } = useDashboard(false);
 
-  const recentOrders = (metrics?.recentOrders || []).map((order) => ({
-    id: order.id,
-    orderNum: order.orderNumber,
-    customer: order.customer,
-    date: new Date(order.createdAt).toLocaleDateString(),
-    total: formatCurrency(order.total),
-    status: mapOrderStatusToBadge(order.status),
-  }));
+  const todayLabel = useMemo(
+    () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
+    []
+  );
+
+  const recentOrders = useMemo(
+    () =>
+      (metrics?.recentOrders || []).map((order) => ({
+        id: order.id,
+        orderNum: order.orderNumber,
+        customer: order.customer,
+        date: new Date(order.createdAt).toLocaleDateString(),
+        total: formatCurrency(order.total),
+        status: mapOrderStatusToBadge(order.status),
+      })),
+    [metrics?.recentOrders]
+  );
+
+  const orderStatusRows = useMemo(
+    () =>
+      Object.entries(metrics?.orders.byStatus || {}).map(([status, count]) => ({
+        status,
+        count,
+        health: mapOrderStatusToBadge(status),
+      })),
+    [metrics?.orders.byStatus]
+  );
+
+  const revenueRows = useMemo(
+    () =>
+      metrics
+        ? [
+            { label: 'Total Revenue', value: formatCurrency(metrics.revenue.total) },
+            { label: 'This Month', value: formatCurrency(metrics.revenue.thisMonth) },
+            { label: 'Completed Orders', value: metrics.orders.completed.toLocaleString() },
+            { label: 'Cancelled Orders', value: metrics.orders.cancelled.toLocaleString() },
+          ]
+        : [],
+    [metrics]
+  );
 
   if (loading) {
     return (
@@ -65,7 +97,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-semibold text-white tracking-tight">Dashboard</h1>
           <p className="text-sm text-gray-500 mt-0.5">
@@ -74,7 +106,7 @@ export default function Dashboard() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-[11px] text-gray-600 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-            {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+            {todayLabel}
           </span>
         </div>
       </div>
@@ -141,11 +173,7 @@ export default function Dashboard() {
                 render: (_value, row) => <StatusBadge status={row.health as any} />,
               },
             ]}
-            data={Object.entries(metrics.orders.byStatus).map(([status, count]) => ({
-              status,
-              count,
-              health: mapOrderStatusToBadge(status),
-            }))}
+            data={orderStatusRows}
             actions={false}
             itemsPerPage={5}
           />
@@ -167,12 +195,7 @@ export default function Dashboard() {
               { key: 'label', label: 'Metric' },
               { key: 'value', label: 'Value' },
             ]}
-            data={[
-              { label: 'Total Revenue', value: formatCurrency(metrics.revenue.total) },
-              { label: 'This Month', value: formatCurrency(metrics.revenue.thisMonth) },
-              { label: 'Completed Orders', value: metrics.orders.completed.toLocaleString() },
-              { label: 'Cancelled Orders', value: metrics.orders.cancelled.toLocaleString() },
-            ]}
+            data={revenueRows}
             actions={false}
             itemsPerPage={5}
           />
@@ -211,7 +234,7 @@ export default function Dashboard() {
       </div>
 
       {/* Footer */}
-      <p className="text-xs text-gray-700 text-center mt-10 pb-4">
+      <p className="text-xs text-gray-600 text-center mt-10 pb-4">
         © {new Date().getFullYear()} Tapvyo Admin Panel · All rights reserved
       </p>
     </div>

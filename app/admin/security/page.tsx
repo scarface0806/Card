@@ -110,9 +110,9 @@ export default function SecurityPage() {
         <p className="text-gray-400 text-sm mt-1">Manage your account security, password, and authentication preferences</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Password Change Form */}
-        <div className="lg:col-span-2 bg-[#1f2436] rounded-2xl border border-white/5 p-8 shadow-xl">
+        <div className="lg:col-span-2 bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
           <h2 className="text-lg font-medium text-white mb-8 flex items-center gap-2">
             <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
             Change Password
@@ -149,7 +149,7 @@ export default function SecurityPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
                 <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300">
                   New Password
@@ -224,7 +224,7 @@ export default function SecurityPage() {
         </div>
 
         {/* Password Requirements */}
-        <div className="bg-[#1f2436] rounded-2xl border border-white/5 p-8 shadow-xl">
+        <div className="bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
           <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
             <span className="w-1.5 h-6 bg-orange-500 rounded-full"></span>
             Requirements

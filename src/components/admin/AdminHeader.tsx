@@ -34,37 +34,45 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-[#0d1117]/80 backdrop-blur-md border-b border-white/5 sticky top-0 z-30 flex-shrink-0">
-      <div className="h-full px-6 flex items-center justify-between gap-4">
+    <header className="h-16 bg-[#0c1428]/80 backdrop-blur-xl border-b border-white/10 sticky top-0 z-30 flex-shrink-0">
+      <div className="h-full px-3 sm:px-4 md:px-6 flex items-center justify-between gap-3 md:gap-4">
 
         {/* Left: Mobile menu + Search */}
-        <div className="flex items-center gap-4 flex-1">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
           {/* Mobile menu button */}
           <button
             onClick={onMenuClick}
-            className="lg:hidden p-2 hover:bg-white/5 rounded-lg text-gray-400 hover:text-white transition-colors"
+            className="lg:hidden p-2 hover:bg-white/5 rounded-xl text-gray-400 hover:text-white transition-colors"
           >
             <Menu className="w-5 h-5" />
           </button>
 
           {/* Search */}
-          <div className="relative w-full max-w-xs">
+          <div className="relative hidden sm:block w-full max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-9 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-lg text-gray-300 placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all duration-200"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-xl text-gray-300 placeholder-gray-600 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/20 transition-all duration-200"
             />
           </div>
         </div>
 
         {/* Right: Actions */}
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-0.5 sm:gap-1">
+
+          {/* Mobile Search */}
+          <button
+            className="sm:hidden p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-gray-300 transition-colors"
+            title="Search"
+          >
+            <Search className="w-4 h-4" />
+          </button>
 
           {/* Fullscreen */}
           <button
             onClick={toggleFullscreen}
-            className="p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-gray-300 transition-colors"
+            className="p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-gray-300 transition-colors"
             title="Fullscreen"
           >
             <Maximize className="w-4 h-4" />
@@ -72,7 +80,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
           {/* Notifications */}
           <button
-            className="relative p-2 hover:bg-white/5 rounded-lg text-gray-500 hover:text-gray-300 transition-colors"
+            className="relative p-2 hover:bg-white/5 rounded-xl text-gray-500 hover:text-gray-300 transition-colors"
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
@@ -80,18 +88,18 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           </button>
 
           {/* Divider */}
-          <div className="w-px h-6 bg-white/10 mx-2" />
+          <div className="w-px h-6 bg-white/10 mx-1.5 sm:mx-2" />
 
           {/* Profile Menu */}
           <div className="relative">
             <button
               onClick={() => setProfileOpen(!profileOpen)}
-              className="flex items-center gap-2.5 hover:bg-white/5 px-3 py-1.5 rounded-lg transition-colors group"
+              className="flex items-center gap-2 sm:gap-2.5 hover:bg-white/5 px-2.5 sm:px-3 py-1.5 rounded-xl transition-colors group"
             >
               <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-orange-500 to-orange-400 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-orange-500/20">
                 A
               </div>
-              <div className="hidden sm:block text-left">
+              <div className="hidden md:block text-left">
                 <p className="text-xs font-semibold text-gray-300 leading-tight">Admin</p>
                 <p className="text-[10px] text-gray-600 leading-tight">admin@tapvyo.com</p>
               </div>

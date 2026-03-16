@@ -288,7 +288,7 @@ export default function CreateCustomerPage() {
         </section>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-white/5 bg-[#161b2e] p-6">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-white/10 bg-[#161b2e] p-4 sm:p-5 lg:p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-sm font-medium text-gray-200">Name
             <input name="name" value={form.name} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
@@ -328,7 +328,7 @@ export default function CreateCustomerPage() {
             const valueKey = field.key as keyof FormState;
             const enabled = Boolean(form[enabledKey]);
             return (
-              <div key={field.key} className="grid gap-3 md:grid-cols-[130px_1fr] md:items-center">
+              <div key={field.key} className="grid gap-3 lg:grid-cols-[130px_1fr] lg:items-center">
                 <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-200">
                   <input type="checkbox" checked={enabled} onChange={(e) => handleToggleChange(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
                   {field.label}
@@ -345,7 +345,7 @@ export default function CreateCustomerPage() {
           })}
         </div>
 
-        <div className="grid gap-5 md:grid-cols-2">
+        <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
             <span className="mb-3 flex items-center gap-2 text-orange-300"><UploadCloud className="h-4 w-4" /> Logo Upload</span>
             <input type="file" name="logo" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-400" />
@@ -369,7 +369,7 @@ export default function CreateCustomerPage() {
           </div>
 
           {form.enableGallery ? (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {form.gallerySlots.map((slot, index) => (
                 <div key={index} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">Image {index + 1}</p>

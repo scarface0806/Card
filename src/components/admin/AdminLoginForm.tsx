@@ -67,16 +67,16 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Server Error */}
       {serverError && (
-        <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-xl">
+        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
           <p className="text-sm text-red-400 font-medium">{serverError}</p>
         </div>
       )}
 
       {/* Email Field */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <label
           htmlFor="email"
           className="block text-sm font-medium text-gray-300"
@@ -97,9 +97,9 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type="email"
             placeholder="admin@example.com"
             disabled={isLoading}
-            className={`w-full pl-11 pr-4 py-3 bg-[#262b40] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all duration-200 ${errors.email
+            className={`w-full pl-11 pr-4 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 ${errors.email
                 ? 'border-red-500'
-                : 'border-white/10'
+              : 'border-white/15'
               } disabled:opacity-50`}
           />
         </div>
@@ -109,7 +109,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       </div>
 
       {/* Password Field */}
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         <label
           htmlFor="password"
           className="block text-sm font-medium text-gray-300"
@@ -130,9 +130,9 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             disabled={isLoading}
-            className={`w-full pl-11 pr-12 py-3 bg-[#262b40] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50 focus:ring-1 focus:ring-orange-500/50 transition-all duration-200 ${errors.password
+            className={`w-full pl-11 pr-12 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 ${errors.password
                 ? 'border-red-500'
-                : 'border-white/10'
+              : 'border-white/15'
               } disabled:opacity-50`}
           />
           <button
@@ -149,9 +149,9 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
         )}
       </div>
 
-      <div className="flex items-center justify-between py-1">
+      <div className="flex items-center justify-between py-0.5">
         <label className="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-[#262b40] text-orange-500 focus:ring-orange-500/50" />
+          <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-[#222c47] text-orange-500 focus:ring-orange-500/50" />
           <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">Remember me</span>
         </label>
         <button type="button" className="text-sm text-orange-400 hover:text-orange-300 transition-colors font-medium">Forgot password?</button>
@@ -161,7 +161,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-semibold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-semibold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>

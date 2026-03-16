@@ -1,18 +1,23 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import HeroSection from '@/sections/HeroSection';
-import HowItWorksSection from '@/sections/HowItWorksSection';
-import InteractiveCardShowcaseSection from '@/sections/InteractiveCardShowcaseSection';
-import FeaturesSection from '@/sections/FeaturesSection';
-import CardDesignsHomeSection from '@/sections/CardDesignsHomeSection';
-import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
-import TestimonialsSection from '@/sections/TestimonialsSection';
-import FAQSection from '@/sections/FAQSection';
-import ContactModal, { ContactSource } from '@/components/ContactModal';
+import type { ContactSource } from '@/components/ContactModal';
 import StickyMobileCTA from '@/components/StickyMobileCTA';
+
+const HowItWorksSection = dynamic(() => import('@/sections/HowItWorksSection'));
+const InteractiveCardShowcaseSection = dynamic(() => import('@/sections/InteractiveCardShowcaseSection'));
+const FeaturesSection = dynamic(() => import('@/sections/FeaturesSection'));
+const CardDesignsHomeSection = dynamic(() => import('@/sections/CardDesignsHomeSection'));
+const OtherCardsSolutionsSection = dynamic(() => import('@/sections/OtherCardsSolutionsSection'));
+const TestimonialsSection = dynamic(() => import('@/sections/TestimonialsSection'));
+const FAQSection = dynamic(() => import('@/sections/FAQSection'));
+const ContactModal = dynamic(() => import('@/components/ContactModal'), {
+	ssr: false,
+});
 
 function HomeContent() {
 	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
@@ -40,11 +45,13 @@ function HomeContent() {
 			<StickyMobileCTA />
 
 			{/* Contact Modal */}
-			<ContactModal
-				isOpen={isContactModalOpen}
-				onClose={() => setIsContactModalOpen(false)}
-				source={contactModalSource}
-			/>
+			{isContactModalOpen ? (
+				<ContactModal
+					isOpen={isContactModalOpen}
+					onClose={() => setIsContactModalOpen(false)}
+					source={contactModalSource}
+				/>
+			) : null}
 		</>
 	);
 }

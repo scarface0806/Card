@@ -244,24 +244,24 @@ export default function OrdersPage() {
 
   return (
     <main className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="text-2xl font-semibold text-white">Orders</h1>
           <p className="text-gray-400 text-sm mt-1">Review incoming purchase orders and accept or reject them</p>
         </div>
-        <div className="flex items-center gap-3">
-          <button className="flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/5">
+        <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
+          <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10">
             <Filter className="w-4 h-4" />
             Filter
           </button>
           <button
             onClick={fetchOrders}
-            className="flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
-          <button className="flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/5">
+          <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10">
             <ShoppingCart className="w-4 h-4" />
             New Order
           </button>
@@ -306,12 +306,17 @@ export default function OrdersPage() {
           edit: 'Accept',
           delete: 'Reject',
         }}
+        actionTones={{
+          view: 'info',
+          edit: 'success',
+          delete: 'danger',
+        }}
       />
 
       {selectedOrder && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-3xl rounded-2xl border border-white/10 bg-[#161b2e] shadow-2xl overflow-hidden">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-[2px] p-2 sm:p-4">
+          <div className="w-full max-w-3xl rounded-2xl border border-white/10 bg-[#161b2e] shadow-2xl overflow-hidden max-h-[95vh]">
+            <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-white/10 bg-white/[0.02]">
               <div>
                 <h2 className="text-xl font-semibold text-white">Order Details</h2>
                 <p className="text-sm text-gray-400 mt-1">{selectedOrder.orderNumber}</p>
@@ -326,7 +331,7 @@ export default function OrdersPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-6 max-h-[80vh] overflow-y-auto">
+            <div className="p-4 sm:p-6 space-y-6 max-h-[78vh] overflow-y-auto">
               <div className="flex flex-wrap items-center gap-3">
                 {selectedPresentation && (
                   <StatusBadge status={selectedPresentation.tone as any} label={selectedPresentation.label} />
@@ -379,19 +384,28 @@ export default function OrdersPage() {
                   <p className="text-white mt-1 whitespace-pre-wrap">{selectedOrder.notes}</p>
                 </div>
               )}
+            </div>
 
-              <div className="flex flex-wrap justify-end gap-3 pt-2">
+            <div className="border-t border-white/10 bg-[#11182c] px-4 sm:px-6 py-3">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedOrder(null)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl border border-white/15 text-gray-200 hover:bg-white/5"
+                >
+                  Close
+                </button>
                 <button
                   type="button"
                   onClick={() => handleAccept(buildOrderRow(selectedOrder))}
-                  className="px-4 py-2 rounded-lg bg-emerald-500 text-white hover:bg-emerald-400"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-500/90 text-white hover:bg-emerald-500"
                 >
                   Accept
                 </button>
                 <button
                   type="button"
                   onClick={() => setRejectTarget(buildOrderRow(selectedOrder))}
-                  className="px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-400"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-red-500/90 text-white hover:bg-red-500"
                 >
                   Reject
                 </button>

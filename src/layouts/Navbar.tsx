@@ -1,12 +1,16 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowUpRight, Wifi, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
-import AuthModal from '@/components/AuthModal';
+
+const AuthModal = dynamic(() => import('@/components/AuthModal'), {
+  ssr: false,
+});
 
 type AuthMode = 'login' | 'signup';
 
@@ -167,12 +171,14 @@ export default function Navbar() {
       </div>
 
       {/* Auth Modal */}
-      <AuthModal 
-        isOpen={isAuthOpen} 
-        mode={authMode}
-        onClose={() => setIsAuthOpen(false)}
-        onModeChange={setAuthMode}
-      />
+      {isAuthOpen ? (
+        <AuthModal
+          isOpen={isAuthOpen}
+          mode={authMode}
+          onClose={() => setIsAuthOpen(false)}
+          onModeChange={setAuthMode}
+        />
+      ) : null}
     </nav>
   );
 }

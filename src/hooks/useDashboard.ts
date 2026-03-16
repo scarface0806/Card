@@ -3,6 +3,13 @@
 import { useState, useEffect, useCallback } from "react";
 import { DashboardMetrics, getDashboardMetrics } from "@/services/dashboard";
 
+const INR_FORMATTER = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  minimumFractionDigits: 0,
+  maximumFractionDigits: 0,
+});
+
 /**
  * Hook for fetching dashboard metrics
  */
@@ -45,12 +52,7 @@ export function useDashboard(autoRefresh: boolean = false, refreshInterval: numb
  * Format currency for display
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(amount);
+  return INR_FORMATTER.format(amount);
 }
 
 /**
