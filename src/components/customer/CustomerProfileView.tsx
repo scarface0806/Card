@@ -82,6 +82,26 @@ function normalizeMapEmbedSrc(value?: string | null) {
   }
 }
 
+type MailDeliveryMode = 'internal' | 'endpoint' | 'web3forms';
+
+function hasExplicitMailEndpoint(value?: string | null) {
+  const trimmed = value?.trim();
+  if (!trimmed) return false;
+  return trimmed.startsWith('/api/') || trimmed.startsWith('http://') || trimmed.startsWith('https://');
+}
+
+function isWeb3FormsAccessKey(value?: string | null) {
+  const trimmed = value?.trim();
+  if (!trimmed) return false;
+  return /^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$/.test(trimmed);
+}
+
+function getMailDeliveryMode(value?: string | null): MailDeliveryMode {
+  if (hasExplicitMailEndpoint(value)) return 'endpoint';
+  if (isWeb3FormsAccessKey(value)) return 'web3forms';
+  return 'internal';
+}
+
 export default function CustomerProfileView({ customer }: CustomerProfileViewProps) {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const [form, setForm] = useState<ContactFormState>({ name: '', phone: '', email: '', subject: '', message: '' });
@@ -137,6 +157,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
     setFeedback(null);
 
     try {
+      const mailMode = getMailDeliveryMode(customer.mailApiEndpoint);
+
       const leadResponse = await fetch('/api/leads', {
         method: 'POST',
         headers: {
@@ -148,7 +170,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           phone: form.phone,
           email: form.email,
           message: form.message,
-          skipEmail: true,
+          skipEmail: mailMode !== 'internal',
         }),
       });
 
@@ -157,31 +179,50 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
         throw new Error(leadPayload.error || 'Failed to submit message');
       }
 
-      const endpoint = customer.mailApiEndpoint?.trim() || '/api/send-lead-mail';
-      const emailResponse = await fetch(endpoint, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          to: customer.email,
-          name: form.name,
-          email: form.email,
-          phone: form.phone,
-          subject: form.subject,
-          message: form.message,
-        }),
-      });
+      if (mailMode === 'endpoint') {
+        const endpoint = customer.mailApiEndpoint!.trim();
+        const emailResponse = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            to: customer.email,
+            name: form.name,
+            email: form.email,
+            phone: form.phone,
+            subject: form.subject,
+            message: form.message,
+          }),
+        });
 
-      let emailPayload: { error?: string } = {};
-      try {
-        emailPayload = await emailResponse.json();
-      } catch {
-        emailPayload = {};
+        if (!emailResponse.ok) {
+          throw new Error('Failed to send lead email');
+        }
       }
 
-      if (!emailResponse.ok) {
-        throw new Error(emailPayload.error || 'Failed to send email');
+      if (mailMode === 'web3forms') {
+        const web3Response = await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Accept: 'application/json',
+          },
+          body: JSON.stringify({
+            access_key: customer.mailApiEndpoint!.trim(),
+            name: form.name,
+            phone: form.phone,
+            email: form.email,
+            subject: form.subject?.trim() || `New enquiry for ${customer.name}`,
+            message: form.message,
+            from_name: customer.name,
+          }),
+        });
+
+        const web3Payload = await web3Response.json().catch(() => ({} as { message?: string }));
+        if (!web3Response.ok) {
+          throw new Error(web3Payload.message || 'Failed to send lead email');
+        }
       }
 
       setFeedback({ type: 'success', text: 'Your message has been sent successfully' });
