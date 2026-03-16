@@ -1,56 +1,58 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { errorResponse, successResponse } from "@/lib/responses";
 
 // GET /api/profiles/[slug] - Get profile by slug
 export async function GET(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
 
-    // Find profile by slug
-    const profile = await prisma.cardProfile.findUnique({
+    // Find card by slug and project profile-like response.
+    const card = await prisma.card.findUnique({
       where: { slug },
       include: {
-        order: {
+        user: {
           select: {
             id: true,
-            orderNumber: true,
-            total: true,
-            status: true,
-            createdAt: true,
+            name: true,
+            email: true,
           },
         },
       },
     });
 
-    if (!profile) {
+    if (!card) {
       return errorResponse("Profile not found", 404);
     }
 
-    // Check if profile is active
-    if (!profile.isActive) {
+    if (!card.isActive) {
       return errorResponse("Profile is not active", 410);
     }
+
+    const customerName = [card.details?.firstName, card.details?.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim() || card.user?.name || "Card Owner";
 
     return successResponse({
       message: "Profile found successfully",
       profile: {
-        id: profile.id,
-        slug: profile.slug,
-        customerName: profile.customerName,
-        designation: profile.designation,
-        company: profile.company,
-        phone: profile.phone,
-        email: profile.email,
-        website: profile.website,
-        address: profile.address,
-        profileData: profile.profileData,
-        isActive: profile.isActive,
-        createdAt: profile.createdAt,
-        order: profile.order,
+        id: card.id,
+        slug: card.slug,
+        customerName,
+        designation: card.details?.title || null,
+        company: card.details?.company || null,
+        phone: card.details?.phone || null,
+        email: card.details?.email || card.user?.email || null,
+        website: card.details?.website || null,
+        address: null,
+        profileData: card.details || null,
+        isActive: card.isActive,
+        createdAt: card.createdAt,
+        order: null,
       },
     });
   } catch (error) {
@@ -62,19 +64,31 @@ export async function GET(
 // POST /api/profiles/[slug]/contact - Send message to profile owner
 export async function POST(
   request: NextRequest,
-  { params }: { params: { slug: string } }
+  { params }: { params: Promise<{ slug: string }> }
 ) {
   try {
-    const { slug } = params;
+    const { slug } = await params;
     const body = await request.json();
 
-    // Find profile
-    const profile = await prisma.cardProfile.findUnique({
+    // Find card
+    const card = await prisma.card.findUnique({
       where: { slug },
+      include: {
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+      },
     });
 
-    if (!profile) {
+    if (!card) {
       return errorResponse("Profile not found", 404);
+    }
+
+    if (!card.isActive) {
+      return errorResponse("Profile is not active", 410);
     }
 
     // Validate required fields
@@ -86,7 +100,7 @@ export async function POST(
     // Create lead record (optional - for tracking)
     await prisma.cardLead.create({
       data: {
-        cardId: profile.id, // Use profile ID as card reference
+        cardId: card.id,
         name: name.trim(),
         email: email.toLowerCase().trim(),
         phone: body.phone?.trim() || null,
@@ -100,8 +114,14 @@ export async function POST(
       },
     });
 
-    // Send email notification to profile owner
-    if (profile.email) {
+    // Send email notification to profile/card owner
+    const ownerEmail = card.user?.email || card.details?.email;
+    const ownerName = [card.details?.firstName, card.details?.lastName]
+      .filter(Boolean)
+      .join(" ")
+      .trim() || card.user?.name || "Card Owner";
+
+    if (ownerEmail) {
       const { sendEmail } = await import("@/lib/email");
       const profileUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com"}/card/${slug}`;
       
@@ -127,7 +147,7 @@ export async function POST(
           <tr>
             <td style="padding: 40px;">
               <p style="margin: 0 0 20px; color: #374151; font-size: 16px; line-height: 1.6;">
-                Hi ${profile.customerName},
+                Hi ${ownerName},
               </p>
               <p style="margin: 0 0 30px; color: #374151; font-size: 16px; line-height: 1.6;">
                 Someone just sent you a message through your NFC profile!
@@ -193,7 +213,7 @@ export async function POST(
       const text = `
 New Message from Your NFC Profile!
 
-Hi ${profile.customerName},
+Hi ${ownerName},
 
 Someone just sent you a message through your NFC profile!
 
@@ -208,7 +228,7 @@ View your profile: ${profileUrl}
       `;
 
       await sendEmail({
-        to: profile.email,
+        to: ownerEmail,
         subject,
         html,
         text,

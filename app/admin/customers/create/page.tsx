@@ -226,7 +226,7 @@ export default function CreateCustomerPage() {
 
       const testMailPayload = await testMailResponse.json().catch(() => ({}));
       if (!testMailResponse.ok || !testMailPayload?.success) {
-        throw new Error(testMailPayload?.message || testMailPayload?.error || 'Customer created, but Mail API test failed');
+        throw new Error(testMailPayload?.message || testMailPayload?.error || 'Customer created, but Mail API could not be verified');
       }
 
       setToast({ variant: 'success', message: 'Customer created and Mail API verified successfully.' });

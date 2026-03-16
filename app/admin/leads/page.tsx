@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
 import AdminToast from '@/components/admin/AdminToast';
+import Modal from '@/components/Modal';
 
 interface LeadRow {
   id: string;
@@ -26,6 +27,7 @@ export default function AdminLeadsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [viewLead, setViewLead] = useState<LeadRow | null>(null);
 
   const fetchLeads = useCallback(async () => {
     try {
@@ -99,8 +101,46 @@ export default function AdminLeadsPage() {
           { key: 'date', label: 'Date' },
         ]}
         data={loading ? [] : rows}
-        onView={(row: LeadRow) => setToast({ variant: 'info', message: `${row.name} (${row.phone}) -> ${row.message}` })}
+        onView={(row: LeadRow) => setViewLead(row)}
       />
+
+      {/* Lead View Modal */}
+      <Modal
+        isOpen={!!viewLead}
+        onClose={() => setViewLead(null)}
+        title="Lead Details"
+      >
+        {viewLead && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <span className="text-xs text-gray-500">Name</span>
+                <div className="font-semibold text-gray-900">{viewLead.name}</div>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500">Phone</span>
+                <div className="font-semibold text-gray-900">{viewLead.phone}</div>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500">Email</span>
+                <div className="font-semibold text-gray-900">{viewLead.email}</div>
+              </div>
+              <div>
+                <span className="text-xs text-gray-500">Service</span>
+                <div className="font-semibold text-gray-900">{viewLead.service}</div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-xs text-gray-500">Message</span>
+                <div className="text-gray-800 bg-gray-100 rounded-lg p-3 mt-1 whitespace-pre-line">{viewLead.message}</div>
+              </div>
+              <div className="col-span-2">
+                <span className="text-xs text-gray-500">Date</span>
+                <div className="text-gray-700">{viewLead.date}</div>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </main>
   );
 }

@@ -75,7 +75,8 @@ function getProductFeatures(product: any): string[] {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const { data: session, status } = useSession();
+  const sessionState = useSession();
+  const status = sessionState?.status ?? 'unauthenticated';
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
