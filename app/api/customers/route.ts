@@ -62,6 +62,7 @@ async function createCustomerWithMongoFallback(params: {
   logo: string | null;
   profileImage: string | null;
   formData: FormData;
+  enableGallery: boolean;
 }) {
   const databaseUrl = process.env.DATABASE_URL;
   if (!databaseUrl) {
@@ -123,17 +124,19 @@ async function createCustomerWithMongoFallback(params: {
       { $set: { slug, updatedAt: new Date() } }
     );
 
-    for (let slot = 1; slot <= 6; slot += 1) {
-      const galleryFile = params.formData.get(`galleryImage${slot}`);
-      const hoverText = String(params.formData.get(`galleryHoverText${slot}`) || "").trim();
-      const image = galleryFile instanceof File ? await saveUploadedImage(galleryFile, "customers") : null;
+    if (params.enableGallery) {
+      for (let slot = 1; slot <= 3; slot += 1) {
+        const galleryFile = params.formData.get(`galleryImage${slot}`);
+        const hoverText = String(params.formData.get(`galleryHoverText${slot}`) || "").trim();
+        const image = galleryFile instanceof File ? await saveUploadedImage(galleryFile, "customers") : null;
 
-      await galleries.insertOne({
-        customerId: new ObjectId(customerId),
-        image: image || "/no-image-placeholder.svg",
-        hoverText: hoverText || null,
-        slot,
-      });
+        await galleries.insertOne({
+          customerId: new ObjectId(customerId),
+          image: image || "/no-image-placeholder.svg",
+          hoverText: hoverText || null,
+          slot,
+        });
+      }
     }
 
     return {
@@ -148,6 +151,7 @@ async function createCustomerWithMongoFallback(params: {
 async function postHandler(request: NextRequest, user: AuthUser) {
   try {
     const formData = await request.formData();
+    const enableGallery = parseBoolean(formData.get("enableGallery"));
 
     const parsed = customerCreateSchema.safeParse({
       name: formData.get("name"),
@@ -156,7 +160,7 @@ async function postHandler(request: NextRequest, user: AuthUser) {
       about: formData.get("about"),
       phone: formData.get("phone"),
       email: formData.get("email"),
-      mailApiEndpoint: formData.get("mailApiEndpoint"),
+      mailApiEndpoint: formData.get("mailApiEndpoint") || formData.get("mailApiKey"),
       website: formData.get("website"),
       websiteEnabled: parseBoolean(formData.get("websiteEnabled")),
       linkedin: formData.get("linkedin"),
@@ -224,19 +228,21 @@ async function postHandler(request: NextRequest, user: AuthUser) {
         data: { slug },
       });
 
-      for (let slot = 1; slot <= 6; slot += 1) {
-        const galleryFile = formData.get(`galleryImage${slot}`);
-        const hoverText = String(formData.get(`galleryHoverText${slot}`) || "").trim();
-        const image = galleryFile instanceof File ? await saveUploadedImage(galleryFile, "customers") : null;
+      if (enableGallery) {
+        for (let slot = 1; slot <= 3; slot += 1) {
+          const galleryFile = formData.get(`galleryImage${slot}`);
+          const hoverText = String(formData.get(`galleryHoverText${slot}`) || "").trim();
+          const image = galleryFile instanceof File ? await saveUploadedImage(galleryFile, "customers") : null;
 
-        await prisma.gallery.create({
-          data: {
-            customerId: customer.id,
-            image: image || "/no-image-placeholder.svg",
-            hoverText: hoverText || null,
-            slot,
-          },
-        });
+          await prisma.gallery.create({
+            data: {
+              customerId: customer.id,
+              image: image || "/no-image-placeholder.svg",
+              hoverText: hoverText || null,
+              slot,
+            },
+          });
+        }
       }
 
       customerId = updatedCustomer.id;
@@ -250,6 +256,7 @@ async function postHandler(request: NextRequest, user: AuthUser) {
         logo,
         profileImage,
         formData,
+        enableGallery,
       });
 
       customerId = fallback.id;

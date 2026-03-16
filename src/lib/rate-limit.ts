@@ -5,24 +5,30 @@ import { errorResponse } from "@/lib/responses";
 // simple in-memory rate limiter keyed by IP
 const ipCache = new LRU<string, { count: number; reset: number }>({
   max: 5000,
-  ttl: 1000 * 60, // 1 minute window
+  ttl: 1000 * 60 * 5, // keep entries a bit longer than a single window
 });
 
 export function checkRateLimit(
   request: NextRequest,
   limit = 60
 ): { ok: boolean; retryAfter?: number } {
-  const ip =
-    (request.headers.get("x-forwarded-for") || request.headers.get("x-real-ip")) ??
-    "unknown";
+  const windowMs = 60 * 1000;
+  const forwarded = request.headers.get("x-forwarded-for") || "";
+  const realIp = request.headers.get("x-real-ip") || "";
+  const ip = (forwarded.split(",")[0] || realIp || "unknown").trim();
 
   const now = Date.now();
-  const entry = ipCache.get(ip) || { count: 0, reset: now + 60 * 1000 };
+  const key = `${request.nextUrl.pathname}:${ip}`;
+  const existing = ipCache.get(key);
+  const entry = !existing || now >= existing.reset
+    ? { count: 0, reset: now + windowMs }
+    : existing;
+
   entry.count += 1;
-  ipCache.set(ip, entry);
+  ipCache.set(key, entry);
 
   if (entry.count > limit) {
-    return { ok: false, retryAfter: Math.ceil((entry.reset - now) / 1000) };
+    return { ok: false, retryAfter: Math.max(1, Math.ceil((entry.reset - now) / 1000)) };
   }
   return { ok: true };
 }

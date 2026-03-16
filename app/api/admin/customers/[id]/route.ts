@@ -6,6 +6,7 @@ import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { customerCreateSchema } from "@/lib/validators";
 import { MongoClient, ObjectId } from "mongodb";
+import { saveUploadedImage } from "@/lib/local-upload";
 
 type CustomerDetailDelegate = {
   findUnique: (args: unknown) => Promise<any>;
@@ -14,6 +15,10 @@ type CustomerDetailDelegate = {
 };
 
 type RouteParams = { params: Promise<{ id: string }> };
+
+function parseBoolean(value: FormDataEntryValue | null) {
+  return value === "true" || value === "1" || value === "on";
+}
 
 function isReplicaSetRequiredError(error: unknown) {
   return (
@@ -155,6 +160,133 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
 
     if (!ObjectId.isValid(id)) {
       return errorResponse("Customer not found", 404);
+    }
+
+    const contentType = request.headers.get("content-type") || "";
+
+    if (contentType.includes("multipart/form-data")) {
+      const formData = await request.formData();
+      const enableGallery = parseBoolean(formData.get("enableGallery"));
+
+      const parsed = customerCreateSchema.safeParse({
+        name: formData.get("name"),
+        designation: formData.get("designation"),
+        company: formData.get("company"),
+        about: formData.get("about"),
+        phone: formData.get("phone"),
+        email: formData.get("email"),
+        mailApiEndpoint: formData.get("mailApiEndpoint") || formData.get("mailApiKey"),
+        website: formData.get("website"),
+        websiteEnabled: parseBoolean(formData.get("websiteEnabled")),
+        linkedin: formData.get("linkedin"),
+        linkedinEnabled: parseBoolean(formData.get("linkedinEnabled")),
+        whatsapp: formData.get("whatsapp"),
+        whatsappEnabled: parseBoolean(formData.get("whatsappEnabled")),
+        instagram: formData.get("instagram"),
+        instagramEnabled: parseBoolean(formData.get("instagramEnabled")),
+        facebook: formData.get("facebook"),
+        facebookEnabled: parseBoolean(formData.get("facebookEnabled")),
+        behance: formData.get("behance"),
+        behanceEnabled: parseBoolean(formData.get("behanceEnabled")),
+        address: formData.get("address"),
+        mapEmbedUrl: formData.get("mapEmbedUrl"),
+        isActive: parseBoolean(formData.get("isActive")),
+      });
+
+      if (!parsed.success) {
+        return errorResponse(parsed.error.issues.map((issue) => issue.message).join(", "), 400);
+      }
+
+      await withMongo(async (db) => {
+        const customerObjectId = new ObjectId(id);
+        const customers = db.collection("customers");
+        const galleries = db.collection("galleries");
+
+        const result = await customers.updateOne(
+          { _id: customerObjectId },
+          {
+            $set: {
+              name: parsed.data.name,
+              designation: parsed.data.designation || null,
+              company: parsed.data.company || null,
+              about: parsed.data.about || null,
+              phone: parsed.data.phone,
+              email: parsed.data.email,
+              mailApiEndpoint: parsed.data.mailApiEndpoint || null,
+              website: parsed.data.website || null,
+              websiteEnabled: parsed.data.websiteEnabled,
+              linkedin: parsed.data.linkedin || null,
+              linkedinEnabled: parsed.data.linkedinEnabled,
+              whatsapp: parsed.data.whatsapp || null,
+              whatsappEnabled: parsed.data.whatsappEnabled,
+              instagram: parsed.data.instagram || null,
+              instagramEnabled: parsed.data.instagramEnabled,
+              facebook: parsed.data.facebook || null,
+              facebookEnabled: parsed.data.facebookEnabled,
+              behance: parsed.data.behance || null,
+              behanceEnabled: parsed.data.behanceEnabled,
+              address: parsed.data.address || null,
+              mapEmbedUrl: parsed.data.mapEmbedUrl || null,
+              isActive: parsed.data.isActive,
+              updatedAt: new Date(),
+            },
+          }
+        );
+
+        if (result.matchedCount === 0) {
+          throw new Error("Customer not found");
+        }
+
+        if (!enableGallery) {
+          await galleries.deleteMany({ customerId: customerObjectId });
+          return;
+        }
+
+        const existing = await galleries.find({ customerId: customerObjectId }).toArray();
+        const existingBySlot = new Map<number, any>();
+        for (const item of existing) {
+          if (typeof item.slot === "number") {
+            existingBySlot.set(item.slot, item);
+          }
+        }
+
+        for (let slot = 1; slot <= 3; slot += 1) {
+          const galleryFile = formData.get(`galleryImage${slot}`);
+          const hoverText = String(formData.get(`galleryHoverText${slot}`) || "").trim();
+          const existingItem = existingBySlot.get(slot);
+          const image =
+            galleryFile instanceof File
+              ? await saveUploadedImage(galleryFile, "customers")
+              : existingItem?.image || "/no-image-placeholder.svg";
+
+          if (existingItem?._id) {
+            await galleries.updateOne(
+              { _id: existingItem._id, customerId: customerObjectId },
+              { $set: { image, hoverText: hoverText || null, slot } }
+            );
+          } else {
+            await galleries.insertOne({
+              customerId: customerObjectId,
+              image,
+              hoverText: hoverText || null,
+              slot,
+            });
+          }
+        }
+
+        await galleries.deleteMany({ customerId: customerObjectId, slot: { $gt: 3 } });
+      });
+
+      return successResponse({
+        message: "Customer updated",
+        customer: {
+          id,
+          name: parsed.data.name,
+          phone: parsed.data.phone,
+          email: parsed.data.email,
+          isActive: parsed.data.isActive,
+        },
+      });
     }
 
     const body = await request.json();

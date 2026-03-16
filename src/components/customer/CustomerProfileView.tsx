@@ -100,11 +100,12 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
   }, [theme]);
 
   const gallerySlots = useMemo(() => {
-    const ordered = [...customer.galleries].sort((a, b) => a.slot - b.slot);
-    if (ordered.length >= 6) return ordered.slice(0, 6);
+    const ordered = [...customer.galleries].sort((a, b) => a.slot - b.slot).slice(0, 3);
+    if (ordered.length === 0) return [];
+    if (ordered.length >= 3) return ordered;
 
     const missing = [] as GalleryItem[];
-    for (let i = ordered.length + 1; i <= 6; i += 1) {
+    for (let i = ordered.length + 1; i <= 3; i += 1) {
       missing.push({
         id: `placeholder-${i}`,
         slot: i,
@@ -128,6 +129,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
   );
 
   const mapEmbedSrc = useMemo(() => normalizeMapEmbedSrc(customer.mapEmbedUrl), [customer.mapEmbedUrl]);
+  const shopName = customer.company?.trim() || '';
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -239,10 +241,24 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           background: var(--white);
         }
 
+        .digi-logo {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          text-decoration: none;
+        }
+
         .digi-nav-logo-img {
           max-height: 45px;
           width: auto;
           object-fit: contain;
+        }
+
+        .digi-shop-name {
+          color: var(--dark-text);
+          font-size: 1rem;
+          font-weight: 700;
+          line-height: 1;
         }
 
         .digi-nav-right {
@@ -493,6 +509,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
         <nav className="digi-navbar">
           <a href="#" className="digi-logo">
             <img src={customer.logo || '/no-image-placeholder.svg'} alt="Logo" className="digi-nav-logo-img" />
+            {shopName ? <span className="digi-shop-name">{shopName}</span> : null}
           </a>
           <div className="digi-nav-right">
             <div className="digi-theme-toggle">
@@ -538,23 +555,25 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
             </div>
           </section>
 
-          <section className="digi-works-section" id="works">
-            <div className="digi-works-header">
-              <h2 className="digi-works-title">Our Works</h2>
-              <p className="digi-works-subtitle">Take a look at some of our completed projects</p>
-            </div>
-            <div className="digi-works-grid">
-              {gallerySlots.map((gallery, index) => (
-                <div key={gallery.id} className="digi-work-item">
-                  <img src={gallery.image || '/no-image-placeholder.svg'} alt={`Gallery ${index + 1}`} />
-                  <div className="digi-work-overlay">
-                    <h4>Work {index + 1}</h4>
-                    <p>{gallery.hoverText || 'No Image'}</p>
+          {gallerySlots.length > 0 ? (
+            <section className="digi-works-section" id="works">
+              <div className="digi-works-header">
+                <h2 className="digi-works-title">Our Works</h2>
+                <p className="digi-works-subtitle">Take a look at some of our completed projects</p>
+              </div>
+              <div className="digi-works-grid">
+                {gallerySlots.map((gallery, index) => (
+                  <div key={gallery.id} className="digi-work-item">
+                    <img src={gallery.image || '/no-image-placeholder.svg'} alt={`Gallery ${index + 1}`} />
+                    <div className="digi-work-overlay">
+                      <h4>Work {index + 1}</h4>
+                      <p>{gallery.hoverText || 'No Image'}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          </section>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <section className="digi-form-section" id="contact">
             <div className="digi-form-header">

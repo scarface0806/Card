@@ -36,6 +36,7 @@ interface FormState {
   logo: File | null;
   profileImage: File | null;
   gallerySlots: GallerySlot[];
+  enableGallery: boolean;
 }
 
 interface CreatedState {
@@ -48,7 +49,7 @@ type ToastState = {
   message: string;
 };
 
-const defaultGallerySlots = () => Array.from({ length: 6 }, () => ({ file: null, hoverText: '' }));
+const defaultGallerySlots = () => Array.from({ length: 3 }, () => ({ file: null, hoverText: '' }));
 
 export default function CreateCustomerPage() {
   const [form, setForm] = useState<FormState>({
@@ -76,6 +77,7 @@ export default function CreateCustomerPage() {
     logo: null,
     profileImage: null,
     gallerySlots: defaultGallerySlots(),
+    enableGallery: true,
   });
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -160,6 +162,7 @@ export default function CreateCustomerPage() {
       body.append('phone', form.phone);
       body.append('email', form.email);
       body.append('mailApiEndpoint', form.mailApiEndpoint);
+      body.append('mailApiKey', form.mailApiEndpoint);
       body.append('website', form.website);
       body.append('websiteEnabled', String(form.websiteEnabled));
       body.append('linkedin', form.linkedin);
@@ -175,16 +178,19 @@ export default function CreateCustomerPage() {
       body.append('address', form.address);
       body.append('mapEmbedUrl', form.mapEmbedUrl);
       body.append('isActive', 'true');
+      body.append('enableGallery', String(form.enableGallery));
 
       if (form.logo) body.append('logo', form.logo);
       if (form.profileImage) body.append('profileImage', form.profileImage);
 
-      form.gallerySlots.forEach((slot, index) => {
-        if (slot.file) {
-          body.append(`galleryImage${index + 1}`, slot.file);
-        }
-        body.append(`galleryHoverText${index + 1}`, slot.hoverText);
-      });
+      if (form.enableGallery) {
+        form.gallerySlots.forEach((slot, index) => {
+          if (slot.file) {
+            body.append(`galleryImage${index + 1}`, slot.file);
+          }
+          body.append(`galleryHoverText${index + 1}`, slot.hoverText);
+        });
+      }
 
       const response = await fetch('/api/customers', {
         method: 'POST',
@@ -206,7 +212,24 @@ export default function CreateCustomerPage() {
       }
 
       setCreated({ slug: payload.slug, link: payload.link });
-      setToast({ variant: 'success', message: 'Customer created and NFC link generated successfully' });
+
+      const testMailResponse = await fetch('/api/test-mail', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          customerName: form.name,
+          customerEmail: form.email,
+          mailApiKey: form.mailApiEndpoint,
+        }),
+      });
+
+      const testMailPayload = await testMailResponse.json().catch(() => ({}));
+      if (!testMailResponse.ok || !testMailPayload?.success) {
+        throw new Error(testMailPayload?.message || testMailPayload?.error || 'Customer created, but Mail API test failed');
+      }
+
+      setToast({ variant: 'success', message: 'Customer created and Mail API verified successfully.' });
       setForm({
         name: '',
         designation: '',
@@ -232,6 +255,7 @@ export default function CreateCustomerPage() {
         logo: null,
         profileImage: null,
         gallerySlots: defaultGallerySlots(),
+        enableGallery: true,
       });
     } catch (error) {
       setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to create customer' });
@@ -281,8 +305,8 @@ export default function CreateCustomerPage() {
           <label className="block text-sm font-medium text-gray-200">Email
             <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Mail API Endpoint
-            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="https://api.tapvyo.com/send-mail" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+          <label className="block text-sm font-medium text-gray-200">Mail API Key
+            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Address
             <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
@@ -336,23 +360,32 @@ export default function CreateCustomerPage() {
         </div>
 
         <section className="space-y-4 rounded-2xl border border-white/10 bg-[#0f1424] p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">Gallery (6 Slots)</h3>
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {form.gallerySlots.map((slot, index) => (
-              <div key={index} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
-                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">Image Box {index + 1}</p>
-                <input type="file" name={`galleryImage${index + 1}`} accept="image/*" onChange={handleFileChange} className="block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-orange-500 file:px-3 file:py-1.5 file:font-semibold file:text-white" />
-                <div className="mt-3 overflow-hidden rounded-lg border border-white/10 bg-[#0f1424]">
-                  {galleryPreviews[index] ? (
-                    <Image src={galleryPreviews[index] as string} alt={`Gallery ${index + 1}`} width={400} height={220} className="h-28 w-full object-cover" />
-                  ) : (
-                    <div className="flex h-28 items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-500">No Image</div>
-                  )}
-                </div>
-                <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder="Hover text" className="mt-3 w-full rounded-lg border border-white/10 bg-[#0f1424] px-3 py-2 text-xs text-white outline-none focus:border-orange-400" />
-              </div>
-            ))}
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">Gallery (3 Images)</h3>
+            <label className="inline-flex items-center gap-2 text-sm text-gray-200">
+              <input type="checkbox" checked={form.enableGallery} onChange={(e) => handleToggleChange('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
+              Enable Gallery
+            </label>
           </div>
+
+          {form.enableGallery ? (
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              {form.gallerySlots.map((slot, index) => (
+                <div key={index} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">Image {index + 1}</p>
+                  <input type="file" name={`galleryImage${index + 1}`} accept="image/*" onChange={handleFileChange} className="block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-orange-500 file:px-3 file:py-1.5 file:font-semibold file:text-white" />
+                  <div className="mt-3 overflow-hidden rounded-lg border border-white/10 bg-[#0f1424]">
+                    {galleryPreviews[index] ? (
+                      <Image src={galleryPreviews[index] as string} alt={`Gallery ${index + 1}`} width={400} height={220} className="h-28 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-28 items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-500">No Image</div>
+                    )}
+                  </div>
+                  <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder={`Image ${index + 1} hover text`} className="mt-3 w-full rounded-lg border border-white/10 bg-[#0f1424] px-3 py-2 text-xs text-white outline-none focus:border-orange-400" />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </section>
 
         <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-400 px-5 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-orange-500/20 disabled:cursor-not-allowed disabled:opacity-70">

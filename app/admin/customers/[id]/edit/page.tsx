@@ -64,7 +64,8 @@ type FormState = {
   address: string;
   mapEmbedUrl: string;
   isActive: boolean;
-  gallery: Array<{ id: string; slot: number; hoverText: string }>;
+  enableGallery: boolean;
+  gallery: Array<{ id: string; slot: number; image: string; hoverText: string; file: File | null }>;
 };
 
 const emptyForm: FormState = {
@@ -90,6 +91,7 @@ const emptyForm: FormState = {
   address: '',
   mapEmbedUrl: '',
   isActive: true,
+  enableGallery: true,
   gallery: [],
 };
 
@@ -117,7 +119,18 @@ export default function EditCustomerPage() {
         }
 
         const customer = payload.customer as CustomerDetail;
-        const orderedGallery = [...(customer.galleries || [])].sort((a, b) => a.slot - b.slot);
+        const orderedGallery = [...(customer.galleries || [])].sort((a, b) => a.slot - b.slot).slice(0, 3);
+        const normalizedGallery = Array.from({ length: 3 }, (_, idx) => {
+          const slot = idx + 1;
+          const existing = orderedGallery.find((item) => item.slot === slot);
+          return {
+            id: existing?.id || '',
+            slot,
+            image: existing?.image || '/no-image-placeholder.svg',
+            hoverText: existing?.hoverText || '',
+            file: null,
+          };
+        });
 
         if (!active) return;
         setForm({
@@ -143,11 +156,8 @@ export default function EditCustomerPage() {
           address: customer.address || '',
           mapEmbedUrl: customer.mapEmbedUrl || '',
           isActive: Boolean(customer.isActive),
-          gallery: orderedGallery.map((item) => ({
-            id: item.id,
-            slot: item.slot,
-            hoverText: item.hoverText || '',
-          })),
+          enableGallery: normalizedGallery.some((item) => item.id),
+          gallery: normalizedGallery,
         });
       } catch (error) {
         if (!active) return;
@@ -183,10 +193,17 @@ export default function EditCustomerPage() {
     setForm((current) => ({ ...current, [key]: value }));
   };
 
-  const updateGalleryHover = (id: string, hoverText: string) => {
+  const updateGalleryHover = (slot: number, hoverText: string) => {
     setForm((current) => ({
       ...current,
-      gallery: current.gallery.map((item) => (item.id === id ? { ...item, hoverText } : item)),
+      gallery: current.gallery.map((item) => (item.slot === slot ? { ...item, hoverText } : item)),
+    }));
+  };
+
+  const updateGalleryFile = (slot: number, file: File | null) => {
+    setForm((current) => ({
+      ...current,
+      gallery: current.gallery.map((item) => (item.slot === slot ? { ...item, file } : item)),
     }));
   };
 
@@ -196,11 +213,48 @@ export default function EditCustomerPage() {
 
     try {
       setSaving(true);
+      const body = new FormData();
+      body.append('name', form.name);
+      body.append('designation', form.designation);
+      body.append('company', form.company);
+      body.append('about', form.about);
+      body.append('phone', form.phone);
+      body.append('email', form.email);
+      body.append('mailApiEndpoint', form.mailApiEndpoint);
+      body.append('mailApiKey', form.mailApiEndpoint);
+      body.append('website', form.website);
+      body.append('websiteEnabled', String(form.websiteEnabled));
+      body.append('linkedin', form.linkedin);
+      body.append('linkedinEnabled', String(form.linkedinEnabled));
+      body.append('whatsapp', form.whatsapp);
+      body.append('whatsappEnabled', String(form.whatsappEnabled));
+      body.append('instagram', form.instagram);
+      body.append('instagramEnabled', String(form.instagramEnabled));
+      body.append('facebook', form.facebook);
+      body.append('facebookEnabled', String(form.facebookEnabled));
+      body.append('behance', form.behance);
+      body.append('behanceEnabled', String(form.behanceEnabled));
+      body.append('address', form.address);
+      body.append('mapEmbedUrl', form.mapEmbedUrl);
+      body.append('isActive', String(form.isActive));
+      body.append('enableGallery', String(form.enableGallery));
+
+      if (form.enableGallery) {
+        form.gallery.forEach((item) => {
+          if (item.id) {
+            body.append(`galleryId${item.slot}`, item.id);
+          }
+          if (item.file) {
+            body.append(`galleryImage${item.slot}`, item.file);
+          }
+          body.append(`galleryHoverText${item.slot}`, item.hoverText);
+        });
+      }
+
       const response = await fetch(`/api/admin/customers/${id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify(form),
+        body,
       });
 
       const payload = await response.json();
@@ -253,8 +307,8 @@ export default function EditCustomerPage() {
           <label className="block text-sm font-medium text-gray-200">Email
             <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" required />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Mail API Endpoint
-            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="https://api.tapvyo.com/send-mail" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+          <label className="block text-sm font-medium text-gray-200">Mail API Key
+            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Status
             <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400">
@@ -297,14 +351,42 @@ export default function EditCustomerPage() {
         </div>
 
         <div className="space-y-3 rounded-xl border border-white/10 bg-[#0f1424] p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400">Gallery Hover Text</h3>
-          <div className="grid gap-3 md:grid-cols-2">
-            {form.gallery.map((item) => (
-              <label key={item.id} className="block text-sm font-medium text-gray-200">Slot {item.slot}
-                <input value={item.hoverText} onChange={(e) => updateGalleryHover(item.id, e.target.value)} placeholder="Hover text" className="mt-2 w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-white outline-none focus:border-orange-400" />
-              </label>
-            ))}
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400">Gallery (3 Images)</h3>
+            <label className="inline-flex items-center gap-2 text-sm text-gray-200">
+              <input type="checkbox" checked={form.enableGallery} onChange={(e) => setToggle('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
+              Enable Gallery
+            </label>
           </div>
+
+          {form.enableGallery ? (
+            <div className="grid gap-3 md:grid-cols-3">
+              {form.gallery.map((item) => (
+                <div key={item.slot} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Image {item.slot}</p>
+                  <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-[#0f1424]">
+                    <img
+                      src={item.file ? URL.createObjectURL(item.file) : item.image || '/no-image-placeholder.svg'}
+                      alt={`Gallery ${item.slot}`}
+                      className="h-24 w-full object-cover"
+                    />
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => updateGalleryFile(item.slot, e.target.files?.[0] || null)}
+                    className="mt-2 block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-orange-500 file:px-3 file:py-1.5 file:font-semibold file:text-white"
+                  />
+                  <input
+                    value={item.hoverText}
+                    onChange={(e) => updateGalleryHover(item.slot, e.target.value)}
+                    placeholder={`Image ${item.slot} hover text`}
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-[#161b2e] px-3 py-2 text-sm text-white outline-none focus:border-orange-400"
+                  />
+                </div>
+              ))}
+            </div>
+          ) : null}
         </div>
 
         <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-400 px-5 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-orange-500/20 disabled:cursor-not-allowed disabled:opacity-70">
