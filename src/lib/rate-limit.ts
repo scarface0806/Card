@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import LRU from "lru-cache";
 import { errorResponse } from "@/lib/responses";
 
-// simple in-memory rate limiter keyed by IP
-const ipCache = new LRU<string, { count: number; reset: number }>({
-  max: 5000,
-  ttl: 1000 * 60 * 5, // keep entries a bit longer than a single window
-});
+// simple in-memory rate limiter keyed by IP (no external deps)
+const ipCache = new Map<string, { count: number; reset: number }>();
+const MAX_ENTRIES = 5000;
+
+function pruneCache() {
+  if (ipCache.size <= MAX_ENTRIES) return;
+  const now = Date.now();
+  for (const [key, val] of ipCache) {
+    if (now >= val.reset) ipCache.delete(key);
+  }
+  // If still over limit after pruning expired, drop oldest entries
+  if (ipCache.size > MAX_ENTRIES) {
+    const excess = ipCache.size - MAX_ENTRIES;
+    let i = 0;
+    for (const key of ipCache.keys()) {
+      if (i++ >= excess) break;
+      ipCache.delete(key);
+    }
+  }
+}
 
 export function checkRateLimit(
   request: NextRequest,
@@ -17,6 +31,7 @@ export function checkRateLimit(
   const realIp = request.headers.get("x-real-ip") || "";
   const ip = (forwarded.split(",")[0] || realIp || "unknown").trim();
 
+  pruneCache();
   const now = Date.now();
   const key = `${request.nextUrl.pathname}:${ip}`;
   const existing = ipCache.get(key);
