@@ -238,462 +238,606 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
     <>
       <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
       <style jsx global>{`
+        /* =============================================
+           PREMIUM DESIGN SYSTEM — CSS Variables
+           ============================================= */
         :root {
-          --primary-green: #00b894;
-          --primary-red: #e74c3c;
-          --dark-bg: #2d3436;
-          --white: #ffffff;
-          --light-gray: #f5f6fa;
-          --gray: #636e72;
-          --dark-text: #2d3436;
-          --border-color: #e0e0e0;
-          --card-bg: #ffffff;
-          --surface-1: #ffffff;
-          --surface-2: #f8fafc;
-          --body-bg: #eef2f7;
+          --digi-bg: #F8FAFC;
+          --digi-card: #FFFFFF;
+          --digi-text-primary: #0F172A;
+          --digi-text-secondary: #475569;
+          --digi-text-muted: #94A3B8;
+          --digi-border: #E2E8F0;
+          --digi-accent: #14B8A6;
+          --digi-accent-hover: #0D9488;
+          --digi-accent-soft: rgba(20, 184, 166, 0.08);
+          --digi-accent-border: rgba(20, 184, 166, 0.2);
+          --digi-input-bg: #FFFFFF;
+          --digi-input-border: #E2E8F0;
+          --digi-input-focus: #14B8A6;
+          --digi-surface: #F1F5F9;
+          --digi-overlay: rgba(15, 23, 42, 0.7);
+          --digi-radius: 16px;
+          --digi-radius-sm: 12px;
+          --digi-radius-xs: 10px;
+          --digi-transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
+          --digi-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
         }
 
         body.dark {
-          --white: #0f162b;
-          --light-gray: #131c33;
-          --gray: #93a5ca;
-          --dark-text: #edf3ff;
-          --border-color: rgba(148, 163, 184, 0.24);
-          --card-bg: #0c1428;
-          --surface-1: #111b31;
-          --surface-2: #0f182d;
-          --body-bg: #060d1b;
+          --digi-bg: #0B1120;
+          --digi-card: #111827;
+          --digi-text-primary: #F1F5F9;
+          --digi-text-secondary: #94A3B8;
+          --digi-text-muted: #64748B;
+          --digi-border: #1F2937;
+          --digi-accent: #2DD4BF;
+          --digi-accent-hover: #5EEAD4;
+          --digi-accent-soft: rgba(45, 212, 191, 0.08);
+          --digi-accent-border: rgba(45, 212, 191, 0.16);
+          --digi-input-bg: #0F172A;
+          --digi-input-border: #1E293B;
+          --digi-input-focus: #2DD4BF;
+          --digi-surface: #0F172A;
+          --digi-overlay: rgba(0, 0, 0, 0.8);
         }
 
         * { box-sizing: border-box; }
-        body { background: var(--body-bg); }
+        body { background: var(--digi-bg); }
 
+        /* =============================================
+           PAGE SHELL
+           ============================================= */
         .digi-page-shell {
           min-height: 100vh;
           width: 100%;
-          background: var(--body-bg);
-          padding: 16px 14px 28px;
+          background: var(--digi-bg);
+          padding: 24px 16px 40px;
+          font-family: var(--digi-font);
         }
 
         .digi-card-container {
-          max-width: 1000px;
+          max-width: 1140px;
           margin: 0 auto;
-          background: var(--card-bg);
-          border-radius: 16px;
+          background: var(--digi-card);
+          border-radius: var(--digi-radius);
           overflow: hidden;
-          border: 1px solid var(--border-color);
-          box-shadow: 0 18px 48px rgba(15, 23, 42, 0.16);
+          border: 1px solid var(--digi-border);
         }
 
+        /* =============================================
+           NAVBAR — Clean, minimal
+           ============================================= */
         .digi-navbar {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 15px 30px;
-          border-bottom: 1px solid var(--border-color);
-          background: var(--surface-1);
+          padding: 16px 32px;
+          border-bottom: 1px solid var(--digi-border);
+          background: var(--digi-card);
         }
 
         .digi-logo {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
+          gap: 12px;
           text-decoration: none;
         }
 
         .digi-nav-logo-img {
-          max-height: 45px;
+          max-height: 40px;
           width: auto;
           object-fit: contain;
         }
 
         .digi-shop-name {
-          color: var(--dark-text);
-          font-size: 1rem;
-          font-weight: 700;
-          line-height: 1;
+          color: var(--digi-text-primary);
+          font-size: 0.938rem;
+          font-weight: 600;
+          letter-spacing: -0.01em;
         }
 
         .digi-nav-right {
           display: flex;
           align-items: center;
-          gap: 15px;
+          gap: 16px;
         }
 
-        .digi-theme-toggle {
-          position: relative;
-        }
-
-        .digi-theme-switch {
-          display: none;
-        }
-
-        .digi-toggle-label {
-          cursor: pointer;
-          display: block;
-        }
+        /* =============================================
+           THEME TOGGLE — Refined pill switch
+           ============================================= */
+        .digi-theme-toggle { position: relative; }
+        .digi-theme-switch { display: none; }
+        .digi-toggle-label { cursor: pointer; display: block; }
 
         .digi-toggle-bg {
-          width: 80px;
-          height: 40px;
-          background: linear-gradient(180deg, #f9d976 0%, #f39f86 50%, #e8b574 100%);
-          border-radius: 40px;
+          width: 56px;
+          height: 28px;
+          background: var(--digi-border);
+          border-radius: 28px;
           position: relative;
-          overflow: hidden;
-          transition: all 0.5s ease;
+          transition: background var(--digi-transition);
         }
 
         .digi-toggle-circle {
           position: absolute;
-          width: 32px;
-          height: 32px;
+          width: 22px;
+          height: 22px;
           border-radius: 50%;
-          top: 4px;
-          left: 4px;
-          background: #fff;
-          transition: transform 0.35s ease;
+          top: 3px;
+          left: 3px;
+          background: var(--digi-card);
+          transition: transform var(--digi-transition);
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         }
 
         body.dark .digi-toggle-bg {
-          background: linear-gradient(180deg, #1f2a44 0%, #121a2f 100%);
+          background: #1E293B;
         }
 
         body.dark .digi-toggle-circle {
-          transform: translateX(40px);
-          background: #d2ddff;
+          transform: translateX(28px);
+          background: var(--digi-accent);
         }
 
-        body.dark .digi-card-container {
-          background: #0b1020;
-          border: 1px solid rgba(148, 163, 184, 0.16);
-          box-shadow: 0 20px 55px rgba(0, 0, 0, 0.55);
-        }
-
-        body.dark .digi-navbar {
-          background: rgba(8, 12, 24, 0.92);
-          border-bottom-color: rgba(148, 163, 184, 0.2);
-        }
-
-        body.dark .digi-name,
-        body.dark .digi-about-title,
-        body.dark .digi-form-main-title,
-        body.dark .digi-talk-title,
-        body.dark .digi-works-title {
-          color: #eef4ff;
-        }
-
-        body.dark .digi-company,
-        body.dark .digi-about-text,
-        body.dark .digi-form-subtitle,
-        body.dark .digi-talk-text,
-        body.dark .digi-contact-link {
-          color: #a8b6da;
-        }
-
-        body.dark .digi-contact-link:hover {
-          color: #39dbc5;
-        }
-
-        body.dark .digi-profile-section {
-          background: linear-gradient(180deg, #0c1225 0%, #0a1021 100%);
-        }
-
-        body.dark .digi-profile-image img {
-          border-color: rgba(148, 163, 184, 0.24);
-          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
-        }
-
-        body.dark .digi-form-section {
-          background: linear-gradient(180deg, #0a1021 0%, #090f1e 100%);
-        }
-
-        body.dark .digi-map-section {
-          background: #0a1020;
-        }
-
-        body.dark .digi-map-section iframe {
-          border-color: rgba(148, 163, 184, 0.2);
-        }
-
-        body.dark .digi-form-group input,
-        body.dark .digi-form-group textarea {
-          background: #0f1730;
-          border-color: #2b3b63;
-          color: #e7efff;
-        }
-
-        body.dark .digi-form-group input::placeholder,
-        body.dark .digi-form-group textarea::placeholder {
-          color: #7f93c5;
-        }
-
-        body.dark .digi-form-group input:focus,
-        body.dark .digi-form-group textarea:focus {
-          border-color: #27e1cd;
-          box-shadow: 0 0 0 3px rgba(39, 225, 205, 0.15);
-        }
-
-        body.dark .digi-submit-btn {
-          background: linear-gradient(135deg, #00bfa6 0%, #00d8cc 100%);
-          color: #03131b;
-          font-weight: 700;
-        }
-
-        body.dark .digi-submit-btn:disabled {
-          opacity: 0.8;
-          color: #1f2937;
-        }
-
-        body.dark .digi-work-overlay p {
-          color: #f2f7ff;
-          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.45);
-        }
-
-        body.dark .digi-footer {
-          background: #070b16;
-          color: #9fb0d8;
-          border-top: 1px solid rgba(148, 163, 184, 0.14);
-        }
-
-        body.dark .digi-brand-name {
-          color: #31ddc9;
-        }
-
+        /* =============================================
+           PROFILE SECTION — Modern split layout
+           ============================================= */
         .digi-main-content { padding: 0; }
 
         .digi-profile-section {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 35px;
-          padding: 48px 40px;
-          align-items: center;
-          background: linear-gradient(180deg, var(--surface-1) 0%, var(--surface-2) 100%);
+          grid-template-columns: 1fr 1.2fr;
+          gap: 48px;
+          padding: 64px 48px;
+          align-items: start;
+          background: var(--digi-card);
         }
 
         .digi-profile-image img {
           width: 100%;
-          border-radius: 22px;
+          border-radius: var(--digi-radius);
           object-fit: cover;
           aspect-ratio: 1/1;
-          border: 1px solid var(--border-color);
-          box-shadow: 0 10px 24px rgba(2, 6, 23, 0.2);
+          border: 1px solid var(--digi-border);
         }
 
-        .digi-name { font-size: 2rem; margin: 0 0 6px; color: #1c1c1c; }
-        .digi-company { margin: 0 0 22px; font-size: 1.1rem; color: #666; }
-        .digi-about-title { margin: 0 0 10px; }
-        .digi-about-text { margin: 0; color: #4a4a4a; line-height: 1.7; }
+        .digi-name {
+          font-family: var(--digi-font);
+          font-size: 2.25rem;
+          font-weight: 700;
+          letter-spacing: -0.025em;
+          line-height: 1.15;
+          margin: 0 0 8px;
+          color: var(--digi-text-primary);
+        }
 
+        .digi-company {
+          margin: 0 0 28px;
+          font-size: 1.0625rem;
+          font-weight: 400;
+          color: var(--digi-text-secondary);
+          letter-spacing: -0.005em;
+        }
+
+        .digi-about-title {
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          color: var(--digi-accent);
+          margin: 0 0 10px;
+        }
+
+        .digi-about-text {
+          margin: 0;
+          color: var(--digi-text-secondary);
+          font-size: 0.9375rem;
+          line-height: 1.75;
+          letter-spacing: 0.005em;
+        }
+
+        /* =============================================
+           SOCIAL ICONS
+           ============================================= */
         .digi-social-icons {
-          margin-top: 22px;
+          margin-top: 28px;
           display: flex;
           flex-wrap: wrap;
-          gap: 12px;
+          gap: 10px;
         }
 
         .digi-social-icon {
-          width: 44px;
-          height: 44px;
+          width: 42px;
+          height: 42px;
           border-radius: 50%;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           text-decoration: none;
-          color: #00b894;
-          background: rgba(0, 184, 148, 0.1);
-          border: 1px solid rgba(0, 184, 148, 0.2);
-          transition: all 0.3s ease;
+          font-size: 1rem;
+          color: var(--digi-accent);
+          background: var(--digi-accent-soft);
+          border: 1px solid var(--digi-accent-border);
+          transition: all var(--digi-transition);
         }
 
-        .digi-social-icon:hover { transform: translateY(-2px); background: #00b894; color: white; }
+        .digi-social-icon:hover {
+          background: var(--digi-accent);
+          color: #fff;
+          border-color: var(--digi-accent);
+          transform: translateY(-2px);
+        }
 
+        /* =============================================
+           GALLERY — Clean responsive grid
+           ============================================= */
         .digi-works-section {
-          padding: 50px 40px;
-          background:
-            radial-gradient(circle at 5% 10%, rgba(0, 184, 148, 0.08), transparent 40%),
-            radial-gradient(circle at 95% 90%, rgba(0, 206, 201, 0.08), transparent 40%),
-            var(--light-gray);
+          padding: 80px 48px;
+          background: var(--digi-surface);
+          border-top: 1px solid var(--digi-border);
+          border-bottom: 1px solid var(--digi-border);
         }
-        .digi-works-header { text-align: center; margin-bottom: 26px; }
+
+        .digi-works-header {
+          text-align: center;
+          margin-bottom: 40px;
+        }
+
         .digi-works-title {
           margin: 0;
-          font-size: 1.9rem;
-          letter-spacing: 0.02em;
-          color: var(--dark-text);
+          font-size: 1.75rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: var(--digi-text-primary);
         }
 
         .digi-works-grid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 15px;
+          gap: 20px;
         }
 
         .digi-work-item {
           position: relative;
-          border-radius: 18px;
+          border-radius: var(--digi-radius-sm);
           overflow: hidden;
-          border: 1px solid rgba(0, 0, 0, 0.05);
-          box-shadow: 0 12px 28px rgba(15, 23, 42, 0.12);
-          transition: transform 0.25s ease, box-shadow 0.25s ease;
+          border: 1px solid var(--digi-border);
+          transition: transform var(--digi-transition), border-color var(--digi-transition);
         }
 
         .digi-work-item:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 18px 36px rgba(15, 23, 42, 0.2);
+          transform: scale(1.02);
+          border-color: var(--digi-accent);
         }
 
         .digi-work-item img {
           width: 100%;
-          height: 220px;
+          height: 240px;
           object-fit: cover;
           display: block;
-          transition: transform 0.45s ease;
+          transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
-        .digi-work-item:hover img { transform: scale(1.07); }
+        .digi-work-item:hover img {
+          transform: scale(1.04);
+        }
 
         .digi-work-overlay {
           position: absolute;
           inset: auto 0 0 0;
-          background: linear-gradient(to top, rgba(5, 8, 18, 0.9), rgba(5, 8, 18, 0));
+          background: linear-gradient(to top, var(--digi-overlay), transparent);
           color: white;
-          padding: 16px 14px;
+          padding: 20px 16px;
           transform: translateY(100%);
-          transition: transform 0.25s ease;
+          transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
         }
 
-        .digi-work-item:hover .digi-work-overlay { transform: translateY(0); }
-        .digi-work-overlay p { margin: 0; font-size: 0.88rem; opacity: 0.95; font-weight: 500; }
-
-        body.dark .digi-works-section {
-          background:
-            radial-gradient(circle at 5% 10%, rgba(0, 184, 148, 0.14), transparent 45%),
-            radial-gradient(circle at 95% 90%, rgba(0, 206, 201, 0.14), transparent 45%),
-            #0f1324;
+        .digi-work-item:hover .digi-work-overlay {
+          transform: translateY(0);
         }
 
-        body.dark .digi-work-item {
-          border-color: rgba(148, 163, 184, 0.22);
-          box-shadow: 0 14px 34px rgba(0, 0, 0, 0.45);
+        .digi-work-overlay p {
+          margin: 0;
+          font-size: 0.875rem;
+          font-weight: 500;
+          letter-spacing: 0.005em;
         }
 
-        body.dark .digi-work-item:hover {
-          box-shadow: 0 20px 44px rgba(0, 0, 0, 0.55);
+        /* =============================================
+           CONTACT/FORM SECTION — Split layout
+           ============================================= */
+        .digi-form-section {
+          padding: 80px 48px;
+          background: var(--digi-card);
         }
 
-        .digi-form-section { padding: 45px 40px; background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface-1) 100%); }
-        .digi-form-header { text-align: center; margin-bottom: 30px; }
-        .digi-form-main-title { margin: 0 0 10px; }
-        .digi-form-subtitle { margin: 0; color: #666; }
+        .digi-form-header {
+          text-align: center;
+          margin-bottom: 48px;
+        }
+
+        .digi-form-main-title {
+          margin: 0 0 12px;
+          font-size: 1.75rem;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: var(--digi-text-primary);
+        }
+
+        .digi-form-subtitle {
+          margin: 0;
+          color: var(--digi-text-muted);
+          font-size: 0.9375rem;
+          line-height: 1.6;
+          max-width: 480px;
+          margin-left: auto;
+          margin-right: auto;
+        }
 
         .digi-form-content {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 28px;
+          grid-template-columns: 1fr 1.2fr;
+          gap: 48px;
+          align-items: start;
         }
 
-        .digi-talk-title { margin: 0 0 10px; }
-        .digi-talk-text { margin: 0 0 20px; color: #666; }
+        /* Contact details */
+        .digi-talk-title {
+          margin: 0 0 8px;
+          font-size: 1.25rem;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+          color: var(--digi-text-primary);
+        }
 
-        .digi-contact-details { display: flex; flex-direction: column; gap: 12px; }
-        .digi-contact-detail-item { display: flex; align-items: flex-start; gap: 12px; }
+        .digi-talk-text {
+          margin: 0 0 28px;
+          color: var(--digi-text-secondary);
+          font-size: 0.875rem;
+          line-height: 1.6;
+        }
+
+        .digi-contact-details {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .digi-contact-detail-item {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 14px 16px;
+          border-radius: var(--digi-radius-xs);
+          background: var(--digi-surface);
+          border: 1px solid var(--digi-border);
+          transition: border-color var(--digi-transition);
+        }
+
+        .digi-contact-detail-item:hover {
+          border-color: var(--digi-accent);
+        }
+
         .digi-detail-icon {
-          width: 34px;
-          height: 34px;
-          border-radius: 50%;
+          width: 36px;
+          height: 36px;
+          border-radius: 10px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           color: white;
           font-size: 0.8rem;
-          margin-top: 2px;
+          flex-shrink: 0;
         }
-        .digi-detail-icon.phone { background: #2d9cdb; }
-        .digi-detail-icon.email { background: #eb5757; }
-        .digi-detail-icon.location { background: #27ae60; }
+
+        .digi-detail-icon.phone { background: var(--digi-accent); }
+        .digi-detail-icon.email { background: var(--digi-accent); }
+        .digi-detail-icon.location { background: var(--digi-accent); }
 
         .digi-contact-link {
-          color: #2d3436;
+          color: var(--digi-text-primary);
           text-decoration: none;
-          line-height: 1.6;
+          font-size: 0.875rem;
+          font-weight: 500;
+          line-height: 1.5;
           word-break: break-word;
+          transition: color var(--digi-transition);
         }
 
-        .digi-contact-link:hover { color: #00b894; }
+        .digi-contact-link:hover {
+          color: var(--digi-accent);
+        }
 
-        .digi-phone-numbers { display: flex; flex-direction: column; gap: 3px; }
+        .digi-phone-numbers {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
 
-        .digi-contact-form { display: flex; flex-direction: column; gap: 12px; }
-        .digi-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        /* =============================================
+           FORM — Modern inputs
+           ============================================= */
+        .digi-contact-form {
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+
+        .digi-form-row {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 14px;
+        }
+
         .digi-form-group input,
         .digi-form-group textarea {
           width: 100%;
-          border: 1.5px solid #dadada;
-          border-radius: 10px;
-          padding: 12px 13px;
-          font: inherit;
-          background: #ffffff;
-          color: #1e293b;
+          border: 1px solid var(--digi-input-border);
+          border-radius: var(--digi-radius-xs);
+          padding: 13px 16px;
+          font-family: var(--digi-font);
+          font-size: 0.875rem;
+          background: var(--digi-input-bg);
+          color: var(--digi-text-primary);
           outline: none;
-          transition: border-color .2s ease;
+          transition: border-color var(--digi-transition), box-shadow var(--digi-transition);
         }
+
+        .digi-form-group input::placeholder,
+        .digi-form-group textarea::placeholder {
+          color: var(--digi-text-muted);
+        }
+
         .digi-form-group input:focus,
-        .digi-form-group textarea:focus { border-color: #00b894; }
+        .digi-form-group textarea:focus {
+          border-color: var(--digi-input-focus);
+          box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
 
         .digi-submit-btn {
           border: 0;
-          border-radius: 12px;
-          background: linear-gradient(135deg, #00b894 0%, #00cec9 100%);
-          color: white;
-          padding: 12px 16px;
+          border-radius: var(--digi-radius-xs);
+          background: var(--digi-accent);
+          color: #fff;
+          padding: 13px 24px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 8px;
+          font-family: var(--digi-font);
+          font-size: 0.875rem;
           font-weight: 600;
+          letter-spacing: 0.01em;
           cursor: pointer;
+          transition: background var(--digi-transition), transform var(--digi-transition);
         }
 
-        .digi-submit-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+        .digi-submit-btn:hover {
+          background: var(--digi-accent-hover);
+          transform: translateY(-1px);
+        }
 
-        .digi-map-section { padding: 0 40px 40px; background: var(--surface-1); }
-        .digi-map-section iframe { border-radius: 14px; border: 1px solid var(--border-color); }
+        .digi-submit-btn:active {
+          transform: translateY(0);
+        }
 
+        .digi-submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        /* =============================================
+           MAP
+           ============================================= */
+        .digi-map-section {
+          padding: 0 48px 48px;
+          background: var(--digi-card);
+        }
+
+        .digi-map-section iframe {
+          border-radius: var(--digi-radius-sm);
+          border: 1px solid var(--digi-border);
+        }
+
+        /* =============================================
+           FOOTER — Minimal
+           ============================================= */
         .digi-footer {
-          background: #111;
-          color: #ddd;
+          background: var(--digi-surface);
+          color: var(--digi-text-muted);
           text-align: center;
-          padding: 18px 20px;
-          font-size: 0.92rem;
+          padding: 20px 24px;
+          font-size: 0.8125rem;
+          border-top: 1px solid var(--digi-border);
+          letter-spacing: 0.005em;
         }
 
-        .digi-brand-name { color: #00cec9; text-decoration: none; }
+        .digi-brand-name {
+          color: var(--digi-accent);
+          text-decoration: none;
+          font-weight: 600;
+          transition: color var(--digi-transition);
+        }
 
+        .digi-brand-name:hover {
+          color: var(--digi-accent-hover);
+        }
+
+        /* =============================================
+           FEEDBACK MESSAGES
+           ============================================= */
         .digi-message {
-          border-radius: 10px;
-          padding: 10px 12px;
-          font-size: 0.88rem;
+          border-radius: var(--digi-radius-xs);
+          padding: 12px 16px;
+          font-size: 0.8125rem;
+          font-weight: 500;
+          line-height: 1.5;
         }
 
-        .digi-message.success { background: rgba(39, 174, 96, 0.12); color: #27ae60; }
-        .digi-message.error { background: rgba(235, 87, 87, 0.12); color: #eb5757; }
+        .digi-message.success {
+          background: rgba(20, 184, 166, 0.08);
+          color: #0D9488;
+          border: 1px solid rgba(20, 184, 166, 0.15);
+        }
 
+        .digi-message.error {
+          background: rgba(239, 68, 68, 0.08);
+          color: #DC2626;
+          border: 1px solid rgba(239, 68, 68, 0.15);
+        }
+
+        /* =============================================
+           RESPONSIVE — Tablet
+           ============================================= */
         @media (max-width: 900px) {
-          .digi-page-shell { padding: 12px 10px 20px; }
+          .digi-page-shell { padding: 16px 12px 24px; }
 
-          .digi-profile-section,
-          .digi-form-content,
-          .digi-form-row { grid-template-columns: 1fr; }
+          .digi-profile-section {
+            grid-template-columns: 1fr;
+            gap: 32px;
+            padding: 48px 28px;
+            text-align: center;
+          }
+
+          .digi-profile-image img {
+            max-width: 280px;
+            margin: 0 auto;
+          }
+
+          .digi-social-icons { justify-content: center; }
+
+          .digi-form-content { grid-template-columns: 1fr; gap: 40px; }
+          .digi-form-row { grid-template-columns: 1fr 1fr; }
 
           .digi-works-grid { grid-template-columns: repeat(2, 1fr); }
-          .digi-profile-section,
+
           .digi-works-section,
-          .digi-form-section,
-          .digi-map-section { padding-left: 20px; padding-right: 20px; }
+          .digi-form-section { padding-left: 28px; padding-right: 28px; }
+
+          .digi-map-section { padding-left: 28px; padding-right: 28px; }
+
+          .digi-navbar { padding: 14px 20px; }
         }
 
+        /* =============================================
+           RESPONSIVE — Mobile
+           ============================================= */
         @media (max-width: 540px) {
+          .digi-page-shell { padding: 12px 8px 20px; }
+
+          .digi-profile-section { padding: 36px 20px; gap: 24px; }
+
+          .digi-name { font-size: 1.75rem; }
+
+          .digi-works-section { padding: 48px 20px; }
           .digi-works-grid { grid-template-columns: 1fr; }
+
+          .digi-form-section { padding: 48px 20px; }
+          .digi-form-row { grid-template-columns: 1fr; }
+
+          .digi-map-section { padding: 0 20px 32px; }
         }
       `}</style>
 
@@ -729,10 +873,10 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
             </div>
             <div className="digi-profile-info">
               <h1 className="digi-name">{customer.name}</h1>
-              <p className="digi-company">{[customer.designation, customer.company].filter(Boolean).join(' | ') || 'NFC Digital Profile'}</p>
+              <p className="digi-company">{[customer.designation, customer.company].filter(Boolean).join(' · ') || 'NFC Digital Profile'}</p>
 
               <div className="digi-about-section">
-                <h2 className="digi-about-title">About Us</h2>
+                <h2 className="digi-about-title">About</h2>
                 <p className="digi-about-text">{customer.about || DEFAULT_ABOUT}</p>
               </div>
 
@@ -751,7 +895,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           {gallerySlots.length > 0 ? (
             <section className="digi-works-section" id="works">
               <div className="digi-works-header">
-                <h2 className="digi-works-title">Our Gallery</h2>
+                <h2 className="digi-works-title">Gallery</h2>
               </div>
               <div className="digi-works-grid">
                 {gallerySlots.map((gallery, index) => (
@@ -768,14 +912,14 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
           <section className="digi-form-section" id="contact">
             <div className="digi-form-header">
-              <h2 className="digi-form-main-title">We are ready to Help You</h2>
-              <p className="digi-form-subtitle">Please use the form below. We are ready to hear your thoughts and answer your questions.</p>
+              <h2 className="digi-form-main-title">Get in Touch</h2>
+              <p className="digi-form-subtitle">Have a question or want to work together? Send us a message and we&apos;ll get back to you shortly.</p>
             </div>
 
             <div className="digi-form-content">
               <div className="digi-form-left">
-                <h3 className="digi-talk-title">Let&apos;s talk with us</h3>
-                <p className="digi-talk-text">Questions, comments, or suggestions? Fill the form and we&apos;ll contact you shortly.</p>
+                <h3 className="digi-talk-title">Contact Details</h3>
+                <p className="digi-talk-text">Reach out directly or fill in the form — we&apos;d love to hear from you.</p>
 
                 <div className="digi-contact-details">
                   <div className="digi-contact-detail-item">
@@ -822,11 +966,11 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                   {feedback ? <div className={`digi-message ${feedback.type}`}>{feedback.text}</div> : null}
 
                   <button type="submit" className="digi-submit-btn" disabled={submitting}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
                       <path fill="none" d="M0 0h24v24H0z"></path>
                       <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
                     </svg>
-                    <span>{submitting ? 'Sending...' : 'Send'}</span>
+                    <span>{submitting ? 'Sending...' : 'Send Message'}</span>
                   </button>
                 </form>
               </div>
