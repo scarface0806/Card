@@ -34,6 +34,8 @@ interface DataTableProps {
     label: string | ((row: any) => string);
     onClick: (row: any) => void;
     tone?: 'neutral' | 'warning' | 'danger' | 'success';
+    visible?: (row: any) => boolean;
+    disabled?: (row: any) => boolean;
   }>;
   itemsPerPage?: number;
   actions?: boolean;
@@ -130,7 +132,7 @@ export default function DataTable({
                       {actionLabels?.delete || 'Delete'}
                     </button>
                   )}
-                  {(extraActions || []).map((action) => {
+                  {(extraActions || []).filter((action) => action.visible ? action.visible(row) : true).map((action) => {
                     const toneClass = action.tone === 'danger'
                       ? 'text-red-300 bg-red-500/10 hover:bg-red-500/20'
                       : action.tone === 'warning'
@@ -143,7 +145,8 @@ export default function DataTable({
                       <button
                         key={action.key}
                         onClick={() => action.onClick(row)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${toneClass}`}
+                        disabled={action.disabled ? action.disabled(row) : false}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${toneClass}`}
                       >
                         {typeof action.label === 'function' ? action.label(row) : action.label}
                       </button>
@@ -231,7 +234,7 @@ export default function DataTable({
                             {actionLabels?.delete || 'Delete'}
                           </button>
                         )}
-                        {(extraActions || []).map((action) => {
+                        {(extraActions || []).filter((action) => action.visible ? action.visible(row) : true).map((action) => {
                           const toneClass = action.tone === 'danger'
                             ? 'text-red-400 hover:bg-red-400/10'
                             : action.tone === 'warning'
@@ -244,7 +247,8 @@ export default function DataTable({
                             <button
                               key={action.key}
                               onClick={() => action.onClick(row)}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${toneClass}`}
+                              disabled={action.disabled ? action.disabled(row) : false}
+                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${toneClass}`}
                             >
                               {typeof action.label === 'function' ? action.label(row) : action.label}
                             </button>

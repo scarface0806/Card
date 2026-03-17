@@ -21,9 +21,18 @@ export async function GET(request: NextRequest) {
         .collection("orders")
         .aggregate([
           {
+            $match: {
+              status: { $in: ["DELIVERED", "COMPLETED", "completed"] },
+            },
+          },
+          {
             $group: {
               _id: null,
-              total: { $sum: { $ifNull: ["$total", 0] } },
+              total: {
+                $sum: {
+                  $ifNull: ["$totalAmount", { $ifNull: ["$total", 0] }],
+                },
+              },
             },
           },
         ])

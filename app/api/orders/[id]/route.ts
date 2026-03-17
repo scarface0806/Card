@@ -17,16 +17,71 @@ function normalizePatchStatus(status: unknown): OrderStatus | undefined {
   }
 
   const normalized = status.toUpperCase();
+  if (normalized === "PENDING") {
+    return OrderStatus.PENDING;
+  }
   if (normalized === "ACCEPTED") {
     return OrderStatus.CONFIRMED;
   }
+  if (normalized === "PROCESSING") {
+    return OrderStatus.PROCESSING;
+  }
+  if (normalized === "COMPLETED") {
+    return OrderStatus.DELIVERED;
+  }
   if (normalized === "REJECTED") {
+    return OrderStatus.CANCELLED;
+  }
+  if (normalized === "CANCELLED") {
     return OrderStatus.CANCELLED;
   }
 
   return Object.values(OrderStatus).includes(normalized as OrderStatus)
     ? (normalized as OrderStatus)
     : undefined;
+}
+
+function normalizeStoredOrderStatus(status: unknown): OrderStatus | undefined {
+  if (typeof status !== "string") {
+    return undefined;
+  }
+
+  const normalized = status.toUpperCase();
+  if (normalized === "ACCEPTED") return OrderStatus.CONFIRMED;
+  if (normalized === "COMPLETED") return OrderStatus.DELIVERED;
+  if (normalized === "CANCELLED") return OrderStatus.CANCELLED;
+  if (normalized === "PROCESSING") return OrderStatus.PROCESSING;
+  if (normalized === "PENDING") return OrderStatus.PENDING;
+
+  return Object.values(OrderStatus).includes(normalized as OrderStatus)
+    ? (normalized as OrderStatus)
+    : undefined;
+}
+
+function canTransitionOrderStatus(from: OrderStatus, to: OrderStatus): boolean {
+  if (from === to) {
+    return true;
+  }
+
+  const transitions: Record<OrderStatus, OrderStatus[]> = {
+    [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
+    [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING],
+    [OrderStatus.PROCESSING]: [OrderStatus.DELIVERED],
+    [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
+    [OrderStatus.DELIVERED]: [],
+    [OrderStatus.CANCELLED]: [],
+    [OrderStatus.REFUNDED]: [],
+  };
+
+  return transitions[from]?.includes(to) ?? false;
+}
+
+function statusSuccessMessage(status: OrderStatus): string {
+  if (status === OrderStatus.CONFIRMED) return "Order accepted";
+  if (status === OrderStatus.PROCESSING) return "Order moved to processing";
+  if (status === OrderStatus.DELIVERED) return "Order completed";
+  if (status === OrderStatus.CANCELLED) return "Order cancelled";
+  return "Order status updated successfully";
 }
 
 function isReplicaSetRequiredError(error: unknown) {
@@ -182,10 +237,59 @@ export async function PATCH(
       return NextResponse.json(
         {
           success: false,
-          message: "Invalid status. Use PENDING, ACCEPTED, or REJECTED",
+          message: "Invalid status. Use pending, accepted, processing, completed, or cancelled",
         },
         { status: 400 }
       );
+    }
+
+    const successMessage = statusSuccessMessage(normalizedStatus);
+
+    if (ObjectId.isValid(id)) {
+      const db = await getMongoDb();
+      const orderObjectId = new ObjectId(id);
+      const existingMongoOrder = await db.collection("orders").findOne({ _id: orderObjectId });
+
+      if (existingMongoOrder) {
+        const currentStatus = normalizeStoredOrderStatus(existingMongoOrder.status);
+        if (!currentStatus) {
+          return NextResponse.json(
+            { success: false, message: "Current order status is invalid" },
+            { status: 400 }
+          );
+        }
+
+        if (!canTransitionOrderStatus(currentStatus, normalizedStatus)) {
+          return NextResponse.json(
+            {
+              success: false,
+              message: `Invalid status transition from ${currentStatus} to ${normalizedStatus}`,
+            },
+            { status: 400 }
+          );
+        }
+
+        const mongoResult = await db.collection("orders").findOneAndUpdate(
+          { _id: orderObjectId },
+          {
+            $set: {
+              status: normalizedStatus,
+              updatedAt: new Date(),
+              createdAt: existingMongoOrder.createdAt || new Date(),
+            },
+          },
+          { returnDocument: "after" }
+        );
+
+        return NextResponse.json({
+          success: true,
+          message: successMessage,
+          order: {
+            id,
+            ...((mongoResult || {}) as Record<string, unknown>),
+          },
+        });
+      }
     }
 
     const existingOrder = await prisma.order.findUnique({ where: { id } });
@@ -193,6 +297,16 @@ export async function PATCH(
       return NextResponse.json(
         { success: false, message: "Order not found" },
         { status: 404 }
+      );
+    }
+
+    if (!canTransitionOrderStatus(existingOrder.status, normalizedStatus)) {
+      return NextResponse.json(
+        {
+          success: false,
+          message: `Invalid status transition from ${existingOrder.status} to ${normalizedStatus}`,
+        },
+        { status: 400 }
       );
     }
 
@@ -253,11 +367,11 @@ export async function PATCH(
 
     return NextResponse.json({
       success: true,
-      message: "Order status updated successfully",
+      message: successMessage,
       order: updatedOrder,
     });
   } catch (error) {
-    console.error("Patch order error:", error);
+    console.error("Orders API error:", error);
     return NextResponse.json(
       { success: false, message: "Failed to update order" },
       { status: 500 }

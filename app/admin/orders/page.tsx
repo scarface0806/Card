@@ -71,14 +71,20 @@ function getStatusPresentation(rawStatus: string): {
   const normalized = rawStatus?.toUpperCase();
 
   if (normalized === 'CANCELLED' || normalized === 'REFUNDED' || normalized === 'REJECTED') {
-    return { tone: 'cancelled', label: 'Rejected' };
+    return { tone: 'cancelled', label: 'Cancelled' };
+  }
+
+  if (normalized === 'PROCESSING') {
+    return { tone: 'pending', label: 'Processing' };
+  }
+
+  if (normalized === 'DELIVERED' || normalized === 'COMPLETED') {
+    return { tone: 'completed', label: 'Completed' };
   }
 
   if (
     normalized === 'CONFIRMED' ||
-    normalized === 'PROCESSING' ||
     normalized === 'SHIPPED' ||
-    normalized === 'DELIVERED' ||
     normalized === 'ACCEPTED'
   ) {
     return { tone: 'completed', label: 'Accepted' };
@@ -129,6 +135,24 @@ export default function OrdersPage() {
 
   const closeDrawer = useCallback(() => {
     setSelectedOrder(null);
+  }, []);
+
+  const lifecycleActionLabel = useCallback((rawStatus: string): string | null => {
+    const normalized = rawStatus?.toUpperCase();
+
+    if (normalized === 'PENDING') {
+      return 'Accept';
+    }
+
+    if (normalized === 'CONFIRMED' || normalized === 'ACCEPTED') {
+      return 'Processing';
+    }
+
+    if (normalized === 'PROCESSING') {
+      return 'Complete';
+    }
+
+    return null;
   }, []);
 
   const fetchOrders = useCallback(async () => {
@@ -203,34 +227,85 @@ export default function OrdersPage() {
     }
   };
 
-  const handleAccept = async (row: OrderRow) => {
-    if (getStatusPresentation(row.rawStatus).label === 'Accepted') {
-      setToast({ variant: 'info', message: `Order ${row.orderID} is already accepted` });
+  const advanceOrderStatus = async (row: OrderRow) => {
+    const normalized = row.rawStatus?.toUpperCase();
+    const nextStatus =
+      normalized === 'PENDING'
+        ? 'accepted'
+        : normalized === 'CONFIRMED' || normalized === 'ACCEPTED'
+          ? 'processing'
+          : normalized === 'PROCESSING'
+            ? 'completed'
+            : null;
+
+    if (!nextStatus) {
+      setToast({ variant: 'info', message: `No lifecycle action available for ${row.orderID}` });
       return;
     }
 
     try {
-      const response = await fetch(`/api/admin/orders/${row.id}`, {
+      const response = await fetch(`/api/orders/${row.id}`, {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         credentials: 'include',
-        body: JSON.stringify({ status: 'ACCEPTED' }),
+        body: JSON.stringify({ status: nextStatus }),
       });
 
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to accept order');
+      const payload = await response.json();
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || payload?.message || 'Failed to update order status');
       }
 
       await fetchOrders();
       if (selectedOrder?.id === row.id) {
-        setSelectedOrder((prev) => (prev ? { ...prev, status: 'CONFIRMED' } : prev));
+        const nextDetailStatus =
+          nextStatus === 'accepted'
+            ? 'CONFIRMED'
+            : nextStatus === 'processing'
+              ? 'PROCESSING'
+              : nextStatus === 'completed'
+                ? 'DELIVERED'
+                : null;
+        setSelectedOrder((prev) => (prev ? { ...prev, status: nextDetailStatus || prev.status } : prev));
       }
-      setToast({ variant: 'success', message: `Order ${row.orderID} accepted successfully` });
-    } catch (err) {
-      setToast({ variant: 'error', message: err instanceof Error ? err.message : 'Failed to accept order' });
+      setToast({ variant: 'success', message: `Order ${row.orderID} updated successfully` });
+    } catch (error) {
+      console.error('Order lifecycle update error:', error);
+      setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to update order' });
+    }
+  };
+
+  const cancelOrder = async (row: OrderRow) => {
+    if (row.rawStatus?.toUpperCase() !== 'PENDING') {
+      setToast({ variant: 'info', message: `Only pending orders can be cancelled` });
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/orders/${row.id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ status: 'cancelled' }),
+      });
+
+      const payload = await response.json();
+      if (!response.ok || !payload?.success) {
+        throw new Error(payload?.error || payload?.message || 'Failed to cancel order');
+      }
+
+      await fetchOrders();
+      if (selectedOrder?.id === row.id) {
+        setSelectedOrder((prev) => (prev ? { ...prev, status: 'CANCELLED' } : prev));
+      }
+      setToast({ variant: 'success', message: `Order ${row.orderID} cancelled successfully` });
+    } catch (error) {
+      console.error('Cancel order error:', error);
+      setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to cancel order' });
     }
   };
 
@@ -416,18 +491,31 @@ export default function OrdersPage() {
         ]}
         data={loading ? [] : orders}
         onView={handleView}
-        onEdit={handleAccept}
         onDelete={handleDelete}
         actionLabels={{
           view: detailLoading ? 'Loading...' : 'View',
-          edit: 'Accept',
           delete: 'Delete',
         }}
         actionTones={{
           view: 'info',
-          edit: 'success',
           delete: 'danger',
         }}
+        extraActions={[
+          {
+            key: 'lifecycle-action',
+            label: (row: OrderRow) => lifecycleActionLabel(row.rawStatus) || 'Advance',
+            onClick: (row: OrderRow) => advanceOrderStatus(row),
+            tone: 'success',
+            visible: (row: OrderRow) => Boolean(lifecycleActionLabel(row.rawStatus)),
+          },
+          {
+            key: 'cancel-pending',
+            label: 'Cancel',
+            onClick: (row: OrderRow) => cancelOrder(row),
+            tone: 'warning',
+            visible: (row: OrderRow) => row.rawStatus?.toUpperCase() === 'PENDING',
+          },
+        ]}
       />
 
       <RightDrawer open={!!selectedOrder} onClose={closeDrawer}>
@@ -540,11 +628,21 @@ export default function OrdersPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => handleAccept(buildOrderRow(selectedOrder))}
+                    onClick={() => advanceOrderStatus(buildOrderRow(selectedOrder))}
+                    disabled={!lifecycleActionLabel(selectedOrder.status)}
                     className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-500/90 text-white hover:bg-emerald-500"
                   >
-                    Accept
+                    {lifecycleActionLabel(selectedOrder.status) || 'Done'}
                   </button>
+                  {selectedOrder.status?.toUpperCase() === 'PENDING' ? (
+                    <button
+                      type="button"
+                      onClick={() => cancelOrder(buildOrderRow(selectedOrder))}
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500/90 text-white hover:bg-amber-500"
+                    >
+                      Cancel
+                    </button>
+                  ) : null}
                   <button
                     type="button"
                     onClick={() => setRejectTarget(buildOrderRow(selectedOrder))}
