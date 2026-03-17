@@ -10,7 +10,8 @@
     "lint": "eslint",
     "postinstall": "prisma generate",
     "prisma:seed": "prisma db seed",
-    "setup:local": "node scripts/setup-local.js"
+    "setup:local": "node scripts/setup-local.js",
+    "seed:admin": "ts-node scripts/seedAdmin.ts"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
