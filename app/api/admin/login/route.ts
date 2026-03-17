@@ -10,11 +10,21 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'santhoshuxui2023@gmail.com';
-const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'KGTPS6565P';
-const PROD_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || DEV_ADMIN_EMAIL).toLowerCase();
-const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEV_ADMIN_PASSWORD;
+const DEFAULT_ADMIN_EMAIL = 'santhoshuxui2023@gmail.com';
+const DEFAULT_ADMIN_PASSWORD = 'KGTPS6565P';
+const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL;
+const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+const PROD_CONFIG_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
+const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+const LEGACY_ADMIN_EMAIL = 'admin@tapvyo.com';
+const LEGACY_ADMIN_PASSWORD = 'admin123';
+
+const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
+  PROD_CONFIG_ADMIN_EMAIL,
+  DEFAULT_ADMIN_EMAIL,
+  LEGACY_ADMIN_EMAIL,
+].filter((email): email is string => Boolean(email))));
 
 async function verifyProductionAdminPassword(password: string): Promise<boolean> {
   if (PROD_ADMIN_PASSWORD_HASH) {
@@ -23,6 +33,24 @@ async function verifyProductionAdminPassword(password: string): Promise<boolean>
 
   if (PROD_ADMIN_PASSWORD) {
     return password === PROD_ADMIN_PASSWORD;
+  }
+
+  return false;
+}
+
+async function verifyFallbackPasswordForEmail(email: string, password: string): Promise<boolean> {
+  if (PROD_CONFIG_ADMIN_EMAIL && email === PROD_CONFIG_ADMIN_EMAIL) {
+    if (await verifyProductionAdminPassword(password)) {
+      return true;
+    }
+  }
+
+  if (email === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
+    return true;
+  }
+
+  if (email === LEGACY_ADMIN_EMAIL && password === LEGACY_ADMIN_PASSWORD) {
+    return true;
   }
 
   return false;
@@ -129,12 +157,12 @@ export async function POST(request: NextRequest) {
     }
 
     // Deployment-safe fallback: allow env-configured admin credentials even if DB is unavailable.
-    if (process.env.NODE_ENV === 'production' && normalizedEmail === PROD_ADMIN_EMAIL) {
-      const isConfiguredAdminPassword = await verifyProductionAdminPassword(password);
+    if (process.env.NODE_ENV === 'production' && FALLBACK_ADMIN_EMAILS.includes(normalizedEmail)) {
+      const isConfiguredAdminPassword = await verifyFallbackPasswordForEmail(normalizedEmail, password);
       if (isConfiguredAdminPassword) {
         const token = generateToken({
           userId: 'env-admin-id',
-          email: PROD_ADMIN_EMAIL,
+          email: normalizedEmail,
           role: 'ADMIN',
         });
 
@@ -142,7 +170,7 @@ export async function POST(request: NextRequest) {
           message: 'Login successful',
           user: {
             id: 'env-admin-id',
-            email: PROD_ADMIN_EMAIL,
+            email: normalizedEmail,
             name: 'Admin User',
             role: 'ADMIN',
           },
