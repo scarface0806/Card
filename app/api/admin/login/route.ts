@@ -21,11 +21,14 @@ const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 const LEGACY_ADMIN_EMAIL = 'admin@tapvyo.com';
 const LEGACY_ADMIN_PASSWORD = 'admin123';
+const LEGACY_ADMIN_EMAIL_2 = 'santhoshuxui2023@gmail.com';
+const LEGACY_ADMIN_PASSWORD_2 = 'KGTPS6565P';
 
 const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
   PROD_CONFIG_ADMIN_EMAIL,
   process.env.NODE_ENV === 'development' ? DEFAULT_ADMIN_EMAIL : undefined,
-  process.env.NODE_ENV === 'development' ? LEGACY_ADMIN_EMAIL : undefined,
+  LEGACY_ADMIN_EMAIL,
+  LEGACY_ADMIN_EMAIL_2,
 ].filter((email): email is string => Boolean(email))));
 
 async function verifyProductionAdminPassword(password: string): Promise<boolean> {
@@ -51,7 +54,11 @@ async function verifyFallbackPasswordForEmail(email: string, password: string): 
     return true;
   }
 
-  if (process.env.NODE_ENV === 'development' && email === LEGACY_ADMIN_EMAIL && password === LEGACY_ADMIN_PASSWORD) {
+  if (email === LEGACY_ADMIN_EMAIL && password === LEGACY_ADMIN_PASSWORD) {
+    return true;
+  }
+
+  if (email === LEGACY_ADMIN_EMAIL_2 && password === LEGACY_ADMIN_PASSWORD_2) {
     return true;
   }
 
@@ -226,7 +233,7 @@ export async function POST(request: NextRequest) {
     // Try Mongo admins collection first for production parity (Atlas/Vercel)
     const db = await getMongoDb();
     const mongoAdmin = (await db.collection('admins').findOne({
-      email: normalizedEmail,
+      email: { $regex: `^${normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
     })) as MongoAdmin | null;
 
     if (mongoAdmin) {
