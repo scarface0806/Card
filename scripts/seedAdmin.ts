@@ -1,13 +1,13 @@
-import { PrismaClient, Role } from "@prisma/client";
+import { MongoClient } from "mongodb";
 import bcrypt from "bcryptjs";
 import { createInterface } from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 
-if (!process.env.DATABASE_URL?.trim()) {
-  throw new Error("Missing environment variable");
+const databaseUrl = process.env.DATABASE_URL?.trim();
+if (!databaseUrl) {
+  throw new Error("Missing environment variable DATABASE_URL");
 }
 
-const prisma = new PrismaClient();
 const BCRYPT_ROUNDS = 12;
 
 async function promptAdminCredentials(): Promise<{ email: string; password: string }> {
@@ -35,17 +35,24 @@ async function promptAdminCredentials(): Promise<{ email: string; password: stri
 }
 
 async function seedAdmin() {
+  let client: MongoClient | null = null;
+
   try {
     const { email, password } = await promptAdminCredentials();
+    client = new MongoClient(databaseUrl as string);
+    await client.connect();
 
-    const existing = await prisma.user.findUnique({
-      where: { email },
-      select: { id: true, email: true, role: true },
-    });
+    const db = client.db();
+    const admins = db.collection("admins");
+
+    const existing = await admins.findOne(
+      { email },
+      { projection: { _id: 1, email: 1, role: 1 } }
+    );
 
     if (existing) {
       console.log("[seedAdmin] Admin already exists:", {
-        id: existing.id,
+        id: existing._id.toString(),
         email: existing.email,
         role: existing.role,
       });
@@ -54,29 +61,30 @@ async function seedAdmin() {
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-    const admin = await prisma.user.create({
-      data: {
-        email,
-        password: hashedPassword,
-        role: Role.ADMIN,
-        isActive: true,
-        emailVerified: true,
-        name: "Admin",
-      },
-      select: {
-        id: true,
-        email: true,
-        role: true,
-        createdAt: true,
-      },
+    const now = new Date();
+    const result = await admins.insertOne({
+      email,
+      password: hashedPassword,
+      role: "admin",
+      name: "Admin User",
+      isActive: true,
+      createdAt: now,
+      updatedAt: now,
     });
 
-    console.log("[seedAdmin] Admin created successfully:", admin);
+    console.log("[seedAdmin] Admin created successfully:", {
+      id: result.insertedId.toString(),
+      email,
+      role: "admin",
+      createdAt: now,
+    });
   } catch (error) {
     console.error("[seedAdmin] Failed:", error);
     process.exitCode = 1;
   } finally {
-    await prisma.$disconnect();
+    if (client) {
+      await client.close();
+    }
   }
 }
 

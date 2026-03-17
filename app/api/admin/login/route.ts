@@ -5,6 +5,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { errorResponse, successResponse } from '@/lib/responses';
+import { getMongoDb } from '@/lib/mongodb';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -84,6 +85,15 @@ function isDatabaseConnectivityError(error: unknown): boolean {
   );
 }
 
+type MongoAdmin = {
+  _id: { toString: () => string };
+  email?: string;
+  password?: string;
+  role?: string;
+  name?: string;
+  isActive?: boolean;
+};
+
 export async function POST(request: NextRequest) {
   try {
     console.log('Login request received');
@@ -93,7 +103,11 @@ export async function POST(request: NextRequest) {
     if (!process.env.JWT_SECRET?.trim()) missingEnvVars.push('JWT_SECRET');
     if (missingEnvVars.length > 0) {
       console.error('[Admin Auth] Missing env vars:', missingEnvVars.join(', '));
-      throw new Error('Missing environment variable');
+      return errorResponse(
+        `Missing required environment variables: ${missingEnvVars.join(', ')}`,
+        500,
+        { missing: missingEnvVars }
+      );
     }
 
     const secureCookie = process.env.NODE_ENV === 'production';
@@ -209,7 +223,71 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Find admin user
+    // Try Mongo admins collection first for production parity (Atlas/Vercel)
+    const db = await getMongoDb();
+    const mongoAdmin = (await db.collection('admins').findOne({
+      email: normalizedEmail,
+    })) as MongoAdmin | null;
+
+    if (mongoAdmin) {
+      if (mongoAdmin.isActive === false) {
+        return errorResponse('Account has been deactivated', 403);
+      }
+
+      const storedHash = String(mongoAdmin.password || '');
+      const isValid = storedHash ? await bcrypt.compare(password, storedHash) : false;
+
+      if (!isValid) {
+        console.warn(`[Admin Auth] Failed login attempt for Mongo admin: ${email}`);
+        return errorResponse('Invalid email or password', 401);
+      }
+
+      const token = generateToken({
+        userId: mongoAdmin._id.toString(),
+        email: normalizedEmail,
+        role: 'ADMIN',
+      });
+
+      const response = successResponse({
+        message: 'Login successful',
+        user: {
+          id: mongoAdmin._id.toString(),
+          email: normalizedEmail,
+          name: mongoAdmin.name || 'Admin User',
+          role: 'ADMIN',
+        },
+        token,
+      }, 200);
+
+      response.cookies.set('auth-token', token, {
+        httpOnly: true,
+        secure: secureCookie,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
+
+      response.cookies.set('token', token, {
+        httpOnly: true,
+        secure: secureCookie,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
+
+      response.cookies.set('admin-token', token, {
+        httpOnly: true,
+        secure: secureCookie,
+        sameSite: 'lax',
+        maxAge: 60 * 60 * 24 * 7,
+        path: '/',
+      });
+
+      console.info(`[Admin Auth] Mongo admin logged in successfully: ${normalizedEmail}`);
+      return response;
+    }
+
+    // Fallback to Prisma admin user model
     const user = await prisma.user.findFirst({
       where: {
         email: normalizedEmail,
@@ -221,7 +299,10 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       console.warn(`[Admin Auth] Failed login attempt for non-existent admin email: ${email}`);
-      return errorResponse("Invalid email or password", 401);
+      return NextResponse.json(
+        { success: false, message: 'Admin not found' },
+        { status: 404 }
+      );
     }
 
     // Check if user has a password
@@ -304,7 +385,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    console.error('LOGIN ERROR:', error);
+    console.error('Login error:', error);
     return NextResponse.json(
       { success: false, message: 'Login failed' },
       { status: 500 }
