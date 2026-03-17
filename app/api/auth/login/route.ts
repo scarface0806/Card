@@ -41,8 +41,14 @@ function isDatabaseConnectivityError(error: unknown): boolean {
   );
 }
 
+function shouldUseSecureCookie(request: NextRequest): boolean {
+  return request.nextUrl.protocol === "https:";
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const secureCookie = shouldUseSecureCookie(request);
+
     // ✨ Development mode: Allow mock login for testing
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
       const body = await request.json();
@@ -79,7 +85,7 @@ export async function POST(request: NextRequest) {
 
         response.cookies.set('auth-token', token, {
           httpOnly: true,
-          secure: false,
+          secure: secureCookie,
           sameSite: 'lax',
           maxAge: 60 * 60 * 24 * 7,
           path: '/',
@@ -165,7 +171,7 @@ export async function POST(request: NextRequest) {
     // Set HTTP-only cookie for secure storage
     response.cookies.set("auth-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: secureCookie,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",

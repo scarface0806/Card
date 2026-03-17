@@ -8,10 +8,14 @@ export function successResponse(
   data: Record<string, unknown> = {},
   status: number = 200
 ): NextResponse {
+  const message = typeof data.message === "string" ? data.message : "OK";
+
   return NextResponse.json(
-    { 
-      success: true, 
-      ...data 
+    {
+      success: true,
+      message,
+      data,
+      ...data,
     },
     { status }
   );
@@ -31,6 +35,7 @@ export function errorResponse(
   return NextResponse.json(
     { 
       success: false, 
+      message,
       error: message,
       ...(details && { details })
     },

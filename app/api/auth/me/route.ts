@@ -57,6 +57,24 @@ export async function GET(request: NextRequest) {
       });
     }
 
+    // Production fallback admin (DB-independent login path).
+    if (user.id === 'env-admin-id') {
+      return NextResponse.json({
+        user: {
+          id: 'env-admin-id',
+          email: user.email,
+          name: 'Admin User',
+          phone: null,
+          avatar: null,
+          role: 'ADMIN',
+          emailVerified: true,
+          isActive: true,
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+        },
+      });
+    }
+
     // Get fresh user data from database
     const dbUser = await prisma.user.findUnique({
       where: { id: user.id },

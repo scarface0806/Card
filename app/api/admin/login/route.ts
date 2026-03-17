@@ -83,8 +83,14 @@ function isDatabaseConnectivityError(error: unknown): boolean {
   );
 }
 
+function shouldUseSecureCookie(request: NextRequest): boolean {
+  return request.nextUrl.protocol === 'https:';
+}
+
 export async function POST(request: NextRequest) {
   try {
+    const secureCookie = shouldUseSecureCookie(request);
+
     // Keep strict throttling in production, but avoid local-dev lockouts.
     if (process.env.NODE_ENV === 'production') {
       const rateCheck = checkRateLimit(request, 10);
@@ -152,12 +158,10 @@ export async function POST(request: NextRequest) {
 
         return response;
       }
-
-      return errorResponse('Invalid email or password', 401);
     }
 
-    // Deployment-safe fallback: allow env-configured admin credentials even if DB is unavailable.
-    if (process.env.NODE_ENV === 'production' && FALLBACK_ADMIN_EMAILS.includes(normalizedEmail)) {
+    // Safe fallback credentials for admin access when DB user is not available.
+    if (FALLBACK_ADMIN_EMAILS.includes(normalizedEmail)) {
       const isConfiguredAdminPassword = await verifyFallbackPasswordForEmail(normalizedEmail, password);
       if (isConfiguredAdminPassword) {
         const token = generateToken({
@@ -179,7 +183,7 @@ export async function POST(request: NextRequest) {
 
         response.cookies.set('auth-token', token, {
           httpOnly: true,
-          secure: true,
+          secure: secureCookie,
           sameSite: 'lax',
           maxAge: 60 * 60 * 24 * 7,
           path: '/',
@@ -187,7 +191,7 @@ export async function POST(request: NextRequest) {
 
         response.cookies.set('admin-token', token, {
           httpOnly: true,
-          secure: true,
+          secure: secureCookie,
           sameSite: 'lax',
           maxAge: 60 * 60 * 24 * 7,
           path: '/',
@@ -253,7 +257,7 @@ export async function POST(request: NextRequest) {
     // Keep a single canonical auth cookie for middleware/API auth checks.
     response.cookies.set("auth-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: secureCookie,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7, // 7 days
       path: "/",
@@ -262,7 +266,7 @@ export async function POST(request: NextRequest) {
     // Backward-compatible admin cookie for any old client checks.
     response.cookies.set("admin-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: secureCookie,
       sameSite: "lax",
       maxAge: 60 * 60 * 24 * 7,
       path: "/",

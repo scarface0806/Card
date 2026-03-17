@@ -1,4 +1,8 @@
 import { PrismaClient } from "@prisma/client";
+import { getRequiredEnv } from "@/lib/env";
+
+// Fail fast with a clear message when DATABASE_URL is missing.
+getRequiredEnv("DATABASE_URL");
 
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined;

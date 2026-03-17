@@ -16,7 +16,13 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return errorResponse("Invalid request body. Please send valid JSON.", 400);
+    }
+
     const parsed = sendLeadMailSchema.safeParse(body);
 
     if (!parsed.success) {
@@ -50,6 +56,7 @@ export async function POST(request: NextRequest) {
 
     return successResponse({ message: "Lead email sent" });
   } catch (error) {
+    console.error("[Lead Mail] POST error:", error);
     return errorResponse("Failed to send lead email", 500);
   }
 }
