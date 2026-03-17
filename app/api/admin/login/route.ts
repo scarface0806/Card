@@ -12,8 +12,8 @@ const loginSchema = z.object({
 
 const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
 const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
-const PROD_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
-const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const PROD_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || DEV_ADMIN_EMAIL).toLowerCase();
+const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEV_ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 
 async function verifyProductionAdminPassword(password: string): Promise<boolean> {
@@ -129,7 +129,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Deployment-safe fallback: allow env-configured admin credentials even if DB is unavailable.
-    if (process.env.NODE_ENV === 'production' && PROD_ADMIN_EMAIL && normalizedEmail === PROD_ADMIN_EMAIL) {
+    if (process.env.NODE_ENV === 'production' && normalizedEmail === PROD_ADMIN_EMAIL) {
       const isConfiguredAdminPassword = await verifyProductionAdminPassword(password);
       if (isConfiguredAdminPassword) {
         const token = generateToken({
