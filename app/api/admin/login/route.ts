@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import prisma from '@/lib/prisma';
 import { verifyPassword, generateToken } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { checkRateLimit } from '@/lib/rate-limit';
 import { errorResponse, successResponse } from '@/lib/responses';
@@ -83,13 +84,19 @@ function isDatabaseConnectivityError(error: unknown): boolean {
   );
 }
 
-function shouldUseSecureCookie(request: NextRequest): boolean {
-  return request.nextUrl.protocol === 'https:';
-}
-
 export async function POST(request: NextRequest) {
   try {
-    const secureCookie = shouldUseSecureCookie(request);
+    console.log('Login request received');
+
+    const missingEnvVars: string[] = [];
+    if (!process.env.DATABASE_URL?.trim()) missingEnvVars.push('DATABASE_URL');
+    if (!process.env.JWT_SECRET?.trim()) missingEnvVars.push('JWT_SECRET');
+    if (missingEnvVars.length > 0) {
+      console.error('[Admin Auth] Missing env vars:', missingEnvVars.join(', '));
+      throw new Error('Missing environment variable');
+    }
+
+    const secureCookie = process.env.NODE_ENV === 'production';
 
     // Keep strict throttling in production, but avoid local-dev lockouts.
     if (process.env.NODE_ENV === 'production') {
@@ -210,6 +217,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log('User found:', user ? { id: user.id, email: user.email, role: user.role } : null);
+
     if (!user) {
       console.warn(`[Admin Auth] Failed login attempt for non-existent admin email: ${email}`);
       return errorResponse("Invalid email or password", 401);
@@ -227,7 +236,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Verify password
-    const isValidPassword = await verifyPassword(password, user.password);
+    const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
       console.warn(`[Admin Auth] Failed login attempt for admin: ${email}`);
@@ -263,6 +272,14 @@ export async function POST(request: NextRequest) {
       path: "/",
     });
 
+    response.cookies.set("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      path: "/",
+      maxAge: 60 * 60 * 24 * 7,
+    });
+
     // Backward-compatible admin cookie for any old client checks.
     response.cookies.set("admin-token", token, {
       httpOnly: true,
@@ -281,14 +298,16 @@ export async function POST(request: NextRequest) {
         timestamp: new Date().toISOString(),
       });
 
-      return errorResponse('Authentication service unavailable. Please try again shortly.', 503);
+      return NextResponse.json(
+        { success: false, message: 'Login failed' },
+        { status: 500 }
+      );
     }
 
-    console.error("[Admin Auth] Login error:", {
-      error: error instanceof Error ? error.message : String(error),
-      status: 500,
-      timestamp: new Date().toISOString()
-    });
-    return errorResponse("Internal server error. Please try again later.", 500);
+    console.error('LOGIN ERROR:', error);
+    return NextResponse.json(
+      { success: false, message: 'Login failed' },
+      { status: 500 }
+    );
   }
 }
