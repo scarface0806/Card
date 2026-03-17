@@ -16,8 +16,27 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
+    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tapvyo.com'),
     title: 'Tapvyo - Modern NFC Digital Business Cards',
     description: 'Share your professional information with a single tap using NFC technology.',
+    icons: {
+        icon: '/favicon.ico',
+        apple: '/apple-touch-icon.png',
+    },
+    openGraph: {
+        images: [
+            {
+                url: '/og-image.png',
+                width: 1200,
+                height: 630,
+                alt: 'Tapvyo social preview',
+            },
+        ],
+    },
+    twitter: {
+        card: 'summary_large_image',
+        images: ['/og-image.png'],
+    },
 };
 
 export default function RootLayout({

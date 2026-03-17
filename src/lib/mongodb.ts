@@ -1,11 +1,5 @@
 import { MongoClient, type Db } from "mongodb";
 
-const uri = process.env.DATABASE_URL;
-
-if (!uri || !uri.trim()) {
-  throw new Error("Missing environment variable");
-}
-
 const options = {};
 
 type MongoGlobal = {
@@ -14,21 +8,32 @@ type MongoGlobal = {
 
 const globalForMongo = globalThis as unknown as MongoGlobal;
 
-let clientPromise: Promise<MongoClient>;
+let clientPromise: Promise<MongoClient> | null = null;
 
-if (process.env.NODE_ENV === "development") {
+function getMongoClientPromise(): Promise<MongoClient> {
+  const uri = process.env.DATABASE_URL;
+
+  if (!uri || !uri.trim()) {
+    throw new Error("Missing environment variable DATABASE_URL");
+  }
+
   if (!globalForMongo.mongoClientPromise) {
     const client = new MongoClient(uri, options);
     globalForMongo.mongoClientPromise = client.connect();
   }
-  clientPromise = globalForMongo.mongoClientPromise;
-} else {
-  const client = new MongoClient(uri, options);
-  clientPromise = client.connect();
+
+  return globalForMongo.mongoClientPromise;
+}
+
+function ensureClientPromise(): Promise<MongoClient> {
+  if (!clientPromise) {
+    clientPromise = getMongoClientPromise();
+  }
+  return clientPromise;
 }
 
 export async function getMongoDb(dbName?: string): Promise<Db> {
-  const client = await clientPromise;
+  const client = await ensureClientPromise();
   return dbName ? client.db(dbName) : client.db();
 }
 
@@ -38,4 +43,4 @@ export async function pingMongo(): Promise<boolean> {
   return true;
 }
 
-export default clientPromise;
+export default ensureClientPromise;

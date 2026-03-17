@@ -34,7 +34,7 @@ export default function DashboardPage() {
         // If user data is not available, use mock data
         setUser({
           id: 'mock-admin-id',
-          email: localStorage.getItem('userEmail') || 'santhoshuxui2023@gmail.com',
+          email: localStorage.getItem('userEmail') || 'admin@local.dev',
           name: 'Admin User',
           role: 'ADMIN',
         });
@@ -43,7 +43,7 @@ export default function DashboardPage() {
       // Fallback to mock user data
       setUser({
         id: 'mock-admin-id',
-        email: 'santhoshuxui2023@gmail.com',
+        email: 'admin@local.dev',
         name: 'Admin User',
         role: 'ADMIN',
       });

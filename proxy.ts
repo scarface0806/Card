@@ -21,9 +21,13 @@ interface JWTPayload {
 // Verify JWT token using jose (edge-compatible)
 async function verifyJWT(token: string): Promise<JWTPayload | null> {
   try {
-    const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || "fallback-secret-change-me"
-    );
+    const jwtSecret = process.env.JWT_SECRET;
+    if (!jwtSecret || !jwtSecret.trim()) {
+      console.error("[Proxy] Missing JWT_SECRET, rejecting protected auth checks");
+      return null;
+    }
+
+    const secret = new TextEncoder().encode(jwtSecret);
     const { payload } = await jwtVerify(token, secret);
     return payload as unknown as JWTPayload;
   } catch {

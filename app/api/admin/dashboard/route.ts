@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { errorResponse, successResponse } from "@/lib/responses";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 
 async function safeNumber(label: string, task: () => Promise<number>): Promise<number> {
@@ -160,7 +161,7 @@ export async function GET(request: NextRequest) {
       {} as Record<string, number>
     );
 
-    return NextResponse.json({
+    return successResponse({
       customers: {
         total: totalCustomers,
         active: activeCustomers,
@@ -217,9 +218,6 @@ export async function GET(request: NextRequest) {
     });
   } catch (error) {
     console.error("Dashboard metrics error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch dashboard metrics" },
-      { status: 500 }
-    );
+    return errorResponse("Failed to fetch dashboard metrics", 500);
   }
 }

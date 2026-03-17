@@ -3,6 +3,8 @@ import prisma from "@/lib/prisma";
 import { withAdmin } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import type { AuthUser } from "@/lib/auth";
+import { ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
 
@@ -60,6 +62,10 @@ async function getHandler(request: NextRequest, user: AuthUser, context: RoutePa
     const customerDelegate = (prisma as unknown as { customer: CustomerDetailDelegate }).customer;
     const { id } = await context.params;
 
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid customer id", 400);
+    }
+
     const customer = await customerDelegate.findUnique({
       where: { id },
       include: {
@@ -84,4 +90,32 @@ async function getHandler(request: NextRequest, user: AuthUser, context: RoutePa
   }
 }
 
+async function deleteHandler(request: NextRequest, user: AuthUser, context: RouteParams) {
+  try {
+    const { id } = await context.params;
+
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid customer id", 400);
+    }
+
+    const db = await getMongoDb();
+    const result = await db.collection("customers").deleteOne({
+      _id: new ObjectId(id),
+    });
+
+    if (result.deletedCount === 0) {
+      return errorResponse("Customer not found", 404);
+    }
+
+    return successResponse({
+      message: "Customer deleted",
+      deletedId: id,
+    });
+  } catch (error) {
+    console.error("Delete customer by id error:", error);
+    return errorResponse("Failed to delete customer", 500);
+  }
+}
+
 export const GET = withAdmin(getHandler);
+export const DELETE = withAdmin(deleteHandler);

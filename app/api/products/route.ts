@@ -1,112 +1,83 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAdmin } from "@/lib/auth-middleware";
-import { AuthUser } from "@/lib/auth";
-
-import { productCreateSchema } from "@/lib/validators";
-import { withRateLimit, checkRateLimit } from "@/lib/rate-limit";
+import type { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
+import { getMongoDb } from "@/lib/mongodb";
 
-// GET /api/products - Get all products (public, only active products)
+export const runtime = "nodejs";
+
+type ProductInput = {
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+};
+
+function normalizeProductInput(payload: unknown): ProductInput {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid request body");
+  }
+
+  const input = payload as Record<string, unknown>;
+  const name = String(input.name || "").trim();
+  const description = String(input.description || "").trim();
+  const image = String(input.image || "").trim();
+  const priceNumber = Number(input.price);
+
+  if (!name) {
+    throw new Error("Name is required");
+  }
+
+  if (!description) {
+    throw new Error("Description is required");
+  }
+
+  if (!Number.isFinite(priceNumber) || priceNumber < 0) {
+    throw new Error("Price must be a valid positive number");
+  }
+
+  if (!image) {
+    throw new Error("Image is required");
+  }
+
+  return {
+    name,
+    description,
+    price: priceNumber,
+    image,
+  };
+}
+
+function mapProduct(doc: Record<string, unknown>) {
+  return {
+    id: String(doc._id || ""),
+    name: String(doc.name || ""),
+    description: String(doc.description || ""),
+    price: Number(doc.price || 0),
+    image: String(doc.image || ""),
+    createdAt: doc.createdAt,
+  };
+}
+
+// GET /api/products - Get all products (public)
 export async function GET(request: NextRequest) {
   try {
-    const rateCheck = checkRateLimit(request, 100);
-    if (!rateCheck.ok) {
-      const res = errorResponse("Too many requests", 429);
-      if (rateCheck.retryAfter) {
-        res.headers.set("Retry-After", String(rateCheck.retryAfter));
-      }
-      return res;
-    }
-
     const { searchParams } = new URL(request.url);
-    
-    // Pagination (sanitize inputs)
-    const rawPage = parseInt(searchParams.get("page") || "1");
-    const rawLimit = parseInt(searchParams.get("limit") || "12");
-    const page = Number.isFinite(rawPage) && rawPage > 0 ? rawPage : 1;
-    const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 100) : 12;
-    const skip = (page - 1) * limit;
-    
-    // Filters
-    const category = searchParams.get("category");
-    const cardType = searchParams.get("cardType");
-    const featured = searchParams.get("featured");
-    const search = searchParams.get("search");
-    const minPrice = searchParams.get("minPrice");
-    const maxPrice = searchParams.get("maxPrice");
-    const sortByParam = searchParams.get("sortBy") || "createdAt";
-    const sortOrderParam = searchParams.get("sortOrder") || "desc";
-    const showAll = searchParams.get("showAll"); // Admin param to show inactive
+    const rawLimit = Number(searchParams.get("limit") || "0");
+    const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 200) : 0;
 
-    // Build where clause
-    const where: Record<string, unknown> = {};
-    
-    // Only show active products for public access
-    // Admins can see all by passing showAll=true
-    if (showAll !== "true") {
-      where.isActive = true;
+    const db = await getMongoDb();
+    const cursor = db.collection("products").find({}).sort({ createdAt: -1 });
+    if (limit > 0) {
+      cursor.limit(limit);
     }
 
-    if (category) {
-      where.category = category;
-    }
-
-    if (cardType) {
-      where.cardType = cardType;
-    }
-
-    if (featured === "true") {
-      where.isFeatured = true;
-    }
-
-    const searchText = search?.trim();
-    if (searchText) {
-      where.OR = [
-        { name: { contains: searchText, mode: "insensitive" } },
-        { description: { contains: searchText, mode: "insensitive" } },
-        { tags: { has: searchText } },
-      ];
-    }
-
-    const min = minPrice ? parseFloat(minPrice) : undefined;
-    const max = maxPrice ? parseFloat(maxPrice) : undefined;
-    if (Number.isFinite(min) || Number.isFinite(max)) {
-      where.price = {};
-      if (Number.isFinite(min)) {
-        (where.price as Record<string, number>).gte = min as number;
-      }
-      if (Number.isFinite(max)) {
-        (where.price as Record<string, number>).lte = max as number;
-      }
-    }
-
-    // Build sort
-    const allowedSortBy = new Set(["price", "createdAt", "name"]);
-    const sortBy = allowedSortBy.has(sortByParam) ? sortByParam : "createdAt";
-    const sortOrder = sortOrderParam === "asc" || sortOrderParam === "desc" ? sortOrderParam : "desc";
-    const orderBy: Record<string, string> = {};
-    orderBy[sortBy] = sortOrder;
-
-    const [products, total] = await Promise.all([
-      prisma.product.findMany({
-        where,
-        skip,
-        take: limit,
-        orderBy,
-      }),
-      prisma.product.count({ where }),
-    ]);
+    const docs = await cursor.toArray();
+    const products = docs.map((doc) => mapProduct(doc as unknown as Record<string, unknown>));
 
     return successResponse({
       products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit),
-        hasMore: page * limit < total,
-      },
+      count: products.length,
     });
   } catch (error) {
     console.error("Get products error:", error);
@@ -117,33 +88,49 @@ export async function GET(request: NextRequest) {
 // POST /api/products - Create product (Admin only)
 async function createProductHandler(request: NextRequest, user: AuthUser) {
   try {
-    // basic rate limiting at handler level (in case wrap misses)
     const body = await request.json();
+    const parsed = normalizeProductInput(body);
+    const db = await getMongoDb();
+    const now = new Date();
 
-    const parsed = productCreateSchema.safeParse(body);
-    if (!parsed.success) {
-      return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
-    }
-    const data = parsed.data;
+    const result = await db.collection("products").insertOne({
+      name: parsed.name,
+      description: parsed.description,
+      price: parsed.price,
+      image: parsed.image,
+      createdAt: now,
+      updatedAt: now,
+      // Keep defaults compatible with existing consumers that may still read extra fields.
+      isActive: true,
+      slug: `product-${Date.now().toString(36)}`,
+      images: [parsed.image],
+      tags: [],
+      stock: 0,
+      isFeatured: false,
+    });
 
-    // slug uniqueness
-    const existingProduct = await prisma.product.findUnique({ where: { slug: data.slug } });
-    if (existingProduct) {
-      return errorResponse("A product with this slug already exists", 409);
-    }
-    if (data.sku) {
-      const existingSku = await prisma.product.findUnique({ where: { sku: data.sku } });
-      if (existingSku) {
-        return errorResponse("A product with this SKU already exists", 409);
-      }
-    }
-
-    const product = await prisma.product.create({ data });
-    return successResponse({ message: "Product created successfully", product }, 201);
+    return successResponse(
+      {
+        message: "Product created successfully",
+        product: {
+          id: String(result.insertedId),
+          name: parsed.name,
+          description: parsed.description,
+          price: parsed.price,
+          image: parsed.image,
+          createdAt: now,
+        },
+      },
+      201
+    );
   } catch (error) {
+    if (error instanceof Error) {
+      return errorResponse(error.message, 400);
+    }
+
     console.error("Create product error:", error);
     return errorResponse("Failed to create product", 500);
   }
 }
 
-export const POST = withRateLimit(withAdmin(createProductHandler), 30);
+export const POST = withAdmin(createProductHandler);

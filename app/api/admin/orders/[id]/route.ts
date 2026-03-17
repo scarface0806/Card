@@ -5,6 +5,8 @@ import { errorResponse, successResponse } from "@/lib/responses";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
+import { getMongoDb } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 // Helper to extract ID from URL
 function getIdFromUrl(url: string): string {
@@ -301,7 +303,7 @@ export async function PATCH(request: NextRequest) {
   }
 }
 
-// DELETE /api/admin/orders/:id - Soft delete order (Admin only)
+// DELETE /api/admin/orders/:id - Hard delete order (Admin only)
 export async function DELETE(request: NextRequest) {
   try {
     const { user, error } = await authenticate(request);
@@ -312,28 +314,23 @@ export async function DELETE(request: NextRequest) {
 
     const id = getIdFromUrl(request.url);
 
-    const order = await prisma.order.findUnique({
-      where: { id },
-    });
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid order id", 400);
+    }
 
-    if (!order) {
+    const db = await getMongoDb();
+    const result = await db.collection("orders").deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
       return errorResponse("Order not found", 404);
     }
 
-    // Soft delete by updating status to CANCELLED
-    await prisma.order.update({
-      where: { id },
-      data: {
-        status: OrderStatus.CANCELLED,
-        notes: `${order.notes || ""}\n[Admin cancelled: ${new Date().toISOString()}]`.trim(),
-      },
-    });
-
     return NextResponse.json({
-      message: "Order cancelled successfully",
+      success: true,
+      message: "Order deleted",
     });
   } catch (error) {
-    console.error("Admin delete order error:", error);
-    return errorResponse("Failed to cancel order", 500);
+    console.error("API Error:", error);
+    return errorResponse("Failed to delete order", 500);
   }
 }

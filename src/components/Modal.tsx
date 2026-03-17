@@ -49,26 +49,30 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
             onClick={onClose}
             className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-40"
           />
-          <motion.div
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="hidden"
-            transition={motionConfig}
-            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-[#141d31] border border-white/10 rounded-2xl shadow-xl z-50 max-w-2xl max-h-[90vh] overflow-y-auto w-[95%]"
-          >
-            <div className="sticky top-0 bg-[#141d31] border-b border-white/10 p-4 md:p-6 flex items-center justify-between">
-              {title && <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>}
-              <button
-                onClick={onClose}
-                className="p-2 hover:bg-white/10 rounded-full transition-colors"
-                style={{ transition: 'background-color 150ms ease' }}
+          <div className="fixed inset-0 z-50 overflow-y-auto p-3 sm:p-6">
+            <div className="min-h-full flex items-center justify-center">
+              <motion.div
+                variants={modalVariants}
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={motionConfig}
+                className="my-4 bg-[#141d31] border border-white/10 rounded-2xl shadow-xl max-w-2xl max-h-[calc(100vh-2rem)] sm:max-h-[calc(100vh-3rem)] overflow-y-auto w-full"
               >
-                <X className="w-6 h-6 text-gray-400" />
-              </button>
+                <div className="sticky top-0 bg-[#141d31] border-b border-white/10 p-4 md:p-6 flex items-center justify-between">
+                  {title && <h2 className="text-xl md:text-2xl font-bold text-white">{title}</h2>}
+                  <button
+                    onClick={onClose}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                    style={{ transition: 'background-color 150ms ease' }}
+                  >
+                    <X className="w-6 h-6 text-gray-400" />
+                  </button>
+                </div>
+                <div className="p-4 md:p-6">{children}</div>
+              </motion.div>
             </div>
-            <div className="p-4 md:p-6">{children}</div>
-          </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>

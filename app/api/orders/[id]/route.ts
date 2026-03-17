@@ -7,6 +7,7 @@ import { orderStatusSchema } from "@/lib/validators";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { MongoClient, ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -261,5 +262,47 @@ export async function PATCH(
       { success: false, message: "Failed to update order" },
       { status: 500 }
     );
+  }
+}
+
+// DELETE /api/orders/:id - Delete order (Admin only)
+export async function DELETE(
+  request: NextRequest,
+  { params }: RouteParams
+) {
+  try {
+    const rl = checkRateLimit(request, 30);
+    if (!rl.ok) {
+      const res = errorResponse("Too many requests", 429);
+      if (rl.retryAfter) res.headers.set("Retry-After", String(rl.retryAfter));
+      return res;
+    }
+
+    const { user, error } = await authenticate(request);
+    const { id } = await params;
+
+    if (!user) {
+      return errorResponse(error || "Unauthorized", 401);
+    }
+
+    if (user.role !== Role.ADMIN) {
+      return errorResponse("Admin access required", 403);
+    }
+
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid order id", 400);
+    }
+
+    const db = await getMongoDb();
+    const result = await db.collection("orders").deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return errorResponse("Order not found", 404);
+    }
+
+    return successResponse({ message: "Order deleted" }, 200);
+  } catch (error) {
+    console.error("API Error:", error);
+    return errorResponse("Failed to delete order", 500);
   }
 }

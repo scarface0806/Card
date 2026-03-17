@@ -3,74 +3,19 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { Check, Zap, Award, Smartphone, Palette, Shield, TrendingUp, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { Check, Zap, Palette, Shield, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { ROUTES } from '@/utils/constants';
 import { useState, useEffect } from 'react';
-import type { LucideIcon } from 'lucide-react';
 
 interface Product {
   id: string;
   name: string;
-  price: string;
-  priceValue: number;
-  period: string;
+  price: number;
   description: string;
-  color: string;
-  features: string[];
-  icon: LucideIcon;
-  popular: boolean;
-}
-
-// Icon mapping based on price range
-function getProductIcon(price: number): LucideIcon {
-  if (price < 700) return Smartphone;
-  if (price < 1500) return Award;
-  return TrendingUp;
-}
-
-// Color mapping based on price range
-function getProductColor(price: number): string {
-  if (price < 700) return 'bg-teal-600';
-  if (price < 1500) return 'bg-emerald-600';
-  return 'bg-cyan-700';
-}
-
-// Generate features based on product data
-function getProductFeatures(product: any): string[] {
-  const baseFeatures = [
-    'Premium NFC chip',
-    'Free lifetime website',
-    'Personal info',
-    'Social links',
-    'QR code backup',
-  ];
-
-  const premiumFeatures = [
-    'All templates unlocked',
-    'Business branding',
-    'Advanced analytics',
-    'Multiple profiles',
-    'Analytics dashboard',
-    'Priority support',
-  ];
-
-  const enterpriseFeatures = [
-    'Unlimited NFC cards',
-    'Team management',
-    'White-label options',
-    'Advanced analytics',
-    'Custom integrations',
-    '24/7 dedicated support',
-    'API access',
-    'Team collaboration',
-  ];
-
-  if (product.price < 700) return baseFeatures;
-  if (product.price < 1500) return [...baseFeatures, ...premiumFeatures];
-  return [...baseFeatures, ...premiumFeatures, ...enterpriseFeatures];
+  image: string;
 }
 
 export default function ProductsPage() {
@@ -86,96 +31,25 @@ export default function ProductsPage() {
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/products?limit=10&sortBy=price&sortOrder=asc');
+        const response = await fetch('/api/products?limit=6');
         
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
 
         const data = await response.json();
-        
-        // Transform API products to match UI structure
-        const transformedProducts: Product[] = data.products.map((product: any, index: number) => {
-          const priceValue = product.salePrice || product.price;
-          return {
-            id: product.id,
-            name: product.name,
-            price: `₹${priceValue.toFixed(0)}`,
-            priceValue: priceValue,
-            period: 'One-time',
-            description: product.description || 'Premium NFC digital business card',
-            color: getProductColor(priceValue),
-            features: getProductFeatures(product),
-            icon: getProductIcon(priceValue),
-            popular: product.isFeatured || index === 1, // Mark featured or middle product as popular
-          };
-        });
+        const transformedProducts: Product[] = (data.products || []).slice(0, 6).map((product: any) => ({
+          id: product.id,
+          name: product.name || 'Untitled product',
+          price: Number(product.price || 0),
+          description: product.description || 'Premium NFC digital business card',
+          image: product.image || '',
+        }));
 
         setProducts(transformedProducts);
       } catch (error) {
         console.error('Error fetching products:', error);
-        // Fallback to default products if API fails
-        setProducts([
-          {
-            id: '1',
-            name: 'Starter Card',
-            price: '₹499',
-            priceValue: 499,
-            period: 'One-time',
-            description: 'Perfect for getting started with NFC',
-            color: 'bg-teal-600',
-            features: [
-              'Premium NFC chip',
-              'Basic templates',
-              'Personal info',
-              'Social links',
-              'QR code backup',
-            ],
-            icon: Smartphone,
-            popular: false,
-          },
-          {
-            id: '2',
-            name: 'Professional Card',
-            price: '₹999',
-            priceValue: 999,
-            period: 'One-time',
-            description: 'For the ambitious professional',
-            color: 'bg-emerald-600',
-            features: [
-              'Premium NFC chip',
-              'All templates unlocked',
-              'Business branding',
-              'Advanced analytics',
-              'Multiple profiles',
-              'Analytics dashboard',
-              'Priority support',
-            ],
-            icon: Award,
-            popular: true,
-          },
-          {
-            id: '3',
-            name: 'Enterprise Card',
-            price: '₹2999',
-            priceValue: 2999,
-            period: 'Per month',
-            description: 'For organizations at scale',
-            color: 'bg-cyan-700',
-            features: [
-              'Unlimited NFC cards',
-              'Team management',
-              'White-label options',
-              'Advanced analytics',
-              'Custom integrations',
-              '24/7 dedicated support',
-              'API access',
-              'Team collaboration',
-            ],
-            icon: TrendingUp,
-            popular: false,
-          },
-        ]);
+        setProducts([]);
       } finally {
         setLoading(false);
       }
@@ -305,10 +179,15 @@ export default function ProductsPage() {
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
               </div>
+            ) : products.length === 0 ? (
+              <div className="rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-12 text-center">
+                <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk">No products available</h3>
+                <p className="text-[#4b635d] mt-2">Admin can add products from the dashboard to display them here.</p>
+              </div>
             ) : (
             <div className="grid md:grid-cols-3 gap-8">
               {products.map((product, index) => {
-                const Icon = product.icon;
+                const isPopular = index === 1;
                 return (
                   <motion.div
                     key={product.id}
@@ -320,28 +199,32 @@ export default function ProductsPage() {
                     onMouseLeave={() => setHoveredProduct(null)}
                     whileHover={{ y: -6 }}
                     className={`relative group rounded-2xl border transition-all duration-300 overflow-hidden ${
-                      product.popular
+                      isPopular
                         ? 'border-teal-500 ring-2 ring-teal-500/20 shadow-xl bg-white md:scale-105'
                         : 'border-teal-100 bg-white shadow-md hover:shadow-lg'
                     }`}
                   >
-                    {product.popular && (
+                    {isPopular && (
                       <div className="bg-gradient-to-r from-teal-600 to-emerald-500 text-white text-center py-2 text-sm font-semibold">
                         Most Popular
                       </div>
                     )}
 
-                    <div className="p-8">
-                      <div className={`w-14 h-14 rounded-xl ${product.color} mb-6 flex items-center justify-center`}>
-                        <Icon className="w-7 h-7 text-white" />
+                    <div className="p-6">
+                      <div className="h-44 w-full overflow-hidden rounded-xl bg-teal-50 mb-6 border border-teal-100">
+                        {product.image ? (
+                          <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
+                        ) : (
+                          <div className="flex h-full w-full items-center justify-center text-sm text-[#6b7f78]">No image</div>
+                        )}
                       </div>
 
                       <h3 className="text-2xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{product.name}</h3>
                       <p className="text-[#6b7f78] text-sm mb-6">{product.description}</p>
 
                       <div className="mb-8">
-                        <div className="text-4xl font-bold text-[#0f2e25] mb-2">{product.price}</div>
-                        <p className="text-[#6b7f78] text-sm">{product.period}</p>
+                        <div className="text-4xl font-bold text-[#0f2e25] mb-2">₹{product.price.toLocaleString()}</div>
+                        <p className="text-[#6b7f78] text-sm">One-time</p>
                       </div>
 
                       <motion.button
@@ -350,7 +233,7 @@ export default function ProductsPage() {
                         onClick={() => handleBuyNow(product.id)}
                         disabled={buyingProductId === product.id || status === 'loading'}
                         className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
-                          product.popular
+                          isPopular
                             ? 'bg-teal-600 text-white hover:bg-teal-700'
                             : 'bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100'
                         }`}
@@ -369,19 +252,18 @@ export default function ProductsPage() {
                       </motion.button>
 
                       <div className="mt-8 space-y-4">
-                        {product.features.map((feature, idx) => (
-                          <motion.div
-                            key={idx}
-                            initial={{ opacity: 0, x: -10 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
-                            transition={{ delay: idx * 0.05 }}
-                            className="flex items-center gap-3"
-                          >
-                            <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
-                            <span className="text-[#4b635d] text-sm">{feature}</span>
-                          </motion.div>
-                        ))}
+                        <div className="flex items-center gap-3">
+                          <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <span className="text-[#4b635d] text-sm">Premium NFC chip</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <span className="text-[#4b635d] text-sm">Free lifetime website</span>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <span className="text-[#4b635d] text-sm">Instant profile sharing</span>
+                        </div>
                       </div>
                     </div>
                   </motion.div>

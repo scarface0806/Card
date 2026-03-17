@@ -38,14 +38,17 @@ export async function saveUploadedImage(file: File, folder: string) {
   }
 
   // Vercel serverless file system is ephemeral/read-only for persistent uploads.
+  // Store as data URL fallback so uploads still work without filesystem writes.
   if (process.env.VERCEL === "1") {
-    console.warn("[Upload] Skipping local file write on Vercel runtime", {
+    console.warn("[Upload] Using base64 data URL fallback on Vercel runtime", {
       folder,
       name: file.name,
       size: file.size,
       type: file.type,
     });
-    return null;
+
+    const fileBuffer = Buffer.from(await file.arrayBuffer());
+    return `data:${file.type};base64,${fileBuffer.toString("base64")}`;
   }
 
   const uploadsRoot = path.join(process.cwd(), "public", "uploads", folder);

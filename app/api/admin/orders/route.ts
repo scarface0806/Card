@@ -5,6 +5,14 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { AuthUser } from "@/lib/auth";
 import { OrderStatus, PaymentStatus } from "@prisma/client";
+import { getMongoDb } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
+
+function generateOrderNumber(): string {
+  const timestamp = Date.now().toString(36).toUpperCase();
+  const random = Math.random().toString(36).slice(2, 6).toUpperCase();
+  return `ORD-${timestamp}-${random}`;
+}
 
 // GET /api/admin/orders - Get all orders (Admin only)
 async function getOrdersHandler(request: NextRequest, user: AuthUser) {
@@ -124,4 +132,130 @@ async function getOrdersHandler(request: NextRequest, user: AuthUser) {
   }
 }
 
+// POST /api/admin/orders - Create order manually (Admin only)
+async function createOrderHandler(request: NextRequest, user: AuthUser) {
+  const rl = checkRateLimit(request, 30);
+  if (!rl.ok) {
+    const res = errorResponse("Too many requests", 429);
+    if (rl.retryAfter) res.headers.set("Retry-After", String(rl.retryAfter));
+    return res;
+  }
+
+  try {
+    const body = (await request.json()) as {
+      customerId?: string;
+      productId?: string;
+      quantity?: number;
+      price?: number;
+      address?: string;
+      notes?: string;
+    };
+
+    const productId = String(body.productId || "").trim();
+    const customerId = String(body.customerId || "").trim();
+    const quantity = Number(body.quantity || 1);
+    const submittedPrice = Number(body.price || 0);
+    const address = String(body.address || "").trim();
+    const notes = String(body.notes || "").trim();
+
+    if (!productId || !ObjectId.isValid(productId)) {
+      return errorResponse("Valid product is required", 400);
+    }
+
+    if (!Number.isFinite(quantity) || quantity <= 0) {
+      return errorResponse("Quantity must be a positive number", 400);
+    }
+
+    const db = await getMongoDb();
+    const products = db.collection("products");
+    const customers = db.collection("customers");
+    const orders = db.collection("orders");
+
+    const product = await products.findOne({ _id: new ObjectId(productId) });
+    if (!product) {
+      return errorResponse("Product not found", 404);
+    }
+
+    let customer: Record<string, unknown> | null = null;
+    if (customerId) {
+      if (!ObjectId.isValid(customerId)) {
+        return errorResponse("Invalid customer id", 400);
+      }
+      customer = (await customers.findOne({ _id: new ObjectId(customerId) })) as Record<string, unknown> | null;
+      if (!customer) {
+        return errorResponse("Customer not found", 404);
+      }
+    }
+
+    const unitPrice = Number.isFinite(submittedPrice) && submittedPrice > 0
+      ? submittedPrice
+      : Number(product.price || 0);
+
+    const total = unitPrice * quantity;
+    const now = new Date();
+    const orderNumber = generateOrderNumber();
+
+    const insertDoc = {
+      orderNumber,
+      userId: null,
+      guestName: customer ? String(customer.name || "Guest") : "Guest",
+      guestEmail: customer ? String(customer.email || "") || null : null,
+      guestPhone: customer ? String(customer.phone || "") || null : null,
+      designation: customer ? String(customer.designation || "") || null : null,
+      company: customer ? String(customer.company || "") || null : null,
+      website: customer ? String(customer.website || "") || null : null,
+      address: address || (customer ? String(customer.address || "") || null : null),
+      cardType: String(product.name || "Product"),
+      price: unitPrice,
+      templateSlug: null,
+      profileData: null,
+      items: [
+        {
+          productId,
+          productName: String(product.name || "Product"),
+          quantity,
+          price: unitPrice,
+          total,
+        },
+      ],
+      subtotal: total,
+      discount: 0,
+      shipping: 0,
+      tax: 0,
+      total,
+      status: OrderStatus.PENDING,
+      paymentStatus: PaymentStatus.PENDING,
+      paymentMethod: null,
+      paymentId: null,
+      shippingAddress: null,
+      billingAddress: null,
+      cardId: null,
+      nfcLinkEmailSent: false,
+      notes: notes || null,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    const result = await orders.insertOne(insertDoc);
+
+    return successResponse(
+      {
+        message: "Order created successfully",
+        order: {
+          id: String(result.insertedId),
+          orderNumber,
+          total,
+          status: OrderStatus.PENDING,
+          createdAt: now,
+        },
+      },
+      201
+    );
+  } catch (error) {
+    console.error("Admin create order error:", error);
+    return errorResponse("Failed to create order", 500);
+  }
+}
+
 export const GET = withAdmin(getOrdersHandler);
+export const POST = withAdmin(createOrderHandler);

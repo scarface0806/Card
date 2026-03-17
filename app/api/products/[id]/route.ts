@@ -1,13 +1,66 @@
-import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import { NextRequest } from "next/server";
 import { withAdmin } from "@/lib/auth-middleware";
-import { AuthUser } from "@/lib/auth";
-
-import { productUpdateSchema } from "@/lib/validators";
-import { withRateLimit } from "@/lib/rate-limit";
+import type { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
+import { ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
+
+export const runtime = "nodejs";
 
 type RouteParams = { params: Promise<{ id: string }> };
+
+type ProductInput = {
+  name: string;
+  description: string;
+  price: number;
+  image: string;
+};
+
+function normalizeProductInput(payload: unknown): ProductInput {
+  if (!payload || typeof payload !== "object") {
+    throw new Error("Invalid request body");
+  }
+
+  const input = payload as Record<string, unknown>;
+  const name = String(input.name || "").trim();
+  const description = String(input.description || "").trim();
+  const image = String(input.image || "").trim();
+  const priceNumber = Number(input.price);
+
+  if (!name) {
+    throw new Error("Name is required");
+  }
+
+  if (!description) {
+    throw new Error("Description is required");
+  }
+
+  if (!Number.isFinite(priceNumber) || priceNumber < 0) {
+    throw new Error("Price must be a valid positive number");
+  }
+
+  if (!image) {
+    throw new Error("Image is required");
+  }
+
+  return {
+    name,
+    description,
+    price: priceNumber,
+    image,
+  };
+}
+
+function mapProduct(doc: Record<string, unknown>) {
+  return {
+    id: String(doc._id || ""),
+    name: String(doc.name || ""),
+    description: String(doc.description || ""),
+    price: Number(doc.price || 0),
+    image: String(doc.image || ""),
+    createdAt: doc.createdAt,
+  };
+}
 
 // GET /api/products/:id - Get single product (public)
 export async function GET(
@@ -17,29 +70,21 @@ export async function GET(
   try {
     const { id } = await params;
 
-    // Check if id is a valid ObjectId or a slug
-    const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
-
-    const product = await prisma.product.findFirst({
-      where: isObjectId
-        ? { id, isActive: true }
-        : { slug: id, isActive: true },
-    });
-
-    if (!product) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
-      );
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid product id", 400);
     }
 
-    return NextResponse.json({ product });
+    const db = await getMongoDb();
+    const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
+
+    if (!product) {
+      return errorResponse("Product not found", 404);
+    }
+
+    return successResponse({ product: mapProduct(product as unknown as Record<string, unknown>) });
   } catch (error) {
     console.error("Get product error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch product" },
-      { status: 500 }
-    );
+    return errorResponse("Failed to fetch product", 500);
   }
 }
 
@@ -52,45 +97,41 @@ async function updateProductHandler(
   try {
     const { id } = await params;
 
-    // parse + validate body
-    const body = await request.json();
-    const parsed = productUpdateSchema.safeParse(body);
-    if (!parsed.success) {
-      return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid product id", 400);
     }
-    const data = parsed.data;
 
-    // Check if product exists
-    const existingProduct = await prisma.product.findUnique({
-      where: { id },
-    });
+    const body = await request.json();
+    const parsed = normalizeProductInput(body);
+    const db = await getMongoDb();
+    const result = await db.collection("products").updateOne(
+      { _id: new ObjectId(id) },
+      {
+        $set: {
+          name: parsed.name,
+          description: parsed.description,
+          price: parsed.price,
+          image: parsed.image,
+          images: [parsed.image],
+          updatedAt: new Date(),
+        },
+      }
+    );
 
-    if (!existingProduct) {
+    if (result.matchedCount === 0) {
       return errorResponse("Product not found", 404);
     }
 
-    // slug/sku uniqueness checks
-    if (data.slug && data.slug !== existingProduct.slug) {
-      const slugExists = await prisma.product.findUnique({ where: { slug: data.slug } });
-      if (slugExists) {
-        return errorResponse("A product with this slug already exists", 409);
-      }
-    }
-    if (data.sku && data.sku !== existingProduct.sku) {
-      const skuExists = await prisma.product.findUnique({ where: { sku: data.sku } });
-      if (skuExists) {
-        return errorResponse("A product with this SKU already exists", 409);
-      }
-    }
-
-    // update
-    const product = await prisma.product.update({
-      where: { id },
-      data,
+    const updated = await db.collection("products").findOne({ _id: new ObjectId(id) });
+    return successResponse({
+      message: "Product updated successfully",
+      product: updated ? mapProduct(updated as unknown as Record<string, unknown>) : null,
     });
-
-    return successResponse({ message: "Product updated successfully", product });
   } catch (error) {
+    if (error instanceof Error) {
+      return errorResponse(error.message, 400);
+    }
+
     console.error("Update product error:", error);
     return errorResponse("Failed to update product", 500);
   }
@@ -105,12 +146,16 @@ async function deleteProductHandler(
   try {
     const { id } = await params;
 
-    const existingProduct = await prisma.product.findUnique({ where: { id } });
-    if (!existingProduct) {
-      return errorResponse("Product not found", 404);
+    if (!ObjectId.isValid(id)) {
+      return errorResponse("Invalid product id", 400);
     }
 
-    await prisma.product.update({ where: { id }, data: { isActive: false } });
+    const db = await getMongoDb();
+    const result = await db.collection("products").deleteOne({ _id: new ObjectId(id) });
+
+    if (result.deletedCount === 0) {
+      return errorResponse("Product not found", 404);
+    }
 
     return successResponse({ message: "Product deleted successfully" });
   } catch (error) {
@@ -119,15 +164,9 @@ async function deleteProductHandler(
   }
 }
 
-// Wrap admin handlers with route params + rate limit
+// Wrap admin handlers with route params
 export const PUT = (request: NextRequest, context: RouteParams) =>
-  withRateLimit(
-    withAdmin((req, user) => updateProductHandler(req, user, context)),
-    30
-  )(request);
+  withAdmin((req, user) => updateProductHandler(req, user, context))(request);
 
 export const DELETE = (request: NextRequest, context: RouteParams) =>
-  withRateLimit(
-    withAdmin((req, user) => deleteProductHandler(req, user, context)),
-    30
-  )(request);
+  withAdmin((req, user) => deleteProductHandler(req, user, context))(request);

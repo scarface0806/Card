@@ -7,6 +7,8 @@ import { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
 import { MongoClient } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
+import { ObjectId } from "mongodb";
 
 // Generate unique order number
 function generateOrderNumber(): string {
@@ -245,11 +247,20 @@ export async function POST(request: NextRequest) {
     const qty = quantity || 1;
 
     // Fetch product from database (SECURITY: price comes from DB, not client)
-    const product = await prisma.product.findUnique({
+    let product = await prisma.product.findUnique({
       where: { id: productId },
     });
 
-    if (!product) {
+    let mongoProduct: Record<string, unknown> | null = null;
+
+    if (!product && ObjectId.isValid(productId)) {
+      const db = await getMongoDb();
+      mongoProduct = (await db
+        .collection("products")
+        .findOne({ _id: new ObjectId(productId) })) as Record<string, unknown> | null;
+    }
+
+    if (!product && !mongoProduct) {
       return NextResponse.json(
         { error: "Product not found" },
         { status: 404 }
@@ -257,15 +268,26 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate product is active
-    if (!product.isActive) {
+    const isActive = product ? product.isActive : (mongoProduct?.isActive ?? true);
+    if (!isActive) {
       return NextResponse.json(
         { error: "Product is not available for purchase" },
         { status: 400 }
       );
     }
 
+    const productName = product
+      ? product.name
+      : String(mongoProduct?.name || "Product");
+
+    const resolvedCardType = product
+      ? product.cardType || cardType || product.name
+      : cardType || productName;
+
     // Calculate totals using DB prices (SECURITY: never trust client prices)
-    const itemPrice = product.salePrice || product.price;
+    const itemPrice = product
+      ? product.salePrice || product.price
+      : Number(mongoProduct?.price || 0);
     const subtotal = itemPrice * qty;
     const shipping = 0; // Can be calculated based on address
     const tax = 0; // Can be calculated based on address
@@ -273,8 +295,8 @@ export async function POST(request: NextRequest) {
 
     // Create order item
     const orderItem = {
-      productId: product.id,
-      productName: product.name,
+      productId: product ? product.id : String(mongoProduct?._id || productId),
+      productName,
       quantity: qty,
       price: itemPrice,
       total: itemPrice * qty,
@@ -294,7 +316,7 @@ export async function POST(request: NextRequest) {
         company: company || null,
         website: website || null,
         address: address || null,
-        cardType: product.cardType || cardType || product.name,
+        cardType: resolvedCardType,
         price: itemPrice,
         templateSlug: templateSlug || null,
         profileData: profileData ?? null,
@@ -354,7 +376,7 @@ export async function POST(request: NextRequest) {
                     <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
                     <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 600;">${order.orderNumber}</p>
                     <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Product</p>
-                    <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 600;">${product.name}</p>
+                    <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 600;">${productName}</p>
                     <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Status</p>
                     <p style="margin: 0; color: #111827; font-size: 16px; font-weight: 600;">Pending</p>
                   </td>
@@ -379,7 +401,7 @@ export async function POST(request: NextRequest) {
 </html>
 `;
 
-      const text = `Thank you for your order!\n\nOrder ID: ${order.orderNumber}\nProduct: ${product.name}\nStatus: Pending\n\nNeed help? ${supportEmail} | ${supportPhone}\n\nView order: ${orderLink}`;
+      const text = `Thank you for your order!\n\nOrder ID: ${order.orderNumber}\nProduct: ${productName}\nStatus: Pending\n\nNeed help? ${supportEmail} | ${supportPhone}\n\nView order: ${orderLink}`;
 
       sendEmail({
         to: user.email,

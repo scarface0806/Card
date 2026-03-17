@@ -6,6 +6,7 @@ import DataTable from '@/components/admin/DataTable';
 import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import StatusBadge from '@/components/admin/StatusBadge';
+import RightDrawer from '@/components/ui/RightDrawer';
 import { Copy, RefreshCw, UserPlus } from 'lucide-react';
 
 interface CustomerRow {
@@ -33,6 +34,7 @@ export default function CustomersPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [confirmAction, setConfirmAction] = useState<{ type: 'disable' | 'delete'; customer: CustomerRow } | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [selectedCustomer, setSelectedCustomer] = useState<CustomerRow | null>(null);
 
   const fetchCustomers = useCallback(async () => {
     try {
@@ -83,7 +85,7 @@ export default function CustomersPage() {
   };
 
   const handleView = (row: CustomerRow) => {
-    router.push(`/admin/customers/${row.id}`);
+    setSelectedCustomer(row);
   };
 
   const handleEdit = (row: CustomerRow) => {
@@ -98,6 +100,27 @@ export default function CustomersPage() {
     setConfirmAction({ type: 'delete', customer: row });
   };
 
+  const deleteCustomer = async (id: string) => {
+    const previousCustomers = customers;
+    const nextCustomers = customers
+      .filter((customer) => customer.id !== id)
+      .map((customer, index) => ({ ...customer, sno: index + 1 }));
+
+    setCustomers(nextCustomers);
+
+    const response = await fetch(`/api/customers/${id}`, {
+      method: 'DELETE',
+      credentials: 'include',
+    });
+
+    const payload = await response.json();
+
+    if (!response.ok || !payload?.success) {
+      setCustomers(previousCustomers);
+      throw new Error(payload?.error || payload?.message || 'Failed to delete customer');
+    }
+  };
+
   const runConfirmAction = async () => {
     if (!confirmAction) return;
 
@@ -105,15 +128,7 @@ export default function CustomersPage() {
       setConfirmLoading(true);
 
       if (confirmAction.type === 'delete') {
-        const response = await fetch(`/api/admin/customers/${confirmAction.customer.id}`, {
-          method: 'DELETE',
-          credentials: 'include',
-        });
-
-        const payload = await response.json();
-        if (!response.ok) {
-          throw new Error(payload.error || 'Failed to delete customer');
-        }
+        await deleteCustomer(confirmAction.customer.id);
 
         setToast({ variant: 'success', message: 'Customer deleted successfully' });
       } else {
@@ -136,7 +151,10 @@ export default function CustomersPage() {
       }
 
       setConfirmAction(null);
-      fetchCustomers();
+
+      if (confirmAction.type !== 'delete') {
+        fetchCustomers();
+      }
     } catch (err) {
       setToast({ variant: 'error', message: err instanceof Error ? err.message : 'Action failed' });
     } finally {
@@ -237,6 +255,79 @@ export default function CustomersPage() {
           Customer creation now generates a live NFC profile link automatically. Use the copy action to write the URL to a physical NFC card.
         </div>
       ) : null}
+
+      <RightDrawer open={!!selectedCustomer} onClose={() => setSelectedCustomer(null)}>
+        {selectedCustomer ? (
+          <div className="p-4 sm:p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-white">{selectedCustomer.name}</h2>
+                <p className="text-sm text-slate-400 mt-1">Customer ID: {selectedCustomer.id}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedCustomer(null)}
+                className="text-slate-400 hover:text-white"
+                aria-label="Close customer details"
+              >
+                ✕
+              </button>
+            </div>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Customer Info</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Name</p>
+                  <p className="mt-1 text-white">{selectedCustomer.name}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Email</p>
+                  <p className="mt-1 text-white break-all">{selectedCustomer.email}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Phone</p>
+                  <p className="mt-1 text-white">{selectedCustomer.phone}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Status</p>
+                  <p className="mt-1 text-white capitalize">{selectedCustomer.status}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4 md:col-span-2">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">NFC Link</p>
+                  <p className="mt-1 text-white break-all">{selectedCustomer.nfcLink}</p>
+                </div>
+              </div>
+            </section>
+
+            <div className="border-t border-slate-700 pt-4">
+              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setSelectedCustomer(null)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-600 text-gray-200 hover:bg-slate-800"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/admin/customers/${selectedCustomer.id}`)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-400"
+                >
+                  Open Full View
+                </button>
+                <button
+                  type="button"
+                  onClick={() => router.push(`/admin/customers/${selectedCustomer.id}/edit`)}
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-orange-500 text-white hover:bg-orange-400"
+                >
+                  Edit Customer
+                </button>
+              </div>
+            </div>
+          </div>
+        ) : null}
+      </RightDrawer>
     </main>
   );
 }

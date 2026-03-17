@@ -11,20 +11,20 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const DEFAULT_ADMIN_EMAIL = 'santhoshuxui2023@gmail.com';
-const DEFAULT_ADMIN_PASSWORD = 'KGTPS6565P';
+const DEFAULT_ADMIN_EMAIL = process.env.NODE_ENV === 'development' ? 'admin@local.dev' : '';
+const DEFAULT_ADMIN_PASSWORD = process.env.NODE_ENV === 'development' ? 'admin123456' : '';
 const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || DEFAULT_ADMIN_EMAIL;
 const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 const PROD_CONFIG_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
-const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
+const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 const LEGACY_ADMIN_EMAIL = 'admin@tapvyo.com';
 const LEGACY_ADMIN_PASSWORD = 'admin123';
 
 const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
   PROD_CONFIG_ADMIN_EMAIL,
-  DEFAULT_ADMIN_EMAIL,
-  LEGACY_ADMIN_EMAIL,
+  process.env.NODE_ENV === 'development' ? DEFAULT_ADMIN_EMAIL : undefined,
+  process.env.NODE_ENV === 'development' ? LEGACY_ADMIN_EMAIL : undefined,
 ].filter((email): email is string => Boolean(email))));
 
 async function verifyProductionAdminPassword(password: string): Promise<boolean> {
@@ -46,11 +46,11 @@ async function verifyFallbackPasswordForEmail(email: string, password: string): 
     }
   }
 
-  if (email === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
+  if (process.env.NODE_ENV === 'development' && email === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
     return true;
   }
 
-  if (email === LEGACY_ADMIN_EMAIL && password === LEGACY_ADMIN_PASSWORD) {
+  if (process.env.NODE_ENV === 'development' && email === LEGACY_ADMIN_EMAIL && password === LEGACY_ADMIN_PASSWORD) {
     return true;
   }
 

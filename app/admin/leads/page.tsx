@@ -4,7 +4,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { RefreshCw } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
 import AdminToast from '@/components/admin/AdminToast';
-import Modal from '@/components/Modal';
+import RightDrawer from '@/components/ui/RightDrawer';
 
 interface LeadRow {
   id: string;
@@ -28,6 +28,7 @@ export default function AdminLeadsPage() {
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
   const [viewLead, setViewLead] = useState<LeadRow | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   const fetchLeads = useCallback(async () => {
     try {
@@ -61,6 +62,29 @@ export default function AdminLeadsPage() {
       setLoading(false);
     }
   }, []);
+
+  const deleteLead = useCallback(async (row: LeadRow) => {
+    if (!window.confirm(`Delete lead from "${row.name}"? This cannot be undone.`)) return;
+
+    const previous = rows;
+    setRows((prev) => prev.filter((r) => r.id !== row.id));
+    setDeletingId(row.id);
+
+    try {
+      const res = await fetch(`/api/admin/leads/${row.id}?type=main`, {
+        method: 'DELETE',
+        credentials: 'include',
+      });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.error || payload.message || 'Failed to delete lead');
+      setToast({ variant: 'success', message: 'Lead deleted successfully' });
+    } catch (err) {
+      setRows(previous);
+      setToast({ variant: 'error', message: err instanceof Error ? err.message : 'Failed to delete lead' });
+    } finally {
+      setDeletingId(null);
+    }
+  }, [rows]);
 
   useEffect(() => {
     fetchLeads();
@@ -102,45 +126,84 @@ export default function AdminLeadsPage() {
         ]}
         data={loading ? [] : rows}
         onView={(row: LeadRow) => setViewLead(row)}
+        onDelete={deleteLead}
+        actionTones={{ delete: 'danger' }}
       />
 
-      {/* Lead View Modal */}
-      <Modal
-        isOpen={!!viewLead}
-        onClose={() => setViewLead(null)}
-        title="Lead Details"
-      >
-        {viewLead && (
-            <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <RightDrawer open={!!viewLead} onClose={() => setViewLead(null)}>
+        {viewLead ? (
+          <div className="p-4 sm:p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-4">
               <div>
-                <span className="text-xs text-gray-500">Name</span>
-                <div className="font-semibold text-gray-100">{viewLead.name}</div>
+                <h2 className="text-lg font-semibold text-white">{viewLead.name || 'Lead Details'}</h2>
+                <p className="text-sm text-slate-400 mt-1">Lead ID: {viewLead.id}</p>
               </div>
-              <div>
-                <span className="text-xs text-gray-500">Phone</span>
-                <div className="font-semibold text-gray-100">{viewLead.phone}</div>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500">Email</span>
-                <div className="font-semibold text-gray-100 break-all">{viewLead.email}</div>
-              </div>
-              <div>
-                <span className="text-xs text-gray-500">Service</span>
-                <div className="font-semibold text-gray-100">{viewLead.service}</div>
-              </div>
-              <div className="col-span-2">
-                <span className="text-xs text-gray-500">Message</span>
-                <div className="text-gray-200 bg-[#0f1424] border border-white/10 rounded-lg p-3 mt-1 whitespace-pre-line">{viewLead.message}</div>
-              </div>
-              <div className="col-span-2">
-                <span className="text-xs text-gray-500">Date</span>
-                <div className="text-gray-300">{viewLead.date}</div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setViewLead(null)}
+                className="text-slate-400 hover:text-white"
+                aria-label="Close lead details"
+              >
+                ✕
+              </button>
             </div>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Lead Info</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Name</p>
+                  <p className="mt-1 text-white">{viewLead.name}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Email</p>
+                  <p className="mt-1 text-white break-all">{viewLead.email}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Phone</p>
+                  <p className="mt-1 text-white">{viewLead.phone}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Company</p>
+                  <p className="mt-1 text-white">-</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Lead Source</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Campaign</p>
+                  <p className="mt-1 text-white">-</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Source</p>
+                  <p className="mt-1 text-white">{viewLead.service || 'Main Website'}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4 md:col-span-2">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Created Date</p>
+                  <p className="mt-1 text-white">{viewLead.date}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Notes</h3>
+              <div className="bg-slate-800 rounded-lg p-4">
+                <p className="text-white whitespace-pre-line">{viewLead.message || '-'}</p>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Status</h3>
+              <div className="bg-slate-800 rounded-lg p-4">
+                <p className="text-white">New</p>
+              </div>
+            </section>
           </div>
-        )}
-      </Modal>
+        ) : null}
+      </RightDrawer>
     </main>
   );
 }
