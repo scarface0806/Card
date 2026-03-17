@@ -6,10 +6,5 @@
   "regions": ["iad1"],
   "git": {
     "deploymentEnabled": true
-  },
-  "functions": {
-    "app/api/**": {
-      "maxDuration": 60
-    }
   }
 }

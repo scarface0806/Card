@@ -14,6 +14,33 @@ const loginSchema = z.object({
 const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
 const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
 
+function isDatabaseConnectivityError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    name?: string;
+  };
+
+  const message = (candidate.message || "").toLowerCase();
+  const code = candidate.code || "";
+  const name = (candidate.name || "").toLowerCase();
+
+  return (
+    code === "P1001" ||
+    code === "P1002" ||
+    message.includes("database_url") ||
+    message.includes("can't reach database server") ||
+    message.includes("server selection timeout") ||
+    message.includes("authentication failed") ||
+    message.includes("connection") ||
+    name.includes("prismaclientinitializationerror")
+  );
+}
+
 export async function POST(request: NextRequest) {
   try {
     // ✨ Development mode: Allow mock login for testing
@@ -72,7 +99,13 @@ export async function POST(request: NextRequest) {
       return res;
     }
 
-    const body = await request.json();
+    let body: unknown;
+    try {
+      body = await request.json();
+    } catch {
+      return errorResponse("Invalid request body. Please send valid JSON.", 400);
+    }
+
     const parsed = loginSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(
@@ -140,6 +173,15 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
+    if (isDatabaseConnectivityError(error)) {
+      console.error("[Auth] Database connectivity error during login:", {
+        error: error instanceof Error ? error.message : String(error),
+        status: 503,
+        timestamp: new Date().toISOString(),
+      });
+      return errorResponse("Authentication service unavailable. Please try again shortly.", 503);
+    }
+
     console.error("[Auth] Login error:", {
       error: error instanceof Error ? error.message : String(error),
       status: 500,

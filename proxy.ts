@@ -31,13 +31,13 @@ async function verifyJWT(token: string): Promise<JWTPayload | null> {
   }
 }
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const isAdminLoginRoute = pathname === "/admin/login";
 
   // Get token from cookie or Authorization header
   let token = request.cookies.get("auth-token")?.value;
-  
+
   if (!token) {
     const authHeader = request.headers.get("authorization");
     if (authHeader?.startsWith("Bearer ")) {

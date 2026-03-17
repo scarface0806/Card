@@ -2,6 +2,33 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 
+function isDatabaseConnectivityError(error: unknown): boolean {
+  if (!error || typeof error !== "object") {
+    return false;
+  }
+
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    name?: string;
+  };
+
+  const message = (candidate.message || "").toLowerCase();
+  const code = candidate.code || "";
+  const name = (candidate.name || "").toLowerCase();
+
+  return (
+    code === "P1001" ||
+    code === "P1002" ||
+    message.includes("database_url") ||
+    message.includes("can't reach database server") ||
+    message.includes("server selection timeout") ||
+    message.includes("authentication failed") ||
+    message.includes("connection") ||
+    name.includes("prismaclientinitializationerror")
+  );
+}
+
 export async function GET(request: NextRequest) {
   try {
     const { user, error } = await authenticate(request);
@@ -63,6 +90,19 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ user: dbUser });
   } catch (error) {
+    if (isDatabaseConnectivityError(error)) {
+      console.error("Get current user database connectivity error:", {
+        error: error instanceof Error ? error.message : String(error),
+        status: 503,
+        timestamp: new Date().toISOString(),
+      });
+
+      return NextResponse.json(
+        { error: "Authentication service unavailable. Please try again shortly." },
+        { status: 503 }
+      );
+    }
+
     console.error("Get current user error:", error);
     return NextResponse.json(
       { error: "Internal server error" },
