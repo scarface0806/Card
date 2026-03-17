@@ -278,4 +278,46 @@ async function postHandler(request: NextRequest, user: AuthUser) {
   }
 }
 
+async function getHandler(request: NextRequest, user: AuthUser) {
+  try {
+    const customerDelegate = (prisma as unknown as {
+      customer: {
+        findMany: (args?: unknown) => Promise<Array<{
+          id: string;
+          name: string;
+          slug: string;
+          email: string;
+          phone: string;
+          isActive: boolean;
+          createdAt: Date;
+          updatedAt: Date;
+        }>>;
+      };
+    }).customer;
+
+    const customers = await customerDelegate.findMany({
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        email: true,
+        phone: true,
+        isActive: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return successResponse({
+      customers,
+      count: customers.length,
+    });
+  } catch (error) {
+    console.error("Get customers list error:", error);
+    return errorResponse("Failed to fetch customers", 500);
+  }
+}
+
+export const GET = withAdmin(getHandler);
 export const POST = withRateLimit(withAdmin(postHandler), 20);

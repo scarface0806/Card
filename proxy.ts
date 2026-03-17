@@ -36,7 +36,10 @@ export async function proxy(request: NextRequest) {
   const isAdminLoginRoute = pathname === "/admin/login";
 
   // Get token from cookie or Authorization header
-  let token = request.cookies.get("auth-token")?.value;
+  let token =
+    request.cookies.get("auth-token")?.value ||
+    request.cookies.get("admin-token")?.value ||
+    request.cookies.get("token")?.value;
 
   if (!token) {
     const authHeader = request.headers.get("authorization");

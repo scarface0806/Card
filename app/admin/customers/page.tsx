@@ -83,7 +83,7 @@ export default function CustomersPage() {
   };
 
   const handleView = (row: CustomerRow) => {
-    window.open(row.nfcLink, '_blank', 'noopener,noreferrer');
+    router.push(`/admin/customers/${row.id}`);
   };
 
   const handleEdit = (row: CustomerRow) => {

@@ -13,6 +13,7 @@ type CustomerAdminDelegate = {
 async function handler(request: NextRequest, user: AuthUser) {
   try {
     const customerDelegate = (prisma as unknown as { customer: CustomerAdminDelegate }).customer;
+    const origin = request.nextUrl.origin;
     const { searchParams } = new URL(request.url);
     const rawPage = parseInt(searchParams.get("page") || "1");
     const rawLimit = parseInt(searchParams.get("limit") || "50");
@@ -67,7 +68,7 @@ async function handler(request: NextRequest, user: AuthUser) {
       createdAt: customer.createdAt,
       totalGalleryImages: customer._count.galleries,
       totalLeads: customer._count.leads,
-      nfcLink: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/card/${customer.slug}`,
+      nfcLink: `${origin}/card/${customer.slug}`,
     }));
 
     return successResponse({

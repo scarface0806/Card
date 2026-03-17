@@ -63,6 +63,7 @@ async function getHandler(request: NextRequest, user: AuthUser, context: RoutePa
       customer,
     });
   } catch (error) {
+    console.error("Get customer detail error:", error);
     return errorResponse("Failed to fetch customer", 500);
   }
 }
@@ -125,6 +126,7 @@ async function deleteHandler(request: NextRequest, user: AuthUser, context: Rout
 
     return successResponse({ message: "Customer deleted successfully" });
   } catch (error) {
+    console.error("Delete customer error:", error);
     if (error instanceof Error && error.message === "Customer not found") {
       return errorResponse("Customer not found", 404);
     }
@@ -454,6 +456,7 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
       });
     }
   } catch (error) {
+    console.error("Update customer error:", error);
     if (error instanceof Error && error.message === "Customer not found") {
       return errorResponse("Customer not found", 404);
     }
