@@ -103,7 +103,6 @@ type MongoAdmin = {
 
 export async function POST(request: NextRequest) {
   try {
-    console.log('Login request received');
 
     const missingEnvVars: string[] = [];
     if (!process.env.DATABASE_URL?.trim()) missingEnvVars.push('DATABASE_URL');
@@ -301,8 +300,6 @@ export async function POST(request: NextRequest) {
         role: 'ADMIN', // Only allow admin users
       },
     });
-
-    console.log('User found:', user ? { id: user.id, email: user.email, role: user.role } : null);
 
     if (!user) {
       console.warn(`[Admin Auth] Failed login attempt for non-existent admin email: ${email}`);

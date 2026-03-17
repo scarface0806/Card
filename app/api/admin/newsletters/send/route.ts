@@ -119,7 +119,7 @@ async function sendNewsletterEmails(
         sentCount,
       },
     });
-    console.log(`Newsletter ${newsletterId} completed: ${sentCount} sent, ${failedCount} failed`);
+    // Newsletter send complete — sentCount/failedCount tracked in DB
   } catch (error) {
     console.error(`Failed to update newsletter ${newsletterId}:`, error);
   }

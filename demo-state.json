@@ -1,9 +1,0 @@
-{
-    "createRaw":  "{\"success\":true,\"message\":\"Customer created successfully\",\"customer\":{\"id\":\"69b7d932467a1d92a8f16440\",\"name\":\"Demo Mail Customer 20260316154930\",\"slug\":\"tapvyonfc-f16440\",\"link\":\"http://localhost:3000/card/tapvyonfc-f16440\"},\"slug\":\"tapvyonfc-f16440\",\"link\":\"http://localhost:3000/card/tapvyonfc-f16440\"}",
-    "name":  "Demo Mail Customer 20260316154930",
-    "apiKey":  "d494ff75-8a82-40e6-b14a-d6d7056238d3",
-    "customerId":  "69b7d932467a1d92a8f16440",
-    "success":  true,
-    "email":  "demo+20260316154930@testmail.com",
-    "slug":  "tapvyonfc-f16440"
-}

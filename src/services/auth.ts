@@ -1,15 +1,3 @@
-import axios from 'axios';
-
-// Use same-origin API by default; only use absolute URL when explicitly configured.
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
-
-const axiosInstance = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
 export interface LoginPayload {
   email: string;
   password: string;

@@ -54,8 +54,7 @@ function isEmailConfigured(): boolean {
  */
 export async function sendEmail(options: EmailOptions): Promise<boolean> {
   if (!isEmailConfigured()) {
-    console.log("Email not configured. Skipping email send.");
-    console.log("To enable emails, set EMAIL_HOST, EMAIL_USER, EMAIL_PASS in .env");
+    // Email not configured — set EMAIL_HOST, EMAIL_USER, EMAIL_PASS in .env to enable
     return false;
   }
 

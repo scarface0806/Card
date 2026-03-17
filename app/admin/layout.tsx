@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
@@ -11,41 +11,50 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const [checkingAuth, setCheckingAuth] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
+  const authVerifiedRef = useRef(false);
+
+  const verifyAdmin = useCallback(async () => {
+    if (pathname === '/admin/login') {
+      setAuthorized(true);
+      setCheckingAuth(false);
+      return;
+    }
+
+    // Skip re-verification if already confirmed this session
+    if (authVerifiedRef.current) {
+      setAuthorized(true);
+      setCheckingAuth(false);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/auth/me', {
+        credentials: 'include',
+      });
+
+      if (!response.ok) {
+        throw new Error('Unauthorized');
+      }
+
+      const payload = await response.json();
+      if (payload?.user?.role !== 'ADMIN') {
+        throw new Error('Admin access required');
+      }
+
+      authVerifiedRef.current = true;
+      setAuthorized(true);
+    } catch {
+      authVerifiedRef.current = false;
+      setAuthorized(false);
+      router.replace('/admin/login');
+    } finally {
+      setCheckingAuth(false);
+    }
+  }, [pathname, router]);
 
   useEffect(() => {
-    const verifyAdmin = async () => {
-      // Allow login page without auth check redirect loop.
-      if (pathname === '/admin/login') {
-        setAuthorized(true);
-        setCheckingAuth(false);
-        return;
-      }
-
-      try {
-        const response = await fetch('/api/auth/me', {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Unauthorized');
-        }
-
-        const payload = await response.json();
-        if (payload?.user?.role !== 'ADMIN') {
-          throw new Error('Admin access required');
-        }
-
-        setAuthorized(true);
-      } catch {
-        setAuthorized(false);
-        router.replace('/admin/login');
-      } finally {
-        setCheckingAuth(false);
-      }
-    };
-
     verifyAdmin();
-  }, [pathname, router]);
+  }, [verifyAdmin]);
 
   if (checkingAuth) {
     return (

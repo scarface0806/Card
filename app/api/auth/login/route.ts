@@ -91,7 +91,6 @@ export async function POST(request: NextRequest) {
           path: '/',
         });
 
-        console.log('[Auth] Mock dev login successful for:', email);
         return response;
       }
 

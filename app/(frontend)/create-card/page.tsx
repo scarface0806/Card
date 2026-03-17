@@ -15,8 +15,13 @@ import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
 import { getTemplateBySlug, getDefaultTemplate, CardTemplate } from '@/utils/cardTemplates';
-import CardLivePreview from '@/components/CardLivePreview';
+import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, CreditCard, Sparkles, Check } from 'lucide-react';
+
+const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
+  ssr: false,
+  loading: () => <div className="w-full h-96 bg-gray-100 rounded-xl animate-pulse" />,
+});
 
 interface FormData {
   personalDetails: {

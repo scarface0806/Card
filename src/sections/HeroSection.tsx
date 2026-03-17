@@ -4,7 +4,12 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, ArrowRight, Sparkles, Check, Star } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
-import Card360Viewer from '@/components/Card360Viewer';
+import dynamic from 'next/dynamic';
+
+const Card360Viewer = dynamic(() => import('@/components/Card360Viewer'), {
+  ssr: false,
+  loading: () => <div className="w-full aspect-square" />,
+});
 
 const containerVariants = {
   hidden: { opacity: 0 },

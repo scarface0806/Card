@@ -1,21 +1,12 @@
 'use client';
 
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import StatCard from '@/components/admin/StatCard';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { Users, UserCheck, UserX, ShoppingCart, ArrowUpRight, MessageSquare } from 'lucide-react';
 import Link from 'next/link';
 import { useDashboard, formatCurrency } from '@/hooks/useDashboard';
-
-interface RevenueAnalytics {
-  totalOrders: number;
-  completedOrders: number;
-  pendingOrders: number;
-  totalRevenue: number;
-  todayRevenue: number;
-  monthlyRevenue: number;
-}
 
 function mapOrderStatusToBadge(status: string): 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled' {
   const normalized = status?.toUpperCase();
@@ -31,80 +22,32 @@ function mapOrderStatusToBadge(status: string): 'active' | 'inactive' | 'pending
   return 'inactive';
 }
 
+const formatInrCurrency = new Intl.NumberFormat('en-IN', {
+  style: 'currency',
+  currency: 'INR',
+});
+
 export default function Dashboard() {
   const { metrics, loading, error, refetch } = useDashboard(false);
-  const [revenueAnalytics, setRevenueAnalytics] = useState<RevenueAnalytics>({
-    totalOrders: 0,
-    completedOrders: 0,
-    pendingOrders: 0,
-    totalRevenue: 0,
-    todayRevenue: 0,
-    monthlyRevenue: 0,
-  });
+  const [todayRevenue, setTodayRevenue] = useState(0);
+  const [todayRevenueLoaded, setTodayRevenueLoaded] = useState(false);
 
-  const [analyticsLoading, setAnalyticsLoading] = useState(true);
-
-  const formatInrCurrency = useMemo(
-    () =>
-      new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-      }),
-    []
-  );
+  const fetchTodayRevenue = useCallback(async () => {
+    try {
+      const response = await fetch('/api/dashboard', { credentials: 'include' });
+      if (!response.ok) return;
+      const payload = await response.json();
+      setTodayRevenue(Number(payload?.todayRevenue || 0));
+    } catch {
+      // Silently fail — todayRevenue is supplemental
+    } finally {
+      setTodayRevenueLoaded(true);
+    }
+  }, []);
 
   useEffect(() => {
-    let mounted = true;
-
-    const fetchRevenueAnalytics = async () => {
-      try {
-        setAnalyticsLoading(true);
-        const response = await fetch('/api/dashboard', {
-          credentials: 'include',
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to fetch revenue analytics');
-        }
-
-        const payload = await response.json();
-        if (!mounted) return;
-
-        setRevenueAnalytics({
-          totalOrders: Number(payload?.totalOrders || 0),
-          completedOrders: Number(payload?.completedOrders || 0),
-          pendingOrders: Number(payload?.pendingOrders || 0),
-          totalRevenue: Number(payload?.totalRevenue || 0),
-          todayRevenue: Number(payload?.todayRevenue || 0),
-          monthlyRevenue: Number(payload?.monthlyRevenue || 0),
-        });
-      } catch (analyticsError) {
-        console.error('Dashboard analytics fetch error:', analyticsError);
-        if (!mounted) return;
-        setRevenueAnalytics({
-          totalOrders: 0,
-          completedOrders: 0,
-          pendingOrders: 0,
-          totalRevenue: 0,
-          todayRevenue: 0,
-          monthlyRevenue: 0,
-        });
-      } finally {
-        if (mounted) {
-          setAnalyticsLoading(false);
-        }
-      }
-    };
-
-    fetchRevenueAnalytics();
-
-    const interval = setInterval(fetchRevenueAnalytics, 30000);
-
-    return () => {
-      mounted = false;
-      clearInterval(interval);
-    };
-  }, []);
+    fetchTodayRevenue();
+  }, [fetchTodayRevenue]);
 
   const todayLabel = useMemo(
     () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
@@ -240,42 +183,42 @@ export default function Dashboard() {
           <div className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-700">
             <p className="text-sm text-slate-400">Total Orders</p>
             <p className="mt-2 text-2xl font-semibold text-white">
-              {analyticsLoading ? '...' : revenueAnalytics.totalOrders.toLocaleString()}
+              {metrics.orders.total.toLocaleString()}
             </p>
           </div>
 
           <div className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-700">
             <p className="text-sm text-slate-400">Completed Orders</p>
             <p className="mt-2 text-2xl font-semibold text-white">
-              {analyticsLoading ? '...' : revenueAnalytics.completedOrders.toLocaleString()}
+              {metrics.orders.completed.toLocaleString()}
             </p>
           </div>
 
           <div className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-700">
             <p className="text-sm text-slate-400">Pending Orders</p>
             <p className="mt-2 text-2xl font-semibold text-white">
-              {analyticsLoading ? '...' : revenueAnalytics.pendingOrders.toLocaleString()}
+              {metrics.orders.pending.toLocaleString()}
             </p>
           </div>
 
           <div className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-700">
             <p className="text-sm text-slate-400">Total Revenue</p>
             <p className="mt-2 text-2xl font-semibold text-white">
-              {analyticsLoading ? '...' : formatInrCurrency.format(revenueAnalytics.totalRevenue)}
+              {formatInrCurrency.format(metrics.revenue.total)}
             </p>
           </div>
 
           <div className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-700">
             <p className="text-sm text-slate-400">Today&apos;s Revenue</p>
             <p className="mt-2 text-2xl font-semibold text-white">
-              {analyticsLoading ? '...' : formatInrCurrency.format(revenueAnalytics.todayRevenue)}
+              {todayRevenueLoaded ? formatInrCurrency.format(todayRevenue) : '...'}
             </p>
           </div>
 
           <div className="bg-slate-900 rounded-xl p-5 shadow-lg border border-slate-700">
             <p className="text-sm text-slate-400">Monthly Revenue</p>
             <p className="mt-2 text-2xl font-semibold text-white">
-              {analyticsLoading ? '...' : formatInrCurrency.format(revenueAnalytics.monthlyRevenue)}
+              {formatInrCurrency.format(metrics.revenue.thisMonth)}
             </p>
           </div>
         </div>

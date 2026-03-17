@@ -1,19 +1,4 @@
-import axios from 'axios';
-
-// Mock API instance
-const API_BASE_URL = 'https://api.nfc-business-card.local';
-
-const apiClient = axios.create({
-  baseURL: API_BASE_URL,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
-
-// Mock API responses
-export const mockApiCall = async (delay: number = 800): Promise<void> => {
-  return new Promise((resolve) => setTimeout(resolve, delay));
-};
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 // Mock user data
 export interface OrderData {
@@ -49,12 +34,6 @@ export interface OrderData {
     method?: string;
     terms?: boolean;
   };
-}
-
-export interface PaymentData {
-  amount: number;
-  plan: string;
-  status: 'pending' | 'completed' | 'failed';
 }
 
 // Mock API functions
@@ -112,28 +91,8 @@ export const createOrder = async (data: OrderData) => {
   };
 };
 
-export const uploadImage = async (file: File, type: 'profile' | 'logo' | 'cover' | 'gallery') => {
-  await mockApiCall(800);
-  return {
-    success: true,
-    url: URL.createObjectURL(file),
-    filename: file.name,
-    type,
-    size: file.size,
-  };
-};
-
-export const verifyPayment = async (orderId: string, paymentMethod: string): Promise<PaymentData> => {
-  await mockApiCall(1200);
-  return {
-    amount: 4999, // In cents
-    plan: 'premium',
-    status: 'completed',
-  };
-};
-
 export const fetchTemplates = async () => {
-  await mockApiCall(600);
+  await delay(600);
   return [
     {
       id: 1,
@@ -175,7 +134,7 @@ export const fetchTemplates = async () => {
 };
 
 export const fetchPricingPlans = async () => {
-  await mockApiCall(500);
+  await delay(500);
   return [
     {
       id: 'basic',
@@ -234,4 +193,4 @@ export const fetchPricingPlans = async () => {
   ];
 };
 
-export default apiClient;
+
