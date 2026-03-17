@@ -1,10 +1,9 @@
-import { MongoClient } from "mongodb";
+import { getMongoDb } from "../src/lib/mongodb";
 import bcrypt from "bcryptjs";
 import { createInterface } from "readline/promises";
 import { stdin as input, stdout as output } from "process";
 
-const databaseUrl = process.env.DATABASE_URL?.trim();
-if (!databaseUrl) {
+if (!process.env.DATABASE_URL?.trim()) {
   throw new Error("Missing environment variable DATABASE_URL");
 }
 
@@ -35,34 +34,25 @@ async function promptAdminCredentials(): Promise<{ email: string; password: stri
 }
 
 async function seedAdmin() {
-  let client: MongoClient | null = null;
-
   try {
     const { email, password } = await promptAdminCredentials();
-    client = new MongoClient(databaseUrl as string);
-    await client.connect();
-
-    const db = client.db();
+    const db = await getMongoDb();
     const admins = db.collection("admins");
 
-    const existing = await admins.findOne(
-      { email },
-      { projection: { _id: 1, email: 1, role: 1 } }
-    );
+    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const existing = await admins.findOne({
+      email: { $regex: `^${escapedEmail}$`, $options: "i" },
+    });
 
     if (existing) {
-      console.log("[seedAdmin] Admin already exists:", {
-        id: existing._id.toString(),
-        email: existing.email,
-        role: existing.role,
-      });
+      console.log("Admin already exists");
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
     const now = new Date();
-    const result = await admins.insertOne({
+    await admins.insertOne({
       email,
       password: hashedPassword,
       role: "admin",
@@ -72,19 +62,10 @@ async function seedAdmin() {
       updatedAt: now,
     });
 
-    console.log("[seedAdmin] Admin created successfully:", {
-      id: result.insertedId.toString(),
-      email,
-      role: "admin",
-      createdAt: now,
-    });
+    console.log("Admin created successfully");
   } catch (error) {
     console.error("[seedAdmin] Failed:", error);
     process.exitCode = 1;
-  } finally {
-    if (client) {
-      await client.close();
-    }
   }
 }
 
