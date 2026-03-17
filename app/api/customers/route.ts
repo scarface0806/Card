@@ -6,7 +6,8 @@ import { errorResponse, successResponse } from "@/lib/responses";
 import { customerCreateSchema } from "@/lib/validators";
 import { saveUploadedImage } from "@/lib/local-upload";
 import { generateUniqueCustomerSlug } from "@/lib/customer-slug";
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
 import type { AuthUser } from "@/lib/auth";
 
 export const runtime = "nodejs";
@@ -22,16 +23,6 @@ function isReplicaSetRequiredError(error: unknown) {
     "code" in error &&
     (error as { code?: string }).code === "P2031"
   );
-}
-
-function getDatabaseNameFromUri(uri: string) {
-  try {
-    const parsed = new URL(uri);
-    const pathname = parsed.pathname.replace(/^\//, "").trim();
-    return pathname || "tapvyo-nfc";
-  } catch {
-    return "tapvyo-nfc";
-  }
 }
 
 async function createCustomerWithMongoFallback(params: {
@@ -64,88 +55,79 @@ async function createCustomerWithMongoFallback(params: {
   formData: FormData;
   enableGallery: boolean;
 }) {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is not configured");
+  if (!process.env.DATABASE_URL?.trim()) {
+    throw new Error("Missing environment variable");
   }
 
-  const client = new MongoClient(databaseUrl);
-  const dbName = getDatabaseNameFromUri(databaseUrl);
+  const db = await getMongoDb();
+  const customers = db.collection("customers");
+  const galleries = db.collection("galleries");
 
-  try {
-    await client.connect();
-    const db = client.db(dbName);
-    const customers = db.collection("customers");
-    const galleries = db.collection("galleries");
+  const now = new Date();
+  const insertResult = await customers.insertOne({
+    name: params.parsedData.name,
+    designation: params.parsedData.designation || null,
+    company: params.parsedData.company || null,
+    about: params.parsedData.about || null,
+    phone: params.parsedData.phone,
+    email: params.parsedData.email,
+    mailApiEndpoint: params.parsedData.mailApiEndpoint || null,
+    website: params.parsedData.website || null,
+    websiteEnabled: params.parsedData.websiteEnabled,
+    linkedin: params.parsedData.linkedin || null,
+    linkedinEnabled: params.parsedData.linkedinEnabled,
+    whatsapp: params.parsedData.whatsapp || null,
+    whatsappEnabled: params.parsedData.whatsappEnabled,
+    instagram: params.parsedData.instagram || null,
+    instagramEnabled: params.parsedData.instagramEnabled,
+    facebook: params.parsedData.facebook || null,
+    facebookEnabled: params.parsedData.facebookEnabled,
+    behance: params.parsedData.behance || null,
+    behanceEnabled: params.parsedData.behanceEnabled,
+    address: params.parsedData.address || null,
+    mapEmbedUrl: params.parsedData.mapEmbedUrl || null,
+    logo: params.logo,
+    profileImage: params.profileImage,
+    isActive: params.parsedData.isActive,
+    slug: "",
+    createdAt: now,
+    updatedAt: now,
+  });
 
-    const now = new Date();
-    const insertResult = await customers.insertOne({
-      name: params.parsedData.name,
-      designation: params.parsedData.designation || null,
-      company: params.parsedData.company || null,
-      about: params.parsedData.about || null,
-      phone: params.parsedData.phone,
-      email: params.parsedData.email,
-      mailApiEndpoint: params.parsedData.mailApiEndpoint || null,
-      website: params.parsedData.website || null,
-      websiteEnabled: params.parsedData.websiteEnabled,
-      linkedin: params.parsedData.linkedin || null,
-      linkedinEnabled: params.parsedData.linkedinEnabled,
-      whatsapp: params.parsedData.whatsapp || null,
-      whatsappEnabled: params.parsedData.whatsappEnabled,
-      instagram: params.parsedData.instagram || null,
-      instagramEnabled: params.parsedData.instagramEnabled,
-      facebook: params.parsedData.facebook || null,
-      facebookEnabled: params.parsedData.facebookEnabled,
-      behance: params.parsedData.behance || null,
-      behanceEnabled: params.parsedData.behanceEnabled,
-      address: params.parsedData.address || null,
-      mapEmbedUrl: params.parsedData.mapEmbedUrl || null,
-      logo: params.logo,
-      profileImage: params.profileImage,
-      isActive: params.parsedData.isActive,
-      slug: "",
-      createdAt: now,
-      updatedAt: now,
-    });
+  const customerId = String(insertResult.insertedId);
+  const baseSlug = `tapvyonfc-${customerId.slice(-6).toLowerCase()}`;
+  let slug = baseSlug;
+  let suffix = 1;
 
-    const customerId = String(insertResult.insertedId);
-    const baseSlug = `tapvyonfc-${customerId.slice(-6).toLowerCase()}`;
-    let slug = baseSlug;
-    let suffix = 1;
-
-    while (await customers.findOne({ slug }, { projection: { _id: 1 } })) {
-      suffix += 1;
-      slug = `${baseSlug}-${suffix}`;
-    }
-
-    await customers.updateOne(
-      { _id: insertResult.insertedId },
-      { $set: { slug, updatedAt: new Date() } }
-    );
-
-    if (params.enableGallery) {
-      for (let slot = 1; slot <= 3; slot += 1) {
-        const galleryFile = params.formData.get(`galleryImage${slot}`);
-        const hoverText = String(params.formData.get(`galleryHoverText${slot}`) || "").trim();
-        const image = galleryFile instanceof File ? await saveUploadedImage(galleryFile, "customers") : null;
-
-        await galleries.insertOne({
-          customerId: new ObjectId(customerId),
-          image: image || "/no-image-placeholder.svg",
-          hoverText: hoverText || null,
-          slot,
-        });
-      }
-    }
-
-    return {
-      id: customerId,
-      slug,
-    };
-  } finally {
-    await client.close();
+  while (await customers.findOne({ slug }, { projection: { _id: 1 } })) {
+    suffix += 1;
+    slug = `${baseSlug}-${suffix}`;
   }
+
+  await customers.updateOne(
+    { _id: insertResult.insertedId },
+    { $set: { slug, updatedAt: new Date() } }
+  );
+
+  if (params.enableGallery) {
+    for (let slot = 1; slot <= 3; slot += 1) {
+      const galleryFile = params.formData.get(`galleryImage${slot}`);
+      const hoverText = String(params.formData.get(`galleryHoverText${slot}`) || "").trim();
+      const image = galleryFile instanceof File ? await saveUploadedImage(galleryFile, "customers") : null;
+
+      await galleries.insertOne({
+        customerId: new ObjectId(customerId),
+        image: image || "/no-image-placeholder.svg",
+        hoverText: hoverText || null,
+        slot,
+      });
+    }
+  }
+
+  return {
+    id: customerId,
+    slug,
+  };
 }
 
 async function postHandler(request: NextRequest, user: AuthUser) {

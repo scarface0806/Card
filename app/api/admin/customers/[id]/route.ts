@@ -5,8 +5,9 @@ import { AuthUser } from "@/lib/auth";
 import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { customerCreateSchema } from "@/lib/validators";
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { saveUploadedImage } from "@/lib/local-upload";
+import { getMongoDb } from "@/lib/mongodb";
 
 type CustomerDetailDelegate = {
   findUnique: (args: unknown) => Promise<any>;
@@ -29,32 +30,13 @@ function isReplicaSetRequiredError(error: unknown) {
   );
 }
 
-function getDatabaseNameFromUri(uri: string) {
-  try {
-    const parsed = new URL(uri);
-    const pathname = parsed.pathname.replace(/^\//, "").trim();
-    return pathname || "tapvyo-nfc";
-  } catch {
-    return "tapvyo-nfc";
-  }
-}
-
-async function withMongo<T>(handler: (db: Awaited<ReturnType<MongoClient["db"]>>) => Promise<T>) {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is not configured");
+async function withMongo<T>(handler: (db: Awaited<ReturnType<typeof getMongoDb>>) => Promise<T>) {
+  if (!process.env.DATABASE_URL?.trim()) {
+    throw new Error("Missing environment variable");
   }
 
-  const client = new MongoClient(databaseUrl);
-  const dbName = getDatabaseNameFromUri(databaseUrl);
-
-  try {
-    await client.connect();
-    const db = client.db(dbName);
-    return await handler(db);
-  } finally {
-    await client.close();
-  }
+  const db = await getMongoDb();
+  return handler(db);
 }
 
 // GET /api/admin/customers/:id - Customer detail (admin only)

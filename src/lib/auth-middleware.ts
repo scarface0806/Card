@@ -15,7 +15,11 @@ export async function authenticate(
 
   // If no header token, try to get from cookie
   if (!token) {
-    token = request.cookies.get("auth-token")?.value || null;
+    token =
+      request.cookies.get("auth-token")?.value ||
+      request.cookies.get("admin-token")?.value ||
+      request.cookies.get("token")?.value ||
+      null;
   }
 
   if (!token) {

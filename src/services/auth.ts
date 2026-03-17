@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Mock API base URL (in production, this would be your actual API)
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://api.tapvyo-nfc.com';
+// Use same-origin API by default; only use absolute URL when explicitly configured.
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || '';
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,

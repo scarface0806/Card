@@ -3,6 +3,75 @@ import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 
+async function safeNumber(label: string, task: () => Promise<number>): Promise<number> {
+  try {
+    return await task();
+  } catch (error) {
+    console.error(`[Dashboard] Number metric failed (${label}):`, error);
+    return 0;
+  }
+}
+
+async function safeRevenue(label: string, task: () => Promise<unknown>): Promise<number> {
+  try {
+    const result = await task();
+    const total = (result as { _sum?: { total?: number | null } })?._sum?.total;
+    return typeof total === "number" ? total : 0;
+  } catch (error) {
+    console.error(`[Dashboard] Revenue metric failed (${label}):`, error);
+    return 0;
+  }
+}
+
+async function safeStatusGroups(label: string, task: () => Promise<unknown>): Promise<Array<{ status: string; _count: { status: number } }>> {
+  try {
+    return (await task()) as Array<{ status: string; _count: { status: number } }>;
+  } catch (error) {
+    console.error(`[Dashboard] GroupBy failed (${label}):`, error);
+    return [];
+  }
+}
+
+async function safePaymentGroups(
+  label: string,
+  task: () => Promise<unknown>
+): Promise<Array<{ paymentStatus: string; _count: { paymentStatus: number } }>> {
+  try {
+    return (await task()) as Array<{ paymentStatus: string; _count: { paymentStatus: number } }>;
+  } catch (error) {
+    console.error(`[Dashboard] GroupBy failed (${label}):`, error);
+    return [];
+  }
+}
+
+async function safeRecentOrders() {
+  try {
+    return await prisma.order.findMany({
+      take: 5,
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        orderNumber: true,
+        total: true,
+        status: true,
+        paymentStatus: true,
+        createdAt: true,
+        user: {
+          select: {
+            name: true,
+            email: true,
+          },
+        },
+        guestEmail: true,
+        guestName: true,
+      },
+    });
+  } catch (error) {
+    console.error("[Dashboard] Recent orders query failed:", error);
+    return [];
+  }
+}
+
 // GET /api/admin/dashboard - Get dashboard metrics
 export async function GET(request: NextRequest) {
   try {
@@ -19,185 +88,64 @@ export async function GET(request: NextRequest) {
     }
 
     // Fetch all metrics in parallel for performance
+    const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);
+
     const [
-      // User metrics
       totalCustomers,
       activeCustomers,
       disabledCustomers,
-      
-      // Order metrics
       totalOrders,
       pendingOrders,
       completedOrders,
       cancelledOrders,
       ordersThisMonth,
-      
-      // Revenue metrics
       revenueData,
       revenueThisMonth,
-      
-      // Card metrics
       totalCards,
       activeCards,
       pendingCards,
-      
-      // Newsletter metrics
       totalSubscribers,
       activeSubscribers,
       subscribersThisMonth,
-      
-      // Lead metrics
       totalLeads,
       leadsThisMonth,
-      
-      // Recent orders
       recentOrders,
-      
-      // Order status distribution
       ordersByStatus,
-      
-      // Payment status distribution
       ordersByPayment,
     ] = await Promise.all([
-      // Total customers (non-admin users)
-      customerDelegate.count(),
-
-      // Active customers
-      customerDelegate.count({ where: { isActive: true } }),
-
-      // Disabled customers
-      customerDelegate.count({ where: { isActive: false } }),
-      
-      // Total orders
-      prisma.order.count(),
-      
-      // Pending orders
-      prisma.order.count({
-        where: { status: OrderStatus.PENDING },
-      }),
-      
-      // Completed orders (delivered)
-      prisma.order.count({
-        where: { status: OrderStatus.DELIVERED },
-      }),
-      
-      // Cancelled orders
-      prisma.order.count({
-        where: { status: OrderStatus.CANCELLED },
-      }),
-      
-      // Orders this month
-      prisma.order.count({
-        where: {
-          createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          },
-        },
-      }),
-      
-      // Total revenue (all time)
-      prisma.order.aggregate({
-        _sum: { total: true },
-        where: {
-          paymentStatus: PaymentStatus.PAID,
-        },
-      }),
-      
-      // Revenue this month
-      prisma.order.aggregate({
-        _sum: { total: true },
-        where: {
-          paymentStatus: PaymentStatus.PAID,
-          createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          },
-        },
-      }),
-      
-      // Total cards
-      prisma.card.count(),
-      
-      // Active cards
-      prisma.card.count({
-        where: { 
-          isActive: true,
-          status: CardStatus.ACTIVE,
-        },
-      }),
-      
-      // Pending cards
-      prisma.card.count({
-        where: { status: CardStatus.PENDING },
-      }),
-      
-      // Total newsletter subscribers
-      prisma.newsletterSubscriber.count(),
-      
-      // Active subscribers
-      prisma.newsletterSubscriber.count({
-        where: { isActive: true },
-      }),
-      
-      // Subscribers this month
-      prisma.newsletterSubscriber.count({
-        where: {
-          createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          },
-        },
-      }),
-      
-      // Total leads
-      mainLeadDelegate.mainWebsiteLead.count(),
-      
-      // Leads this month
-      mainLeadDelegate.mainWebsiteLead.count({
-        where: {
-          createdAt: {
-            gte: new Date(new Date().getFullYear(), new Date().getMonth(), 1),
-          },
-        },
-      }),
-      
-      // Recent orders (last 5)
-      prisma.order.findMany({
-        take: 5,
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          orderNumber: true,
-          total: true,
-          status: true,
-          paymentStatus: true,
-          createdAt: true,
-          user: {
-            select: {
-              name: true,
-              email: true,
-            },
-          },
-          guestEmail: true,
-          guestName: true,
-        },
-      }),
-      
-      // Orders by status
-      prisma.order.groupBy({
-        by: ["status"],
-        _count: { status: true },
-      }),
-      
-      // Orders by payment status
-      prisma.order.groupBy({
-        by: ["paymentStatus"],
-        _count: { paymentStatus: true },
-      }),
+      safeNumber("customers.total", () => customerDelegate.count()),
+      safeNumber("customers.active", () => customerDelegate.count({ where: { isActive: true } })),
+      safeNumber("customers.disabled", () => customerDelegate.count({ where: { isActive: false } })),
+      safeNumber("orders.total", () => prisma.order.count()),
+      safeNumber("orders.pending", () => prisma.order.count({ where: { status: OrderStatus.PENDING } })),
+      safeNumber("orders.completed", () => prisma.order.count({ where: { status: OrderStatus.DELIVERED } })),
+      safeNumber("orders.cancelled", () => prisma.order.count({ where: { status: OrderStatus.CANCELLED } })),
+      safeNumber("orders.thisMonth", () => prisma.order.count({ where: { createdAt: { gte: monthStart } } })),
+      safeRevenue("revenue.total", () => prisma.order.aggregate({ _sum: { total: true }, where: { paymentStatus: PaymentStatus.PAID } })),
+      safeRevenue(
+        "revenue.thisMonth",
+        () => prisma.order.aggregate({ _sum: { total: true }, where: { paymentStatus: PaymentStatus.PAID, createdAt: { gte: monthStart } } })
+      ),
+      safeNumber("cards.total", () => prisma.card.count()),
+      safeNumber("cards.active", () => prisma.card.count({ where: { isActive: true, status: CardStatus.ACTIVE } })),
+      safeNumber("cards.pending", () => prisma.card.count({ where: { status: CardStatus.PENDING } })),
+      safeNumber("newsletter.total", () => prisma.newsletterSubscriber.count()),
+      safeNumber("newsletter.active", () => prisma.newsletterSubscriber.count({ where: { isActive: true } })),
+      safeNumber("newsletter.thisMonth", () => prisma.newsletterSubscriber.count({ where: { createdAt: { gte: monthStart } } })),
+      safeNumber("leads.total", () => mainLeadDelegate.mainWebsiteLead.count()),
+      safeNumber("leads.thisMonth", () => mainLeadDelegate.mainWebsiteLead.count({ where: { createdAt: { gte: monthStart } } })),
+      safeRecentOrders(),
+      safeStatusGroups("orders.byStatus", () => prisma.order.groupBy({ by: ["status"], _count: { status: true } } as never)),
+      safePaymentGroups(
+        "orders.byPayment",
+        () => prisma.order.groupBy({ by: ["paymentStatus"], _count: { paymentStatus: true } } as never)
+      ),
     ]);
 
     // Format order status distribution
     const orderStatusDistribution = (ordersByStatus as Array<{ status: string; _count: { status: number } }>).reduce(
       (acc: Record<string, number>, item) => {
-        acc[item.status] = item._count.status;
+        acc[item.status] = item._count.status || 0;
         return acc;
       },
       {} as Record<string, number>
@@ -206,7 +154,7 @@ export async function GET(request: NextRequest) {
     // Format payment status distribution
     const paymentStatusDistribution = (ordersByPayment as Array<{ paymentStatus: string; _count: { paymentStatus: number } }>).reduce(
       (acc: Record<string, number>, item) => {
-        acc[item.paymentStatus] = item._count.paymentStatus;
+        acc[item.paymentStatus] = item._count.paymentStatus || 0;
         return acc;
       },
       {} as Record<string, number>
@@ -228,8 +176,8 @@ export async function GET(request: NextRequest) {
         byPayment: paymentStatusDistribution,
       },
       revenue: {
-        total: revenueData._sum.total || 0,
-        thisMonth: revenueThisMonth._sum.total || 0,
+        total: revenueData,
+        thisMonth: revenueThisMonth,
       },
       cards: {
         total: totalCards,

@@ -37,6 +37,17 @@ export async function saveUploadedImage(file: File, folder: string) {
     throw new Error("Only image uploads are supported");
   }
 
+  // Vercel serverless file system is ephemeral/read-only for persistent uploads.
+  if (process.env.VERCEL === "1") {
+    console.warn("[Upload] Skipping local file write on Vercel runtime", {
+      folder,
+      name: file.name,
+      size: file.size,
+      type: file.type,
+    });
+    return null;
+  }
+
   const uploadsRoot = path.join(process.cwd(), "public", "uploads", folder);
   await mkdir(uploadsRoot, { recursive: true });
 
