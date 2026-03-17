@@ -38,6 +38,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
     try {
       const response = await fetch('/api/admin/login', {
         method: 'POST',
+        credentials: 'include',
         headers: {
           'Content-Type': 'application/json',
         },
@@ -54,8 +55,8 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
         localStorage.setItem('authToken', result.token);
         localStorage.setItem('admin_token', result.token);
 
-        // Redirect to dashboard
-        router.push(redirectTo);
+        // Use full redirect so middleware sees fresh auth cookie immediately.
+        window.location.assign(redirectTo);
       } else {
         setServerError(result.error || result.message || 'Invalid email or password.');
       }
