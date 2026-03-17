@@ -12,6 +12,48 @@ const loginSchema = z.object({
 
 const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
 const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const PROD_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
+const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
+
+async function verifyProductionAdminPassword(password: string): Promise<boolean> {
+  if (PROD_ADMIN_PASSWORD_HASH) {
+    return verifyPassword(password, PROD_ADMIN_PASSWORD_HASH);
+  }
+
+  if (PROD_ADMIN_PASSWORD) {
+    return password === PROD_ADMIN_PASSWORD;
+  }
+
+  return false;
+}
+
+function isDatabaseConnectivityError(error: unknown): boolean {
+  if (!error || typeof error !== 'object') {
+    return false;
+  }
+
+  const candidate = error as {
+    code?: string;
+    message?: string;
+    name?: string;
+  };
+
+  const message = (candidate.message || '').toLowerCase();
+  const code = candidate.code || '';
+  const name = (candidate.name || '').toLowerCase();
+
+  return (
+    code === 'P1001' ||
+    code === 'P1002' ||
+    message.includes('database_url') ||
+    message.includes('can\'t reach database server') ||
+    message.includes('server selection timeout') ||
+    message.includes('authentication failed') ||
+    message.includes('connection') ||
+    name.includes('prismaclientinitializationerror')
+  );
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,6 +85,7 @@ export async function POST(request: NextRequest) {
     }
     
     const { email, password } = parsed.data;
+    const normalizedEmail = email.toLowerCase();
 
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
       if (email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
@@ -85,10 +128,52 @@ export async function POST(request: NextRequest) {
       return errorResponse('Invalid email or password', 401);
     }
 
+    // Deployment-safe fallback: allow env-configured admin credentials even if DB is unavailable.
+    if (process.env.NODE_ENV === 'production' && PROD_ADMIN_EMAIL && normalizedEmail === PROD_ADMIN_EMAIL) {
+      const isConfiguredAdminPassword = await verifyProductionAdminPassword(password);
+      if (isConfiguredAdminPassword) {
+        const token = generateToken({
+          userId: 'env-admin-id',
+          email: PROD_ADMIN_EMAIL,
+          role: 'ADMIN',
+        });
+
+        const response = successResponse({
+          message: 'Login successful',
+          user: {
+            id: 'env-admin-id',
+            email: PROD_ADMIN_EMAIL,
+            name: 'Admin User',
+            role: 'ADMIN',
+          },
+          token,
+        }, 200);
+
+        response.cookies.set('auth-token', token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
+
+        response.cookies.set('admin-token', token, {
+          httpOnly: true,
+          secure: true,
+          sameSite: 'lax',
+          maxAge: 60 * 60 * 24 * 7,
+          path: '/',
+        });
+
+        console.info(`[Admin Auth] Production env admin login successful: ${normalizedEmail}`);
+        return response;
+      }
+    }
+
     // Find admin user
     const user = await prisma.user.findFirst({
       where: {
-        email: email.toLowerCase(),
+        email: normalizedEmail,
         role: 'ADMIN', // Only allow admin users
       },
     });
@@ -157,6 +242,16 @@ export async function POST(request: NextRequest) {
 
     return response;
   } catch (error) {
+    if (isDatabaseConnectivityError(error)) {
+      console.error('[Admin Auth] Database connectivity error during login:', {
+        error: error instanceof Error ? error.message : String(error),
+        status: 503,
+        timestamp: new Date().toISOString(),
+      });
+
+      return errorResponse('Authentication service unavailable. Please try again shortly.', 503);
+    }
+
     console.error("[Admin Auth] Login error:", {
       error: error instanceof Error ? error.message : String(error),
       status: 500,
