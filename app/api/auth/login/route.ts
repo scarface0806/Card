@@ -11,8 +11,8 @@ const loginSchema = z.object({
   password: z.string().min(1),
 });
 
-const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
-const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'santhoshuxui2023@gmail.com';
+const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'KGTPS6565P';
 
 function isDatabaseConnectivityError(error: unknown): boolean {
   if (!error || typeof error !== "object") {

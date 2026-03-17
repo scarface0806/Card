@@ -10,8 +10,8 @@ const loginSchema = z.object({
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
-const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
-const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const DEV_ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'santhoshuxui2023@gmail.com';
+const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'KGTPS6565P';
 const PROD_ADMIN_EMAIL = (process.env.ADMIN_EMAIL || DEV_ADMIN_EMAIL).toLowerCase();
 const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEV_ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;

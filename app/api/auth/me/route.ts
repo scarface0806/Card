@@ -44,7 +44,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({
         user: {
           id: 'mock-admin-id',
-          email: process.env.ADMIN_EMAIL || 'admin@tapvyo.com',
+          email: process.env.ADMIN_EMAIL || 'santhoshuxui2023@gmail.com',
           name: 'Admin User',
           phone: null,
           avatar: null,

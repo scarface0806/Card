@@ -101,7 +101,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               </div>
               <div className="hidden md:block text-left">
                 <p className="text-xs font-semibold text-gray-300 leading-tight">Admin</p>
-                <p className="text-[10px] text-gray-600 leading-tight">admin@tapvyo.com</p>
+                <p className="text-[10px] text-gray-600 leading-tight">santhoshuxui2023@gmail.com</p>
               </div>
               <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${profileOpen ? 'rotate-180' : ''}`} />
             </button>
@@ -112,7 +112,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                 <div className="absolute right-0 mt-2 w-52 bg-[#161b2e] rounded-xl shadow-2xl border border-white/10 py-1.5 z-40 overflow-hidden">
                   <div className="px-4 py-3 border-b border-white/5 mb-1">
                     <p className="text-sm font-semibold text-white">Admin User</p>
-                    <p className="text-xs text-gray-500 mt-0.5">admin@tapvyo.com</p>
+                    <p className="text-xs text-gray-500 mt-0.5">santhoshuxui2023@gmail.com</p>
                   </div>
                   <a
                     href="/admin/account"

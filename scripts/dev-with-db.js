@@ -9,8 +9,8 @@ const { MongoMemoryReplSet } = require('mongodb-memory-server');
 const { spawn } = require('child_process');
 const path = require('path');
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@tapvyo.com';
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123';
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'santhoshuxui2023@gmail.com';
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'KGTPS6565P';
 
 async function startDevServer() {
   console.log('🚀 Starting Tapvyo NFC Development Server...\n');
