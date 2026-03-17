@@ -344,40 +344,55 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
         }
 
         /* =============================================
-           THEME TOGGLE — Refined pill switch
+           THEME TOGGLE — Sun/Moon icon button
            ============================================= */
         .digi-theme-toggle { position: relative; }
         .digi-theme-switch { display: none; }
         .digi-toggle-label { cursor: pointer; display: block; }
 
-        .digi-toggle-bg {
-          width: 56px;
-          height: 28px;
-          background: var(--digi-border);
-          border-radius: 28px;
-          position: relative;
-          transition: background var(--digi-transition);
-        }
-
-        .digi-toggle-circle {
-          position: absolute;
-          width: 22px;
-          height: 22px;
+        .digi-toggle-btn {
+          width: 40px;
+          height: 40px;
           border-radius: 50%;
-          top: 3px;
-          left: 3px;
-          background: var(--digi-card);
-          transition: transform var(--digi-transition);
-          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: var(--digi-surface);
+          border: 1px solid var(--digi-border);
+          transition: all var(--digi-transition);
         }
 
-        body.dark .digi-toggle-bg {
-          background: #1E293B;
+        .digi-toggle-btn:hover {
+          border-color: var(--digi-accent);
         }
 
-        body.dark .digi-toggle-circle {
-          transform: translateX(28px);
-          background: var(--digi-accent);
+        .digi-toggle-btn svg {
+          width: 20px;
+          height: 20px;
+          transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
+        }
+
+        .digi-sun-icon {
+          color: #F59E0B;
+          display: block;
+        }
+
+        .digi-moon-icon {
+          color: var(--digi-accent);
+          display: none;
+        }
+
+        body.dark .digi-sun-icon {
+          display: none;
+        }
+
+        body.dark .digi-moon-icon {
+          display: block;
+        }
+
+        body.dark .digi-toggle-btn {
+          background: rgba(45, 212, 191, 0.08);
+          border-color: rgba(45, 212, 191, 0.2);
         }
 
         /* =============================================
@@ -858,8 +873,21 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                 onChange={toggleTheme}
               />
               <label htmlFor="theme-switch" className="digi-toggle-label" aria-label="Toggle theme">
-                <div className="digi-toggle-bg">
-                  <div className="digi-toggle-circle"></div>
+                <div className="digi-toggle-btn">
+                  <svg className="digi-sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="5"></circle>
+                    <line x1="12" y1="1" x2="12" y2="3"></line>
+                    <line x1="12" y1="21" x2="12" y2="23"></line>
+                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+                    <line x1="1" y1="12" x2="3" y2="12"></line>
+                    <line x1="21" y1="12" x2="23" y2="12"></line>
+                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+                  </svg>
+                  <svg className="digi-moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+                  </svg>
                 </div>
               </label>
             </div>
