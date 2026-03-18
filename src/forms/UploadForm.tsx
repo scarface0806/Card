@@ -15,11 +15,6 @@ const uploadFields = [
     label: 'Company Logo',
     description: 'Recommended size: 500x500px',
   },
-  {
-    key: 'coverImage',
-    label: 'Cover Image',
-    description: 'Recommended size: 1200x400px',
-  },
 ];
 
 export default function UploadForm() {

@@ -47,21 +47,16 @@ export default function PremiumNavbar() {
 
         {/* Right Actions */}
         <div className="hidden md:flex items-center gap-4 z-10">
-          <Link
-            href={ROUTES.LOGIN}
-            className="relative text-teal-700 hover:text-teal-900 font-medium transition-all duration-300 font-[family-name:var(--font-space-grotesk)] group py-2"
-          >
-            Login
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300 ease-out" />
-          </Link>
-          <Link
-            href={ROUTES.SIGNUP}
-            className="relative flex items-center gap-2 px-6 py-2.5 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
+          <a
+            href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="relative flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-            <span className="relative">Sign Up</span>
+            <span className="relative">Contact Now</span>
             <ArrowRight className="relative w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-          </Link>
+          </a>
         </div>
 
         {/* Mobile Menu Button */}
@@ -91,21 +86,16 @@ export default function PremiumNavbar() {
               </Link>
             ))}
             <div className="pt-4 space-y-3 border-t border-gray-100">
-              <Link
-                href={ROUTES.LOGIN}
+              <a
+                href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
-                className="block w-full px-4 py-3 text-teal-700 hover:text-teal-900 font-medium rounded-xl transition-all duration-300 text-center border border-teal-200 hover:border-teal-300 hover:bg-teal-50 font-[family-name:var(--font-space-grotesk)]"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg font-[family-name:var(--font-space-grotesk)] group"
               >
-                Login
-              </Link>
-              <Link
-                href={ROUTES.SIGNUP}
-                onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-teal-700 hover:bg-teal-800 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg font-[family-name:var(--font-space-grotesk)] group"
-              >
-                <span>Sign Up</span>
+                <span>Contact Now</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-              </Link>
+              </a>
             </div>
           </div>
         </div>

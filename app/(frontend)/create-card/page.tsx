@@ -36,6 +36,7 @@ interface FormData {
     website: string;
     about: string;
     services: string;
+    googleLocation?: string;
   };
   socialLinks: {
     instagram?: string;
@@ -46,7 +47,6 @@ interface FormData {
   uploads: {
     profileImage?: FileList;
     logo?: FileList;
-    coverImage?: FileList;
   };
   payment: {
     method: string;
@@ -96,7 +96,6 @@ function CreateCardContent() {
       const uploads = {
         profileImage: data.uploads?.profileImage?.[0],
         logo: data.uploads?.logo?.[0],
-        coverImage: data.uploads?.coverImage?.[0],
       };
 
       const result = await createOrder({

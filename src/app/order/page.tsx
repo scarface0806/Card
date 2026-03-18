@@ -40,7 +40,6 @@ interface FormData {
   uploads: {
     profileImage?: FileList;
     logo?: FileList;
-    coverImage?: FileList;
   };
   payment: {
     method: string;
@@ -72,7 +71,6 @@ export default function OrderPage() {
       const uploads = {
         profileImage: data.uploads?.profileImage?.[0],
         logo: data.uploads?.logo?.[0],
-        coverImage: data.uploads?.coverImage?.[0],
       };
 
       const result = await createOrder({

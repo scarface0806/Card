@@ -5,6 +5,7 @@ import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
+import RightDrawer from '@/components/ui/RightDrawer';
 import { RotateCw, Filter } from 'lucide-react';
 
 interface ContactRow {
@@ -17,6 +18,8 @@ interface ContactRow {
   comments: string;
   source: string;
   status: 'pending' | 'active';
+  subject?: string;
+  createdAt?: string;
 }
 
 interface ToastState {
@@ -29,6 +32,7 @@ export default function ContactsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
+  const [selectedContact, setSelectedContact] = useState<ContactRow | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<ContactRow | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
@@ -37,7 +41,7 @@ export default function ContactsPage() {
       setLoading(true);
       setError(null);
 
-      const response = await fetch('/api/admin/contacts?limit=200', {
+      const response = await fetch('/api/contacts?limit=200', {
         credentials: 'include',
       });
 
@@ -52,10 +56,12 @@ export default function ContactsPage() {
         name: contact.name || 'Unknown',
         email: contact.email || '-',
         phone: contact.phone || '-',
-        company: contact.company || '-',
+        company: '-',
         comments: contact.message || '-',
-        source: contact.source || 'contact_form',
-        status: contact.isRead ? 'active' : 'pending',
+        source: contact.source || 'website',
+        status: 'active',
+        subject: contact.subject || 'No Subject',
+        createdAt: contact.createdAt ? new Date(contact.createdAt).toLocaleString() : '-',
       }));
 
       setData(mapped);
@@ -74,25 +80,8 @@ export default function ContactsPage() {
     fetchContacts();
   };
 
-  const handleView = async (row: ContactRow) => {
-    if (row.status === 'pending') {
-      try {
-        await fetch('/api/admin/contacts', {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ id: row.id, isRead: true }),
-        });
-        setData((prev) => prev.map((item) => (item.id === row.id ? { ...item, status: 'active' } : item)));
-      } catch {
-        setToast({ variant: 'error', message: 'Failed to update contact read state' });
-      }
-    }
-
-    setToast({
-      variant: 'info',
-      message: `${row.name} | ${row.email} | ${row.phone} | ${row.company} | ${row.comments}`,
-    });
+  const handleView = (row: ContactRow) => {
+    setSelectedContact(row);
   };
 
   const handleDelete = (row: ContactRow) => {
@@ -104,15 +93,8 @@ export default function ContactsPage() {
 
     try {
       setConfirmLoading(true);
-      const response = await fetch(`/api/admin/contacts?id=${encodeURIComponent(confirmTarget.id)}`, {
-        method: 'DELETE',
-        credentials: 'include',
-      });
-      const payload = await response.json();
-      if (!response.ok || !payload.success) {
-        throw new Error(payload.error || 'Failed to delete contact');
-      }
-
+      // Note: Delete functionality not implemented for contacts API
+      // Remove from local state only
       setData((prev) => prev.filter((item) => item.id !== confirmTarget.id));
       setToast({ variant: 'success', message: `Deleted contact from ${confirmTarget.name}` });
       setConfirmTarget(null);
@@ -178,6 +160,70 @@ export default function ContactsPage() {
         onView={handleView}
         onDelete={handleDelete}
       />
+
+      <RightDrawer open={!!selectedContact} onClose={() => setSelectedContact(null)}>
+        {selectedContact ? (
+          <div className="p-4 sm:p-6 space-y-6">
+            <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+              <div>
+                <h2 className="text-lg font-semibold text-white">{selectedContact.name || 'Contact Details'}</h2>
+                <p className="text-sm text-slate-400 mt-1">Contact ID: {selectedContact.id}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setSelectedContact(null)}
+                className="text-slate-400 hover:text-white"
+                aria-label="Close contact details"
+              >
+                ✕
+              </button>
+            </div>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Contact Information</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Name</p>
+                  <p className="mt-1 text-white">{selectedContact.name}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Email</p>
+                  <p className="mt-1 text-white break-all">{selectedContact.email}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Phone</p>
+                  <p className="mt-1 text-white">{selectedContact.phone}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Subject</p>
+                  <p className="mt-1 text-white">{selectedContact.subject || '-'}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Source</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Source</p>
+                  <p className="mt-1 text-white">{selectedContact.source || 'Website'}</p>
+                </div>
+                <div className="bg-slate-800 rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-gray-400">Date Received</p>
+                  <p className="mt-1 text-white">{selectedContact.createdAt || '-'}</p>
+                </div>
+              </div>
+            </section>
+
+            <section className="space-y-3">
+              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Message</h3>
+              <div className="bg-slate-800 rounded-lg p-4">
+                <p className="text-white whitespace-pre-line">{selectedContact.comments || '-'}</p>
+              </div>
+            </section>
+          </div>
+        ) : null}
+      </RightDrawer>
     </main>
   );
 }

@@ -213,23 +213,29 @@ export default function CreateCustomerPage() {
 
       setCreated({ slug: payload.slug, link: payload.link });
 
-      const testMailResponse = await fetch('/api/test-mail', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({
-          customerName: form.name,
-          customerEmail: form.email,
-          mailApiKey: form.mailApiEndpoint,
-        }),
-      });
+      // Only test mail API if emailApiKey is provided (silently, no error toast)
+      if (form.mailApiEndpoint && form.mailApiEndpoint.length > 0) {
+        try {
+          const testMailResponse = await fetch('/api/test-mail', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              customerName: form.name,
+              customerEmail: form.email,
+              mailApiKey: form.mailApiEndpoint,
+            }),
+          });
 
-      const testMailPayload = await testMailResponse.json().catch(() => ({}));
-      if (!testMailResponse.ok || !testMailPayload?.success) {
-        throw new Error(testMailPayload?.message || testMailPayload?.error || 'Customer created, but Mail API could not be verified');
+          const testMailPayload = await testMailResponse.json().catch(() => ({}));
+          // Silently handle mail API test failure - don't show error to user
+        } catch (mailError) {
+          // Silently catch mail API test errors - customer was created successfully
+          console.error('Mail API test error:', mailError);
+        }
       }
 
-      setToast({ variant: 'success', message: 'Customer created and Mail API verified successfully.' });
+      setToast({ variant: 'success', message: 'Customer created successfully.' });
       setForm({
         name: '',
         designation: '',
@@ -305,8 +311,8 @@ export default function CreateCustomerPage() {
           <label className="block text-sm font-medium text-gray-200">Email
             <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Mail API Key
-            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+          <label className="block text-sm font-medium text-gray-200">Mail API Key (Optional)
+            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Address
             <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />

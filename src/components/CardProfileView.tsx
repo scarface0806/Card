@@ -59,6 +59,7 @@ interface CardDetail {
   theme?: string;
   primaryColor?: string;
   backgroundColor?: string;
+  googleLocation?: string;
 }
 
 interface CardData {
@@ -290,6 +291,16 @@ END:VCARD`;
             className="flex items-center gap-2 px-4 py-3 rounded-full border border-white/20 text-white/80 hover:bg-white/10 transition-all duration-300"
           >
             <Share2 className="w-4 h-4" />
+                    {details.googleLocation && (
+                      <a
+                        href={details.googleLocation}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium transition-all duration-300 hover:scale-105 bg-red-600 hover:bg-red-700"
+                      >
+                        📍 View Location
+                      </a>
+                    )}
           </button>
         </motion.div>
 

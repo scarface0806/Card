@@ -1,24 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowUpRight, Wifi, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
 
-const AuthModal = dynamic(() => import('@/components/AuthModal'), {
-  ssr: false,
-});
-
-type AuthMode = 'login' | 'signup';
-
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
-  const [authMode, setAuthMode] = useState<AuthMode>('login');
   const pathname = usePathname();
 
   useEffect(() => {
@@ -78,33 +69,18 @@ export default function Navbar() {
 
           {/* Right Side - Buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Login - Text Button with Underline Animation */}
-            <button
-              onClick={() => {
-                setAuthMode('login');
-                setIsAuthOpen(true);
-              }}
-              className="relative text-sm font-medium text-teal-700 hover:text-teal-900 transition-all duration-300 group py-2"
-            >
-              Login
-              <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-teal-600 group-hover:w-full transition-all duration-300 ease-out" />
-            </button>
-
-            {/* Signup - Primary Gradient Button with Arrow */}
-            <motion.button
-              onClick={() => {
-                setAuthMode('signup');
-                setIsAuthOpen(true);
-              }}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              className="relative flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-teal-600 to-green-600 rounded-full transition-all duration-300 shadow-md hover:shadow-lg overflow-hidden group"
+            {/* Contact Now - WhatsApp CTA Button */}
+            <a
+              href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="relative flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-500 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 overflow-hidden group"
             >
               {/* Shine effect overlay */}
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
-              <span className="relative">Sign Up</span>
+              <span className="relative">Contact Now</span>
               <ArrowRight className="relative w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-            </motion.button>
+            </a>
           </div>
 
           {/* Mobile Menu Toggle */}
@@ -142,43 +118,22 @@ export default function Navbar() {
                   </Link>
                 ))}
                 <div className="pt-4 space-y-3 border-t border-teal-100 mt-4">
-                  <button
-                    onClick={() => {
-                      setAuthMode('login');
-                      setIsAuthOpen(true);
-                      setIsOpen(false);
-                    }}
-                    className="w-full px-4 py-3 text-center text-teal-700 font-medium hover:text-teal-900 rounded-xl transition-all duration-300 border border-teal-200 hover:border-teal-300 hover:bg-teal-50"
+                  <a
+                    href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={() => setIsOpen(false)}
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center text-white bg-gradient-to-r from-green-600 to-emerald-500 rounded-full transition-all duration-300 font-medium shadow-md hover:shadow-lg group"
                   >
-                    Login
-                  </button>
-                  <button
-                    onClick={() => {
-                      setAuthMode('signup');
-                      setIsAuthOpen(true);
-                      setIsOpen(false);
-                    }}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center text-white bg-gradient-to-r from-teal-600 to-green-600 rounded-full transition-all duration-300 font-medium shadow-md hover:shadow-lg group"
-                  >
-                    <span>Sign Up</span>
+                    <span>Contact Now</span>
                     <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
+                  </a>
                 </div>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
-
-      {/* Auth Modal */}
-      {isAuthOpen ? (
-        <AuthModal
-          isOpen={isAuthOpen}
-          mode={authMode}
-          onClose={() => setIsAuthOpen(false)}
-          onModeChange={setAuthMode}
-        />
-      ) : null}
     </nav>
   );
 }

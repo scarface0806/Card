@@ -32,7 +32,7 @@ export default function ContactUsPage() {
     setSubmitError('');
 
     try {
-      const response = await fetch('/api/leads', {
+      const response = await fetch('/api/contacts', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +43,6 @@ export default function ContactUsPage() {
           email: formData.email,
           subject: formData.subject,
           message: formData.message,
-          service: 'Contact Us',
         }),
       });
 
