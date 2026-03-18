@@ -1,70 +1,54 @@
-import { getMongoDb } from "../src/lib/mongodb";
-import bcrypt from "bcryptjs";
-import { createInterface } from "readline/promises";
-import { stdin as input, stdout as output } from "process";
+const dotenv = require("dotenv") as typeof import("dotenv");
+const bcrypt = require("bcryptjs") as typeof import("bcryptjs");
+const { getMongoDb } = require("../src/lib/mongodb") as typeof import("../src/lib/mongodb");
 
-if (!process.env.DATABASE_URL?.trim()) {
-  throw new Error("Missing environment variable DATABASE_URL");
-}
+dotenv.config({ path: ".env.local" });
+dotenv.config();
 
-const BCRYPT_ROUNDS = 12;
+const BCRYPT_ROUNDS = 10;
 
-async function promptAdminCredentials(): Promise<{ email: string; password: string }> {
-  const rl = createInterface({ input, output });
-
-  try {
-    const rawEmail = await rl.question("Admin email: ");
-    const rawPassword = await rl.question("Admin password: ");
-
-    const email = rawEmail.trim().toLowerCase();
-    const password = rawPassword.trim();
-
-    if (!email) {
-      throw new Error("Email is required");
-    }
-
-    if (!password || password.length < 6) {
-      throw new Error("Password must be at least 6 characters");
-    }
-
-    return { email, password };
-  } finally {
-    rl.close();
+function getRequiredEnv(name: string): string {
+  const value = process.env[name]?.trim();
+  if (!value) {
+    throw new Error(`Missing environment variable ${name}`);
   }
+  return value;
 }
 
-async function seedAdmin() {
+async function seedAdmin(): Promise<void> {
   try {
-    const { email, password } = await promptAdminCredentials();
+    const email = getRequiredEnv("DEFAULT_ADMIN_EMAIL").toLowerCase();
+    const password = getRequiredEnv("DEFAULT_ADMIN_PASSWORD");
+
+    if (!process.env.DATABASE_URL?.trim()) {
+      throw new Error("Missing environment variable DATABASE_URL");
+    }
+
     const db = await getMongoDb();
     const admins = db.collection("admins");
 
     const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const existing = await admins.findOne({
+    const admin = await admins.findOne({
       email: { $regex: `^${escapedEmail}$`, $options: "i" },
     });
 
-    if (existing) {
+    if (admin) {
       console.log("Admin already exists");
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-    const now = new Date();
     await admins.insertOne({
       email,
       password: hashedPassword,
       role: "admin",
-      name: "Admin User",
-      isActive: true,
-      createdAt: now,
-      updatedAt: now,
+      createdAt: new Date(),
     });
 
     console.log("Admin created successfully");
   } catch (error) {
-    console.error("[seedAdmin] Failed:", error);
+    console.error("[seed:admin] Failed to seed admin:", error);
     process.exitCode = 1;
   }
 }
