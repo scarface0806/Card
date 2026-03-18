@@ -284,7 +284,7 @@ export default function CreateCustomerPage() {
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-emerald-300">Generated NFC Link</p>
           <p className="mt-3 break-all text-base font-medium text-white">{created.link}</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <button type="button" onClick={copyLink} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 transition hover:bg-orange-100">
+            <button type="button" onClick={copyLink} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 transition hover:bg-teal-100">
               <Copy className="h-4 w-4" /> Copy Link
             </button>
             <Link href={created.link} target="_blank" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
@@ -297,34 +297,34 @@ export default function CreateCustomerPage() {
       <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-white/10 bg-[#161b2e] p-4 sm:p-5 lg:p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-sm font-medium text-gray-200">Name
-            <input name="name" value={form.name} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="name" value={form.name} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Designation
-            <input name="designation" value={form.designation} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="designation" value={form.designation} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Company
-            <input name="company" value={form.company} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="company" value={form.company} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Phone
-            <input name="phone" value={form.phone} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="phone" value={form.phone} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Email
-            <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Mail API Key (Optional)
-            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Address
-            <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
         </div>
 
         <label className="block text-sm font-medium text-gray-200">About Us
-          <textarea name="about" value={form.about} onChange={handleTextChange} className="mt-2 min-h-36 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+          <textarea name="about" value={form.about} onChange={handleTextChange} className="mt-2 min-h-36 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
         </label>
 
         <label className="block text-sm font-medium text-gray-200">Google Maps Embed URL (optional)
-          <input name="mapEmbedUrl" value={form.mapEmbedUrl} onChange={handleTextChange} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+          <input name="mapEmbedUrl" value={form.mapEmbedUrl} onChange={handleTextChange} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
         </label>
 
         <div className="space-y-3 rounded-2xl border border-white/10 bg-[#0f1424] p-4">
@@ -344,7 +344,7 @@ export default function CreateCustomerPage() {
                   onChange={(e) => handleTextChange({ target: { name: valueKey as string, value: e.target.value } } as ChangeEvent<HTMLInputElement>)}
                   disabled={!enabled}
                   placeholder={`${field.label} URL`}
-                  className="w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-sm text-white outline-none focus:border-orange-400 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-sm text-white outline-none focus:border-teal-400 disabled:cursor-not-allowed disabled:opacity-40"
                 />
               </div>
             );
@@ -353,14 +353,14 @@ export default function CreateCustomerPage() {
 
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
           <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
-            <span className="mb-3 flex items-center gap-2 text-orange-300"><UploadCloud className="h-4 w-4" /> Logo Upload</span>
-            <input type="file" name="logo" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-400" />
+            <span className="mb-3 flex items-center gap-2 text-teal-300"><UploadCloud className="h-4 w-4" /> Logo Upload</span>
+            <input type="file" name="logo" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-teal-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-teal-500" />
             {logoPreview ? <Image src={logoPreview} alt="Logo preview" width={200} height={120} className="mt-4 h-24 w-auto rounded-xl bg-white object-contain p-2" /> : null}
           </label>
 
           <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
-            <span className="mb-3 flex items-center gap-2 text-orange-300"><UploadCloud className="h-4 w-4" /> Profile Photo</span>
-            <input type="file" name="profileImage" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-orange-500 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-orange-400" />
+            <span className="mb-3 flex items-center gap-2 text-teal-300"><UploadCloud className="h-4 w-4" /> Profile Photo</span>
+            <input type="file" name="profileImage" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-teal-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-teal-500" />
             {profilePreview ? <Image src={profilePreview} alt="Profile preview" width={180} height={180} className="mt-4 h-32 w-32 rounded-2xl object-cover" /> : null}
           </label>
         </div>
@@ -379,7 +379,7 @@ export default function CreateCustomerPage() {
               {form.gallerySlots.map((slot, index) => (
                 <div key={index} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">Image {index + 1}</p>
-                  <input type="file" name={`galleryImage${index + 1}`} accept="image/*" onChange={handleFileChange} className="block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-orange-500 file:px-3 file:py-1.5 file:font-semibold file:text-white" />
+                  <input type="file" name={`galleryImage${index + 1}`} accept="image/*" onChange={handleFileChange} className="block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-teal-600 file:px-3 file:py-1.5 file:font-semibold file:text-white" />
                   <div className="mt-3 overflow-hidden rounded-lg border border-white/10 bg-[#0f1424]">
                     {galleryPreviews[index] ? (
                       <Image src={galleryPreviews[index] as string} alt={`Gallery ${index + 1}`} width={400} height={220} className="h-28 w-full object-cover" />
@@ -387,14 +387,14 @@ export default function CreateCustomerPage() {
                       <div className="flex h-28 items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-500">No Image</div>
                     )}
                   </div>
-                  <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder={`Image ${index + 1} hover text`} className="mt-3 w-full rounded-lg border border-white/10 bg-[#0f1424] px-3 py-2 text-xs text-white outline-none focus:border-orange-400" />
+                  <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder={`Image ${index + 1} hover text`} className="mt-3 w-full rounded-lg border border-white/10 bg-[#0f1424] px-3 py-2 text-xs text-white outline-none focus:border-teal-400" />
                 </div>
               ))}
             </div>
           ) : null}
         </section>
 
-        <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-400 px-5 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-orange-500/20 disabled:cursor-not-allowed disabled:opacity-70">
+        <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-teal-600 to-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-teal-500/20 disabled:cursor-not-allowed disabled:opacity-70">
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {submitting ? 'Creating Customer...' : 'Create Customer and Generate NFC Link'}
         </button>

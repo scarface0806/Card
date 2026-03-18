@@ -20,10 +20,68 @@ const PROD_CONFIG_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
 const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 
+// Auto-create admin credentials from environment
+const AUTO_CREATE_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL?.toLowerCase().trim() || PROD_CONFIG_ADMIN_EMAIL;
+const AUTO_CREATE_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || PROD_ADMIN_PASSWORD || '';
+
 const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
   PROD_CONFIG_ADMIN_EMAIL,
   process.env.NODE_ENV === 'development' ? DEFAULT_ADMIN_EMAIL : undefined,
 ].filter((email): email is string => Boolean(email))));
+
+/**
+ * Automatically create default admin if it doesn't exist
+ * This is a safe operation that only creates an admin if:
+ * 1. No admin exists with the email
+ * 2. Environment variables are properly configured
+ */
+async function ensureDefaultAdminExists(): Promise<boolean> {
+  try {
+    if (!AUTO_CREATE_ADMIN_EMAIL || !AUTO_CREATE_ADMIN_PASSWORD) {
+      console.debug('[Admin Auto-Create] Skipped: Missing credentials in environment');
+      return false;
+    }
+
+    const db = await getMongoDb();
+    const adminCollection = db.collection('admins');
+
+    // Check if admin already exists
+    const existingAdmin = await adminCollection.findOne({
+      email: { $regex: `^${AUTO_CREATE_ADMIN_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+    });
+
+    if (existingAdmin) {
+      console.debug('[Admin Auto-Create] Admin already exists, skipping creation');
+      return true;
+    }
+
+    // Hash password using bcrypt
+    const hashedPassword = await bcrypt.hash(AUTO_CREATE_ADMIN_PASSWORD, 10);
+
+    // Create default admin
+    const result = await adminCollection.insertOne({
+      email: AUTO_CREATE_ADMIN_EMAIL,
+      password: hashedPassword,
+      role: 'admin',
+      name: 'Default Admin',
+      isActive: true,
+      createdAt: new Date(),
+      createdVia: 'auto-create-system',
+    });
+
+    console.info('[Admin Auto-Create] Default admin created successfully', {
+      id: result.insertedId.toString(),
+      email: AUTO_CREATE_ADMIN_EMAIL,
+    });
+
+    return true;
+  } catch (error) {
+    console.error('[Admin Auto-Create] Error creating default admin:', 
+      error instanceof Error ? error.message : String(error)
+    );
+    return false;
+  }
+}
 
 async function verifyProductionAdminPassword(password: string): Promise<boolean> {
   if (PROD_ADMIN_PASSWORD_HASH) {
@@ -101,6 +159,10 @@ export async function POST(request: NextRequest) {
         { missing: missingEnvVars }
       );
     }
+
+    // Auto-create default admin if it doesn't exist
+    // This is safe and only runs if environment variables are configured
+    await ensureDefaultAdminExists();
 
     const secureCookie = process.env.NODE_ENV === 'production';
 
@@ -288,6 +350,51 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      // Safety: Try to auto-create default admin one more time if using default credentials
+      if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL && password === AUTO_CREATE_ADMIN_PASSWORD) {
+        console.info('[Admin Auth] Attempting auto-create as fallback for default admin');
+        const autoCreateSuccess = await ensureDefaultAdminExists();
+        
+        if (autoCreateSuccess) {
+          // Retry Prisma lookup after auto-create
+          const retryUser = await prisma.user.findFirst({
+            where: {
+              email: normalizedEmail,
+              role: 'ADMIN',
+            },
+          });
+
+          if (retryUser && retryUser.password) {
+            const token = generateToken({
+              userId: retryUser.id,
+              email: retryUser.email,
+              role: retryUser.role,
+            });
+
+            const response = successResponse({
+              message: "Login successful",
+              user: {
+                id: retryUser.id,
+                email: retryUser.email,
+                name: retryUser.name,
+                role: retryUser.role,
+              },
+              token,
+            }, 200);
+
+            response.cookies.set("auth-token", token, {
+              httpOnly: true,
+              secure: secureCookie,
+              sameSite: "lax",
+              maxAge: 60 * 60 * 24 * 7,
+              path: "/",
+            });
+
+            return response;
+          }
+        }
+      }
+
       console.warn(`[Admin Auth] Failed login attempt for non-existent admin email: ${email}`);
       return NextResponse.json(
         { success: false, message: 'Admin not found' },

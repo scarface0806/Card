@@ -181,7 +181,7 @@ export default function CustomersPage() {
           <button
             type="button"
             onClick={() => router.push('/admin/customers/create')}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
             Create NFC Customer
@@ -225,7 +225,7 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => handleCopy(row.nfcLink)}
-                  className="rounded-lg p-2 text-orange-400 transition hover:bg-orange-500/10"
+                  className="rounded-lg p-2 text-teal-400 transition hover:bg-teal-500/10"
                   aria-label={`Copy NFC link for ${row.name}`}
                 >
                   <Copy className="h-4 w-4" />
@@ -319,7 +319,7 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/admin/customers/${selectedCustomer.id}/edit`)}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-orange-500 text-white hover:bg-orange-400"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-teal-600 text-white hover:bg-teal-500"
                 >
                   Edit Customer
                 </button>

@@ -276,7 +276,7 @@ export default function EditCustomerPage() {
   if (loading) {
     return (
       <main className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-orange-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-teal-400" />
       </main>
     );
   }
@@ -293,25 +293,25 @@ export default function EditCustomerPage() {
       <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-white/10 bg-[#161b2e] p-4 sm:p-5 lg:p-6">
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-sm font-medium text-gray-200">Name
-            <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" required />
+            <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" required />
           </label>
           <label className="block text-sm font-medium text-gray-200">Designation
-            <input value={form.designation} onChange={(e) => setText('designation', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input value={form.designation} onChange={(e) => setText('designation', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Company
-            <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Phone
-            <input value={form.phone} onChange={(e) => setText('phone', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" required />
+            <input value={form.phone} onChange={(e) => setText('phone', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" required />
           </label>
           <label className="block text-sm font-medium text-gray-200">Email
-            <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" required />
+            <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" required />
           </label>
           <label className="block text-sm font-medium text-gray-200">Mail API Key
-            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Status
-            <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400">
+            <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400">
               <option value="active">Active</option>
               <option value="inactive">Disabled</option>
             </select>
@@ -319,15 +319,15 @@ export default function EditCustomerPage() {
         </div>
 
         <label className="block text-sm font-medium text-gray-200">About Us
-          <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="mt-2 min-h-32 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+          <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="mt-2 min-h-32 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
         </label>
 
         <div className="grid gap-4 md:grid-cols-2">
           <label className="block text-sm font-medium text-gray-200">Address
-            <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
           <label className="block text-sm font-medium text-gray-200">Google Maps Embed URL
-            <input value={form.mapEmbedUrl} onChange={(e) => setText('mapEmbedUrl', e.target.value)} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-orange-400" />
+            <input value={form.mapEmbedUrl} onChange={(e) => setText('mapEmbedUrl', e.target.value)} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>
         </div>
 
@@ -344,7 +344,7 @@ export default function EditCustomerPage() {
                   <input type="checkbox" checked={isEnabled} onChange={(e) => setToggle(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
                   <span>{field.label}</span>
                 </label>
-                <input value={value} disabled={!isEnabled} onChange={(e) => setText(valueKey, e.target.value)} placeholder={`${field.label} URL`} className="w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-sm text-white outline-none focus:border-orange-400 disabled:cursor-not-allowed disabled:opacity-40" />
+                <input value={value} disabled={!isEnabled} onChange={(e) => setText(valueKey, e.target.value)} placeholder={`${field.label} URL`} className="w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-sm text-white outline-none focus:border-teal-400 disabled:cursor-not-allowed disabled:opacity-40" />
               </div>
             );
           })}
@@ -375,13 +375,13 @@ export default function EditCustomerPage() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => updateGalleryFile(item.slot, e.target.files?.[0] || null)}
-                    className="mt-2 block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-orange-500 file:px-3 file:py-1.5 file:font-semibold file:text-white"
+                    className="mt-2 block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-teal-600 file:px-3 file:py-1.5 file:font-semibold file:text-white"
                   />
                   <input
                     value={item.hoverText}
                     onChange={(e) => updateGalleryHover(item.slot, e.target.value)}
                     placeholder={`Image ${item.slot} hover text`}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-[#161b2e] px-3 py-2 text-sm text-white outline-none focus:border-orange-400"
+                    className="mt-2 w-full rounded-xl border border-white/10 bg-[#161b2e] px-3 py-2 text-sm text-white outline-none focus:border-teal-400"
                   />
                 </div>
               ))}
@@ -389,7 +389,7 @@ export default function EditCustomerPage() {
           ) : null}
         </div>
 
-        <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-orange-500 to-orange-400 px-5 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-orange-500/20 disabled:cursor-not-allowed disabled:opacity-70">
+        <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-teal-600 to-emerald-500 px-5 py-3 text-sm font-semibold text-white transition hover:shadow-lg hover:shadow-teal-500/20 disabled:cursor-not-allowed disabled:opacity-70">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {saving ? 'Saving...' : 'Save Customer'}
         </button>

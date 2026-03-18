@@ -299,7 +299,7 @@ export default function DataTable({
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-semibold transition-all duration-200 ${page === currentPage
-                    ? 'bg-orange-500 text-white shadow-lg shadow-orange-500/20 active:scale-95'
+                    ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20 active:scale-95'
                     : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
                     }`}
                 >

@@ -6,7 +6,7 @@ interface StatCardProps {
   value: string | number;
   icon?: React.ReactNode;
   trend?: { value: number; isPositive: boolean };
-  color?: 'blue' | 'green' | 'purple' | 'orange' | 'pink' | 'red';
+  color?: 'blue' | 'green' | 'purple' | 'teal' | 'orange' | 'pink' | 'red';
   description?: string;
 }
 
@@ -30,6 +30,11 @@ const colorConfig = {
     iconBg: 'bg-orange-500/10 border-orange-500/20',
     iconText: 'text-orange-400',
     glow: 'shadow-orange-500/10',
+  },
+  teal: {
+    iconBg: 'bg-teal-500/10 border-teal-500/20',
+    iconText: 'text-teal-400',
+    glow: 'shadow-teal-500/10',
   },
   pink: {
     iconBg: 'bg-pink-500/10 border-pink-500/20',

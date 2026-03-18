@@ -85,7 +85,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
           Email Address
         </label>
         <div className="relative group">
-          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 group-focus-within:text-orange-400 transition-colors pointer-events-none" />
+          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 group-focus-within:text-teal-400 transition-colors pointer-events-none" />
           <input
             {...register('email', {
               required: 'Email is required',
@@ -98,7 +98,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type="email"
             placeholder="admin@example.com"
             disabled={isLoading}
-            className={`w-full pl-11 pr-4 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 ${errors.email
+            className={`w-full pl-11 pr-4 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200 ${errors.email
                 ? 'border-red-500'
               : 'border-white/15'
               } disabled:opacity-50`}
@@ -118,7 +118,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
           Password
         </label>
         <div className="relative group">
-          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 group-focus-within:text-orange-400 transition-colors pointer-events-none" />
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 group-focus-within:text-teal-400 transition-colors pointer-events-none" />
           <input
             {...register('password', {
               required: 'Password is required',
@@ -131,7 +131,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             disabled={isLoading}
-            className={`w-full pl-11 pr-12 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/60 focus:ring-2 focus:ring-orange-500/20 transition-all duration-200 ${errors.password
+            className={`w-full pl-11 pr-12 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/60 focus:ring-2 focus:ring-teal-500/20 transition-all duration-200 ${errors.password
                 ? 'border-red-500'
               : 'border-white/15'
               } disabled:opacity-50`}
@@ -140,7 +140,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             disabled={isLoading}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-orange-400 transition-colors disabled:opacity-50"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-400 transition-colors disabled:opacity-50"
           >
             {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
           </button>
@@ -152,17 +152,17 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
 
       <div className="flex items-center justify-between py-0.5">
         <label className="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-[#222c47] text-orange-500 focus:ring-orange-500/50" />
+          <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-[#222c47] text-teal-500 focus:ring-teal-500/50" />
           <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">Remember me</span>
         </label>
-        <button type="button" className="text-sm text-orange-400 hover:text-orange-300 transition-colors font-medium">Forgot password?</button>
+        <button type="button" className="text-sm text-teal-400 hover:text-teal-300 transition-colors font-medium">Forgot password?</button>
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-gradient-to-r from-orange-500 to-orange-400 text-white font-semibold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="w-full bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-semibold py-3.5 px-4 rounded-xl hover:shadow-lg hover:shadow-teal-500/25 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
       >
         {isLoading ? (
           <>

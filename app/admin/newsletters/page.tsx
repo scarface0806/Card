@@ -158,12 +158,12 @@ export default function NewslettersPage() {
             }}
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
           >
-            <Send className="w-4 h-4 text-orange-400" />
+            <Send className="w-4 h-4 text-teal-400" />
             {showComposer ? 'Close Composer' : 'Send Campaign'}
           </button>
           <button
             onClick={handleRefresh}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
           >
             <RotateCw className="w-4 h-4" />
             Refresh
@@ -194,7 +194,7 @@ export default function NewslettersPage() {
                 value={campaign.subject}
                 onChange={(e) => setCampaign((prev) => ({ ...prev, subject: e.target.value }))}
                 placeholder="Monthly updates from Tapvyo"
-                className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50"
+                className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50"
               />
             </div>
             <div className="space-y-2">
@@ -204,7 +204,7 @@ export default function NewslettersPage() {
                 value={campaign.previewText}
                 onChange={(e) => setCampaign((prev) => ({ ...prev, previewText: e.target.value }))}
                 placeholder="New features, offers, and product highlights"
-                className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50"
+                className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50"
               />
             </div>
           </div>
@@ -215,14 +215,14 @@ export default function NewslettersPage() {
               onChange={(e) => setCampaign((prev) => ({ ...prev, content: e.target.value }))}
               rows={7}
               placeholder="<h1>Hello from Tapvyo</h1><p>Your campaign content goes here.</p>"
-              className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-orange-500/50"
+              className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50"
             />
           </div>
           <div className="flex justify-end">
             <button
               onClick={handleSendCampaign}
               disabled={sending}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-orange-500 to-orange-400 text-white font-medium disabled:opacity-60"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-medium disabled:opacity-60"
             >
               {sending ? 'Sending...' : 'Send Campaign'}
             </button>

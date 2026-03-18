@@ -445,7 +445,7 @@ export default function OrdersPage() {
           </button>
           <button
             onClick={fetchOrders}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -679,7 +679,7 @@ export default function OrdersPage() {
                   <select
                     value={form.customerId}
                     onChange={(event) => setForm((prev) => ({ ...prev, customerId: event.target.value }))}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                   >
                     <option value="">Guest Customer</option>
                     {customerOptions.map((customer) => (
@@ -703,7 +703,7 @@ export default function OrdersPage() {
                         price: selected ? String(selected.price) : prev.price,
                       }));
                     }}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                     required
                   >
                     <option value="">Select product</option>
@@ -723,7 +723,7 @@ export default function OrdersPage() {
                       min={1}
                       value={form.quantity}
                       onChange={(event) => setForm((prev) => ({ ...prev, quantity: event.target.value }))}
-                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                       required
                     />
                   </div>
@@ -735,7 +735,7 @@ export default function OrdersPage() {
                       step="0.01"
                       value={form.price}
                       onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))}
-                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                       required
                     />
                   </div>
@@ -747,7 +747,7 @@ export default function OrdersPage() {
                     value={form.address}
                     onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
                     rows={3}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                     placeholder="Enter shipping/customer address"
                   />
                 </div>
@@ -758,7 +758,7 @@ export default function OrdersPage() {
                     value={form.notes}
                     onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
                     rows={3}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-orange-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
                     placeholder="Order notes"
                   />
                 </div>
@@ -774,7 +774,7 @@ export default function OrdersPage() {
                   <button
                     type="submit"
                     disabled={createLoading}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-orange-500 text-white hover:bg-orange-400 disabled:opacity-60"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-teal-600 text-white hover:bg-teal-500 disabled:opacity-60"
                   >
                     {createLoading ? 'Creating...' : 'Create Order'}
                   </button>

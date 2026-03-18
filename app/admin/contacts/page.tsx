@@ -119,7 +119,7 @@ export default function ContactsPage() {
           </button>
           <button
             onClick={handleRefresh}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-orange-500 to-orange-400 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-orange-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
           >
             <RotateCw className="w-4 h-4" />
             Refresh
