@@ -1,7 +1,9 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest } from 'next/server';
 import prisma from '@/lib/prisma';
+import { getMongoDb } from '@/lib/mongodb';
 import { generateToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
+import { ObjectId } from 'mongodb';
 import { z } from 'zod';
 import { errorResponse, successResponse } from '@/lib/responses';
 
@@ -9,6 +11,73 @@ const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
   password: z.string().min(6, 'Password must be at least 6 characters'),
 });
+
+type MongoAdminUser = {
+  _id: ObjectId;
+  email?: string;
+  password?: string;
+  name?: string;
+  role?: string;
+  isActive?: boolean;
+};
+
+type AdminLoginUser = {
+  id: string;
+  email: string;
+  name: string;
+  role: 'ADMIN';
+  passwordHash: string;
+};
+
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function normalizeRole(role?: string | null): string {
+  return role?.trim().toUpperCase() || 'ADMIN';
+}
+
+async function findMongoAdminByEmail(email: string): Promise<AdminLoginUser | null> {
+  const db = await getMongoDb();
+  const admins = db.collection<MongoAdminUser>('admins');
+  const admin = await admins.findOne({
+    email: {
+      $regex: `^${escapeRegex(email)}$`,
+      $options: 'i',
+    },
+  });
+
+  if (!admin || !admin.password || admin.isActive === false) {
+    return null;
+  }
+
+  if (normalizeRole(admin.role) !== 'ADMIN') {
+    return null;
+  }
+
+  return {
+    id: admin._id.toString(),
+    email: admin.email?.trim().toLowerCase() || email,
+    name: admin.name?.trim() || 'Admin User',
+    role: 'ADMIN',
+    passwordHash: admin.password,
+  };
+}
+
+function createAdminSuccessResponse(user: Omit<AdminLoginUser, 'passwordHash'>) {
+  const token = generateToken({
+    userId: user.id,
+    email: user.email,
+    role: user.role,
+  });
+
+  return createAuthResponse(token, {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role,
+  });
+}
 
 /**
  * Handle Admin Authentication
@@ -45,29 +114,28 @@ export async function POST(request: NextRequest) {
     const { email, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
 
-    // 3. PRIORITY 1: Check Environment-Configured Admin (Emergency Access / First Launch)
     const adminEmailConfig = (process.env.ADMIN_EMAIL || process.env.AUTO_CREATE_ADMIN_EMAIL || '').toLowerCase().trim();
     const adminPassConfig = process.env.ADMIN_PASSWORD || process.env.AUTO_CREATE_ADMIN_PASSWORD;
 
-    if (adminEmailConfig && normalizedEmail === adminEmailConfig && password === adminPassConfig) {
-      console.info(`[Admin Auth] Successful login using environment fallback: ${normalizedEmail}`);
-      const token = generateToken({
-        userId: 'env-admin-fallback',
-        email: normalizedEmail,
-        role: 'ADMIN',
-      });
-
-      return createAuthResponse(token, {
-        id: 'env-admin-fallback',
-        email: normalizedEmail,
-        name: 'System Administrator',
-        role: 'ADMIN',
-      });
-    }
-
-    // 4. PRIORITY 2: Check Database for Admin User
-    // We wrap this in a sub-try catch to handle Prima/Database connection gracefully
+    // 3. PRIORITY 1: Check Database for Admin User
+    // Support both Mongo-backed admins and Prisma-backed admins.
     try {
+      const mongoAdmin = await findMongoAdminByEmail(normalizedEmail);
+
+      if (mongoAdmin) {
+        const isValid = await bcrypt.compare(password, mongoAdmin.passwordHash);
+
+        if (isValid) {
+          console.info(`[Admin Auth] Successful Mongo admin login: ${normalizedEmail}`);
+          return createAdminSuccessResponse({
+            id: mongoAdmin.id,
+            email: mongoAdmin.email,
+            name: mongoAdmin.name,
+            role: mongoAdmin.role,
+          });
+        }
+      }
+
       const user = await prisma.user.findFirst({
         where: {
           email: normalizedEmail,
@@ -81,13 +149,11 @@ export async function POST(request: NextRequest) {
         
         if (isValid) {
           console.info(`[Admin Auth] Successful database login: ${normalizedEmail}`);
-          const token = generateToken({
+          return createAuthResponse(generateToken({
             userId: user.id,
             email: user.email,
             role: user.role,
-          });
-
-          return createAuthResponse(token, {
+          }), {
             id: user.id,
             email: user.email,
             name: user.name || 'Admin User',
@@ -95,9 +161,37 @@ export async function POST(request: NextRequest) {
           });
         }
       }
+
+      // 4. PRIORITY 2: Check Environment-Configured Admin (Emergency Access / First Launch)
+      if (adminEmailConfig && normalizedEmail === adminEmailConfig && password === adminPassConfig) {
+        console.info(`[Admin Auth] Successful login using environment fallback: ${normalizedEmail}`);
+        return createAuthResponse(generateToken({
+          userId: 'env-admin-id',
+          email: normalizedEmail,
+          role: 'ADMIN',
+        }), {
+          id: 'env-admin-id',
+          email: normalizedEmail,
+          name: 'System Administrator',
+          role: 'ADMIN',
+        });
+      }
     } catch (dbError) {
       console.error('[Admin Auth] Database access failed:', dbError);
-      // If DB fails but we already checked env-fallback (step 3), we return a specific 503
+      if (adminEmailConfig && normalizedEmail === adminEmailConfig && password === adminPassConfig) {
+        console.info(`[Admin Auth] Database unavailable, using environment fallback: ${normalizedEmail}`);
+        return createAuthResponse(generateToken({
+          userId: 'env-admin-id',
+          email: normalizedEmail,
+          role: 'ADMIN',
+        }), {
+          id: 'env-admin-id',
+          email: normalizedEmail,
+          name: 'System Administrator',
+          role: 'ADMIN',
+        });
+      }
+
       return errorResponse("Database service unavailable. Please try again shortly.", 503);
     }
 
