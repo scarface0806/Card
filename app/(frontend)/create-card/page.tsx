@@ -151,7 +151,7 @@ function CreateCardContent() {
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-8">
+              <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-4 sm:p-6 md:p-8">
                 <Stepper steps={FORM_STEPS} currentStep={currentStep} />
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-12 space-y-8">

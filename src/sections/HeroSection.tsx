@@ -33,7 +33,7 @@ const itemVariants = {
 
 export default function HeroSection() {
   return (
-    <section className="relative w-full min-h-screen flex items-center bg-white overflow-visible">
+    <section className="relative w-full min-h-screen flex items-center hero-mesh overflow-visible">
       <div className="site-container py-24 lg:py-0 overflow-visible">
         {/* 12-column grid: 5 columns left, 7 columns right */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
@@ -57,7 +57,7 @@ export default function HeroSection() {
 
             {/* Headline - Value-focused */}
             <motion.div variants={itemVariants}>
-              <h1 className="heading-display text-gray-900">
+              <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.08]">
                 Share Your Contact{' '}
                 <span className="text-gradient">Instantly</span>
                 <br />
@@ -66,7 +66,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Subtext - Outcome focused */}
-            <motion.p variants={itemVariants} className="body-lg text-gray-600 max-w-md">
+            <motion.p variants={itemVariants} className="text-base md:text-lg text-slate-500 max-w-md leading-relaxed">
               Turn every handshake into a lasting connection. Your NFC card shares your complete profile in seconds — no apps needed.
             </motion.p>
 
@@ -96,7 +96,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Trust Signals */}
-            <motion.div variants={itemVariants} className="flex flex-wrap gap-x-6 gap-y-2 pt-2">
+            <motion.div variants={itemVariants} className="flex flex-wrap gap-x-6 gap-y-3 pt-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Check className="w-4 h-4 text-teal-600" />
                 <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>

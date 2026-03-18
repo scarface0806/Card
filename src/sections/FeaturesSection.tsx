@@ -59,7 +59,7 @@ const itemVariants = {
 
 export default function FeaturesSection() {
   return (
-    <section className="section-spacing bg-white">
+    <section className="section-spacing section-warm">
       <div className="site-container">
         {/* Section Header */}
         <motion.div
@@ -77,7 +77,7 @@ export default function FeaturesSection() {
             Powerful{' '}
             <span className="text-gradient">Features</span>
           </h2>
-          <p className="body-lg section-subtitle">
+          <p className="text-sm md:text-base text-slate-500 section-subtitle">
             Everything you need to make a lasting impression
           </p>
         </motion.div>
@@ -96,10 +96,10 @@ export default function FeaturesSection() {
               <motion.div
                 key={index}
                 variants={itemVariants}
-                whileHover={{ y: -4 }}
-                className="card card-padding"
+                whileHover={{ y: -4, scale: 1.02 }}
+                className="card card-padding bg-white"
               >
-                <div className="w-12 h-12 md:w-14 md:h-14 rounded-xl bg-teal-50 flex items-center justify-center mb-4 md:mb-6">
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-5 md:mb-6">
                   <Icon className="w-6 h-6 md:w-7 md:h-7 text-teal-600" />
                 </div>
                 <h3 className="heading-3 text-[#0f2e25] font-space-grotesk mb-2 md:mb-3">{feature.title}</h3>

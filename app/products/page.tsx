@@ -128,9 +128,9 @@ export default function ProductsPage() {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] min-h-screen">
+        <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
         {/* Hero */}
-        <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
+        <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
             <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
@@ -153,7 +153,7 @@ export default function ProductsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-5xl md:text-7xl font-bold mb-6 text-[#0f2e25] font-space-grotesk"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight"
             >
               Choose Your{' '}
               <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
@@ -165,7 +165,7 @@ export default function ProductsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-xl text-[#4b635d] max-w-3xl mx-auto leading-relaxed"
+              className="text-base md:text-lg text-slate-500 max-w-3xl mx-auto leading-relaxed"
             >
               Find the perfect plan for your professional needs. No hidden fees, cancel anytime.
             </motion.p>
@@ -173,7 +173,7 @@ export default function ProductsPage() {
         </section>
 
         {/* Pricing Cards */}
-        <section className="py-20 md:py-32 bg-white">
+        <section className="py-20 md:py-28 bg-white">
           <div className="site-container">
             {loading ? (
               <div className="flex items-center justify-center py-20">
@@ -201,7 +201,7 @@ export default function ProductsPage() {
                     className={`relative group rounded-2xl border transition-all duration-300 overflow-hidden ${
                       isPopular
                         ? 'border-teal-500 ring-2 ring-teal-500/20 shadow-xl bg-white md:scale-105'
-                        : 'border-teal-100 bg-white shadow-md hover:shadow-lg'
+                        : 'border-gray-200/60 bg-white shadow-md hover:shadow-xl'
                     }`}
                   >
                     {isPopular && (
@@ -278,8 +278,8 @@ export default function ProductsPage() {
         <section className="py-20 md:py-32">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Why Choose Tapvyo?</h2>
-              <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Why Choose Tapvyo?</h2>
+              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
                 The most advanced NFC digital business card platform on the market
               </p>
             </motion.div>
@@ -295,13 +295,13 @@ export default function ProductsPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.15 }}
                     whileHover={{ y: -6 }}
-                    className="p-8 rounded-2xl border border-teal-100 bg-white shadow-md hover:shadow-lg transition-all"
+                    className="p-8 rounded-2xl border border-gray-200/60 bg-white shadow-md hover:shadow-xl transition-all"
                   >
                     <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center mb-4">
                       <Icon className="w-6 h-6 text-teal-600" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-[#0f2e25] font-space-grotesk">{feature.title}</h3>
-                    <p className="text-[#4b635d]">{feature.description}</p>
+                    <p className="text-sm md:text-base text-slate-500">{feature.description}</p>
                   </motion.div>
                 );
               })}
@@ -310,13 +310,13 @@ export default function ProductsPage() {
         </section>
 
         {/* Comparison Table */}
-        <section className="py-20 md:py-32 bg-white">
+        <section className="py-16 md:py-24 section-alt">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Detailed Comparison</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Detailed Comparison</h2>
             </motion.div>
 
-            <div className="overflow-x-auto rounded-2xl border border-teal-100 shadow-md bg-white">
+            <div className="overflow-x-auto rounded-2xl border border-gray-200/60 shadow-md bg-white">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-teal-100 bg-teal-50">
@@ -359,7 +359,7 @@ export default function ProductsPage() {
         <section className="py-20 md:py-32">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Common Questions</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Common Questions</h2>
             </motion.div>
 
             <div className="space-y-4">
@@ -387,7 +387,7 @@ export default function ProductsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-6 rounded-xl border border-teal-100 bg-white shadow-sm hover:border-teal-200 transition-all"
+                  className="p-6 rounded-xl border border-gray-200/60 bg-white shadow-sm hover:border-gray-300 hover:shadow-md transition-all"
                 >
                   <h3 className="font-semibold text-lg text-[#0f2e25] mb-2">{faq.q}</h3>
                   <p className="text-[#4b635d]">{faq.a}</p>
@@ -398,7 +398,7 @@ export default function ProductsPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-20 md:py-32 bg-white">
+        <section className="py-16 md:py-24 bg-white">
           <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -407,8 +407,8 @@ export default function ProductsPage() {
               className="text-center relative p-12 md:p-20 rounded-3xl border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl -z-10" />
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk relative z-10">Ready to Stand Out?</h2>
-              <p className="text-lg text-[#4b635d] mb-8 max-w-2xl mx-auto relative z-10">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight relative z-10">Ready to Stand Out?</h2>
+              <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto relative z-10">
                 Choose your plan and start sharing professionally today
               </p>
               <Link href={ROUTES.CREATE_CARD}>

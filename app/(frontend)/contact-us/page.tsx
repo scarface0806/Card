@@ -110,7 +110,7 @@ export default function ContactUsPage() {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] min-h-screen">
+      <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
         {/* Hero */}
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 -z-10">
@@ -131,14 +131,14 @@ export default function ContactUsPage() {
                 </span>
               </motion.div>
 
-              <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">
+              <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">
                 Get in{' '}
                 <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                   Touch
                 </span>
               </motion.h1>
 
-              <motion.p variants={itemVariants} className="text-xl text-[#4b635d] max-w-3xl mx-auto leading-relaxed">
+              <motion.p variants={itemVariants} className="text-base md:text-lg text-slate-500 max-w-3xl mx-auto leading-relaxed">
                 Have questions? Our friendly team is always ready to help. Reach out to us anytime.
               </motion.p>
             </motion.div>
@@ -158,8 +158,8 @@ export default function ContactUsPage() {
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                    whileHover={{ y: -4 }}
-                    className="p-8 rounded-2xl border border-teal-100 bg-white shadow-md hover:shadow-lg transition-all text-center group"
+                    whileHover={{ y: -4, scale: 1.02 }}
+                    className="p-8 rounded-2xl border border-gray-200/60 bg-white shadow-md hover:shadow-xl transition-all text-center group"
                   >
                     <div className={`w-16 h-16 mx-auto rounded-xl ${method.color} mb-6 flex items-center justify-center transition-transform duration-220`}>
                       <Icon className="w-8 h-8 text-white" />
@@ -175,7 +175,7 @@ export default function ContactUsPage() {
         </section>
 
         {/* Contact Form & Info */}
-        <section className="py-20 md:py-32 bg-white">
+        <section className="py-16 md:py-24 bg-white">
           <div className="site-container">
             <div className="grid md:grid-cols-2 gap-12">
               {/* Form */}
@@ -184,9 +184,9 @@ export default function ContactUsPage() {
                 whileInView={{ opacity: 1, x: 0 }}
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
-                className="p-8 rounded-2xl border border-teal-100 bg-white shadow-md"
+                className="p-8 rounded-2xl border border-gray-200/60 bg-white shadow-md"
               >
-                <h2 className="text-3xl font-bold mb-8 text-[#0f2e25] font-space-grotesk">Send us a Message</h2>
+                <h2 className="text-2xl md:text-3xl font-extrabold mb-8 text-[#0f2e25] font-space-grotesk tracking-tight">Send us a Message</h2>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
@@ -301,7 +301,7 @@ export default function ContactUsPage() {
                 viewport={{ once: true }}
                 transition={{ duration: 0.8 }}
               >
-                <h2 className="text-3xl font-bold mb-8 text-[#0f2e25] font-space-grotesk">Why Contact Us?</h2>
+                <h2 className="text-2xl md:text-3xl font-extrabold mb-8 text-[#0f2e25] font-space-grotesk tracking-tight">Why Contact Us?</h2>
 
                 <div className="space-y-8">
                   {[
@@ -346,15 +346,15 @@ export default function ContactUsPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="mt-12 p-8 rounded-2xl border border-teal-100 bg-teal-50">
+                <div className="mt-12 p-8 rounded-2xl border border-gray-200/60 bg-gradient-to-br from-teal-50 to-emerald-50">
                   <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     className="text-center"
                   >
-                    <p className="text-4xl font-bold text-teal-600 mb-2">98%</p>
-                    <p className="text-[#4b635d]">Customer Satisfaction Rate</p>
+                    <p className="text-4xl font-extrabold text-teal-600 mb-2">98%</p>
+                    <p className="text-sm text-slate-500">Customer Satisfaction Rate</p>
                   </motion.div>
                 </div>
               </motion.div>
@@ -363,11 +363,11 @@ export default function ContactUsPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-20 md:py-32">
+        <section className="py-16 md:py-24">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Frequently Asked Questions</h2>
-              <p className="text-lg text-[#4b635d]">Find answers to common questions</p>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Frequently Asked Questions</h2>
+              <p className="text-base md:text-lg text-slate-500">Find answers to common questions</p>
             </motion.div>
 
             <div className="space-y-4">
@@ -395,10 +395,10 @@ export default function ContactUsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-6 rounded-xl border border-teal-100 bg-white shadow-sm hover:border-teal-200 transition-all"
+                  className="p-6 rounded-2xl border border-gray-200/60 bg-white shadow-sm hover:border-gray-300 hover:shadow-md transition-all"
                 >
                   <h3 className="font-semibold text-lg text-[#0f2e25] mb-2">{faq.q}</h3>
-                  <p className="text-[#4b635d]">{faq.a}</p>
+                  <p className="text-sm md:text-base text-slate-500">{faq.a}</p>
                 </motion.div>
               ))}
             </div>

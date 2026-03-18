@@ -48,7 +48,7 @@ const itemVariants = {
 
 export default function HowItWorksSection() {
   return (
-    <section className="relative section-spacing bg-white overflow-hidden">
+    <section className="relative section-spacing section-alt overflow-hidden">
       {/* Subtle background gradient */}
       <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-white to-white pointer-events-none" />
 
@@ -70,7 +70,7 @@ export default function HowItWorksSection() {
             <span className="text-gradient">3 Simple Steps</span>
           </h2>
 
-          <p className="body-lg section-subtitle">
+          <p className="text-sm md:text-base text-slate-500 section-subtitle">
             Set up your digital profile and start sharing instantly.
           </p>
         </motion.div>
@@ -93,13 +93,13 @@ export default function HowItWorksSection() {
                 whileHover={{ y: -6, transition: { duration: 0.2 } }}
                 className="group relative"
               >
-                <div className="h-full card card-padding">
+                <div className="h-full card card-padding hover:shadow-xl transition-all duration-300">
                   {/* Icon */}
                   <motion.div
                     className="flex items-center justify-center mb-6"
                     whileHover={{ y: -2, transition: { duration: 0.22 } }}
                   >
-                    <div className="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/30">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
                       <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
                     </div>
                   </motion.div>

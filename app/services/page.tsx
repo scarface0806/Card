@@ -241,7 +241,7 @@ export default function ServicesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.1 }}
               >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black leading-tight text-gray-900 tracking-tight">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-gray-900 tracking-tight">
                   Our{' '}
                   <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                     Services
@@ -292,10 +292,10 @@ export default function ServicesPage() {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
                 NFC Card Solutions
               </h2>
-              <p className="text-[#4b635d] max-w-2xl mx-auto">
+              <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto">
                 Bulk and enterprise NFC solutions for institutions and businesses.
               </p>
             </motion.div>
@@ -311,7 +311,7 @@ export default function ServicesPage() {
                 <motion.div
                   key={solution.id}
                   variants={itemVariants}
-                  className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-teal-100 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
+                  className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-gray-200/60 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
                 >
                   {/* Card Header */}
                   <div className={`${solution.bgGradient} p-6`}>
@@ -364,13 +364,13 @@ export default function ServicesPage() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16 relative z-10"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk tracking-tight mb-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0f2e25] font-space-grotesk tracking-tight mb-4">
                 Digital Solutions for{' '}
                 <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                   Modern Businesses
                 </span>
               </h2>
-              <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
+              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
                 End-to-end technology services built for growth.
               </p>
             </motion.div>
@@ -398,7 +398,7 @@ export default function ServicesPage() {
                   />
                   
                   {/* Card */}
-                  <div className="relative flex flex-col h-full backdrop-blur-md bg-white/70 rounded-3xl shadow-xl p-10 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
+                  <div className="relative flex flex-col h-full backdrop-blur-md bg-white/80 rounded-3xl shadow-xl border border-gray-200/40 p-10 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
                     {/* Top Content */}
                     <div className="flex flex-col">
                       {/* Icon */}
@@ -473,14 +473,14 @@ export default function ServicesPage() {
           transition={{ duration: 0.7 }}
           className="relative z-10 site-container text-center"
         >
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white font-space-grotesk mb-6 leading-tight">
+          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white font-space-grotesk mb-6 leading-tight tracking-tight">
             Let&apos;s Build Something{' '}
             <span className="bg-gradient-to-r from-teal-300 to-emerald-300 bg-clip-text text-transparent">
               Powerful
             </span>{' '}
             Together.
           </h2>
-          <p className="text-lg md:text-xl text-white/70 mb-10 max-w-2xl mx-auto">
+          <p className="text-base md:text-lg text-white/60 mb-10 max-w-2xl mx-auto">
             From NFC cards to full-scale digital solutions — we help brands grow.
           </p>
 

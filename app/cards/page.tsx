@@ -80,7 +80,7 @@ export default function CardsPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff]">
         <div className="site-container">
           {/* Header */}
           <motion.div
@@ -94,13 +94,13 @@ export default function CardsPage() {
               <span className="text-sm font-medium text-teal-700">Premium NFC Cards</span>
             </div>
 
-            <h1 className="text-4xl md:text-6xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
               Our NFC{' '}
               <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                 Card Designs
               </span>
             </h1>
-            <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
+            <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
               Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>.
             </p>
           </motion.div>
@@ -121,7 +121,7 @@ export default function CardsPage() {
               <motion.div
                 key={card.id}
                 variants={itemVariants}
-                className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-teal-100 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
+                className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-gray-200/60 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
               >
                 {/* Card Preview */}
                 <div className="relative aspect-[1.6/1] overflow-hidden">
@@ -259,10 +259,10 @@ export default function CardsPage() {
           >
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
                   Every Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>
                 </h2>
-                <p className="text-lg text-[#4b635d]">
+                <p className="text-base md:text-lg text-slate-500">
                   Your personal digital profile that works forever — no hidden costs.
                 </p>
               </div>
@@ -275,7 +275,7 @@ export default function CardsPage() {
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
                     transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="bg-white rounded-2xl p-5 text-center shadow-sm border border-teal-100"
+                    className="bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-200/60"
                   >
                     <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
                       <Check className="w-5 h-5 text-teal-600" />
@@ -299,10 +299,10 @@ export default function CardsPage() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h3 className="text-2xl md:text-3xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
               Need Help Choosing?
             </h3>
-            <p className="text-[#4b635d] mb-6 max-w-xl mx-auto">
+            <p className="text-sm md:text-base text-slate-500 mb-6 max-w-xl mx-auto">
               Our team is here to help you pick the perfect card for your brand.
             </p>
             <button 

@@ -45,7 +45,7 @@ export default function HowToUsePage() {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] min-h-screen">
+      <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
         {/* Hero Section */}
         <section className="relative pt-32 pb-16 md:pt-44 md:pb-24 overflow-hidden">
           {/* Background decorations */}
@@ -71,7 +71,7 @@ export default function HowToUsePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl md:text-6xl font-bold mb-6 text-[#0f2e25] font-space-grotesk leading-tight"
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk leading-tight tracking-tight"
             >
               Your NFC Digital Card in{' '}
               <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
@@ -83,7 +83,7 @@ export default function HowToUsePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-lg md:text-xl text-[#4b635d] max-w-2xl mx-auto leading-relaxed"
+              className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed"
             >
               A modern way to share your professional identity instantly.
             </motion.p>
@@ -101,7 +101,7 @@ export default function HowToUsePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.15 }}
-                  className="relative bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-teal-100/50 hover:shadow-xl transition-shadow duration-300"
+                  className="relative bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200/60 hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="flex flex-col md:flex-row items-start gap-6 md:gap-10">
                     {/* Icon */}
@@ -122,7 +122,7 @@ export default function HowToUsePage() {
                         {step.title}
                       </h3>
 
-                      <p className="text-lg text-[#4b635d] leading-relaxed mb-4 max-w-2xl">
+                      <p className="text-base md:text-lg text-slate-500 leading-relaxed mb-4 max-w-2xl">
                         {step.description}
                       </p>
 
@@ -156,10 +156,10 @@ export default function HowToUsePage() {
               {...fadeInUp}
               className="text-center mb-12"
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
                 Designed for Modern Professionals
               </h2>
-              <p className="text-lg text-[#4b635d] max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
                 Perfect for entrepreneurs, executives, creators, and business leaders.
                 Share your bio, services, and contact details effortlessly in one tap.
               </p>
@@ -180,7 +180,7 @@ export default function HowToUsePage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-100 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
+                  className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-gray-200/60 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
                 >
                   <span className="text-3xl mb-3 block">{item.icon}</span>
                   <span className="text-sm font-semibold text-[#0f2e25]">{item.label}</span>
@@ -205,10 +205,10 @@ export default function HowToUsePage() {
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
 
               <div className="relative z-10">
-                <h2 className="text-3xl md:text-4xl font-bold text-white font-space-grotesk mb-4">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
                   Need Customization?
                 </h2>
-                <p className="text-lg text-teal-100 max-w-xl mx-auto mb-8 leading-relaxed">
+                <p className="text-base md:text-lg text-teal-100 max-w-xl mx-auto mb-8 leading-relaxed">
                   You can upgrade or customize your digital profile anytime.
                   Contact our team to modify design, add features, or personalize your NFC experience.
                 </p>
@@ -232,10 +232,10 @@ export default function HowToUsePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
                 Ready to Get Started?
               </h2>
-              <p className="text-lg text-[#4b635d] mb-8 max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-slate-500 mb-8 max-w-xl mx-auto">
                 Order your premium NFC digital business card today and start networking smarter.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">

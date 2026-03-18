@@ -36,7 +36,7 @@ export default function InteractiveCardShowcaseSection() {
               In Motion.
             </span>
           </h2>
-          <p className="body-lg section-subtitle">
+          <p className="text-sm md:text-base text-slate-500 section-subtitle">
             See your NFC card come to life. Interact, rotate, and transform.
           </p>
         </motion.div>

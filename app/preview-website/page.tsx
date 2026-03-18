@@ -124,6 +124,13 @@ export default function PreviewWebsitePage() {
 
   return (
     <>
+      {/* Font Awesome for social/contact icons */}
+      <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+        crossOrigin="anonymous"
+        referrerPolicy="no-referrer"
+      />
       <style jsx global>{`
         /* ===== CSS Variables ===== */
         :root {
@@ -214,11 +221,15 @@ export default function PreviewWebsitePage() {
 
         body {
           font-family: 'Poppins', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          background: var(--body-bg);
           min-height: 100vh;
-          padding: 20px;
           transition: background 0.5s ease;
           overflow-x: hidden;
+        }
+
+        /* Scoped preview page background */
+        .digi-preview-wrapper {
+          background: var(--body-bg);
+          padding: 20px;
         }
 
         #particle-canvas {
@@ -770,6 +781,10 @@ export default function PreviewWebsitePage() {
 
         @media (max-width: 768px) {
           body {
+            padding: 0;
+          }
+
+          .digi-preview-wrapper {
             padding: 10px;
           }
 
@@ -843,6 +858,7 @@ export default function PreviewWebsitePage() {
         }
       `}</style>
 
+      <div className="digi-preview-wrapper">
       <canvas id="particle-canvas"></canvas>
 
       <div className="digi-card-container">
@@ -1124,6 +1140,7 @@ export default function PreviewWebsitePage() {
             </a>
           </p>
         </footer>
+      </div>
       </div>
     </>
   );

@@ -51,7 +51,7 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative w-full section-spacing overflow-hidden bg-white">
+    <section className="relative w-full section-spacing overflow-hidden section-alt">
       {/* Content Container */}
       <div className="site-container relative z-10">
         {/* Section Header */}
@@ -68,7 +68,7 @@ export default function FAQSection() {
               Questions
             </span>
           </h2>
-          <p className="body-lg section-subtitle">
+          <p className="text-sm md:text-base text-slate-500 section-subtitle">
             Everything you need to know about Tapvyo NFC cards
           </p>
         </motion.div>
@@ -92,9 +92,9 @@ export default function FAQSection() {
             >
               <button
                 onClick={() => toggleItem(item.id)}
-                className="w-full flex items-center justify-between px-6 md:px-7 py-5 md:py-6 text-left
-                  bg-white hover:bg-gray-50 border border-gray-200 hover:border-gray-300
-                  rounded-xl md:rounded-2xl transition-all duration-300
+                className="w-full flex items-center justify-between px-6 md:px-8 py-5 md:py-6 text-left
+                  bg-white hover:bg-gray-50/80 border border-gray-200/80 hover:border-gray-300
+                  rounded-2xl transition-all duration-300
                   hover:shadow-md"
               >
                 {/* Question Text */}

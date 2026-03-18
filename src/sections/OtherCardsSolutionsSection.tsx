@@ -56,7 +56,7 @@ interface OtherCardsSolutionsSectionProps {
 
 export default function OtherCardsSolutionsSection({ onContactClick }: OtherCardsSolutionsSectionProps) {
   return (
-    <section className="section-spacing bg-white">
+    <section className="section-spacing section-alt">
       <div className="site-container">
           {/* Section Header */}
           <motion.div
@@ -78,7 +78,7 @@ export default function OtherCardsSolutionsSection({ onContactClick }: OtherCard
                 Solutions
               </span>
             </h2>
-            <p className="body-lg section-subtitle">
+            <p className="text-sm md:text-base text-slate-500 section-subtitle">
               Bulk NFC card solutions for schools, businesses, and organizations.
             </p>
           </motion.div>

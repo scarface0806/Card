@@ -59,7 +59,7 @@ export default function AboutUsPage() {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] min-h-screen">
+      <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
         {/* Hero Section */}
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 -z-10">
@@ -81,14 +81,14 @@ export default function AboutUsPage() {
                 </span>
               </motion.div>
 
-              <motion.h1 variants={itemVariants} className="text-5xl md:text-7xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">
+              <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">
                 Revolutionizing{' '}
                 <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
                   Connection
                 </span>
               </motion.h1>
 
-              <motion.p variants={itemVariants} className="text-xl md:text-2xl text-[#4b635d] mb-8 max-w-3xl mx-auto leading-relaxed">
+              <motion.p variants={itemVariants} className="text-lg md:text-xl text-slate-500 mb-8 max-w-3xl mx-auto leading-relaxed">
                 We're building the future of professional connections through intelligent NFC technology. One tap, endless possibilities.
               </motion.p>
             </motion.div>
@@ -106,11 +106,11 @@ export default function AboutUsPage() {
               className="grid md:grid-cols-2 gap-12 items-center"
             >
               <div>
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Our Story</h2>
-                <p className="text-lg text-[#4b635d] mb-4">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Our Story</h2>
+                <p className="text-base md:text-lg text-slate-500 mb-4">
                   Tapvyo was born from a simple observation: connecting professionals should be effortless. We realized that traditional business cards are outdated, and digital alternatives were too complicated.
                 </p>
-                <p className="text-lg text-[#4b635d] mb-6">
+                <p className="text-base md:text-lg text-slate-500 mb-6">
                   Our team of engineers and designers worked tirelessly to create the perfect blend of technology and elegance. The result? A seamless experience that lets professionals share their complete information with a single tap.
                 </p>
                 <Link href={ROUTES.HOW_TO_USE}>
@@ -149,8 +149,8 @@ export default function AboutUsPage() {
               viewport={{ once: true }}
               className="text-center mb-16"
             >
-              <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Our Core Values</h2>
-              <p className="text-lg text-[#4b635d] max-w-2xl mx-auto">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Our Core Values</h2>
+              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
                 These principles guide every decision we make and every feature we build
               </p>
             </motion.div>
@@ -166,13 +166,13 @@ export default function AboutUsPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.2, duration: 0.8 }}
                     whileHover={{ y: -6 }}
-                    className="group relative p-8 rounded-2xl border border-teal-100 bg-white shadow-md hover:shadow-lg transition-all duration-300"
+                    className="group relative p-8 rounded-2xl border border-gray-200/60 bg-white shadow-md hover:shadow-xl transition-all duration-300"
                   >
                     <div className={`w-16 h-16 rounded-xl ${value.color} mb-6 flex items-center justify-center`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold mb-4 text-[#0f2e25] font-space-grotesk">{value.title}</h3>
-                    <p className="text-[#4b635d]">{value.description}</p>
+                    <h3 className="text-xl md:text-2xl font-bold mb-4 text-[#0f2e25] font-space-grotesk">{value.title}</h3>
+                    <p className="text-sm md:text-base text-slate-500">{value.description}</p>
                   </motion.div>
                 );
               })}
@@ -196,7 +196,7 @@ export default function AboutUsPage() {
                   whileInView={{ opacity: 1, scale: 1 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.15, duration: 0.6 }}
-                  className="text-center p-8 rounded-2xl bg-teal-50/50 border border-teal-100"
+                  className="text-center p-8 rounded-2xl bg-white shadow-sm border border-gray-200/60"
                 >
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -206,7 +206,7 @@ export default function AboutUsPage() {
                   >
                     {stat.number}
                   </motion.div>
-                  <p className="text-[#4b635d] text-lg">{stat.label}</p>
+                  <p className="text-slate-500 text-base md:text-lg">{stat.label}</p>
                 </motion.div>
               ))}
             </motion.div>
@@ -224,8 +224,8 @@ export default function AboutUsPage() {
             >
               <div className="absolute top-0 right-0 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl -z-10" />
               <div className="relative z-10 text-center">
-                <h2 className="text-4xl md:text-5xl font-bold mb-6 text-[#0f2e25] font-space-grotesk">Join Our Community</h2>
-                <p className="text-lg text-[#4b635d] mb-8 max-w-2xl mx-auto">
+                <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Join Our Community</h2>
+                <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto">
                   Be part of the revolution. Create your modern digital business card today.
                 </p>
                 <Link href={ROUTES.ORDER}>

@@ -74,7 +74,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                 Card Designs
               </span>
             </h2>
-            <p className="body-lg section-subtitle">
+            <p className="text-sm md:text-base text-slate-500 section-subtitle">
               Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>.
             </p>
 
@@ -106,7 +106,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 mb-20 items-stretch"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 items-stretch"
           >
             {cardDesigns.map((card) => (
               <motion.div

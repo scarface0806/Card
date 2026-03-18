@@ -32,9 +32,9 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-300 ${
+      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-white/90 backdrop-blur-xl shadow-md border-b border-teal-100'
+          ? 'bg-white/80 backdrop-blur-2xl shadow-lg shadow-black/[0.03] border-b border-gray-200/60'
           : 'bg-transparent'
       }`}
     >
@@ -56,10 +56,10 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 text-sm font-medium transition-all duration-300 ${
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
                   isActive(link.href)
-                    ? 'text-teal-600 border-b-2 border-teal-600'
-                    : 'text-teal-800 hover:text-teal-600'
+                    ? 'text-teal-600 bg-teal-50/80'
+                    : 'text-gray-600 hover:text-teal-600 hover:bg-gray-50'
                 }`}
               >
                 {link.label}

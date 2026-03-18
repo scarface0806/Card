@@ -55,7 +55,7 @@ export default function TestimonialsSection() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="section-spacing bg-white">
+    <section className="section-spacing section-teal-soft">
       <div className="site-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -75,7 +75,7 @@ export default function TestimonialsSection() {
               Say
             </span>
           </h2>
-          <p className="body-lg section-subtitle">
+          <p className="text-sm md:text-base text-slate-500 section-subtitle">
             Join thousands of satisfied users
           </p>
         </motion.div>
@@ -85,7 +85,7 @@ export default function TestimonialsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="card card-padding md:p-12 text-center relative"
+          className="card card-padding md:p-12 lg:p-16 text-center relative bg-white shadow-lg max-w-3xl mx-auto"
         >
           {/* Quote Icon */}
           <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 bg-teal-600 rounded-full flex items-center justify-center">

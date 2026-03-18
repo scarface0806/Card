@@ -41,7 +41,7 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff]">
         <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -49,10 +49,10 @@ export default function PrivacyPolicyPage() {
             transition={{ duration: 0.6 }}
             className="mb-12"
           >
-            <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] mb-4 font-space-grotesk">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0f2e25] mb-4 font-space-grotesk tracking-tight">
               Privacy Policy
             </h1>
-            <p className="text-[#4b635d]">
+            <p className="text-sm md:text-base text-slate-500">
               Last updated: {new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -68,12 +68,12 @@ export default function PrivacyPolicyPage() {
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-xl p-8 border border-teal-100 shadow-sm"
+                className="bg-white rounded-2xl p-8 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow duration-300"
               >
-                <h2 className="text-2xl font-bold text-[#0f2e25] mb-4 font-space-grotesk">
+                <h2 className="text-xl md:text-2xl font-bold text-[#0f2e25] mb-4 font-space-grotesk">
                   {section.title}
                 </h2>
-                <p className="text-[#4b635d] leading-relaxed">
+                <p className="text-sm md:text-base text-slate-500 leading-relaxed">
                   {section.content}
                 </p>
               </motion.div>
