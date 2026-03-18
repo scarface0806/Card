@@ -1,6 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
+
+type MongoAdminUser = {
+  _id: ObjectId;
+  email?: string;
+  name?: string;
+  role?: string;
+  isActive?: boolean;
+  createdAt?: Date;
+  updatedAt?: Date;
+};
 
 function isDatabaseConnectivityError(error: unknown): boolean {
   if (!error || typeof error !== "object") {
@@ -93,6 +105,51 @@ export async function GET(request: NextRequest) {
     });
 
     if (!dbUser) {
+      // Support Mongo-backed admin users created by auto-create flow.
+      if (user.role === "ADMIN") {
+        const db = await getMongoDb();
+        const admins = db.collection("admins");
+
+        const adminById = ObjectId.isValid(user.id)
+          ? await admins.findOne({ _id: new ObjectId(user.id) })
+          : null;
+
+        const adminByEmail = adminById
+          ? null
+          : await admins.findOne({
+              email: {
+                $regex: `^${user.email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
+                $options: "i",
+              },
+            });
+
+        const mongoAdmin = (adminById || adminByEmail) as MongoAdminUser | null;
+
+        if (mongoAdmin) {
+          if (mongoAdmin.isActive === false) {
+            return NextResponse.json(
+              { error: "Account deactivated" },
+              { status: 403 }
+            );
+          }
+
+          return NextResponse.json({
+            user: {
+              id: mongoAdmin._id.toString(),
+              email: mongoAdmin.email || user.email,
+              name: mongoAdmin.name || "Admin User",
+              phone: null,
+              avatar: null,
+              role: "ADMIN",
+              emailVerified: true,
+              isActive: true,
+              createdAt: mongoAdmin.createdAt?.toISOString() || new Date().toISOString(),
+              updatedAt: mongoAdmin.updatedAt?.toISOString() || new Date().toISOString(),
+            },
+          });
+        }
+      }
+
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }

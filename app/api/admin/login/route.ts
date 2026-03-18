@@ -222,13 +222,6 @@ export async function POST(request: NextRequest) {
     const normalizedEmail = email.toLowerCase().trim();
     const fallbackPassword = password.trim();
 
-    // Auto-create default admin if credentials match auto-create config
-    // This is safe and only runs if environment variables are configured
-    if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL && 
-        fallbackPassword === AUTO_CREATE_ADMIN_PASSWORD) {
-      await ensureDefaultAdminExists(normalizedEmail, fallbackPassword);
-    }
-
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
       if (email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
         const token = generateToken({
@@ -268,51 +261,20 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Safe fallback credentials for admin access when DB user is not available.
-    if (FALLBACK_ADMIN_EMAILS.includes(normalizedEmail)) {
-      const isConfiguredAdminPassword = await verifyFallbackPasswordForEmail(normalizedEmail, fallbackPassword);
-      if (isConfiguredAdminPassword) {
-        const token = generateToken({
-          userId: 'env-admin-id',
-          email: normalizedEmail,
-          role: 'ADMIN',
-        });
+    const db = await getMongoDb();
+    const adminCollection = db.collection('admins');
 
-        const response = successResponse({
-          message: 'Login successful',
-          user: {
-            id: 'env-admin-id',
-            email: normalizedEmail,
-            name: 'Admin User',
-            role: 'ADMIN',
-          },
-          token,
-        }, 200);
-
-        response.cookies.set('auth-token', token, {
-          httpOnly: true,
-          secure: secureCookie,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 7,
-          path: '/',
-        });
-
-        response.cookies.set('admin-token', token, {
-          httpOnly: true,
-          secure: secureCookie,
-          sameSite: 'lax',
-          maxAge: 60 * 60 * 24 * 7,
-          path: '/',
-        });
-
-        console.info(`[Admin Auth] Production env admin login successful: ${normalizedEmail}`);
-        return response;
+    // If admin collection is empty and default credentials are configured,
+    // bootstrap one admin so first login works on fresh databases.
+    if (AUTO_CREATE_ADMIN_EMAIL && AUTO_CREATE_ADMIN_PASSWORD) {
+      const existingAnyAdmin = await adminCollection.findOne({}, { projection: { _id: 1 } });
+      if (!existingAnyAdmin || normalizedEmail === AUTO_CREATE_ADMIN_EMAIL) {
+        await ensureDefaultAdminExists(AUTO_CREATE_ADMIN_EMAIL, AUTO_CREATE_ADMIN_PASSWORD);
       }
     }
 
     // Try Mongo admins collection first for production parity (Atlas/Vercel)
-    const db = await getMongoDb();
-    const mongoAdmin = (await db.collection('admins').findOne({
+    const mongoAdmin = (await adminCollection.findOne({
       email: { $regex: `^${normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
     })) as MongoAdmin | null;
 
@@ -390,7 +352,7 @@ export async function POST(request: NextRequest) {
         
         if (autoCreateSuccess) {
           // Try MongoDB lookup after auto-create
-          const mongoRetry = (await db.collection('admins').findOne({
+          const mongoRetry = (await adminCollection.findOne({
             email: { $regex: `^${normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
           })) as MongoAdmin | null;
 
@@ -436,6 +398,48 @@ export async function POST(request: NextRequest) {
               return response;
             }
           }
+        }
+      }
+
+      // Last-resort fallback: allow configured env admin login if DB records are unavailable.
+      if (FALLBACK_ADMIN_EMAILS.includes(normalizedEmail)) {
+        const isConfiguredAdminPassword = await verifyFallbackPasswordForEmail(normalizedEmail, fallbackPassword);
+        if (isConfiguredAdminPassword) {
+          const token = generateToken({
+            userId: 'env-admin-id',
+            email: normalizedEmail,
+            role: 'ADMIN',
+          });
+
+          const response = successResponse({
+            message: 'Login successful',
+            user: {
+              id: 'env-admin-id',
+              email: normalizedEmail,
+              name: 'Admin User',
+              role: 'ADMIN',
+            },
+            token,
+          }, 200);
+
+          response.cookies.set('auth-token', token, {
+            httpOnly: true,
+            secure: secureCookie,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7,
+            path: '/',
+          });
+
+          response.cookies.set('admin-token', token, {
+            httpOnly: true,
+            secure: secureCookie,
+            sameSite: 'lax',
+            maxAge: 60 * 60 * 24 * 7,
+            path: '/',
+          });
+
+          console.info(`[Admin Auth] Env fallback admin login successful: ${normalizedEmail}`);
+          return response;
         }
       }
 
