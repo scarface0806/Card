@@ -44,14 +44,14 @@ export default function BusinessDetailsForm() {
         rows={4}
         {...register('businessDetails.services')}
         error={errors.businessDetails && 'services' in errors.businessDetails ? (errors.businessDetails?.services?.message as string) : ''}
+      />
 
-            <Input
-              label="Google Location Link (Optional)"
-              placeholder="https://maps.google.com/..."
-              type="url"
-              {...register('businessDetails.googleLocation', validation.url)}
-              error={errors.businessDetails && 'googleLocation' in errors.businessDetails ? (errors.businessDetails?.googleLocation?.message as string) : ''}
-            />
+      <Input
+        label="Google Location Link (Optional)"
+        placeholder="https://maps.google.com/..."
+        type="url"
+        {...register('businessDetails.googleLocation', validation.url)}
+        error={errors.businessDetails && 'googleLocation' in errors.businessDetails ? (errors.businessDetails?.googleLocation?.message as string) : ''}
       />
     </div>
   );
