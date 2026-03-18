@@ -31,6 +31,34 @@ function getDatabaseNameFromUri(uri: string) {
   }
 }
 
+async function syncSubmissionToGoogleSheet(data: {
+  name: string;
+  email?: string | null;
+  phone: string;
+  company?: string | null;
+  message: string;
+  source: string;
+  createdAt: Date;
+}) {
+  const webhookUrl = process.env.GOOGLE_SHEET_WEBHOOK;
+  if (!webhookUrl) {
+    return;
+  }
+
+  try {
+    await fetch(webhookUrl, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    });
+    console.log("Submission synced to Google Sheet");
+  } catch (error) {
+    console.error("Google Sheet sync failed:", error);
+  }
+}
+
 async function createLeadWithMongoFallback(data: {
   customerId: string;
   name: string;
@@ -234,6 +262,16 @@ export async function POST(request: NextRequest) {
           visitorPhone: parsed.data.phone,
           visitorMessage: parsed.data.message,
           visitorEmail: parsed.data.email || undefined,
+        });
+
+        await syncSubmissionToGoogleSheet({
+          name: parsed.data.name,
+          email: parsed.data.email || null,
+          phone: parsed.data.phone,
+          company: null,
+          message: parsed.data.message,
+          source: "nfc_form",
+          createdAt: new Date(),
         });
       } catch (error) {
         console.error("Customer lead email failed:", error);
