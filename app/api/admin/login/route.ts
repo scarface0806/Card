@@ -20,11 +20,13 @@ const PROD_CONFIG_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
 const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 
-// Auto-create admin credentials from environment
-const AUTO_CREATE_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL?.toLowerCase().trim() || PROD_CONFIG_ADMIN_EMAIL;
-const AUTO_CREATE_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || PROD_ADMIN_PASSWORD || '';
+// Auto-create admin credentials from environment (HIGHEST PRIORITY for local & production)
+const AUTO_CREATE_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL?.toLowerCase().trim() || '';
+const AUTO_CREATE_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || '';
 
+// Build fallback emails array including auto-create email
 const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
+  AUTO_CREATE_ADMIN_EMAIL, // HIGHEST PRIORITY
   PROD_CONFIG_ADMIN_EMAIL,
   process.env.NODE_ENV === 'development' ? DEFAULT_ADMIN_EMAIL : undefined,
 ].filter((email): email is string => Boolean(email))));
@@ -34,10 +36,16 @@ const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
  * This is a safe operation that only creates an admin if:
  * 1. No admin exists with the email
  * 2. Environment variables are properly configured
+ * 
+ * SENIOR LEVEL: Handles both local dev and production Vercel
  */
-async function ensureDefaultAdminExists(): Promise<boolean> {
+async function ensureDefaultAdminExists(loginEmail?: string, loginPassword?: string): Promise<boolean> {
   try {
-    if (!AUTO_CREATE_ADMIN_EMAIL || !AUTO_CREATE_ADMIN_PASSWORD) {
+    // Use provided credentials (from login attempt) or fall back to env vars
+    const emailToCreate = loginEmail?.toLowerCase().trim() || AUTO_CREATE_ADMIN_EMAIL?.toLowerCase().trim();
+    const passwordToCreate = loginPassword || AUTO_CREATE_ADMIN_PASSWORD;
+
+    if (!emailToCreate || !passwordToCreate) {
       console.debug('[Admin Auto-Create] Skipped: Missing credentials in environment');
       return false;
     }
@@ -45,9 +53,9 @@ async function ensureDefaultAdminExists(): Promise<boolean> {
     const db = await getMongoDb();
     const adminCollection = db.collection('admins');
 
-    // Check if admin already exists
+    // Check if admin already exists (case-insensitive)
     const existingAdmin = await adminCollection.findOne({
-      email: { $regex: `^${AUTO_CREATE_ADMIN_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+      email: { $regex: `^${emailToCreate.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
     });
 
     if (existingAdmin) {
@@ -56,11 +64,11 @@ async function ensureDefaultAdminExists(): Promise<boolean> {
     }
 
     // Hash password using bcrypt
-    const hashedPassword = await bcrypt.hash(AUTO_CREATE_ADMIN_PASSWORD, 10);
+    const hashedPassword = await bcrypt.hash(passwordToCreate, 10);
 
     // Create default admin
     const result = await adminCollection.insertOne({
-      email: AUTO_CREATE_ADMIN_EMAIL,
+      email: emailToCreate,
       password: hashedPassword,
       role: 'admin',
       name: 'Default Admin',
@@ -71,14 +79,16 @@ async function ensureDefaultAdminExists(): Promise<boolean> {
 
     console.info('[Admin Auto-Create] Default admin created successfully', {
       id: result.insertedId.toString(),
-      email: AUTO_CREATE_ADMIN_EMAIL,
+      email: emailToCreate,
+      environment: process.env.NODE_ENV,
     });
 
     return true;
   } catch (error) {
-    console.error('[Admin Auto-Create] Error creating default admin:', 
-      error instanceof Error ? error.message : String(error)
-    );
+    console.error('[Admin Auto-Create] Error creating default admin:', {
+      error: error instanceof Error ? error.message : String(error),
+      environment: process.env.NODE_ENV,
+    });
     return false;
   }
 }
@@ -96,13 +106,23 @@ async function verifyProductionAdminPassword(password: string): Promise<boolean>
 }
 
 async function verifyFallbackPasswordForEmail(email: string, password: string): Promise<boolean> {
+  // PRIORITY 1: Check auto-create credentials (highest priority for local & production)
+  if (AUTO_CREATE_ADMIN_EMAIL && email.toLowerCase() === AUTO_CREATE_ADMIN_EMAIL && password === AUTO_CREATE_ADMIN_PASSWORD) {
+    console.debug('[Admin Auth] Verified with auto-create credentials');
+    return true;
+  }
+
+  // PRIORITY 2: Check production config credentials
   if (PROD_CONFIG_ADMIN_EMAIL && email === PROD_CONFIG_ADMIN_EMAIL) {
     if (await verifyProductionAdminPassword(password)) {
+      console.debug('[Admin Auth] Verified with production credentials');
       return true;
     }
   }
 
+  // PRIORITY 3: Check development defaults
   if (process.env.NODE_ENV === 'development' && email === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
+    console.debug('[Admin Auth] Verified with dev defaults');
     return true;
   }
 
@@ -160,10 +180,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Auto-create default admin if it doesn't exist
-    // This is safe and only runs if environment variables are configured
-    await ensureDefaultAdminExists();
-
+    // Rate limiting check (before parsing body)
     const secureCookie = process.env.NODE_ENV === 'production';
 
     // Keep strict throttling in production, but avoid local-dev lockouts.
@@ -195,6 +212,13 @@ export async function POST(request: NextRequest) {
     
     const { email, password } = parsed.data;
     const normalizedEmail = email.toLowerCase();
+
+    // Auto-create default admin if credentials match auto-create config
+    // This is safe and only runs if environment variables are configured
+    if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL?.toLowerCase().trim() && 
+        password === AUTO_CREATE_ADMIN_PASSWORD) {
+      await ensureDefaultAdminExists(normalizedEmail, password);
+    }
 
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
       if (email === DEV_ADMIN_EMAIL && password === DEV_ADMIN_PASSWORD) {
@@ -353,44 +377,55 @@ export async function POST(request: NextRequest) {
       // Safety: Try to auto-create default admin one more time if using default credentials
       if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL && password === AUTO_CREATE_ADMIN_PASSWORD) {
         console.info('[Admin Auth] Attempting auto-create as fallback for default admin');
-        const autoCreateSuccess = await ensureDefaultAdminExists();
+        const autoCreateSuccess = await ensureDefaultAdminExists(normalizedEmail, password);
         
         if (autoCreateSuccess) {
-          // Retry Prisma lookup after auto-create
-          const retryUser = await prisma.user.findFirst({
-            where: {
-              email: normalizedEmail,
-              role: 'ADMIN',
-            },
-          });
+          // Try MongoDB lookup after auto-create
+          const mongoRetry = (await db.collection('admins').findOne({
+            email: { $regex: `^${normalizedEmail.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+          })) as MongoAdmin | null;
 
-          if (retryUser && retryUser.password) {
-            const token = generateToken({
-              userId: retryUser.id,
-              email: retryUser.email,
-              role: retryUser.role,
-            });
+          if (mongoRetry && mongoRetry.password) {
+            const storedHash = String(mongoRetry.password);
+            const isValid = await bcrypt.compare(password, storedHash);
 
-            const response = successResponse({
-              message: "Login successful",
-              user: {
-                id: retryUser.id,
-                email: retryUser.email,
-                name: retryUser.name,
-                role: retryUser.role,
-              },
-              token,
-            }, 200);
+            if (isValid) {
+              const token = generateToken({
+                userId: mongoRetry._id.toString(),
+                email: normalizedEmail,
+                role: 'ADMIN',
+              });
 
-            response.cookies.set("auth-token", token, {
-              httpOnly: true,
-              secure: secureCookie,
-              sameSite: "lax",
-              maxAge: 60 * 60 * 24 * 7,
-              path: "/",
-            });
+              const response = successResponse({
+                message: 'Login successful (auto-created admin)',
+                user: {
+                  id: mongoRetry._id.toString(),
+                  email: normalizedEmail,
+                  name: mongoRetry.name || 'Admin User',
+                  role: 'ADMIN',
+                },
+                token,
+              }, 200);
 
-            return response;
+              response.cookies.set('auth-token', token, {
+                httpOnly: true,
+                secure: secureCookie,
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/',
+              });
+
+              response.cookies.set('admin-token', token, {
+                httpOnly: true,
+                secure: secureCookie,
+                sameSite: 'lax',
+                maxAge: 60 * 60 * 24 * 7,
+                path: '/',
+              });
+
+              console.info(`[Admin Auth] Auto-created admin logged in successfully: ${normalizedEmail}`);
+              return response;
+            }
           }
         }
       }
