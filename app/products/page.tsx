@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import { Check, Zap, Palette, Shield, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useSession } from 'next-auth/react';
 import { ROUTES } from '@/utils/constants';
 import { useState, useEffect } from 'react';
 
@@ -20,12 +19,27 @@ interface Product {
 
 export default function ProductsPage() {
   const router = useRouter();
-  const sessionState = useSession();
-  const status = sessionState?.status ?? 'unauthenticated';
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [buyingProductId, setBuyingProductId] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Check auth status using the custom JWT system
+    const checkAuth = async () => {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        setIsLoggedIn(res.ok);
+      } catch {
+        setIsLoggedIn(false);
+      } finally {
+        setAuthChecked(true);
+      }
+    };
+    checkAuth();
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -60,14 +74,13 @@ export default function ProductsPage() {
 
   const handleBuyNow = async (productId: string) => {
     // Check if user is logged in
-    if (status === 'unauthenticated') {
-      // Redirect to login with return URL
+    if (!isLoggedIn) {
       router.push(`${ROUTES.LOGIN}?redirect=${encodeURIComponent(ROUTES.PRODUCTS)}`);
       return;
     }
 
-    // If still loading session, wait
-    if (status === 'loading') {
+    // If still checking auth, wait
+    if (!authChecked) {
       return;
     }
 

@@ -19,16 +19,10 @@ const DEV_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || DEFAULT_ADMIN_PASSWORD;
 const PROD_CONFIG_ADMIN_EMAIL = process.env.ADMIN_EMAIL?.toLowerCase();
 const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
-const LEGACY_ADMIN_EMAIL = 'admin@tapvyo.com';
-const LEGACY_ADMIN_PASSWORD = 'admin123';
-const LEGACY_ADMIN_EMAIL_2 = 'santhoshuxui2023@gmail.com';
-const LEGACY_ADMIN_PASSWORD_2 = 'KGTPS6565P';
 
 const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
   PROD_CONFIG_ADMIN_EMAIL,
   process.env.NODE_ENV === 'development' ? DEFAULT_ADMIN_EMAIL : undefined,
-  LEGACY_ADMIN_EMAIL,
-  LEGACY_ADMIN_EMAIL_2,
 ].filter((email): email is string => Boolean(email))));
 
 async function verifyProductionAdminPassword(password: string): Promise<boolean> {
@@ -51,14 +45,6 @@ async function verifyFallbackPasswordForEmail(email: string, password: string): 
   }
 
   if (process.env.NODE_ENV === 'development' && email === DEFAULT_ADMIN_EMAIL && password === DEFAULT_ADMIN_PASSWORD) {
-    return true;
-  }
-
-  if (email === LEGACY_ADMIN_EMAIL && password === LEGACY_ADMIN_PASSWORD) {
-    return true;
-  }
-
-  if (email === LEGACY_ADMIN_EMAIL_2 && password === LEGACY_ADMIN_PASSWORD_2) {
     return true;
   }
 

@@ -188,4 +188,4 @@ async function handler(request: NextRequest, user: AuthUser) {
   }
 }
 
-// already rate-limited above, leave as is
+export const POST = withAdmin(handler);
