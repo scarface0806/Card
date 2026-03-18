@@ -85,6 +85,8 @@ async function ensureDefaultAdminExists(loginEmail?: string, loginPassword?: str
       createdVia: 'auto-create-system',
     });
 
+    console.log('Admin auto-created');
+
     console.info('[Admin Auto-Create] Default admin created successfully', {
       id: result.insertedId.toString(),
       email: emailToCreate,
