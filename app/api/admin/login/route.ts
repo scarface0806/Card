@@ -21,8 +21,16 @@ const PROD_ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
 const PROD_ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH;
 
 // Auto-create admin credentials from environment (HIGHEST PRIORITY for local & production)
-const AUTO_CREATE_ADMIN_EMAIL = process.env.DEFAULT_ADMIN_EMAIL?.toLowerCase().trim() || '';
-const AUTO_CREATE_ADMIN_PASSWORD = process.env.DEFAULT_ADMIN_PASSWORD || '';
+// Support both legacy and current variable names.
+const AUTO_CREATE_ADMIN_EMAIL = (
+  process.env.DEFAULT_ADMIN_EMAIL ||
+  process.env.AUTO_CREATE_ADMIN_EMAIL ||
+  ''
+).toLowerCase().trim();
+const AUTO_CREATE_ADMIN_PASSWORD =
+  process.env.DEFAULT_ADMIN_PASSWORD ||
+  process.env.AUTO_CREATE_ADMIN_PASSWORD ||
+  '';
 
 // Build fallback emails array including auto-create email
 const FALLBACK_ADMIN_EMAILS = Array.from(new Set([
@@ -211,13 +219,14 @@ export async function POST(request: NextRequest) {
     }
     
     const { email, password } = parsed.data;
-    const normalizedEmail = email.toLowerCase();
+    const normalizedEmail = email.toLowerCase().trim();
+    const fallbackPassword = password.trim();
 
     // Auto-create default admin if credentials match auto-create config
     // This is safe and only runs if environment variables are configured
-    if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL?.toLowerCase().trim() && 
-        password === AUTO_CREATE_ADMIN_PASSWORD) {
-      await ensureDefaultAdminExists(normalizedEmail, password);
+    if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL && 
+        fallbackPassword === AUTO_CREATE_ADMIN_PASSWORD) {
+      await ensureDefaultAdminExists(normalizedEmail, fallbackPassword);
     }
 
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
@@ -261,7 +270,7 @@ export async function POST(request: NextRequest) {
 
     // Safe fallback credentials for admin access when DB user is not available.
     if (FALLBACK_ADMIN_EMAILS.includes(normalizedEmail)) {
-      const isConfiguredAdminPassword = await verifyFallbackPasswordForEmail(normalizedEmail, password);
+      const isConfiguredAdminPassword = await verifyFallbackPasswordForEmail(normalizedEmail, fallbackPassword);
       if (isConfiguredAdminPassword) {
         const token = generateToken({
           userId: 'env-admin-id',
@@ -375,9 +384,9 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       // Safety: Try to auto-create default admin one more time if using default credentials
-      if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL && password === AUTO_CREATE_ADMIN_PASSWORD) {
+      if (normalizedEmail === AUTO_CREATE_ADMIN_EMAIL && fallbackPassword === AUTO_CREATE_ADMIN_PASSWORD) {
         console.info('[Admin Auth] Attempting auto-create as fallback for default admin');
-        const autoCreateSuccess = await ensureDefaultAdminExists(normalizedEmail, password);
+        const autoCreateSuccess = await ensureDefaultAdminExists(normalizedEmail, fallbackPassword);
         
         if (autoCreateSuccess) {
           // Try MongoDB lookup after auto-create
