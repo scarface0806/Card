@@ -141,7 +141,7 @@ export default function SecurityPage() {
                 <button
                   type="button"
                   onClick={() => toggleShowPassword('current')}
-                    disabled={submitting}
+                  disabled={submitting}
                   className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-400 transition-colors"
                 >
                   {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -256,12 +256,12 @@ export default function SecurityPage() {
                   >
                     <div
                       className={`h-full transition-all duration-500 ${idx <= strengthScore
-                          ? strengthScore <= 2
-                            ? 'bg-red-500'
-                            : strengthScore <= 4
-                              ? 'bg-amber-500'
-                              : 'bg-emerald-500'
-                          : 'bg-transparent'
+                        ? strengthScore <= 2
+                          ? 'bg-red-500'
+                          : strengthScore <= 4
+                            ? 'bg-amber-500'
+                            : 'bg-emerald-500'
+                        : 'bg-transparent'
                         }`}
                     />
                   </div>
