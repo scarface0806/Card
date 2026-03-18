@@ -1,5 +1,4 @@
 import { NextRequest } from 'next/server';
-import prisma from '@/lib/prisma';
 import { getMongoDb } from '@/lib/mongodb';
 import { generateToken } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
@@ -19,6 +18,11 @@ type MongoAdminUser = {
   name?: string;
   role?: string;
   isActive?: boolean;
+  emailVerified?: boolean;
+  phone?: string | null;
+  avatar?: string | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 };
 
 type AdminLoginUser = {
@@ -27,6 +31,8 @@ type AdminLoginUser = {
   name: string;
   role: 'ADMIN';
   passwordHash: string;
+  phone?: string | null;
+  avatar?: string | null;
 };
 
 function escapeRegex(value: string): string {
@@ -37,30 +43,51 @@ function normalizeRole(role?: string | null): string {
   return role?.trim().toUpperCase() || 'ADMIN';
 }
 
-async function findMongoAdminByEmail(email: string): Promise<AdminLoginUser | null> {
+async function findAdminUserByEmail(email: string): Promise<AdminLoginUser | null> {
   const db = await getMongoDb();
-  const admins = db.collection<MongoAdminUser>('admins');
-  const admin = await admins.findOne({
+  const users = db.collection<MongoAdminUser>('users');
+  const user = await users.findOne({
     email: {
       $regex: `^${escapeRegex(email)}$`,
       $options: 'i',
     },
   });
 
-  if (!admin || !admin.password || admin.isActive === false) {
+  if (!user) {
+    console.info(`[Admin Auth] Admin lookup in users collection: not found for ${email}`);
     return null;
   }
 
-  if (normalizeRole(admin.role) !== 'ADMIN') {
+  if (!user.password) {
+    console.warn(`[Admin Auth] Admin lookup rejected in users collection because password is missing for ${email}`);
     return null;
   }
+
+  if (normalizeRole(user.role) !== 'ADMIN') {
+    console.warn(`[Admin Auth] Admin lookup rejected in users collection because role is not ADMIN for ${email}`);
+    return null;
+  }
+
+  if (user.isActive === false) {
+    console.warn(`[Admin Auth] Admin lookup rejected in users collection because account is inactive for ${email}`);
+    return null;
+  }
+
+  if (user.emailVerified === false) {
+    console.warn(`[Admin Auth] Admin lookup rejected in users collection because email is unverified for ${email}`);
+    return null;
+  }
+
+  console.info(`[Admin Auth] Admin user found in users collection: ${email}`);
 
   return {
-    id: admin._id.toString(),
-    email: admin.email?.trim().toLowerCase() || email,
-    name: admin.name?.trim() || 'Admin User',
+    id: user._id.toString(),
+    email: user.email?.trim().toLowerCase() || email,
+    name: user.name?.trim() || 'Admin User',
     role: 'ADMIN',
-    passwordHash: admin.password,
+    passwordHash: user.password,
+    phone: user.phone || null,
+    avatar: user.avatar || null,
   };
 }
 
@@ -76,6 +103,8 @@ function createAdminSuccessResponse(user: Omit<AdminLoginUser, 'passwordHash'>) 
     email: user.email,
     name: user.name,
     role: user.role,
+    phone: user.phone ?? null,
+    avatar: user.avatar ?? null,
   });
 }
 
@@ -113,95 +142,39 @@ export async function POST(request: NextRequest) {
     
     const { email, password } = parsed.data;
     const normalizedEmail = email.toLowerCase().trim();
+    console.info(`[Admin Auth] Login attempt received for ${normalizedEmail}`);
 
-    const adminEmailConfig = (process.env.ADMIN_EMAIL || process.env.AUTO_CREATE_ADMIN_EMAIL || '').toLowerCase().trim();
-    const adminPassConfig = process.env.ADMIN_PASSWORD || process.env.AUTO_CREATE_ADMIN_PASSWORD;
-
-    // 3. PRIORITY 1: Check Database for Admin User
-    // Support both Mongo-backed admins and Prisma-backed admins.
+    // 3. Authenticate directly against MongoDB users collection.
     try {
-      const mongoAdmin = await findMongoAdminByEmail(normalizedEmail);
+      const adminUser = await findAdminUserByEmail(normalizedEmail);
 
-      if (mongoAdmin) {
-        const isValid = await bcrypt.compare(password, mongoAdmin.passwordHash);
-
-        if (isValid) {
-          console.info(`[Admin Auth] Successful Mongo admin login: ${normalizedEmail}`);
-          return createAdminSuccessResponse({
-            id: mongoAdmin.id,
-            email: mongoAdmin.email,
-            name: mongoAdmin.name,
-            role: mongoAdmin.role,
-          });
-        }
+      if (!adminUser) {
+        return errorResponse('Invalid email or password', 401);
       }
 
-      const user = await prisma.user.findFirst({
-        where: {
-          email: normalizedEmail,
-          role: 'ADMIN',
-          isActive: true,
-        },
+      const isValid = await bcrypt.compare(password, adminUser.passwordHash);
+
+      if (!isValid) {
+        console.warn(`[Admin Auth] Password verification failed for ${normalizedEmail}`);
+        return errorResponse('Invalid email or password', 401);
+      }
+
+      console.info(`[Admin Auth] Successful admin login: ${normalizedEmail}`);
+      return createAdminSuccessResponse({
+        id: adminUser.id,
+        email: adminUser.email,
+        name: adminUser.name,
+        role: adminUser.role,
+        phone: adminUser.phone,
+        avatar: adminUser.avatar,
       });
-
-      if (user && user.password) {
-        const isValid = await bcrypt.compare(password, user.password);
-        
-        if (isValid) {
-          console.info(`[Admin Auth] Successful database login: ${normalizedEmail}`);
-          return createAuthResponse(generateToken({
-            userId: user.id,
-            email: user.email,
-            role: user.role,
-          }), {
-            id: user.id,
-            email: user.email,
-            name: user.name || 'Admin User',
-            role: user.role,
-          });
-        }
-      }
-
-      // 4. PRIORITY 2: Check Environment-Configured Admin (Emergency Access / First Launch)
-      if (adminEmailConfig && normalizedEmail === adminEmailConfig && password === adminPassConfig) {
-        console.info(`[Admin Auth] Successful login using environment fallback: ${normalizedEmail}`);
-        return createAuthResponse(generateToken({
-          userId: 'env-admin-id',
-          email: normalizedEmail,
-          role: 'ADMIN',
-        }), {
-          id: 'env-admin-id',
-          email: normalizedEmail,
-          name: 'System Administrator',
-          role: 'ADMIN',
-        });
-      }
     } catch (dbError) {
       console.error('[Admin Auth] Database access failed:', dbError);
-      if (adminEmailConfig && normalizedEmail === adminEmailConfig && password === adminPassConfig) {
-        console.info(`[Admin Auth] Database unavailable, using environment fallback: ${normalizedEmail}`);
-        return createAuthResponse(generateToken({
-          userId: 'env-admin-id',
-          email: normalizedEmail,
-          role: 'ADMIN',
-        }), {
-          id: 'env-admin-id',
-          email: normalizedEmail,
-          name: 'System Administrator',
-          role: 'ADMIN',
-        });
-      }
-
-      return errorResponse("Database service unavailable. Please try again shortly.", 503);
+      return errorResponse('Database service unavailable. Please try again shortly.', 503);
     }
-
-    // 5. Failure Case
-    console.warn(`[Admin Auth] Unauthorized login attempt: ${normalizedEmail}`);
-    return errorResponse("Invalid email or password", 401);
-
   } catch (error) {
     console.error('[Admin Auth] Fatal error during login:', error);
-    return errorResponse("An internal server error occurred.", 500);
+    return errorResponse('An internal server error occurred.', 500);
   }
 }
 
@@ -212,22 +185,19 @@ function createAuthResponse(token: string, userData: any) {
   const response = successResponse({
     message: 'Login successful',
     user: userData,
-    token, // Return token in body for client-side storage if needed
-    success: true, // Specifically matched for existing client checks
+    token,
+    success: true,
   }, 200);
 
   const cookieOptions = {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax' as const,
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: 60 * 60 * 24 * 7,
     path: '/',
   };
 
-  // Set the primary cookie used by middleware/authenticate helpers
   response.cookies.set('auth-token', token, cookieOptions);
-  
-  // Set secondary/legacy cookies for backward compatibility with existing components
   response.cookies.set('admin-token', token, cookieOptions);
   response.cookies.set('token', token, cookieOptions);
 

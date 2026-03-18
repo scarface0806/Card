@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 import { ObjectId } from "mongodb";
 import { getMongoDb } from "@/lib/mongodb";
@@ -7,38 +6,31 @@ import { getMongoDb } from "@/lib/mongodb";
 type MongoAdminUser = {
   _id: ObjectId;
   email?: string;
+  phone?: string | null;
+  avatar?: string | null;
+  password?: string;
   name?: string;
   role?: string;
+  emailVerified?: boolean;
   isActive?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
 
-function isDatabaseConnectivityError(error: unknown): boolean {
-  if (!error || typeof error !== "object") {
-    return false;
-  }
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-  const candidate = error as {
-    code?: string;
-    message?: string;
-    name?: string;
-  };
+function normalizeRole(role?: string | null): string {
+  return role?.trim().toUpperCase() || "CUSTOMER";
+}
 
-  const message = (candidate.message || "").toLowerCase();
-  const code = candidate.code || "";
-  const name = (candidate.name || "").toLowerCase();
+function isEmailVerified(value?: boolean): boolean {
+  return value === undefined ? true : value;
+}
 
-  return (
-    code === "P1001" ||
-    code === "P1002" ||
-    message.includes("database_url") ||
-    message.includes("can't reach database server") ||
-    message.includes("server selection timeout") ||
-    message.includes("authentication failed") ||
-    message.includes("connection") ||
-    name.includes("prismaclientinitializationerror")
-  );
+function isActive(value?: boolean): boolean {
+  return value === undefined ? true : value;
 }
 
 export async function GET(request: NextRequest) {
@@ -69,7 +61,6 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Production fallback admin (DB-independent login path).
     if (user.id === 'env-admin-id') {
       return NextResponse.json({
         user: {
@@ -87,101 +78,69 @@ export async function GET(request: NextRequest) {
       });
     }
 
-    // Get fresh user data from database
-    const dbUser = await prisma.user.findUnique({
-      where: { id: user.id },
-      select: {
-        id: true,
-        email: true,
-        name: true,
-        phone: true,
-        avatar: true,
-        role: true,
-        emailVerified: true,
-        isActive: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const db = await getMongoDb();
+    const users = db.collection<MongoAdminUser>("users");
+
+    const userById = ObjectId.isValid(user.id)
+      ? await users.findOne({ _id: new ObjectId(user.id) })
+      : null;
+
+    const userByEmail = userById
+      ? null
+      : await users.findOne({
+          email: {
+            $regex: `^${escapeRegex(user.email)}$`,
+            $options: "i",
+          },
+        });
+
+    const dbUser = userById || userByEmail;
 
     if (!dbUser) {
-      // Support Mongo-backed admin users created by auto-create flow.
-      if (user.role === "ADMIN") {
-        const db = await getMongoDb();
-        const admins = db.collection("admins");
-
-        const adminById = ObjectId.isValid(user.id)
-          ? await admins.findOne({ _id: new ObjectId(user.id) })
-          : null;
-
-        const adminByEmail = adminById
-          ? null
-          : await admins.findOne({
-              email: {
-                $regex: `^${user.email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`,
-                $options: "i",
-              },
-            });
-
-        const mongoAdmin = (adminById || adminByEmail) as MongoAdminUser | null;
-
-        if (mongoAdmin) {
-          if (mongoAdmin.isActive === false) {
-            return NextResponse.json(
-              { error: "Account deactivated" },
-              { status: 403 }
-            );
-          }
-
-          return NextResponse.json({
-            user: {
-              id: mongoAdmin._id.toString(),
-              email: mongoAdmin.email || user.email,
-              name: mongoAdmin.name || "Admin User",
-              phone: null,
-              avatar: null,
-              role: "ADMIN",
-              emailVerified: true,
-              isActive: true,
-              createdAt: mongoAdmin.createdAt?.toISOString() || new Date().toISOString(),
-              updatedAt: mongoAdmin.updatedAt?.toISOString() || new Date().toISOString(),
-            },
-          });
-        }
-      }
-
+      console.warn(`[Auth] Current user lookup failed for ${user.email}`);
       return NextResponse.json(
         { error: "User not found" },
         { status: 404 }
       );
     }
 
-    if (!dbUser.isActive) {
+    if (dbUser.isActive === false) {
       return NextResponse.json(
         { error: "Account deactivated" },
         { status: 403 }
       );
     }
 
-    return NextResponse.json({ user: dbUser });
-  } catch (error) {
-    if (isDatabaseConnectivityError(error)) {
-      console.error("Get current user database connectivity error:", {
-        error: error instanceof Error ? error.message : String(error),
-        status: 503,
-        timestamp: new Date().toISOString(),
-      });
-
+    if (dbUser.emailVerified === false) {
       return NextResponse.json(
-        { error: "Authentication service unavailable. Please try again shortly." },
-        { status: 503 }
+        { error: "Email not verified" },
+        { status: 403 }
       );
     }
 
-    console.error("Get current user error:", error);
+    return NextResponse.json({
+      user: {
+        id: dbUser._id.toString(),
+        email: dbUser.email || user.email,
+        name: dbUser.name || "Admin User",
+        phone: dbUser.phone || null,
+        avatar: dbUser.avatar || null,
+        role: normalizeRole(dbUser.role),
+        emailVerified: isEmailVerified(dbUser.emailVerified),
+        isActive: isActive(dbUser.isActive),
+        createdAt: dbUser.createdAt?.toISOString() || new Date().toISOString(),
+        updatedAt: dbUser.updatedAt?.toISOString() || new Date().toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("Get current user error:", {
+      error: error instanceof Error ? error.message : String(error),
+      status: 500,
+      timestamp: new Date().toISOString(),
+    });
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { error: "Authentication service unavailable. Please try again shortly." },
+      { status: 503 }
     );
   }
 }
