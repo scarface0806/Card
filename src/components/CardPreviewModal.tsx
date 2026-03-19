@@ -12,6 +12,8 @@ interface CardPreviewModalProps {
     type: 'basic' | 'premium' | 'custom';
     price: string;
     color: string;
+    images?: string[];
+    image?: string;
   } | null;
 }
 
@@ -62,26 +64,15 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                     perspective: '1000px',
                   }}
                 >
-                  {/* Card Design */}
-                  <div className="absolute inset-0 p-6 flex flex-col justify-between">
-                    {/* NFC Icon */}
-                    <div className="flex justify-end">
-                      <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <Wifi className="w-5 h-5 text-white rotate-45" />
-                      </div>
-                    </div>
+                  <img
+                    src={card.images?.[0] || card.image || "/placeholder.png"}
+                    alt={card.name}
+                    className="h-full w-full object-cover"
+                  />
 
-                    {/* Card Info */}
-                    <div>
-                      <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.3 }}
-                      >
-                        <p className="text-white/70 text-sm mb-1">Your Name</p>
-                        <p className="text-white font-bold text-xl">John Doe</p>
-                        <p className="text-white/80 text-sm mt-1">CEO & Founder</p>
-                      </motion.div>
+                  <div className="absolute right-4 top-4">
+                    <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center">
+                      <Wifi className="w-5 h-5 text-white rotate-45" />
                     </div>
                   </div>
 

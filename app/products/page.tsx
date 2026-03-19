@@ -14,6 +14,7 @@ interface Product {
   name: string;
   price: number;
   description: string;
+  images?: string[];
   image: string;
 }
 
@@ -57,6 +58,7 @@ export default function ProductsPage() {
           name: product.name || 'Untitled product',
           price: Number(product.price || 0),
           description: product.description || 'Premium NFC digital business card',
+          images: Array.isArray(product.images) ? product.images : [],
           image: product.image || '',
         }));
 
@@ -225,11 +227,11 @@ export default function ProductsPage() {
 
                     <div className="p-6">
                       <div className="h-44 w-full overflow-hidden rounded-xl bg-teal-50 mb-6 border border-teal-100">
-                        {product.image ? (
-                          <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-                        ) : (
-                          <div className="flex h-full w-full items-center justify-center text-sm text-[#6b7f78]">No image</div>
-                        )}
+                        <img
+                          src={product.images?.[0] || product.image || "/placeholder.png"}
+                          alt={product.name}
+                          className="h-full w-full object-cover"
+                        />
                       </div>
 
                       <h3 className="text-2xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{product.name}</h3>

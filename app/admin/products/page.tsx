@@ -10,6 +10,7 @@ interface ProductItem {
   name: string;
   description: string;
   price: number;
+  images?: string[];
   image: string;
   createdAt: string;
 }
@@ -49,6 +50,7 @@ export default function ProductsPage() {
         name: product.name || 'Untitled product',
         description: product.description || '',
         price: Number(product.price || 0),
+        images: Array.isArray(product.images) ? product.images : [],
         image: product.image || '',
         createdAt: product.createdAt,
       }));
@@ -205,11 +207,11 @@ export default function ProductsPage() {
             {products.map((product) => (
               <article key={product.id} className="rounded-xl border border-white/10 bg-[#151a2d] p-4">
                 <div className="aspect-video overflow-hidden rounded-lg bg-[#0f1426]">
-                  {product.image ? (
-                    <img src={product.image} alt={product.name} className="h-full w-full object-cover" />
-                  ) : (
-                    <div className="flex h-full w-full items-center justify-center text-xs text-gray-500">No image</div>
-                  )}
+                  <img
+                    src={product.images?.[0] || product.image || "/placeholder.png"}
+                    alt={product.name}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <h3 className="mt-3 text-white font-semibold">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-400 line-clamp-2">{product.description}</p>
