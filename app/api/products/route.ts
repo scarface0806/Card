@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { withAdmin } from "@/lib/auth-middleware";
 import type { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
-import { getMongoDb } from "@/lib/mongodb";
+import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
@@ -48,14 +48,14 @@ function normalizeProductInput(payload: unknown): ProductInput {
   };
 }
 
-function mapProduct(doc: Record<string, unknown>) {
+function mapProduct(p: { id: string; name: string; description: string | null; price: number; images: string[]; createdAt: Date }) {
   return {
-    id: String(doc._id || ""),
-    name: String(doc.name || ""),
-    description: String(doc.description || ""),
-    price: Number(doc.price || 0),
-    image: String(doc.image || ""),
-    createdAt: doc.createdAt,
+    id: p.id,
+    name: p.name,
+    description: p.description || "",
+    price: p.price,
+    image: p.images[0] || "",
+    createdAt: p.createdAt,
   };
 }
 
@@ -66,17 +66,15 @@ export async function GET(request: NextRequest) {
     const rawLimit = Number(searchParams.get("limit") || "0");
     const limit = Number.isFinite(rawLimit) && rawLimit > 0 ? Math.min(rawLimit, 200) : 0;
 
-    const db = await getMongoDb();
-    const cursor = db.collection("products").find({}).sort({ createdAt: -1 });
-    if (limit > 0) {
-      cursor.limit(limit);
-    }
-
-    const docs = await cursor.toArray();
-    const products = docs.map((doc) => mapProduct(doc as unknown as Record<string, unknown>));
+    const products = await prisma.product.findMany({
+      where: { isActive: true },
+      orderBy: { createdAt: "desc" },
+      take: limit > 0 ? limit : undefined,
+      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+    });
 
     return successResponse({
-      products,
+      products: products.map(mapProduct),
       count: products.length,
     });
   } catch (error) {
@@ -86,40 +84,30 @@ export async function GET(request: NextRequest) {
 }
 
 // POST /api/products - Create product (Admin only)
-async function createProductHandler(request: NextRequest, user: AuthUser) {
+async function createProductHandler(request: NextRequest, _user: AuthUser) {
   try {
     const body = await request.json();
     const parsed = normalizeProductInput(body);
-    const db = await getMongoDb();
-    const now = new Date();
 
-    const result = await db.collection("products").insertOne({
-      name: parsed.name,
-      description: parsed.description,
-      price: parsed.price,
-      image: parsed.image,
-      createdAt: now,
-      updatedAt: now,
-      // Keep defaults compatible with existing consumers that may still read extra fields.
-      isActive: true,
-      slug: `product-${Date.now().toString(36)}`,
-      images: [parsed.image],
-      tags: [],
-      stock: 0,
-      isFeatured: false,
+    const product = await prisma.product.create({
+      data: {
+        name: parsed.name,
+        description: parsed.description,
+        price: parsed.price,
+        images: [parsed.image],
+        slug: `product-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
+        isActive: true,
+        tags: [],
+        stock: 0,
+        isFeatured: false,
+      },
+      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
     });
 
     return successResponse(
       {
         message: "Product created successfully",
-        product: {
-          id: String(result.insertedId),
-          name: parsed.name,
-          description: parsed.description,
-          price: parsed.price,
-          image: parsed.image,
-          createdAt: now,
-        },
+        product: mapProduct(product),
       },
       201
     );

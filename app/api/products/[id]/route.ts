@@ -2,8 +2,7 @@ import { NextRequest } from "next/server";
 import { withAdmin } from "@/lib/auth-middleware";
 import type { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
-import { ObjectId } from "mongodb";
-import { getMongoDb } from "@/lib/mongodb";
+import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
@@ -51,14 +50,14 @@ function normalizeProductInput(payload: unknown): ProductInput {
   };
 }
 
-function mapProduct(doc: Record<string, unknown>) {
+function mapProduct(p: { id: string; name: string; description: string | null; price: number; images: string[]; createdAt: Date }) {
   return {
-    id: String(doc._id || ""),
-    name: String(doc.name || ""),
-    description: String(doc.description || ""),
-    price: Number(doc.price || 0),
-    image: String(doc.image || ""),
-    createdAt: doc.createdAt,
+    id: p.id,
+    name: p.name,
+    description: p.description || "",
+    price: p.price,
+    image: p.images[0] || "",
+    createdAt: p.createdAt,
   };
 }
 
@@ -70,18 +69,16 @@ export async function GET(
   try {
     const { id } = await params;
 
-    if (!ObjectId.isValid(id)) {
-      return errorResponse("Invalid product id", 400);
-    }
-
-    const db = await getMongoDb();
-    const product = await db.collection("products").findOne({ _id: new ObjectId(id) });
+    const product = await prisma.product.findUnique({
+      where: { id },
+      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+    });
 
     if (!product) {
       return errorResponse("Product not found", 404);
     }
 
-    return successResponse({ product: mapProduct(product as unknown as Record<string, unknown>) });
+    return successResponse({ product: mapProduct(product) });
   } catch (error) {
     console.error("Get product error:", error);
     return errorResponse("Failed to fetch product", 500);
@@ -91,41 +88,35 @@ export async function GET(
 // PUT /api/products/:id - Update product (Admin only)
 async function updateProductHandler(
   request: NextRequest,
-  user: AuthUser,
+  _user: AuthUser,
   { params }: RouteParams
 ) {
   try {
     const { id } = await params;
-
-    if (!ObjectId.isValid(id)) {
-      return errorResponse("Invalid product id", 400);
-    }
-
     const body = await request.json();
     const parsed = normalizeProductInput(body);
-    const db = await getMongoDb();
-    const result = await db.collection("products").updateOne(
-      { _id: new ObjectId(id) },
-      {
-        $set: {
-          name: parsed.name,
-          description: parsed.description,
-          price: parsed.price,
-          image: parsed.image,
-          images: [parsed.image],
-          updatedAt: new Date(),
-        },
-      }
-    );
 
-    if (result.matchedCount === 0) {
+    const updated = await prisma.product.update({
+      where: { id },
+      data: {
+        name: parsed.name,
+        description: parsed.description,
+        price: parsed.price,
+        images: [parsed.image],
+      },
+      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+    }).catch((e: { code?: string }) => {
+      if (e?.code === "P2025") return null;
+      throw e;
+    });
+
+    if (!updated) {
       return errorResponse("Product not found", 404);
     }
 
-    const updated = await db.collection("products").findOne({ _id: new ObjectId(id) });
     return successResponse({
       message: "Product updated successfully",
-      product: updated ? mapProduct(updated as unknown as Record<string, unknown>) : null,
+      product: mapProduct(updated),
     });
   } catch (error) {
     if (error instanceof Error) {
@@ -140,22 +131,16 @@ async function updateProductHandler(
 // DELETE /api/products/:id - Delete product (Admin only)
 async function deleteProductHandler(
   request: NextRequest,
-  user: AuthUser,
+  _user: AuthUser,
   { params }: RouteParams
 ) {
   try {
     const { id } = await params;
 
-    if (!ObjectId.isValid(id)) {
-      return errorResponse("Invalid product id", 400);
-    }
-
-    const db = await getMongoDb();
-    const result = await db.collection("products").deleteOne({ _id: new ObjectId(id) });
-
-    if (result.deletedCount === 0) {
-      return errorResponse("Product not found", 404);
-    }
+    await prisma.product.delete({ where: { id } }).catch((e: { code?: string }) => {
+      if (e?.code === "P2025") return null;
+      throw e;
+    });
 
     return successResponse({ message: "Product deleted successfully" });
   } catch (error) {
