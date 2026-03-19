@@ -22,6 +22,15 @@ export async function POST() {
       path: "/",
     });
 
+    // Clear generic token cookie (also set by login API).
+    response.cookies.set("token", "", {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 0,
+      path: "/",
+    });
+
     return response;
   } catch (error) {
     console.error("[Auth] Logout error:", error);
