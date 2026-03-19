@@ -3,6 +3,7 @@ import { errorResponse, successResponse } from "@/lib/responses";
 import { getMongoDb } from "@/lib/mongodb";
 import { z } from "zod";
 import { ObjectId } from "mongodb";
+import { authenticate } from "@/lib/auth-middleware";
 
 // Contact document type from MongoDB
 interface ContactDocument {
@@ -73,6 +74,14 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    // ✅ Require authentication to view all contacts
+    const { user, error } = await authenticate(request);
+    
+    // Allow admin users (ADMIN role) or regular authenticated users
+    if (!user) {
+      return errorResponse(error || "Unauthorized. Please log in to view contacts.", 401);
+    }
+
     // Get MongoDB connection
     const db = await getMongoDb();
     const contacts = db.collection("contacts");

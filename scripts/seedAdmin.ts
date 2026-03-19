@@ -1,3 +1,17 @@
+/**
+ * DEPRECATED: Use `npx prisma db seed` instead.
+ * 
+ * This script is kept for legacy compatibility only.
+ * The Prisma seed (prisma/seed.ts) is the authoritative seeding method.
+ * 
+ * To seed the admin user:
+ * 1. Set environment variables:
+ *    - ADMIN_EMAIL=your-admin@example.com
+ *    - ADMIN_PASSWORD=your-strong-password
+ * 
+ * 2. Run: npx prisma db seed
+ */
+
 const dotenv = require("dotenv") as typeof import("dotenv");
 const bcrypt = require("bcryptjs") as typeof import("bcryptjs");
 const { getMongoDb } = require("../src/lib/mongodb") as typeof import("../src/lib/mongodb");
@@ -5,7 +19,7 @@ const { getMongoDb } = require("../src/lib/mongodb") as typeof import("../src/li
 dotenv.config({ path: ".env.local" });
 dotenv.config();
 
-const BCRYPT_ROUNDS = 10;
+const BCRYPT_ROUNDS = 12;
 
 function getRequiredEnv(name: string): string {
   const value = process.env[name]?.trim();
@@ -16,6 +30,8 @@ function getRequiredEnv(name: string): string {
 }
 
 async function seedAdmin(): Promise<void> {
+  console.log("⚠️  DEPRECATED: Use 'npx prisma db seed' instead.\n");
+  
   try {
     const email = getRequiredEnv("DEFAULT_ADMIN_EMAIL").toLowerCase();
     const password = getRequiredEnv("DEFAULT_ADMIN_PASSWORD");
@@ -24,29 +40,37 @@ async function seedAdmin(): Promise<void> {
       throw new Error("Missing environment variable DATABASE_URL");
     }
 
-    const db = await getMongoDb();
-    const admins = db.collection("admins");
+    // Use the Prisma client for consistency
+    const { PrismaClient } = require("@prisma/client");
+    const prisma = new PrismaClient();
+    const { Role } = require("@prisma/client");
 
-    const escapedEmail = email.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    const admin = await admins.findOne({
-      email: { $regex: `^${escapedEmail}$`, $options: "i" },
+    // Check if admin already exists
+    const existing = await prisma.user.findUnique({
+      where: { email },
     });
 
-    if (admin) {
-      console.log("Admin already exists");
+    if (existing) {
+      console.log("✅ Admin user already exists");
+      await prisma.$disconnect();
       return;
     }
 
     const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
-    await admins.insertOne({
-      email,
-      password: hashedPassword,
-      role: "admin",
-      createdAt: new Date(),
+    await prisma.user.create({
+      data: {
+        email,
+        password: hashedPassword,
+        name: "Admin",
+        role: Role.ADMIN,
+        isActive: true,
+        emailVerified: true,
+      },
     });
 
-    console.log("Admin created successfully");
+    console.log("✅ Admin user created successfully");
+    await prisma.$disconnect();
   } catch (error) {
     console.error("[seed:admin] Failed to seed admin:", error);
     process.exitCode = 1;

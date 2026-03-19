@@ -10,9 +10,9 @@ const requiredEnvVars = [
 ] as const;
 
 const optionalButRecommended = [
-  'EMAIL_HOST',
-  'EMAIL_USER',
-  'EMAIL_PASS',
+  'SMTP_HOST',
+  'SMTP_USER',
+  'SMTP_PASSWORD',
   'NEXTAUTH_SECRET',
   'NEXTAUTH_URL',
 ] as const;

@@ -6,7 +6,8 @@ export const prisma =
   globalForPrisma.prisma ||
   new PrismaClient();
 
-if (process.env.NODE_ENV !== "production")
-  globalForPrisma.prisma = prisma;
+// Cache the Prisma instance in global scope for all environments
+// This prevents connection exhaustion on serverless (Vercel)
+globalForPrisma.prisma = prisma;
 
 export default prisma;

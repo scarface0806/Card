@@ -66,17 +66,8 @@ async function createLeadWithMongoFallback(data: {
   email?: string | null;
   message: string;
 }) {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is not configured");
-  }
-
-  const client = new MongoClient(databaseUrl);
-  const dbName = getDatabaseNameFromUri(databaseUrl);
-
   try {
-    await client.connect();
-    const db = client.db(dbName);
+    const db = await getMongoDb();
     const leads = db.collection("leads");
 
     const result = await leads.insertOne({
@@ -89,8 +80,9 @@ async function createLeadWithMongoFallback(data: {
     });
 
     return String(result.insertedId);
-  } finally {
-    await client.close();
+  } catch (mongoError) {
+    console.error("MongoDB lead creation failed:", mongoError);
+    throw mongoError;
   }
 }
 
@@ -102,17 +94,8 @@ async function createMainWebsiteLeadWithMongoFallback(data: {
   message?: string | null;
   service?: string | null;
 }) {
-  const databaseUrl = process.env.DATABASE_URL;
-  if (!databaseUrl) {
-    throw new Error("DATABASE_URL is not configured");
-  }
-
-  const client = new MongoClient(databaseUrl);
-  const dbName = getDatabaseNameFromUri(databaseUrl);
-
   try {
-    await client.connect();
-    const db = client.db(dbName);
+    const db = await getMongoDb();
     const leads = db.collection("main_website_leads");
 
     const result = await leads.insertOne({
@@ -127,8 +110,9 @@ async function createMainWebsiteLeadWithMongoFallback(data: {
     });
 
     return String(result.insertedId);
-  } finally {
-    await client.close();
+  } catch (mongoError) {
+    console.error("MongoDB main website lead creation failed:", mongoError);
+    throw mongoError;
   }
 }
 

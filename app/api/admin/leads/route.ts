@@ -6,6 +6,7 @@ import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import type { AuthUser } from "@/lib/auth";
 import { ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
 
 type MainWebsiteLeadDocument = {
   _id: ObjectId;
@@ -103,8 +104,7 @@ async function getHandler(request: NextRequest, user: AuthUser) {
       });
     }
 
-    const client = await getMongoClientPromise();
-    const db = client.db("taxiapp");
+    const db = await getMongoDb();
     const collection = db.collection<MainWebsiteLeadDocument>("main_website_leads");
 
     const filter = search

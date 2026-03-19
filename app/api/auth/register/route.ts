@@ -30,7 +30,7 @@ export async function POST(request: NextRequest) {
     if (!parsed.success) {
       return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
     }
-    const { email, password, name, phone, role } = parsed.data;
+    const { email, password, name, phone } = parsed.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findUnique({
@@ -42,7 +42,8 @@ export async function POST(request: NextRequest) {
     }
 
     const hashedPassword = await hashPassword(password);
-    const userRole: Role = role === "ADMIN" ? Role.ADMIN : Role.CUSTOMER;
+    // ✅ Public registration always creates CUSTOMER role, never ADMIN
+    const userRole = Role.CUSTOMER;
 
     const user = await prisma.user.create({
       data: {

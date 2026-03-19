@@ -1,72 +1,19 @@
 import { PrismaClient } from "@prisma/client";
 import { Role } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { MongoClient } from "mongodb";
 
 const prisma = new PrismaClient();
 
-const ADMIN_EMAIL = process.env.ADMIN_EMAIL || "santhoshuxui2023@gmail.com";
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "KGTPS6565P";
+function getRequiredEnv(name: string): string {
+  const val = process.env[name];
+  if (!val) throw new Error(`❌ Missing ${name} environment variable. Set it before running seed.`);
+  return val;
+}
+
+// Require admin credentials from environment
+const ADMIN_EMAIL = getRequiredEnv("santhoshuxui2023@gmail.com");
+const ADMIN_PASSWORD = getRequiredEnv("KGTPS6565P");
 const BCRYPT_ROUNDS = 12; // Match the rounds used in auth endpoints
-
-function resolveMongoDbName(uri: string): string {
-  const explicit = process.env.MONGODB_DB_NAME?.trim();
-  if (explicit) return explicit;
-
-  try {
-    const fromUri = new URL(uri).pathname.replace(/^\//, "").trim();
-    if (fromUri) return decodeURIComponent(fromUri);
-  } catch {
-    // Ignore parse errors; default will be used.
-  }
-
-  return "tapvyo-nfc";
-}
-
-async function createAdminWithMongoFallback(): Promise<void> {
-  const uri = process.env.DATABASE_URL?.trim();
-  if (!uri) {
-    throw new Error("Missing DATABASE_URL for Mongo fallback seed");
-  }
-
-  const client = new MongoClient(uri);
-  await client.connect();
-
-  try {
-    const db = client.db(resolveMongoDbName(uri));
-    const users = db.collection("users");
-    const escapedEmail = ADMIN_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    const existingAdmin = await users.findOne({
-      email: { $regex: `^${escapedEmail}$`, $options: "i" },
-    });
-
-    if (existingAdmin) {
-      console.log("✅ Admin user already exists (Mongo fallback)");
-      return;
-    }
-
-    console.log("🔒 Hashing password (Mongo fallback)...");
-    const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, BCRYPT_ROUNDS);
-
-    await users.insertOne({
-      name: "Admin",
-      email: ADMIN_EMAIL,
-      password: hashedPassword,
-      role: "ADMIN",
-      isActive: true,
-      emailVerified: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
-
-    console.log("✅ Admin user created successfully (Mongo fallback)");
-    console.log(`📧 Email:    ${ADMIN_EMAIL}`);
-    console.log(`🔐 Password: ${ADMIN_PASSWORD}`);
-  } finally {
-    await client.close();
-  }
-}
 
 async function createAdmin() {
   try {
@@ -111,33 +58,30 @@ async function createAdmin() {
       },
     });
 
-    // Log credentials in a prominent way
+    // Log success
     console.log("\n" + "=".repeat(60));
     console.log("✅ ADMIN USER CREATED SUCCESSFULLY");
     console.log("=".repeat(60));
-    console.log(`\n📧 Email:    ${admin.email}`);
-    console.log(`🔐 Password: ${ADMIN_PASSWORD}`);
-    console.log(`👤 Name:     ${admin.name}`);
-    console.log(`🎯 Role:     ${admin.role}`);
-    console.log(`✨ Status:   ${admin.isActive ? "Active" : "Inactive"}`);
-    console.log(`📅 Created:  ${admin.createdAt.toLocaleString()}`);
+    console.log(`📧 Email:  ${admin.email}`);
+    console.log(`👤 Name:   ${admin.name}`);
+    console.log(`🎯 Role:   ${admin.role}`);
+    console.log(`✨ Status: ${admin.isActive ? "Active" : "Inactive"}`);
+    console.log(`📅 Created: ${admin.createdAt.toLocaleString()}`);
     console.log("\n" + "=".repeat(60));
-    console.log("⚠️  IMPORTANT: CHANGE THIS PASSWORD IN PRODUCTION!");
-    console.log("⚠️  This seed should only be used for local development.");
+    console.log("✅ Database seeding complete!");
+    console.log("⚠️  Login with the email and password set in ADMIN_EMAIL /");
+    console.log("   ADMIN_PASSWORD environment variables.");
     console.log("=".repeat(60) + "\n");
   } catch (error) {
     const prismaError = error as { code?: string };
 
     if (prismaError?.code === "P2031") {
-      console.warn("\n⚠️ Prisma seed needs a replica set. Falling back to direct MongoDB seeding...");
-
-      try {
-        await createAdminWithMongoFallback();
-      } catch (fallbackError) {
-        console.error("\n❌ Mongo fallback seed failed:");
-        console.error(fallbackError);
-        process.exit(1);
-      }
+      console.warn(
+        "\n⚠️ Prisma requires a MongoDB replica set for transactions."
+      );
+      console.warn("   For local development, use: `docker run -d --name mongo -p 27017:27017 mongo`");
+      console.error("\n❌ Cannot seed without replica set. Exiting.");
+      process.exit(1);
     } else {
       console.error("\n❌ Error creating admin user:");
       console.error(error);

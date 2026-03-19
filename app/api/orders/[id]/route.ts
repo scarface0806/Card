@@ -329,17 +329,8 @@ export async function PATCH(
         );
       }
 
-      const databaseUrl = process.env.DATABASE_URL;
-      if (!databaseUrl) {
-        throw new Error("DATABASE_URL is not configured");
-      }
-
-      const client = new MongoClient(databaseUrl);
-      const dbName = getDatabaseNameFromUri(databaseUrl);
-
       try {
-        await client.connect();
-        const db = client.db(dbName);
+        const db = await getMongoDb();
         const orders = db.collection("orders");
         const orderObjectId = new ObjectId(id);
 
@@ -360,8 +351,9 @@ export async function PATCH(
           id,
           ...result,
         };
-      } finally {
-        await client.close();
+      } catch (mongoError) {
+        console.error("MongoDB update failed:", mongoError);
+        throw mongoError;
       }
     }
 

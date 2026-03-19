@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
-import getMongoClientPromise from '@/lib/mongodb';
+import { getMongoDb } from '@/lib/mongodb';
 import { errorResponse, successResponse } from '@/lib/responses';
 import { Role } from '@prisma/client';
 
@@ -113,9 +113,8 @@ export async function POST(request: NextRequest) {
       return errorResponse('Password is required.', 400);
     }
 
-    const client = await getMongoClientPromise();
-    const db = client.db('tapvyo-nfc');
-    const users = db.collection<AdminUserDocument>('users');
+    const client = await getMongoDb();
+    const users = client.collection<AdminUserDocument>('users');
 
     const user = await users.findOne({
       email: email.toLowerCase(),

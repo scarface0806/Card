@@ -7,7 +7,7 @@ export const registerSchema = z.object({
   password: z.string().min(8),
   name: z.string().optional(),
   phone: z.string().optional(),
-  role: z.enum(["ADMIN", "CUSTOMER"]).optional(),
+  role: z.enum(["CUSTOMER"]).optional(), // ✅ Only CUSTOMER allowed for public registration
 });
 
 // Product create / update schema (partial for update)

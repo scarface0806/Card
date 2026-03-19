@@ -173,17 +173,11 @@ export async function POST(request: NextRequest) {
             throw error;
           }
 
-          const databaseUrl = process.env.DATABASE_URL;
-          if (!databaseUrl) {
-            throw new Error("DATABASE_URL is not configured");
-          }
-
-          const client = new MongoClient(databaseUrl);
-          const dbName = getDatabaseNameFromUri(databaseUrl);
+          const client = getMongoDb();
+          const dbName = "taxiapp"; // Use consistent database name
 
           try {
-            await client.connect();
-            const db = client.db(dbName);
+            const db = await client;
             const orders = db.collection("orders");
 
             const now = new Date();
@@ -200,8 +194,9 @@ export async function POST(request: NextRequest) {
               status: guestOrderData.status || OrderStatus.PENDING,
               createdAt: now,
             };
-          } finally {
-            await client.close();
+          } catch (mongoError) {
+            console.error("MongoDB fallback error:", mongoError);
+            throw mongoError;
           }
         }
       })();
