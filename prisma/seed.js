@@ -34,34 +34,38 @@ async function createAdminWithMongoFallback() {
   try {
     const db = client.db(resolveMongoDbName(uri));
     const users = db.collection("users");
-    const escapedEmail = ADMIN_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-    const existingAdmin = await users.findOne({
-      email: { $regex: `^${escapedEmail}$`, $options: "i" },
-    });
-
-    if (existingAdmin) {
-      console.log("✅ Admin user already exists (Mongo fallback)");
-      return;
-    }
 
     console.log("🔒 Hashing password (Mongo fallback)...");
     const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, BCRYPT_ROUNDS);
 
-    await users.insertOne({
-      name: "Admin",
-      email: ADMIN_EMAIL,
-      password: hashedPassword,
-      role: "ADMIN",
-      isActive: true,
-      emailVerified: true,
-      createdAt: new Date(),
-      updatedAt: new Date(),
-    });
+    // Upsert: update if exists, insert if not
+    const escapedEmail = ADMIN_EMAIL.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const result = await users.updateOne(
+      { email: { $regex: `^${escapedEmail}$`, $options: "i" } },
+      {
+        $set: {
+          name: "Admin",
+          email: ADMIN_EMAIL,
+          password: hashedPassword,
+          role: "ADMIN",
+          isActive: true,
+          emailVerified: true,
+          updatedAt: new Date(),
+        },
+        $setOnInsert: {
+          createdAt: new Date(),
+        },
+      },
+      { upsert: true }
+    );
 
-    console.log("✅ Admin user created successfully (Mongo fallback)");
-    console.log(`📧 Email:    ${ADMIN_EMAIL}`);
-    console.log(`🔐 Password: ${ADMIN_PASSWORD}`);
+    if (result.upsertedId) {
+      console.log("✅ Admin user created (Mongo fallback)");
+    } else if (result.modifiedCount > 0) {
+      console.log("✅ Admin user updated (Mongo fallback)");
+    } else {
+      console.log("✅ Admin user already exists (Mongo fallback)");
+    }
   } finally {
     await client.close();
   }
@@ -71,34 +75,27 @@ async function createAdmin() {
   try {
     console.log("\n🔐 Starting admin user seed...\n");
 
-    // Check if admin already exists
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: ADMIN_EMAIL },
-      select: { id: true, email: true, role: true, isActive: true },
-    });
-
-    if (existingAdmin) {
-      console.log("✅ Admin user already exists");
-      console.log(`   Email: ${existingAdmin.email}`);
-      console.log(`   Role: ${existingAdmin.role}`);
-      console.log(`   Status: ${existingAdmin.isActive ? "Active" : "Inactive"}\n`);
-      return;
-    }
-
-    // Hash password with bcryptjs
+    // Hash password
     console.log("🔒 Hashing password...");
     const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, BCRYPT_ROUNDS);
 
-    // Create admin user
-    console.log("👤 Creating admin user...");
-    const admin = await prisma.user.create({
-      data: {
+    // Upsert: create or update admin user with correct credentials
+    console.log("👤 Upserting admin user...");
+    const admin = await prisma.user.upsert({
+      where: { email: ADMIN_EMAIL },
+      update: {
+        password: hashedPassword,
+        role: "ADMIN",
+        isActive: true,
+        emailVerified: true,
+      },
+      create: {
         name: "Admin",
         email: ADMIN_EMAIL,
         password: hashedPassword,
         role: "ADMIN",
         isActive: true,
-        emailVerified: true, // Admin email is pre-verified
+        emailVerified: true,
       },
       select: {
         id: true,
@@ -110,19 +107,15 @@ async function createAdmin() {
       },
     });
 
-    // Log credentials in a prominent way
     console.log("\n" + "=".repeat(60));
-    console.log("✅ ADMIN USER CREATED SUCCESSFULLY");
+    console.log("✅ ADMIN USER READY");
     console.log("=".repeat(60));
-    console.log(`\n📧 Email:    ${admin.email}`);
-    console.log(`🔐 Password: ${ADMIN_PASSWORD}`);
-    console.log(`👤 Name:     ${admin.name}`);
-    console.log(`🎯 Role:     ${admin.role}`);
-    console.log(`✨ Status:   ${admin.isActive ? "Active" : "Inactive"}`);
-    console.log(`📅 Created:  ${admin.createdAt.toLocaleString()}`);
+    console.log(`\n📧 Email:  ${admin.email}`);
+    console.log(`👤 Name:   ${admin.name}`);
+    console.log(`🎯 Role:   ${admin.role}`);
+    console.log(`✨ Status: ${admin.isActive ? "Active" : "Inactive"}`);
     console.log("\n" + "=".repeat(60));
-    console.log("⚠️  IMPORTANT: CHANGE THIS PASSWORD IN PRODUCTION!");
-    console.log("⚠️  This seed should only be used for local development.");
+    console.log("✅ Database seeding complete!");
     console.log("=".repeat(60) + "\n");
   } catch (error) {
     if (error?.code === "P2031") {

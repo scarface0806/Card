@@ -4,7 +4,8 @@ import { checkRateLimit } from "@/lib/rate-limit";
 import { customerLeadSchema, mainWebsiteLeadSchema } from "@/lib/validators";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { sendCustomerLeadNotificationEmail } from "@/lib/email";
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
+import { getMongoDb } from "@/lib/mongodb";
 
 export const runtime = "nodejs";
 

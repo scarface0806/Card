@@ -1,7 +1,7 @@
 import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
-import { getMongoDb } from '@/lib/mongodb';
+import prisma from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/responses';
 import { Role } from '@prisma/client';
 
@@ -31,26 +31,12 @@ function isDatabaseConnectivityError(error: unknown): boolean {
   return (
     message.includes('server selection timeout') ||
     message.includes('failed to connect') ||
-    message.includes('mongodb') ||
     message.includes('authentication failed') ||
     code === 'p1001' ||
     code === 'p1002' ||
-    name.includes('mongoserverselectionerror')
+    name.includes('prismaclientinitializationerror')
   );
 }
-
-type AdminUserDocument = {
-  _id?: { toString: () => string };
-  id?: string;
-  email: string;
-  password?: string;
-  name?: string;
-  fullName?: string;
-  role?: string;
-  phone?: string | null;
-  avatar?: string | null;
-  isActive?: boolean;
-};
 
 function createAdminSuccessResponse(user: {
   id: string;
@@ -113,11 +99,19 @@ export async function POST(request: NextRequest) {
       return errorResponse('Password is required.', 400);
     }
 
-    const client = await getMongoDb();
-    const users = client.collection<AdminUserDocument>('users');
-
-    const user = await users.findOne({
-      email: email.toLowerCase(),
+    // Use Prisma (not direct MongoDB client) — more reliable connection on serverless
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+      select: {
+        id: true,
+        email: true,
+        password: true,
+        name: true,
+        role: true,
+        isActive: true,
+        phone: true,
+        avatar: true,
+      },
     });
 
     if (!user) {
@@ -142,15 +136,10 @@ export async function POST(request: NextRequest) {
       return errorResponse('Invalid password', 401);
     }
 
-    const userId = user.id || user._id?.toString();
-    if (!userId) {
-      return errorResponse('User record is invalid. Missing user id.', 500);
-    }
-
     return createAdminSuccessResponse({
-      id: userId,
+      id: user.id,
       email: user.email,
-      name: user.name || user.fullName || 'Admin User',
+      name: user.name || 'Admin User',
       role: Role.ADMIN,
       phone: user.phone ?? null,
       avatar: user.avatar ?? null,

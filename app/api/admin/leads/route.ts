@@ -1,6 +1,5 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
-import getMongoClientPromise from "@/lib/mongodb";
 import { withAdmin } from "@/lib/auth-middleware";
 import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";

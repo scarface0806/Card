@@ -4,49 +4,36 @@ import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
-function getRequiredEnv(name: string): string {
-  const val = process.env[name];
-  if (!val) throw new Error(`❌ Missing ${name} environment variable. Set it before running seed.`);
-  return val;
-}
-
-// Require admin credentials from environment
-const ADMIN_EMAIL = getRequiredEnv("santhoshuxui2023@gmail.com");
-const ADMIN_PASSWORD = getRequiredEnv("KGTPS6565P");
+// Admin credentials: read from env vars with fallbacks for convenience
+// Set ADMIN_EMAIL and ADMIN_PASSWORD in .env.local before running seed
+const ADMIN_EMAIL = process.env.ADMIN_EMAIL?.trim() || "santhoshuxui2023@gmail.com";
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD?.trim() || "KGTPS6565P";
 const BCRYPT_ROUNDS = 12; // Match the rounds used in auth endpoints
 
 async function createAdmin() {
   try {
     console.log("\n🔐 Starting admin user seed...\n");
 
-    // Check if admin already exists
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: ADMIN_EMAIL },
-      select: { id: true, email: true, role: true, isActive: true },
-    });
-
-    if (existingAdmin) {
-      console.log("✅ Admin user already exists");
-      console.log(`   Email: ${existingAdmin.email}`);
-      console.log(`   Role: ${existingAdmin.role}`);
-      console.log(`   Status: ${existingAdmin.isActive ? "Active" : "Inactive"}\n`);
-      return;
-    }
-
     // Hash password with bcryptjs
     console.log("🔒 Hashing password...");
     const hashedPassword = await bcrypt.hash(ADMIN_PASSWORD, BCRYPT_ROUNDS);
 
-    // Create admin user
-    console.log("👤 Creating admin user...");
-    const admin = await prisma.user.create({
-      data: {
+    // Upsert: update if exists, create if not
+    const admin = await prisma.user.upsert({
+      where: { email: ADMIN_EMAIL },
+      update: {
+        password: hashedPassword,
+        role: Role.ADMIN,
+        isActive: true,
+        emailVerified: true,
+      },
+      create: {
         name: "Admin",
         email: ADMIN_EMAIL,
         password: hashedPassword,
         role: Role.ADMIN,
         isActive: true,
-        emailVerified: true, // Admin email is pre-verified
+        emailVerified: true,
       },
       select: {
         id: true,
@@ -60,17 +47,14 @@ async function createAdmin() {
 
     // Log success
     console.log("\n" + "=".repeat(60));
-    console.log("✅ ADMIN USER CREATED SUCCESSFULLY");
+    console.log("✅ ADMIN USER READY");
     console.log("=".repeat(60));
     console.log(`📧 Email:  ${admin.email}`);
     console.log(`👤 Name:   ${admin.name}`);
     console.log(`🎯 Role:   ${admin.role}`);
     console.log(`✨ Status: ${admin.isActive ? "Active" : "Inactive"}`);
-    console.log(`📅 Created: ${admin.createdAt.toLocaleString()}`);
     console.log("\n" + "=".repeat(60));
     console.log("✅ Database seeding complete!");
-    console.log("⚠️  Login with the email and password set in ADMIN_EMAIL /");
-    console.log("   ADMIN_PASSWORD environment variables.");
     console.log("=".repeat(60) + "\n");
   } catch (error) {
     const prismaError = error as { code?: string };
