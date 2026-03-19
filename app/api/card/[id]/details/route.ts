@@ -193,7 +193,7 @@ export async function PUT(
       updatedDetails.socialLinks = {
         ...(updatedDetails.socialLinks || {}),
         ...cleanedSocialLinks,
-      } as any;
+      } as typeof updatedDetails.socialLinks;
     }
 
     // Update card in database

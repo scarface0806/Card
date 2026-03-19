@@ -3,16 +3,11 @@ import prisma from "@/lib/prisma";
 import { withAdmin } from "@/lib/auth-middleware";
 import { AuthUser } from "@/lib/auth";
 import { successResponse, errorResponse } from "@/lib/responses";
-
-type CustomerAdminDelegate = {
-  findMany: (args: unknown) => Promise<any[]>;
-  count: (args: unknown) => Promise<number>;
-};
+import { Prisma } from "@prisma/client";
 
 // GET /api/admin/customers - Get all customers (admin only)
 async function handler(request: NextRequest, user: AuthUser) {
   try {
-    const customerDelegate = (prisma as unknown as { customer: CustomerAdminDelegate }).customer;
     const origin = request.nextUrl.origin;
     const { searchParams } = new URL(request.url);
     const rawPage = parseInt(searchParams.get("page") || "1");
@@ -36,7 +31,7 @@ async function handler(request: NextRequest, user: AuthUser) {
       : {};
 
     const [customers, total] = await Promise.all([
-      customerDelegate.findMany({
+      prisma.customer.findMany({
         where,
         skip,
         take: limit,
@@ -50,7 +45,7 @@ async function handler(request: NextRequest, user: AuthUser) {
           },
         },
       }),
-      customerDelegate.count({ where }),
+      prisma.customer.count({ where }),
     ]);
 
     const data = customers.map((customer: Awaited<typeof customers>[number]) => ({

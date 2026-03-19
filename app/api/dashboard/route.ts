@@ -3,6 +3,7 @@ import { authenticate } from "@/lib/auth-middleware";
 import { getMongoDb } from "@/lib/mongodb";
 import { errorResponse } from "@/lib/responses";
 import { successResponse } from "@/lib/responses";
+import { Role } from "@prisma/client";
 
 const COMPLETED_STATUSES = ["DELIVERED", "COMPLETED", "completed"];
 const PENDING_STATUSES = ["PENDING", "pending"];
@@ -15,7 +16,7 @@ export async function GET(request: NextRequest) {
   try {
     const { user, error } = await authenticate(request);
 
-    if (!user || user.role !== "ADMIN") {
+    if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
 

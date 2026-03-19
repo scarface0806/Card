@@ -3,7 +3,7 @@ import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
-import { OrderStatus, PaymentStatus, Prisma } from "@prisma/client";
+import { OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
 import { MongoClient } from "mongodb";
@@ -60,7 +60,7 @@ export async function GET(request: NextRequest) {
     const status = searchParams.get("status") as OrderStatus | null;
 
     const where: Record<string, unknown> = {};
-    const isAdmin = user.role === "ADMIN";
+    const isAdmin = user.role === Role.ADMIN;
 
     if (!isAdmin) {
       where.userId = user.id;

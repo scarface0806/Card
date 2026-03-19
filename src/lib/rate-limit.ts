@@ -48,11 +48,11 @@ export function checkRateLimit(
   return { ok: true };
 }
 
-export function withRateLimit(
-  handler: (req: NextRequest, ...args: any[]) => Promise<NextResponse>,
+export function withRateLimit<T extends any[]>(
+  handler: (req: NextRequest, ...args: T) => Promise<NextResponse>,
   limit = 60
 ) {
-  return async (request: NextRequest, ...args: any[]) => {
+  return async (request: NextRequest, ...args: T) => {
     const { ok, retryAfter } = checkRateLimit(request, limit);
     if (!ok) {
       const res = errorResponse("Too many requests", 429);

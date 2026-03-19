@@ -2,6 +2,20 @@ import { NextRequest } from "next/server";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { getMongoDb } from "@/lib/mongodb";
 import { z } from "zod";
+import { ObjectId } from "mongodb";
+
+// Contact document type from MongoDB
+interface ContactDocument {
+  _id: ObjectId;
+  name: string;
+  email: string;
+  phone: string;
+  message: string;
+  subject?: string | null;
+  source: string;
+  createdAt: Date;
+  updatedAt: Date;
+}
 
 export const runtime = "nodejs";
 
@@ -75,13 +89,13 @@ export async function GET(request: NextRequest) {
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .toArray();
+      .toArray() as ContactDocument[];
 
     // Get total count
     const total = await contacts.countDocuments();
 
     // Transform for response
-    const transformed = contactsList.map((contact: any) => ({
+    const transformed = contactsList.map((contact) => ({
       id: contact._id.toString(),
       name: contact.name,
       email: contact.email,

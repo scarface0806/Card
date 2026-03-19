@@ -11,11 +11,14 @@ const adminRoutes = ["/admin"];
 // Routes that should redirect to dashboard if already logged in
 const authRoutes = ["/login", "/signup"];
 
-// JWT payload type
+// JWT payload type (matches server auth.ts JWTPayload)
+// Using string literals instead of enum for edge runtime compatibility
 interface JWTPayload {
   userId: string;
   email: string;
   role: "ADMIN" | "CUSTOMER";
+  iat?: number;
+  exp?: number;
 }
 
 // Verify JWT token using jose (edge-compatible)
@@ -29,7 +32,16 @@ async function verifyJWT(token: string): Promise<JWTPayload | null> {
 
     const secret = new TextEncoder().encode(jwtSecret);
     const { payload } = await jwtVerify(token, secret);
-    return payload as unknown as JWTPayload;
+    
+    // Type assertion is necessary here since jose returns unknown payload
+    const verified = payload as Record<string, unknown>;
+    return {
+      userId: String(verified.userId || ''),
+      email: String(verified.email || ''),
+      role: (verified.role as string) as "ADMIN" | "CUSTOMER",
+      iat: verified.iat as number | undefined,
+      exp: verified.exp as number | undefined,
+    };
   } catch {
     return null;
   }

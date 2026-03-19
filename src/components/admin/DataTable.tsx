@@ -4,21 +4,24 @@ import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
 import { ChevronLeft, ChevronRight, Database } from 'lucide-react';
 
-interface ColumnConfig {
+// Generic data table row type - accept any object
+type TableRow = object;
+
+interface ColumnConfig<T extends TableRow = TableRow> {
   key: string;
   label: string;
-  render?: (value: any, row: any) => React.ReactNode;
+  render?: (value: any, row: T) => React.ReactNode;
   align?: 'left' | 'center' | 'right';
   width?: string;
 }
 
-interface DataTableProps {
-  columns: ColumnConfig[];
-  data: any[];
+interface DataTableProps<T extends TableRow = TableRow> {
+  columns: ColumnConfig<T>[];
+  data: T[];
   title?: string;
-  onView?: (row: any) => void;
-  onEdit?: (row: any) => void;
-  onDelete?: (row: any) => void;
+  onView?: (row: T) => void;
+  onEdit?: (row: T) => void;
+  onDelete?: (row: T) => void;
   actionLabels?: {
     view?: string;
     edit?: string;
@@ -31,17 +34,17 @@ interface DataTableProps {
   };
   extraActions?: Array<{
     key: string;
-    label: string | ((row: any) => string);
-    onClick: (row: any) => void;
+    label: string | ((row: T) => string);
+    onClick: (row: T) => void;
     tone?: 'neutral' | 'warning' | 'danger' | 'success';
-    visible?: (row: any) => boolean;
-    disabled?: (row: any) => boolean;
+    visible?: (row: T) => boolean;
+    disabled?: (row: T) => boolean;
   }>;
   itemsPerPage?: number;
   actions?: boolean;
 }
 
-export default function DataTable({
+export default function DataTable<T extends TableRow = TableRow>({
   columns,
   data,
   title,
@@ -53,7 +56,7 @@ export default function DataTable({
   extraActions,
   itemsPerPage = 10,
   actions = true,
-}: DataTableProps) {
+}: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -96,14 +99,16 @@ export default function DataTable({
           currentData.map((row, rowIndex) => (
             <div key={rowIndex} className="p-4 space-y-3 bg-white/[0.01]">
               <div className="grid grid-cols-1 gap-2">
-                {columns.map((column) => (
+                {columns.map((column) => {
+                  const rowRecord = row as Record<string, any>;
+                  return (
                   <div key={`${rowIndex}-${column.key}`} className="flex items-start justify-between gap-3">
                     <p className="text-[11px] uppercase tracking-wider text-gray-500 pt-0.5">{column.label}</p>
                     <div className="text-sm text-right text-gray-200 max-w-[65%] break-words">
-                      {column.render ? column.render(row[column.key], row) : row[column.key]}
+                      {column.render ? column.render(rowRecord[column.key], row) : rowRecord[column.key]}
                     </div>
                   </div>
-                ))}
+                );})}
               </div>
 
               {actions && (
@@ -196,17 +201,19 @@ export default function DataTable({
                   key={rowIndex}
                   className="hover:bg-white/[0.03] transition-colors duration-150 group"
                 >
-                  {columns.map((column) => (
+                  {columns.map((column) => {
+                    const rowRecord = row as Record<string, any>;
+                    return (
                     <td
                       key={`${rowIndex}-${column.key}`}
                       className={`px-5 py-4 text-sm text-gray-300 ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
                         }`}
                     >
                       {column.render
-                        ? column.render(row[column.key], row)
-                        : row[column.key]}
+                        ? column.render(rowRecord[column.key], row)
+                        : rowRecord[column.key]}
                     </td>
-                  ))}
+                  );})}
                   {actions && (
                     <td className="px-5 py-4 text-sm">
                       <div className="flex items-center gap-2">

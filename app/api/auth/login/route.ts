@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyPassword, generateToken } from "@/lib/auth";
-
+import { Role } from "@prisma/client";
 import { z } from "zod";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
@@ -67,14 +67,14 @@ export async function POST(request: NextRequest) {
         const token = generateToken({
           userId: 'mock-admin-id',
           email: DEV_ADMIN_EMAIL,
-          role: 'ADMIN',
+          role: Role.ADMIN,
         });
 
         const userData = {
           id: 'mock-admin-id',
           email: DEV_ADMIN_EMAIL,
           name: 'Admin User',
-          role: 'ADMIN',
+          role: Role.ADMIN,
         };
 
         const response = successResponse({

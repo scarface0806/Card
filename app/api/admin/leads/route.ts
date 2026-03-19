@@ -5,9 +5,10 @@ import { withAdmin } from "@/lib/auth-middleware";
 import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import type { AuthUser } from "@/lib/auth";
+import { ObjectId } from "mongodb";
 
 type MainWebsiteLeadDocument = {
-  _id: { toString: () => string };
+  _id: ObjectId;
   source?: string;
   name?: string;
   phone?: string;

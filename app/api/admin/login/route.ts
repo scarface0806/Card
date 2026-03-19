@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
 import getMongoClientPromise from '@/lib/mongodb';
 import { errorResponse, successResponse } from '@/lib/responses';
+import { Role } from '@prisma/client';
 
 function sanitizeEmail(email: unknown): string {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
@@ -55,7 +56,7 @@ function createAdminSuccessResponse(user: {
   id: string;
   email: string;
   name: string;
-  role: 'ADMIN';
+  role: Role;
   phone?: string | null;
   avatar?: string | null;
 }) {
@@ -128,7 +129,7 @@ export async function POST(request: NextRequest) {
       return errorResponse('Account has been deactivated', 403);
     }
 
-    if (user.role !== 'ADMIN') {
+    if (user.role !== Role.ADMIN) {
       return errorResponse('You are not authorized to access admin portal', 403);
     }
 
@@ -151,7 +152,7 @@ export async function POST(request: NextRequest) {
       id: userId,
       email: user.email,
       name: user.name || user.fullName || 'Admin User',
-      role: 'ADMIN',
+      role: Role.ADMIN,
       phone: user.phone ?? null,
       avatar: user.avatar ?? null,
     });
@@ -165,7 +166,16 @@ export async function POST(request: NextRequest) {
     return errorResponse('An internal server error occurred.', 500);
   }
 }
-function createAuthResponse(token: string, userData: any) {
+interface AuthResponseUser {
+  id: string;
+  email: string;
+  name: string;
+  role: Role;
+  phone?: string | null;
+  avatar?: string | null;
+}
+
+function createAuthResponse(token: string, userData: AuthResponseUser) {
   const response = successResponse({
     message: 'Login successful',
     user: userData,
