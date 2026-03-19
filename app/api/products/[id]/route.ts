@@ -3,6 +3,7 @@ import { withAdmin } from "@/lib/auth-middleware";
 import type { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
 import prisma from "@/lib/prisma";
+import { deleteCloudinaryImage, extractCloudinaryPublicIdFromUrl } from "@/lib/deleteCloudinaryImage";
 
 export const runtime = "nodejs";
 
@@ -13,6 +14,7 @@ type ProductInput = {
   description: string;
   price: number;
   image: string;
+  imageUrl?: string;
 };
 
 function normalizeProductInput(payload: unknown): ProductInput {
@@ -23,7 +25,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
   const input = payload as Record<string, unknown>;
   const name = String(input.name || "").trim();
   const description = String(input.description || "").trim();
-  const image = String(input.image || "").trim();
+  const image = String(input.image || input.imageUrl || "").trim();
   const priceNumber = Number(input.price);
 
   if (!name) {
@@ -47,6 +49,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
     description,
     price: priceNumber,
     image,
+    imageUrl: String(input.imageUrl || "").trim() || undefined,
   };
 }
 
@@ -96,6 +99,17 @@ async function updateProductHandler(
     const body = await request.json();
     const parsed = normalizeProductInput(body);
 
+    const existing = await prisma.product.findUnique({
+      where: { id },
+      select: { images: true },
+    });
+
+    if (!existing) {
+      return errorResponse("Product not found", 404);
+    }
+
+    const previousImage = existing.images?.[0] || "";
+
     const updated = await prisma.product.update({
       where: { id },
       data: {
@@ -112,6 +126,15 @@ async function updateProductHandler(
 
     if (!updated) {
       return errorResponse("Product not found", 404);
+    }
+
+    if (previousImage && previousImage !== parsed.image) {
+      const oldPublicId = extractCloudinaryPublicIdFromUrl(previousImage);
+      if (oldPublicId) {
+        void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+          console.error("Failed to cleanup old product image:", cleanupError);
+        });
+      }
     }
 
     return successResponse({
@@ -137,10 +160,27 @@ async function deleteProductHandler(
   try {
     const { id } = await params;
 
+    const existing = await prisma.product.findUnique({
+      where: { id },
+      select: { images: true },
+    });
+
+    if (!existing) {
+      return errorResponse("Product not found", 404);
+    }
+
     await prisma.product.delete({ where: { id } }).catch((e: { code?: string }) => {
       if (e?.code === "P2025") return null;
       throw e;
     });
+
+    const previousImage = existing.images?.[0] || "";
+    const oldPublicId = extractCloudinaryPublicIdFromUrl(previousImage);
+    if (oldPublicId) {
+      void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+        console.error("Failed to cleanup deleted product image:", cleanupError);
+      });
+    }
 
     return successResponse({ message: "Product deleted successfully" });
   } catch (error) {

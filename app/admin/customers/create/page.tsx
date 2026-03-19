@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Copy, ExternalLink, Loader2, UploadCloud } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface GallerySlot {
   file: File | null;
@@ -33,6 +34,7 @@ interface FormState {
   behanceEnabled: boolean;
   address: string;
   mapEmbedUrl: string;
+  imageUrl: string;
   logo: File | null;
   profileImage: File | null;
   gallerySlots: GallerySlot[];
@@ -74,6 +76,7 @@ export default function CreateCustomerPage() {
     behanceEnabled: false,
     address: '',
     mapEmbedUrl: '',
+    imageUrl: '',
     logo: null,
     profileImage: null,
     gallerySlots: defaultGallerySlots(),
@@ -177,6 +180,7 @@ export default function CreateCustomerPage() {
       body.append('behanceEnabled', String(form.behanceEnabled));
       body.append('address', form.address);
       body.append('mapEmbedUrl', form.mapEmbedUrl);
+      body.append('imageUrl', form.imageUrl);
       body.append('isActive', 'true');
       body.append('enableGallery', String(form.enableGallery));
 
@@ -258,6 +262,7 @@ export default function CreateCustomerPage() {
         behanceEnabled: false,
         address: '',
         mapEmbedUrl: '',
+        imageUrl: '',
         logo: null,
         profileImage: null,
         gallerySlots: defaultGallerySlots(),
@@ -352,6 +357,18 @@ export default function CreateCustomerPage() {
         </div>
 
         <div className="grid gap-4 sm:gap-5 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <ImageUpload
+              folder="admin/customers"
+              label="Customer Profile Photo"
+              aspectRatio="square"
+              currentImageUrl={form.imageUrl || undefined}
+              onUploadComplete={(url) => {
+                setForm((current) => ({ ...current, imageUrl: url }));
+              }}
+            />
+          </div>
+
           <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
             <span className="mb-3 flex items-center gap-2 text-teal-300"><UploadCloud className="h-4 w-4" /> Logo Upload</span>
             <input type="file" name="logo" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-teal-600 file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-teal-500" />

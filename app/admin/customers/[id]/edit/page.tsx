@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 interface GalleryItem {
   id: string;
@@ -35,6 +36,7 @@ interface CustomerDetail {
   behanceEnabled: boolean;
   address?: string | null;
   mapEmbedUrl?: string | null;
+  profileImage?: string | null;
   isActive: boolean;
   galleries: GalleryItem[];
 }
@@ -63,6 +65,7 @@ type FormState = {
   behanceEnabled: boolean;
   address: string;
   mapEmbedUrl: string;
+  imageUrl: string;
   isActive: boolean;
   enableGallery: boolean;
   gallery: Array<{ id: string; slot: number; image: string; hoverText: string; file: File | null }>;
@@ -90,6 +93,7 @@ const emptyForm: FormState = {
   behanceEnabled: false,
   address: '',
   mapEmbedUrl: '',
+  imageUrl: '',
   isActive: true,
   enableGallery: true,
   gallery: [],
@@ -155,6 +159,7 @@ export default function EditCustomerPage() {
           behanceEnabled: Boolean(customer.behanceEnabled),
           address: customer.address || '',
           mapEmbedUrl: customer.mapEmbedUrl || '',
+          imageUrl: customer.profileImage || '',
           isActive: Boolean(customer.isActive),
           enableGallery: normalizedGallery.some((item) => item.id),
           gallery: normalizedGallery,
@@ -236,6 +241,7 @@ export default function EditCustomerPage() {
       body.append('behanceEnabled', String(form.behanceEnabled));
       body.append('address', form.address);
       body.append('mapEmbedUrl', form.mapEmbedUrl);
+      body.append('imageUrl', form.imageUrl);
       body.append('isActive', String(form.isActive));
       body.append('enableGallery', String(form.enableGallery));
 
@@ -323,6 +329,16 @@ export default function EditCustomerPage() {
         </label>
 
         <div className="grid gap-4 md:grid-cols-2">
+          <div className="md:col-span-2">
+            <ImageUpload
+              folder="admin/customers"
+              label="Customer Profile Photo"
+              aspectRatio="square"
+              currentImageUrl={form.imageUrl || undefined}
+              onUploadComplete={(url) => setText('imageUrl', url)}
+            />
+          </div>
+
           <label className="block text-sm font-medium text-gray-200">Address
             <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-teal-400" />
           </label>

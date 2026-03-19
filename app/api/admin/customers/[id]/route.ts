@@ -8,6 +8,7 @@ import { customerCreateSchema } from "@/lib/validators";
 import { ObjectId } from "mongodb";
 import { saveUploadedImage } from "@/lib/local-upload";
 import { getMongoDb } from "@/lib/mongodb";
+import { deleteCloudinaryImage, extractCloudinaryPublicIdFromUrl } from "@/lib/deleteCloudinaryImage";
 
 type CustomerDetailDelegate = {
   findUnique: (args: unknown) => Promise<any>;
@@ -78,13 +79,25 @@ async function deleteHandler(request: NextRequest, user: AuthUser, context: Rout
       return errorResponse("Customer not found", 404);
     }
 
-    let existingCustomer: { id: string } | null = null;
+    let existingCustomer: { id: string; logo?: string | null; profileImage?: string | null } | null = null;
+    let existingGalleryImages: string[] = [];
 
     try {
       existingCustomer = await customerDelegate.findUnique({
         where: { id },
-        select: { id: true },
+        select: { id: true, logo: true, profileImage: true },
       });
+
+      const existingGalleries = await (prisma as unknown as {
+        gallery: { findMany: (args: unknown) => Promise<Array<{ image: string | null }>> };
+      }).gallery.findMany({
+        where: { customerId: id },
+        select: { image: true },
+      });
+
+      existingGalleryImages = existingGalleries
+        .map((item) => item.image)
+        .filter((value): value is string => Boolean(value));
     } catch (error) {
       if (!isReplicaSetRequiredError(error)) {
         throw error;
@@ -92,8 +105,21 @@ async function deleteHandler(request: NextRequest, user: AuthUser, context: Rout
 
       existingCustomer = await withMongo(async (db) => {
         const customers = db.collection("customers");
-        const found = await customers.findOne({ _id: new ObjectId(id) }, { projection: { _id: 1 } });
-        return found ? { id } : null;
+        const galleries = db.collection("galleries");
+        const found = await customers.findOne(
+          { _id: new ObjectId(id) },
+          { projection: { _id: 1, logo: 1, profileImage: 1 } }
+        );
+
+        const galleryItems = await galleries
+          .find({ customerId: new ObjectId(id) }, { projection: { image: 1 } })
+          .toArray();
+
+        existingGalleryImages = galleryItems
+          .map((item) => (typeof item.image === "string" ? item.image : null))
+          .filter((value): value is string => Boolean(value));
+
+        return found ? { id, logo: found.logo as string | undefined, profileImage: found.profileImage as string | undefined } : null;
       });
     }
 
@@ -124,6 +150,19 @@ async function deleteHandler(request: NextRequest, user: AuthUser, context: Rout
       });
     }
 
+    const candidateMediaUrls = [
+      existingCustomer.logo || null,
+      existingCustomer.profileImage || null,
+      ...existingGalleryImages,
+    ];
+
+    await Promise.allSettled(
+      candidateMediaUrls
+        .map((url) => extractCloudinaryPublicIdFromUrl(url))
+        .filter((publicId): publicId is string => Boolean(publicId))
+        .map((publicId) => deleteCloudinaryImage(publicId))
+    );
+
     return successResponse({ message: "Customer deleted successfully" });
   } catch (error) {
     console.error("Delete customer error:", error);
@@ -147,10 +186,37 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
     }
 
     const contentType = request.headers.get("content-type") || "";
+    let previousProfileImage: string | null = null;
+
+    try {
+      const previous = await customerDelegate.findUnique({
+        where: { id },
+        select: { profileImage: true },
+      });
+      previousProfileImage = previous?.profileImage || null;
+    } catch (error) {
+      if (!isReplicaSetRequiredError(error)) {
+        throw error;
+      }
+
+      const previous = await withMongo(async (db) => {
+        const customers = db.collection("customers");
+        return customers.findOne(
+          { _id: new ObjectId(id) },
+          { projection: { profileImage: 1 } }
+        );
+      });
+
+      previousProfileImage =
+        previous && typeof previous.profileImage === "string"
+          ? previous.profileImage
+          : null;
+    }
 
     if (contentType.includes("multipart/form-data")) {
       const formData = await request.formData();
       const enableGallery = parseBoolean(formData.get("enableGallery"));
+      const imageUrl = String(formData.get("imageUrl") || "").trim();
 
       const parsed = customerCreateSchema.safeParse({
         name: formData.get("name"),
@@ -212,6 +278,7 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
               address: parsed.data.address || null,
               mapEmbedUrl: parsed.data.mapEmbedUrl || null,
               isActive: parsed.data.isActive,
+              ...(imageUrl ? { profileImage: imageUrl } : {}),
               updatedAt: new Date(),
             },
           }
@@ -261,6 +328,15 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
         await galleries.deleteMany({ customerId: customerObjectId, slot: { $gt: 3 } });
       });
 
+      if (imageUrl && previousProfileImage && previousProfileImage !== imageUrl) {
+        const oldPublicId = extractCloudinaryPublicIdFromUrl(previousProfileImage);
+        if (oldPublicId) {
+          void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+            console.error("Failed to cleanup old customer profile image:", cleanupError);
+          });
+        }
+      }
+
       return successResponse({
         message: "Customer updated",
         customer: {
@@ -274,6 +350,7 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
     }
 
     const body = await request.json();
+    const imageUrl = typeof body?.imageUrl === "string" ? body.imageUrl.trim() : "";
 
     const statusOnly = typeof body?.isActive === "boolean" && Object.keys(body || {}).length === 1;
 
@@ -363,6 +440,7 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
           address: parsed.data.address || null,
           mapEmbedUrl: parsed.data.mapEmbedUrl || null,
           isActive: parsed.data.isActive,
+          ...(imageUrl ? { profileImage: imageUrl } : {}),
         },
       });
 
@@ -377,6 +455,15 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
             data: {
               hoverText: item.hoverText ? String(item.hoverText) : null,
             },
+          });
+        }
+      }
+
+      if (imageUrl && previousProfileImage && previousProfileImage !== imageUrl) {
+        const oldPublicId = extractCloudinaryPublicIdFromUrl(previousProfileImage);
+        if (oldPublicId) {
+          void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+            console.error("Failed to cleanup old customer profile image:", cleanupError);
           });
         }
       }
@@ -417,6 +504,7 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
               address: parsed.data.address || null,
               mapEmbedUrl: parsed.data.mapEmbedUrl || null,
               isActive: parsed.data.isActive,
+              ...(imageUrl ? { profileImage: imageUrl } : {}),
               updatedAt: new Date(),
             },
           }
@@ -443,6 +531,15 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
           }
         }
       });
+
+      if (imageUrl && previousProfileImage && previousProfileImage !== imageUrl) {
+        const oldPublicId = extractCloudinaryPublicIdFromUrl(previousProfileImage);
+        if (oldPublicId) {
+          void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+            console.error("Failed to cleanup old customer profile image:", cleanupError);
+          });
+        }
+      }
 
       return successResponse({
         message: "Customer updated",

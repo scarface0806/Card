@@ -6,6 +6,7 @@ import { AuthUser } from "@/lib/auth";
 
 import { updateCardSchema } from "@/lib/validators";
 import { errorResponse, successResponse } from "@/lib/responses";
+import { deleteCloudinaryImage, extractCloudinaryPublicIdFromUrl } from "@/lib/deleteCloudinaryImage";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
@@ -41,6 +42,9 @@ async function handler(
       return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
     }
     const data = parsed.data;
+    const imageUrl = typeof (data as { imageUrl?: unknown }).imageUrl === "string"
+      ? String((data as { imageUrl?: string }).imageUrl).trim()
+      : "";
 
     const card = await prisma.card.findUnique({
       where: { id },
@@ -51,7 +55,12 @@ async function handler(
       return errorResponse("Card not found", 404);
     }
 
-    const updatedDetails = { ...card.details, ...(data.details || {}) };
+    const previousProfileImage = (card.details as { profileImage?: string } | null)?.profileImage || "";
+    const updatedDetails = {
+      ...card.details,
+      ...(data.details || {}),
+      ...(imageUrl ? { profileImage: imageUrl } : {}),
+    };
     
     // Filter out null/undefined values for Prisma compatibility
     const cleanedDetails = Object.fromEntries(
@@ -68,6 +77,16 @@ async function handler(
         updatedAt: true,
       },
     });
+
+    const nextProfileImage = (updatedCard.details as { profileImage?: string } | null)?.profileImage || "";
+    if (previousProfileImage && previousProfileImage !== nextProfileImage) {
+      const oldPublicId = extractCloudinaryPublicIdFromUrl(previousProfileImage);
+      if (oldPublicId) {
+        void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+          console.error("Failed to cleanup old card profile image:", cleanupError);
+        });
+      }
+    }
 
     return successResponse({
       message: "Card detail updated successfully",

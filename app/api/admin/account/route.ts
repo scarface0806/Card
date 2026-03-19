@@ -4,11 +4,13 @@ import { authenticate } from "@/lib/auth-middleware";
 import { Role } from "@prisma/client";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { z } from "zod";
+import { deleteCloudinaryImage, extractCloudinaryPublicIdFromUrl } from "@/lib/deleteCloudinaryImage";
 
 const updateAccountSchema = z.object({
   name: z.string().min(1).max(100),
   email: z.string().email(),
   avatar: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 // GET /api/admin/account - Get current admin profile
@@ -54,7 +56,8 @@ export async function PUT(request: NextRequest) {
       return errorResponse(parsed.error.issues.map((e) => e.message).join(", "), 400);
     }
 
-    const { name, email, avatar } = parsed.data;
+    const { name, email, avatar, imageUrl } = parsed.data;
+    const resolvedAvatar = imageUrl?.trim() || avatar?.trim() || null;
 
     const existing = await prisma.user.findFirst({
       where: {
@@ -68,12 +71,17 @@ export async function PUT(request: NextRequest) {
       return errorResponse("Email is already in use", 409);
     }
 
+    const current = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { avatar: true },
+    });
+
     const updated = await prisma.user.update({
       where: { id: user.id },
       data: {
         name: name.trim(),
         email: email.toLowerCase().trim(),
-        avatar: avatar?.trim() || null,
+        avatar: resolvedAvatar,
       },
       select: {
         id: true,
@@ -84,6 +92,15 @@ export async function PUT(request: NextRequest) {
         updatedAt: true,
       },
     });
+
+    if (current?.avatar && current.avatar !== resolvedAvatar) {
+      const oldPublicId = extractCloudinaryPublicIdFromUrl(current.avatar);
+      if (oldPublicId) {
+        void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+          console.error("Failed to cleanup old avatar image:", cleanupError);
+        });
+      }
+    }
 
     return successResponse({
       message: "Account updated successfully",

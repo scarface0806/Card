@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react';
 import { Upload } from 'lucide-react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 export default function AccountPage() {
   const [loading, setLoading] = useState(true);
@@ -13,6 +14,7 @@ export default function AccountPage() {
     name: '',
     email: '',
     avatar: '',
+    imageUrl: '',
     photo: null as File | null,
   });
 
@@ -46,6 +48,7 @@ export default function AccountPage() {
           name: user.name || 'Admin User',
           email: user.email || '',
           avatar: user.avatar || '',
+          imageUrl: user.avatar || '',
         }));
         const safeName = encodeURIComponent(user.name || 'Admin User');
         setPreviewUrl(
@@ -100,6 +103,7 @@ export default function AccountPage() {
           name: formData.name,
           email: formData.email,
           avatar: formData.avatar,
+          imageUrl: formData.imageUrl,
         }),
       });
       const payload = await response.json();
@@ -137,6 +141,18 @@ export default function AccountPage() {
             <label className="block text-sm font-medium text-gray-300 mb-4">
               Profile Photo
             </label>
+            <div className="mb-4">
+              <ImageUpload
+                folder="admin/profiles"
+                label="Profile Image"
+                aspectRatio="square"
+                currentImageUrl={formData.imageUrl || undefined}
+                onUploadComplete={(url) => {
+                  setFormData((prev) => ({ ...prev, imageUrl: url, avatar: url }));
+                  setPreviewUrl(url);
+                }}
+              />
+            </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
               <div className="relative group">
                 <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-teal-500/50 transition-colors">
@@ -161,7 +177,7 @@ export default function AccountPage() {
                   <button
                     type="button"
                     onClick={() => {
-                      setFormData((prev) => ({ ...prev, avatar: '', photo: null }));
+                      setFormData((prev) => ({ ...prev, avatar: '', imageUrl: '', photo: null }));
                       setPreviewUrl(fallbackPreviewUrl);
                     }}
                     className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"

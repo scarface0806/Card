@@ -11,6 +11,7 @@ type ProductInput = {
   description: string;
   price: number;
   image: string;
+  imageUrl?: string;
 };
 
 function normalizeProductInput(payload: unknown): ProductInput {
@@ -21,7 +22,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
   const input = payload as Record<string, unknown>;
   const name = String(input.name || "").trim();
   const description = String(input.description || "").trim();
-  const image = String(input.image || "").trim();
+  const image = String(input.image || input.imageUrl || "").trim();
   const priceNumber = Number(input.price);
 
   if (!name) {
@@ -45,6 +46,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
     description,
     price: priceNumber,
     image,
+    imageUrl: String(input.imageUrl || "").trim() || undefined,
   };
 }
 

@@ -76,6 +76,7 @@ export const createOrderSchema = z.object({
 
 // Card update schema allows partial details
 export const updateCardSchema = z.object({
+  imageUrl: z.string().url().optional(),
   details: z.object({
     firstName: z.string().min(1).optional(),
     lastName: z.string().min(1).optional(),

@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import ImageUpload from '@/components/admin/ImageUpload';
 
 export type ProductFormValues = {
   name: string;
@@ -24,18 +25,10 @@ const DEFAULT_VALUES: ProductFormValues = {
   image: '',
 };
 
-function fileToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(String(reader.result || ''));
-    reader.onerror = () => reject(new Error('Failed to read image file'));
-    reader.readAsDataURL(file);
-  });
-}
-
 export default function ProductForm({ initialValues, onSubmit, submitLabel, submitting = false, onCancel }: ProductFormProps) {
   const [values, setValues] = useState<ProductFormValues>(initialValues || DEFAULT_VALUES);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [productImagePublicId, setProductImagePublicId] = useState<string | null>(null);
 
   useEffect(() => {
     setValues(initialValues || DEFAULT_VALUES);
@@ -44,19 +37,6 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
 
   const handleChange = (key: keyof ProductFormValues, value: string | number) => {
     setValues((prev) => ({ ...prev, [key]: value }));
-  };
-
-  const handleImageChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    try {
-      const encoded = await fileToBase64(file);
-      setValues((prev) => ({ ...prev, image: encoded }));
-      setLocalError(null);
-    } catch (error) {
-      setLocalError(error instanceof Error ? error.message : 'Failed to process image');
-    }
   };
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -130,18 +110,19 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
       </div>
 
       <div>
-        <label className="block text-sm text-gray-300 mb-1">Image Upload</label>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={handleImageChange}
-          className="w-full rounded-lg border border-white/10 bg-[#151a2d] px-3 py-2 text-gray-300"
-          disabled={submitting}
+        <ImageUpload
+          folder="admin/products"
+          label="Product Image"
+          aspectRatio="landscape"
+          currentImageUrl={values.image || undefined}
+          onUploadComplete={(url, publicId) => {
+            setValues((prev) => ({ ...prev, image: url }));
+            setProductImagePublicId(publicId);
+            setLocalError(null);
+          }}
         />
-        {values.image ? (
-          <div className="mt-3 rounded-lg border border-white/10 bg-[#151a2d] p-2">
-            <img src={values.image} alt="Product preview" className="h-24 w-24 rounded-md object-cover" />
-          </div>
+        {productImagePublicId ? (
+          <p className="mt-2 text-xs text-gray-500">Cloudinary ID: {productImagePublicId}</p>
         ) : null}
       </div>
 

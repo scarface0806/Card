@@ -166,9 +166,13 @@ async function postHandler(request: NextRequest, user: AuthUser) {
 
     const logoFile = formData.get("logo");
     const profileImageFile = formData.get("profileImage");
+    const imageUrl = String(formData.get("imageUrl") || "").trim();
 
     const logo = logoFile instanceof File ? await saveUploadedImage(logoFile, "customers") : null;
-    const profileImage = profileImageFile instanceof File ? await saveUploadedImage(profileImageFile, "customers") : null;
+    const profileImage =
+      profileImageFile instanceof File
+        ? await saveUploadedImage(profileImageFile, "customers")
+        : imageUrl || null;
 
     let customerId: string;
     let slug: string;
