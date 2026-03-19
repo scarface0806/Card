@@ -125,27 +125,31 @@ export default function CardsPage() {
               >
                 {/* Card Preview */}
                 <div className="relative aspect-[1.6/1] overflow-hidden">
-                  <div
-                    className="absolute inset-0 flex items-center justify-center p-6"
-                    style={{ background: card.color }}
-                  >
-                    {/* NFC Card Mockup */}
-                    <div className="relative w-full h-full rounded-xl overflow-hidden">
-                      <div className="absolute inset-0 flex flex-col justify-between p-4">
-                        {/* NFC Icon */}
-                        <div className="flex justify-end">
-                          <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                            <Wifi className="w-4 h-4 text-white rotate-45" />
+                  {card.images?.[0] ? (
+                    <img src={card.images[0]} alt={card.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <div
+                      className="absolute inset-0 flex items-center justify-center p-6"
+                      style={{ background: card.color }}
+                    >
+                      {/* NFC Card Mockup */}
+                      <div className="relative w-full h-full rounded-xl overflow-hidden">
+                        <div className="absolute inset-0 flex flex-col justify-between p-4">
+                          {/* NFC Icon */}
+                          <div className="flex justify-end">
+                            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                              <Wifi className="w-4 h-4 text-white rotate-45" />
+                            </div>
                           </div>
-                        </div>
-                        {/* Card Info */}
-                        <div className="text-white">
-                          <p className="text-white/70 text-xs">Your Name</p>
-                          <p className="font-bold">John Doe</p>
+                          {/* Card Info */}
+                          <div className="text-white">
+                            <p className="text-white/70 text-xs">Your Name</p>
+                            <p className="font-bold">John Doe</p>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
+                  )}
 
                   {/* Quick View Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">

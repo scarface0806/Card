@@ -53,13 +53,35 @@ function normalizeProductInput(payload: unknown): ProductInput {
   };
 }
 
-function mapProduct(p: { id: string; name: string; description: string | null; price: number; images: string[]; createdAt: Date }) {
+function mapProduct(p: {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  salePrice: number | null;
+  images: string[];
+  cardType: string | null;
+  material: string | null;
+  color: string | null;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdAt: Date;
+}) {
   return {
     id: p.id,
     name: p.name,
+    slug: p.slug,
     description: p.description || "",
     price: p.price,
+    salePrice: p.salePrice,
+    images: p.images || [],
     image: p.images[0] || "",
+    cardType: p.cardType,
+    material: p.material,
+    color: p.color,
+    isActive: p.isActive,
+    isFeatured: p.isFeatured,
     createdAt: p.createdAt,
   };
 }
@@ -74,7 +96,21 @@ export async function GET(
 
     const product = await prisma.product.findUnique({
       where: { id },
-      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        salePrice: true,
+        images: true,
+        cardType: true,
+        material: true,
+        color: true,
+        isActive: true,
+        isFeatured: true,
+        createdAt: true,
+      },
     });
 
     if (!product) {
@@ -118,7 +154,21 @@ async function updateProductHandler(
         price: parsed.price,
         images: [parsed.image],
       },
-      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        salePrice: true,
+        images: true,
+        cardType: true,
+        material: true,
+        color: true,
+        isActive: true,
+        isFeatured: true,
+        createdAt: true,
+      },
     }).catch((e: { code?: string }) => {
       if (e?.code === "P2025") return null;
       throw e;

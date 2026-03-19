@@ -50,13 +50,35 @@ function normalizeProductInput(payload: unknown): ProductInput {
   };
 }
 
-function mapProduct(p: { id: string; name: string; description: string | null; price: number; images: string[]; createdAt: Date }) {
+function mapProduct(p: {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  salePrice: number | null;
+  images: string[];
+  cardType: string | null;
+  material: string | null;
+  color: string | null;
+  isActive: boolean;
+  isFeatured: boolean;
+  createdAt: Date;
+}) {
   return {
     id: p.id,
     name: p.name,
+    slug: p.slug,
     description: p.description || "",
     price: p.price,
+    salePrice: p.salePrice,
+    images: p.images || [],
     image: p.images[0] || "",
+    cardType: p.cardType,
+    material: p.material,
+    color: p.color,
+    isActive: p.isActive,
+    isFeatured: p.isFeatured,
     createdAt: p.createdAt,
   };
 }
@@ -72,7 +94,21 @@ export async function GET(request: NextRequest) {
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
       take: limit > 0 ? limit : undefined,
-      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        salePrice: true,
+        images: true,
+        cardType: true,
+        material: true,
+        color: true,
+        isActive: true,
+        isFeatured: true,
+        createdAt: true,
+      },
     });
 
     return successResponse({
@@ -103,7 +139,21 @@ async function createProductHandler(request: NextRequest, _user: AuthUser) {
         stock: 0,
         isFeatured: false,
       },
-      select: { id: true, name: true, description: true, price: true, images: true, createdAt: true },
+      select: {
+        id: true,
+        name: true,
+        slug: true,
+        description: true,
+        price: true,
+        salePrice: true,
+        images: true,
+        cardType: true,
+        material: true,
+        color: true,
+        isActive: true,
+        isFeatured: true,
+        createdAt: true,
+      },
     });
 
     return successResponse(
