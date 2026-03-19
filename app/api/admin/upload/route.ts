@@ -29,13 +29,13 @@ async function handler(request: NextRequest) {
     }
 
     if (!(fileValue instanceof File)) {
-      return NextResponse.json({ error: "File is required" }, { status: 400 });
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     if (!ALLOWED_TYPES.has(fileValue.type)) {
       return NextResponse.json(
         { error: "Unsupported file type. Allowed: JPEG, PNG, WEBP, GIF." },
-        { status: 415 }
+        { status: 400 }
       );
     }
 
@@ -49,7 +49,7 @@ async function handler(request: NextRequest) {
     const buffer = Buffer.from(await fileValue.arrayBuffer());
     const { url, publicId } = await uploadToCloudinary(buffer, folderValue);
 
-    return NextResponse.json({ url, publicId }, { status: 200 });
+    return NextResponse.json({ success: true, url, publicId }, { status: 200 });
   } catch (error) {
     console.error("Admin upload error:", error);
     return NextResponse.json(
