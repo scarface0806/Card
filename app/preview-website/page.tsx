@@ -9,7 +9,7 @@ export default function PreviewWebsitePage() {
     const themeSwitch = document.getElementById('theme-switch') as HTMLInputElement;
     const htmlElement = document.documentElement;
 
-    const savedTheme = localStorage.getItem('preview-theme') || 'light';
+    const savedTheme = localStorage.getItem('preview-theme') || 'dark';
     if (savedTheme === 'dark') {
       htmlElement.setAttribute('data-theme', 'dark');
       if (themeSwitch) themeSwitch.checked = true;
@@ -132,10 +132,10 @@ export default function PreviewWebsitePage() {
 
         /* ===== CSS Variables — Light Theme ===== */
         :root {
-          --accent: #00b894;
-          --accent-light: #00cec9;
-          --accent-glow: rgba(0, 184, 148, 0.15);
-          --accent-subtle: rgba(0, 184, 148, 0.08);
+          --accent: #33cc33;
+          --accent-light: #ffff00;
+          --accent-glow: rgba(51, 204, 51, 0.2);
+          --accent-subtle: rgba(51, 204, 51, 0.1);
           --danger: #ff6b6b;
           --info: #4dabf7;
           --surface: #ffffff;
@@ -675,9 +675,9 @@ export default function PreviewWebsitePage() {
           transform: scale(1.08);
         }
 
-        .digi-detail-icon.phone { background: linear-gradient(135deg, #00b894, #00cec9); }
-        .digi-detail-icon.email { background: linear-gradient(135deg, #4dabf7, #339af0); }
-        .digi-detail-icon.location { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .digi-detail-icon.phone { background: linear-gradient(135deg, #33cc33, #ffff00); color: #020617; }
+        .digi-detail-icon.email { background: linear-gradient(135deg, #33cc33, #ffff00); color: #020617; }
+        .digi-detail-icon.location { background: linear-gradient(135deg, #33cc33, #ffff00); color: #020617; }
 
         .digi-phone-numbers {
           display: flex;
@@ -761,10 +761,10 @@ export default function PreviewWebsitePage() {
           align-items: center;
           justify-content: center;
           padding: 14px 36px;
-          background: linear-gradient(135deg, #00b894, #00cec9);
-          color: #ffffff;
+          background: linear-gradient(to right, #33cc33, #ffff00);
+          color: #020617;
           border: none;
-          border-radius: var(--radius-sm);
+          border-radius: 9999px;
           font-family: 'Inter', sans-serif;
           font-size: 0.95rem;
           font-weight: 600;
@@ -772,11 +772,12 @@ export default function PreviewWebsitePage() {
           transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
           gap: 8px;
           letter-spacing: 0.01em;
+          box-shadow: 0 4px 14px rgba(51, 204, 51, 0.22);
         }
 
         .digi-submit-btn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 8px 28px rgba(0, 184, 148, 0.35);
+          box-shadow: 0 10px 30px rgba(51, 204, 51, 0.3);
         }
 
         .digi-submit-btn:active {
@@ -965,7 +966,7 @@ export default function PreviewWebsitePage() {
         }
       `}</style>
 
-      <div className="digi-preview-wrapper">
+      <div className="frontend-dark digi-preview-wrapper">
       <canvas id="particle-canvas"></canvas>
 
       <div className="digi-card-container">

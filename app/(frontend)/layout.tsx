@@ -10,7 +10,7 @@ export default function FrontendLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="min-h-screen bg-white text-gray-900">
+    <div className="frontend-dark min-h-screen bg-[#020617] text-slate-50">
       <AuthProvider>
         <ProductProvider>
           {children}

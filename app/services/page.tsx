@@ -36,7 +36,7 @@ const nfcSolutions = [
       '3 free website updates',
     ],
     gradient: 'from-blue-600 to-indigo-600',
-    bgGradient: 'bg-gradient-to-br from-blue-50 to-indigo-50',
+    bgGradient: 'bg-gradient-to-br from-blue-900/35 to-indigo-900/30',
   },
   {
     id: 'business' as ContactSource,
@@ -199,7 +199,7 @@ export default function ServicesPage() {
   };
 
   return (
-    <>
+    <div className="frontend-dark">
       <Navbar />
 
       {/* Hero Banner - Premium Compact Design */}
@@ -397,7 +397,7 @@ export default function ServicesPage() {
                   />
                   
                   {/* Card */}
-                  <div className="relative flex flex-col h-full backdrop-blur-md bg-white/80 rounded-3xl shadow-xl border border-gray-200/40 p-10 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
+                  <div className="relative flex flex-col h-full backdrop-blur-md bg-[#111827]/90 rounded-3xl shadow-xl border border-[#1F2937] p-10 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
                     {/* Top Content */}
                     <div className="flex flex-col">
                       {/* Icon */}
@@ -486,7 +486,7 @@ export default function ServicesPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => openContactModal('general')}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-dark font-semibold rounded-full hover:-translate-y-1 transition-all duration-220 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] text-[#0f2e25] font-semibold rounded-full hover:-translate-y-1 transition-all duration-220 shadow-lg hover:shadow-xl"
             >
               <span>Talk to Our Team</span>
               <ArrowRight className="w-5 h-5" />
@@ -509,6 +509,6 @@ export default function ServicesPage() {
         onClose={closeContactModal}
         source={contactModalSource}
       />
-    </>
+    </div>
   );
 }

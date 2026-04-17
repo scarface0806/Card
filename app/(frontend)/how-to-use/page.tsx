@@ -213,7 +213,7 @@ export default function HowToUsePage() {
                   Contact our team to modify design, add features, or personalize your NFC experience.
                 </p>
                 <Link href={ROUTES.CONTACT}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-full hover:bg-primary/10 transition-all duration-220 shadow-lg hover:shadow-xl hover:-translate-y-1 group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] text-[#0f2e25] font-semibold rounded-full transition-all duration-220 shadow-lg hover:shadow-xl hover:-translate-y-1 group">
                     <span>Contact Us</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>

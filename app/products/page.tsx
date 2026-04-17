@@ -141,7 +141,7 @@ export default function ProductsPage() {
   ];
 
   return (
-    <>
+    <div className="frontend-dark">
       <Navbar />
         <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
         {/* Hero */}
@@ -441,6 +441,6 @@ export default function ProductsPage() {
         </section>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

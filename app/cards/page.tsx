@@ -76,7 +76,7 @@ export default function CardsPage() {
   };
 
   return (
-    <>
+    <div className="frontend-dark">
       <Navbar />
       <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff]">
         <div className="site-container">
@@ -197,8 +197,8 @@ export default function CardsPage() {
                       onClick={() => handleBuyNow(card)}
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-full transition-all duration-300 group/btn ${
                         card.type === 'custom'
-                          ? 'bg-[#0f2e25] hover:bg-[#1a4a3d] text-white'
-                          : 'bg-primary-dark hover:bg-primary-dark text-white shadow-md hover:shadow-lg'
+                          ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
+                          : 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
                       }`}
                     >
                       {card.type === 'custom' ? (
@@ -316,6 +316,6 @@ export default function CardsPage() {
         onClose={() => setIsAuthOpen(false)}
         onModeChange={setAuthMode}
       />
-    </>
+    </div>
   );
 }

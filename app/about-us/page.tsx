@@ -57,7 +57,7 @@ export default function AboutUsPage() {
   ];
 
   return (
-    <>
+    <div className="frontend-dark">
       <Navbar />
       <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
         {/* Hero Section */}
@@ -244,6 +244,6 @@ export default function AboutUsPage() {
         </section>
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

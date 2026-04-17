@@ -179,7 +179,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       onClick={() => handleBuyNow(card)}
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-full transition-all duration-300 group/btn ${
                         card.type === 'custom'
-                          ? 'bg-[#0f2e25] hover:bg-[#1a4a3d] text-white'
+                          ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
                           : 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
                       }`}
                     >
