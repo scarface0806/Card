@@ -92,36 +92,36 @@ class ProductService {
     }
 
     const url = `${this.baseUrl}${params.toString() ? `?${params}` : ""}`;
-    const response = await fetch(url, {
-      method: "GET",
-      cache: "no-store",
-    });
 
-    if (!response.ok) {
-      let errorDetail = "";
-      try {
-        const errorJson = await response.json();
-        errorDetail = errorJson?.error ? `: ${errorJson.error}` : "";
-      } catch {
-        errorDetail = "";
+    try {
+      const response = await fetch(url, {
+        method: "GET",
+        cache: "no-store",
+      });
+
+      if (!response.ok) {
+        let errorMessage = `Failed to fetch products (${response.status} ${response.statusText})`;
+
+        try {
+          const errorJson = await response.json();
+          if (errorJson?.error) {
+            errorMessage = errorJson.error;
+          }
+        } catch {
+          // Ignore invalid JSON from the server error response.
+        }
+
+        throw new Error(errorMessage);
       }
-      console.error(
-        `Failed to fetch products (${response.status} ${response.statusText})${errorDetail}`
-      );
 
-      return {
-        products: [],
-        pagination: {
-          page: filters?.page || 1,
-          limit: filters?.limit || 12,
-          total: 0,
-          totalPages: 0,
-          hasMore: false,
-        },
-      };
+      return response.json();
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(error.message);
+      }
+
+      throw new Error("Failed to fetch products");
     }
-
-    return response.json();
   }
 
   /**
