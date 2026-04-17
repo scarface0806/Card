@@ -83,7 +83,7 @@ export default function PricingPreviewSection() {
         {loading ? (
           <div className="text-center py-12">
             <div
-              className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-teal-600 border-t-transparent"
+              className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"
               aria-label="Loading"
             />
           </div>
@@ -102,12 +102,12 @@ export default function PricingPreviewSection() {
                 whileHover={{ y: -4 }}
                 className={`relative bg-white rounded-2xl shadow-lg border transition-all duration-300 overflow-hidden ${
                   plan.highlighted 
-                    ? 'border-2 border-teal-600 md:scale-105' 
-                    : 'border-teal-100 hover:border-teal-200'
+                    ? 'border-2 border-primary md:scale-105' 
+                    : 'border-primary/10 hover:border-primary/20'
                 }`}
               >
                 {plan.highlighted && (
-                  <div className="bg-teal-600 text-white text-center py-2 text-sm font-semibold">
+                  <div className="bg-primary text-white text-center py-2 text-sm font-semibold">
                     Most Popular
                   </div>
                 )}
@@ -128,8 +128,8 @@ export default function PricingPreviewSection() {
                       whileTap={{ scale: 0.98 }}
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                         plan.highlighted
-                          ? 'bg-teal-600 text-white hover:bg-teal-700 shadow-md shadow-teal-500/20'
-                          : 'bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200'
+                          ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] shadow-md hover:shadow-lg'
+                          : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
                       }`}
                     >
                       Choose Plan
@@ -140,8 +140,8 @@ export default function PricingPreviewSection() {
                   <div className="space-y-3">
                     {plan.features.slice(0, 4).map((feature, index) => (
                       <div key={index} className="flex items-start gap-3">
-                        <div className="w-5 h-5 rounded-full bg-emerald-50 flex items-center justify-center shrink-0 mt-0.5">
-                          <Check className="w-3 h-3 text-emerald-600" />
+                        <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                          <Check className="w-3 h-3 text-primary" />
                         </div>
                         <span className="text-[#4b635d] text-sm">{feature}</span>
                       </div>
@@ -164,7 +164,7 @@ export default function PricingPreviewSection() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-teal-700 bg-white border border-teal-200 rounded-xl hover:bg-teal-50 hover:border-teal-300 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-primary bg-white border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300"
             >
               View Full Pricing &amp; Compare
               <ArrowRight className="w-5 h-5" />

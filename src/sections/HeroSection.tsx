@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowRight, Sparkles, Check, Star } from 'lucide-react';
+import { ArrowUpRight, ArrowRight, Check, Star } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 import dynamic from 'next/dynamic';
 
@@ -98,11 +98,11 @@ export default function HeroSection() {
             {/* Trust Signals */}
             <motion.div variants={itemVariants} className="flex flex-wrap gap-x-6 gap-y-3 pt-4">
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Check className="w-4 h-4 text-teal-600" />
-                <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>
+                <Check className="w-4 h-4 text-primary" />
+                <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Check className="w-4 h-4 text-teal-600" />
+                <Check className="w-4 h-4 text-primary" />
                 <span>No Renewal Fees</span>
               </div>
             </motion.div>

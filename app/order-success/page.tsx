@@ -51,8 +51,8 @@ function OrderSuccessContent() {
             className="flex justify-center"
           >
             <div className="relative">
-              <div className="absolute inset-0 bg-emerald-200 rounded-full blur-2xl animate-pulse" />
-              <CheckCircle className="w-24 h-24 text-emerald-500 relative" />
+              <div className="absolute inset-0 bg-secondary/15 rounded-full blur-2xl animate-pulse" />
+              <CheckCircle className="w-24 h-24 text-primary relative" />
             </div>
           </motion.div>
 
@@ -67,7 +67,7 @@ function OrderSuccessContent() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-teal-50 border-2 border-teal-200 rounded-2xl p-8"
+            className="bg-primary/10 border-2 border-primary/20 rounded-2xl p-8"
           >
             <p className="text-[#6b7f78] text-sm mb-2">Your Order ID</p>
             <p className="text-3xl font-bold text-[#0f2e25] font-mono">{orderId}</p>
@@ -78,13 +78,13 @@ function OrderSuccessContent() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded-2xl border border-teal-100 shadow-md p-8 space-y-6 text-left"
+            className="bg-white rounded-2xl border border-primary/10 shadow-md p-8 space-y-6 text-left"
           >
             <h3 className="font-bold text-[#0f2e25] font-space-grotesk text-lg">What's Next?</h3>
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-teal-600 text-white font-bold">
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-white font-bold">
                   1
                 </div>
               </div>
@@ -100,7 +100,7 @@ function OrderSuccessContent() {
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-teal-600 text-white font-bold">
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-white font-bold">
                   2
                 </div>
               </div>
@@ -116,7 +116,7 @@ function OrderSuccessContent() {
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
-                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-teal-600 text-white font-bold">
+                <div className="flex items-center justify-center h-10 w-10 rounded-full bg-primary text-white font-bold">
                   3
                 </div>
               </div>
@@ -139,14 +139,14 @@ function OrderSuccessContent() {
             <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
               <a
                 href="mailto:support@tapvyo-nfc.com"
-                className="flex items-center justify-center gap-2 text-teal-600 hover:text-teal-700 font-medium"
+                className="flex items-center justify-center gap-2 text-primary hover:text-primary font-medium"
               >
                 <Mail className="w-4 h-4" />
                 support@tapvyo-nfc.com
               </a>
               <a
                 href="tel:+919999999999"
-                className="flex items-center justify-center gap-2 text-teal-600 hover:text-teal-700 font-medium"
+                className="flex items-center justify-center gap-2 text-primary hover:text-primary font-medium"
               >
                 <Phone className="w-4 h-4" />
                 +91 9999999999
@@ -163,7 +163,7 @@ function OrderSuccessContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-220"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-220"
               >
                 <Home className="w-4 h-4" />
                 Back to Home
@@ -174,7 +174,7 @@ function OrderSuccessContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-220"
+                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
               >
                 <Layout className="w-4 h-4" />
                 Browse More Templates
@@ -193,7 +193,7 @@ export default function OrderSuccessPage() {
       <Navbar />
       <Suspense fallback={
         <div className="pt-32 pb-20 min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
-          <div className="h-8 w-8 animate-spin rounded-full border-3 border-teal-600 border-t-transparent" />
+          <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent" />
         </div>
       }>
         <OrderSuccessContent />

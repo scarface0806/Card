@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import CardPreviewModal from '@/components/CardPreviewModal';
@@ -10,8 +9,7 @@ import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare, Loader2 } from 'lucide-react';
-import { ROUTES } from '@/utils/constants';
+import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Loader2 } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 
 const lifetimeFeatures = [
@@ -89,26 +87,26 @@ export default function CardsPage() {
             transition={{ duration: 0.6 }}
             className="text-center mb-16"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full mb-6">
-              <Sparkles className="w-4 h-4 text-teal-600" />
-              <span className="text-sm font-medium text-teal-700">Premium NFC Cards</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-6">
+              <Sparkles className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Premium NFC Cards</span>
             </div>
 
             <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
               Our NFC{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-primary">
                 Card Designs
               </span>
             </h1>
             <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
-              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>.
+              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>.
             </p>
           </motion.div>
 
           {/* Card Grid */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : (
           <motion.div
@@ -125,13 +123,13 @@ export default function CardsPage() {
               >
                 {/* Card Preview */}
                 <div className="relative aspect-[1.6/1] overflow-hidden">
-                  <img src={card.images?.[0] || "/placeholder.png"} alt={card.name} className="h-full w-full object-cover" />
+                  <img src={card.images?.[0] || "/placeholder.svg"} alt={card.name} className="h-full w-full object-cover" />
 
                   {/* Quick View Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <button
                       onClick={() => handlePreview(card)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 font-medium rounded-full hover:bg-teal-50 transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-primary font-medium rounded-full hover:bg-primary/10 transition-all duration-200"
                     >
                       <Eye className="w-4 h-4" />
                       Quick View
@@ -151,7 +149,7 @@ export default function CardsPage() {
                           ? 'bg-amber-100 text-amber-700'
                           : card.type === 'custom'
                           ? 'bg-purple-100 text-purple-700'
-                          : 'bg-teal-100 text-teal-700'
+                          : 'bg-primary/20 text-primary'
                       }`}
                     >
                       {card.type === 'custom' ? 'Custom' : card.type === 'premium' ? 'Premium' : 'Basic'}
@@ -161,7 +159,7 @@ export default function CardsPage() {
                   {/* Price Section */}
                   <div className="mb-3">
                     <div className="flex items-baseline gap-2">
-                      <p className="text-2xl font-bold text-teal-700">
+                      <p className="text-2xl font-bold text-primary">
                         {card.price}
                       </p>
                       {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
@@ -171,7 +169,7 @@ export default function CardsPage() {
                       )}
                     </div>
                     <p className="text-sm text-[#4b635d]">
-                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>}
+                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>}
                     </p>
                   </div>
 
@@ -181,13 +179,13 @@ export default function CardsPage() {
                       <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
                         <p className="text-xs text-purple-700 font-medium mb-1">Design Charges</p>
                         <p className="text-xs text-[#4b635d]">
-                          <span className="text-teal-600 font-semibold">Free</span> if you provide your own design.
+                          <span className="text-primary font-semibold">Free</span> if you provide your own design.
                           Design service available at additional cost.
                         </p>
                       </div>
                     ) : (
                       <p className="text-xs text-[#4b635d] flex items-center gap-1">
-                        <Check className="w-3 h-3 text-teal-600" />
+                        <Check className="w-3 h-3 text-primary" />
                         Contact form included in your digital profile
                       </p>
                     )}
@@ -200,7 +198,7 @@ export default function CardsPage() {
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-full transition-all duration-300 group/btn ${
                         card.type === 'custom'
                           ? 'bg-[#0f2e25] hover:bg-[#1a4a3d] text-white'
-                          : 'bg-teal-700 hover:bg-teal-800 text-white shadow-md hover:shadow-lg'
+                          : 'bg-primary-dark hover:bg-primary-dark text-white shadow-md hover:shadow-lg'
                       }`}
                     >
                       {card.type === 'custom' ? (
@@ -235,12 +233,12 @@ export default function CardsPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-teal-50 rounded-3xl p-10 md:p-16"
+            className="bg-primary/10 rounded-3xl p-10 md:p-16"
           >
             <div className="max-w-3xl mx-auto">
               <div className="text-center mb-10">
                 <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
-                  Every Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>
+                  Every Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
                 </h2>
                 <p className="text-base md:text-lg text-slate-500">
                   Your personal digital profile that works forever — no hidden costs.
@@ -257,8 +255,8 @@ export default function CardsPage() {
                     transition={{ duration: 0.4, delay: index * 0.1 }}
                     className="bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-200/60"
                   >
-                    <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center mx-auto mb-3">
-                      <Check className="w-5 h-5 text-teal-600" />
+                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
+                      <Check className="w-5 h-5 text-primary" />
                     </div>
                     <p className="text-sm font-medium text-[#0f2e25]">{feature}</p>
                   </motion.div>
@@ -287,7 +285,7 @@ export default function CardsPage() {
             </p>
             <button 
               onClick={() => openContactModal('general')}
-              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-teal-200 text-teal-700 hover:border-teal-300 hover:bg-teal-50 font-semibold rounded-full transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary/20 text-primary hover:border-primary/30 hover:bg-primary/10 font-semibold rounded-full transition-all duration-300"
             >
               Talk to Our Team
             </button>

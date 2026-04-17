@@ -95,14 +95,11 @@ export default function HowItWorksSection() {
               >
                 <div className="h-full card card-padding hover:shadow-xl transition-all duration-300">
                   {/* Icon */}
-                  <motion.div
-                    className="flex items-center justify-center mb-6"
-                    whileHover={{ y: -2, transition: { duration: 0.22 } }}
-                  >
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-gradient-to-br from-teal-500 via-teal-600 to-emerald-600 flex items-center justify-center shadow-lg shadow-teal-500/20">
-                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-white" />
+                  <div className="flex items-center justify-center mb-6">
+                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
+                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                     </div>
-                  </motion.div>
+                  </div>
 
                   <h3 className="heading-3 text-[#0f2e25] mb-2 md:mb-3 text-center">
                     {step.title}

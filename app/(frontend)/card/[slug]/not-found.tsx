@@ -29,7 +29,7 @@ export default function CardNotFound() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 text-white font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-secondary to-primary text-white font-medium hover:opacity-90 transition-opacity"
           >
             <Home className="w-4 h-4" />
             Go to Homepage
@@ -44,7 +44,7 @@ export default function CardNotFound() {
 
         {/* Help text */}
         <p className="text-white/40 text-sm mt-8">
-          Need help? <Link href="/contact" className="text-cyan-400 hover:underline">Contact us</Link>
+          Need help? <Link href="/contact-us" className="text-cyan-400 hover:underline">Contact us</Link>
         </p>
       </div>
     </div>

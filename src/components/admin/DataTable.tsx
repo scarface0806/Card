@@ -75,7 +75,7 @@ export default function DataTable<T extends TableRow = TableRow>({
       return mobile ? 'text-amber-300 bg-amber-500/10 hover:bg-amber-500/20' : 'text-amber-400 hover:bg-amber-400/10';
     }
     if (tone === 'success') {
-      return mobile ? 'text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20' : 'text-emerald-400 hover:bg-emerald-400/10';
+      return mobile ? 'text-primary bg-primary/100/10 hover:bg-primary/100/20' : 'text-primary hover:bg-emerald-400/10';
     }
     if (tone === 'info') {
       return mobile ? 'text-blue-300 bg-blue-500/10 hover:bg-blue-500/20' : 'text-blue-400 hover:bg-blue-400/10';
@@ -143,7 +143,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                       : action.tone === 'warning'
                         ? 'text-amber-300 bg-amber-500/10 hover:bg-amber-500/20'
                         : action.tone === 'success'
-                          ? 'text-emerald-300 bg-emerald-500/10 hover:bg-emerald-500/20'
+                          ? 'text-primary bg-primary/100/10 hover:bg-primary/100/20'
                           : 'text-gray-200 bg-white/10 hover:bg-white/15';
 
                     return (
@@ -247,7 +247,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                             : action.tone === 'warning'
                               ? 'text-amber-400 hover:bg-amber-400/10'
                               : action.tone === 'success'
-                                ? 'text-emerald-400 hover:bg-emerald-400/10'
+                                ? 'text-primary hover:bg-emerald-400/10'
                                 : 'text-gray-300 hover:bg-white/10';
 
                           return (
@@ -306,7 +306,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-semibold transition-all duration-200 ${page === currentPage
-                    ? 'bg-teal-500 text-white shadow-lg shadow-teal-500/20 active:scale-95'
+                    ? 'bg-primary/100 text-white shadow-lg shadow-primary-glow active:scale-95'
                     : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
                     }`}
                 >

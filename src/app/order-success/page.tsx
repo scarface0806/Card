@@ -55,7 +55,7 @@ function OrderSuccessContent() {
             >
               <div className="relative">
                 <div className="absolute inset-0 bg-green-200 rounded-full blur-2xl animate-pulse" />
-                <CheckCircle className="w-24 h-24 text-green-600 relative" />
+                <CheckCircle className="w-24 h-24 text-primary relative" />
               </div>
             </motion.div>
 

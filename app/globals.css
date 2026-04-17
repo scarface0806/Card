@@ -6,29 +6,32 @@
    ======================================== */
 :root {
   /* Primary Colors */
-  --color-primary: #0f766e;
-  --color-primary-dark: #0d5f59;
-  --color-primary-light: #14b8a6;
-  --color-primary-soft: rgba(15, 118, 110, 0.08);
+  --color-primary: #33CC33;
+  --color-primary-dark: #28A428;
+  --color-primary-light: #9DFB9D;
+  --color-primary-soft: rgba(51, 204, 51, 0.12);
+
+  /* Secondary Color */
+  --color-secondary: #FFFF00;
   
   /* Text Colors */
-  --color-text-dark: #114436;
-  --color-text-medium: #3d5a52;
-  --color-text-light: #6b7f78;
-  --color-text-muted: #94a3a0;
+  --color-text-dark: #0f2e25;
+  --color-text-medium: #335c2e;
+  --color-text-light: #647d5f;
+  --color-text-muted: #6e7f6c;
   
   /* Background Colors */
   --color-bg-base: #ffffff;
-  --color-bg-subtle: #f8fafa;
-  --color-bg-muted: #f0f5f4;
+  --color-bg-subtle: #f7fff2;
+  --color-bg-muted: #f1f9ed;
   
   /* Border Colors */
-  --color-border-light: rgba(15, 118, 110, 0.08);
-  --color-border-medium: rgba(15, 118, 110, 0.15);
-  --color-border-dark: rgba(15, 118, 110, 0.25);
+  --color-border-light: rgba(51, 204, 51, 0.12);
+  --color-border-medium: rgba(51, 204, 51, 0.18);
+  --color-border-dark: rgba(51, 204, 51, 0.28);
   
   /* Shadow Colors */
-  --shadow-color: 166 46% 25%;
+  --shadow-color: 116 74% 37%;
   
   /* ========================================
      MOTION SYSTEM - Premium, Restrained
@@ -46,11 +49,14 @@
   /* Button interaction values */
   --btn-hover-lift: -3px;
   --btn-press-down: 1px;
-  --btn-hover-shadow: 0 6px 16px rgba(15, 118, 110, 0.15);
+  --btn-hover-shadow: 0 6px 16px rgba(51, 204, 51, 0.15);
+
+  /* Primary glow shadow — referenced by admin + floating CTAs */
+  --shadow-primary-glow: 0 4px 20px rgba(51, 204, 51, 0.30);
   
   /* Card interaction values */
   --card-hover-lift: -4px;
-  --card-hover-shadow: 0 8px 24px rgba(15, 118, 110, 0.08);
+  --card-hover-shadow: 0 8px 28px rgba(51, 204, 51, 0.14), 0 2px 8px rgba(0,0,0,0.07);
   
   /* Legacy aliases for compatibility */
   --transition-fast: var(--duration-fast);
@@ -90,8 +96,8 @@ body {
    ======================================== */
 .admin-shell {
   background-image:
-    radial-gradient(900px 500px at 100% -5%, rgba(20, 184, 166, 0.08), transparent 60%),
-    radial-gradient(700px 420px at 0% 0%, rgba(16, 185, 129, 0.06), transparent 62%),
+    radial-gradient(900px 500px at 100% -5%, rgba(51, 204, 51, 0.08), transparent 60%),
+    radial-gradient(700px 420px at 0% 0%, rgba(255, 255, 0, 0.06), transparent 62%),
     linear-gradient(180deg, #0b1020 0%, #090f1d 100%);
 }
 
@@ -273,27 +279,24 @@ body {
 /* Level 1 - Subtle (cards at rest) */
 .shadow-1 {
   box-shadow: 
-    0 1px 2px hsl(var(--shadow-color) / 0.02),
-    0 2px 4px hsl(var(--shadow-color) / 0.02),
-    0 4px 8px hsl(var(--shadow-color) / 0.02);
+    0 1px 3px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(51, 204, 51, 0.04);
 }
 
 /* Level 2 - Medium (hover states, elevated cards) */
 .shadow-2 {
   box-shadow: 
-    0 2px 4px hsl(var(--shadow-color) / 0.02),
-    0 4px 8px hsl(var(--shadow-color) / 0.03),
-    0 8px 16px hsl(var(--shadow-color) / 0.03),
-    0 16px 32px hsl(var(--shadow-color) / 0.02);
+    0 2px 6px rgba(0, 0, 0, 0.07),
+    0 6px 16px rgba(51, 204, 51, 0.06),
+    0 16px 32px rgba(0, 0, 0, 0.04);
 }
 
 /* Level 3 - High (modals, dropdowns) */
 .shadow-3 {
   box-shadow: 
-    0 4px 8px hsl(var(--shadow-color) / 0.02),
-    0 8px 16px hsl(var(--shadow-color) / 0.04),
-    0 16px 32px hsl(var(--shadow-color) / 0.04),
-    0 32px 64px hsl(var(--shadow-color) / 0.03);
+    0 4px 10px rgba(0, 0, 0, 0.08),
+    0 12px 28px rgba(51, 204, 51, 0.08),
+    0 28px 56px rgba(0, 0, 0, 0.06);
 }
 
 /* ========================================
@@ -458,9 +461,9 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
-  color: white;
-  box-shadow: 0 2px 8px rgba(15, 118, 110, 0.12);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-secondary) 100%);
+  color: #0f2e25;
+  box-shadow: 0 2px 10px rgba(51, 204, 51, 0.25), 0 1px 3px rgba(0, 0, 0, 0.08);
   transition: 
     transform var(--duration-standard) var(--ease-premium),
     box-shadow var(--duration-standard) var(--ease-premium);
@@ -468,12 +471,12 @@ body {
 
 .btn-primary:hover {
   transform: translateY(var(--btn-hover-lift));
-  box-shadow: var(--btn-hover-shadow);
+  box-shadow: 0 6px 20px rgba(51, 204, 51, 0.30), 0 2px 8px rgba(0, 0, 0, 0.10);
 }
 
 .btn-primary:active {
   transform: translateY(var(--btn-press-down));
-  box-shadow: 0 2px 6px rgba(15, 118, 110, 0.1);
+  box-shadow: 0 2px 6px rgba(51, 204, 51, 0.18);
 }
 
 .btn-secondary {
@@ -547,8 +550,8 @@ body {
   border-radius: 16px;
   border: 1px solid var(--color-border-light);
   box-shadow: 
-    0 2px 4px rgba(15, 118, 110, 0.03),
-    0 4px 12px rgba(15, 118, 110, 0.05);
+    0 2px 6px rgba(0, 0, 0, 0.05),
+    0 6px 16px rgba(51, 204, 51, 0.06);
 }
 
 .card-padding {
@@ -589,15 +592,15 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 8px 16px;
-  background: var(--color-primary-soft);
-  border: 1px solid var(--color-border-medium);
+  padding: 6px 14px;
+  background: linear-gradient(135deg, rgba(51,204,51,0.12) 0%, rgba(51,204,51,0.06) 100%);
+  border: 1px solid rgba(51, 204, 51, 0.25);
   border-radius: 9999px;
-  font-size: 0.75rem;
-  font-weight: 600;
+  font-size: 0.6875rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--color-primary);
+  letter-spacing: 0.06em;
+  color: var(--color-primary-dark);
   margin-bottom: 16px;
 }
 
@@ -725,7 +728,7 @@ body {
    UTILITY CLASSES
    ======================================== */
 .text-gradient {
-  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -737,11 +740,17 @@ body {
 .text-light { color: var(--color-text-light); }
 .text-muted { color: var(--color-text-muted); }
 .text-primary { color: var(--color-primary); }
+.text-primary-dark { color: var(--color-primary-dark); }
 
 /* Background colors */
 .bg-base { background: var(--color-bg-base); }
 .bg-subtle { background: var(--color-bg-subtle); }
 .bg-muted { background: var(--color-bg-muted); }
+.bg-primary-dark { background: var(--color-primary-dark); }
+
+.hover\:bg-primary-dark:hover {
+  background: var(--color-primary-dark);
+}
 
 /* Overflow utility */
 .overflow-visible-all {
@@ -762,11 +771,11 @@ body {
    Alternating backgrounds for visual rhythm
    ======================================== */
 .section-alt {
-  background: linear-gradient(180deg, #f8fafb 0%, #f1f5f4 100%);
+  background: linear-gradient(180deg, #f5f9f5 0%, #eef5ee 100%);
 }
 
 .section-warm {
-  background: linear-gradient(180deg, #fafaf9 0%, #f5f5f4 100%);
+  background: linear-gradient(180deg, #fafdfb 0%, #f3f8f3 100%);
 }
 
 .section-teal-soft {
@@ -777,10 +786,10 @@ body {
 .hero-mesh {
   background-color: #ffffff;
   background-image:
-    radial-gradient(at 27% 37%, hsla(174, 84%, 92%, 0.25) 0px, transparent 50%),
-    radial-gradient(at 97% 21%, hsla(168, 66%, 93%, 0.2) 0px, transparent 50%),
-    radial-gradient(at 52% 99%, hsla(152, 60%, 94%, 0.15) 0px, transparent 50%),
-    radial-gradient(at 10% 29%, hsla(174, 50%, 96%, 0.2) 0px, transparent 50%);
+    radial-gradient(at 20% 30%, hsla(120, 60%, 90%, 0.35) 0px, transparent 55%),
+    radial-gradient(at 90% 15%, hsla(60, 100%, 90%, 0.20) 0px, transparent 50%),
+    radial-gradient(at 55% 95%, hsla(120, 55%, 92%, 0.20) 0px, transparent 52%),
+    radial-gradient(at 5% 70%, hsla(120, 50%, 95%, 0.25) 0px, transparent 48%);
 }
 
 /* ========================================
@@ -804,7 +813,7 @@ body {
 .input-premium:focus {
   outline: none;
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.08);
+  box-shadow: 0 0 0 3px rgba(51, 204, 51, 0.15);
   background: var(--color-bg-base);
 }
 

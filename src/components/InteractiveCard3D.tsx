@@ -179,7 +179,7 @@ export default function InteractiveCard3D({
                   transition={{ delay: 0.3 + idx * 0.1 }}
                 >
                   {stat.icon && (
-                    <div className="mb-2 text-teal-600">{stat.icon}</div>
+                    <div className="mb-2 text-primary">{stat.icon}</div>
                   )}
                   <p className="text-lg md:text-2xl font-bold text-[#0d9488]">
                     {stat.value}
@@ -211,8 +211,8 @@ export default function InteractiveCard3D({
               whileHover={{ x: 3 }}
               transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              <div className="p-2 bg-teal-100 rounded-lg group-hover:bg-teal-200 transition-colors">
-                <Phone className="w-5 h-5 text-teal-600" />
+              <div className="p-2 bg-primary/20 rounded-lg group-hover:bg-primary/15 transition-colors">
+                <Phone className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500">Phone</p>
@@ -226,8 +226,8 @@ export default function InteractiveCard3D({
               whileHover={{ x: 3 }}
               transition={{ duration: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
             >
-              <div className="p-2 bg-emerald-100 rounded-lg group-hover:bg-emerald-200 transition-colors">
-                <Mail className="w-5 h-5 text-emerald-600" />
+              <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-secondary/15 transition-colors">
+                <Mail className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1">
                 <p className="text-xs text-gray-500">Email</p>

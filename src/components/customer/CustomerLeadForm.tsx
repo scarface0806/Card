@@ -127,7 +127,7 @@ export default function CustomerLeadForm({ customerId, customerName }: CustomerL
         </label>
 
         {message ? (
-          <div className={`rounded-2xl px-4 py-3 text-sm ${status === 'success' ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>
+          <div className={`rounded-2xl px-4 py-3 text-sm ${status === 'success' ? 'bg-primary/10 text-primary' : 'bg-red-50 text-red-700'}`}>
             <div className="flex items-center gap-2">
               {status === 'success' ? <MailCheck className="h-4 w-4" /> : null}
               <span>{message}</span>

@@ -49,13 +49,13 @@ export default function StickyMobileCTA() {
                   Get Your NFC Card
                 </p>
                 <p className="text-xs text-gray-500 truncate">
-                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600">Free Lifetime Website</a>
+                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary">Free Lifetime Website</a>
                 </p>
               </div>
 
               {/* CTA Button */}
               <Link href={ROUTES.CREATE_CARD}>
-                <button className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-600 text-white font-semibold text-sm rounded-full shadow-md hover:shadow-lg transition-all duration-220">
+                <button className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold text-sm rounded-full shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600] transition-all duration-220">
                   Create Your Card
                   <ArrowRight className="w-4 h-4" />
                 </button>

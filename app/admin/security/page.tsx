@@ -114,12 +114,12 @@ export default function SecurityPage() {
         {/* Password Change Form */}
         <div className="lg:col-span-2 bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
           <h2 className="text-lg font-medium text-white mb-8 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-teal-500 rounded-full"></span>
+            <span className="w-1.5 h-6 bg-primary/100 rounded-full"></span>
             Change Password
           </h2>
 
           {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
-          {success && <p className="text-sm text-emerald-400 mb-4">{success}</p>}
+          {success && <p className="text-sm text-primary mb-4">{success}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
@@ -135,14 +135,14 @@ export default function SecurityPage() {
                   onChange={handleChange}
                   placeholder="Enter current password"
                   disabled={submitting}
-                  className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                  className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => toggleShowPassword('current')}
                   disabled={submitting}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-400 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
                 >
                   {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -163,14 +163,14 @@ export default function SecurityPage() {
                     onChange={handleChange}
                     placeholder="Min. 8 characters"
                     disabled={submitting}
-                    className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                    className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => toggleShowPassword('new')}
                     disabled={submitting}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-400 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
                   >
                     {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -190,14 +190,14 @@ export default function SecurityPage() {
                     onChange={handleChange}
                     placeholder="Repeat new password"
                     disabled={submitting}
-                    className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                    className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => toggleShowPassword('confirm')}
                     disabled={submitting}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-teal-400 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
                   >
                     {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -215,7 +215,7 @@ export default function SecurityPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-8 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-all active:scale-95"
+                className="px-8 py-2.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] rounded-xl font-semibold shadow-lg hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-xl transition-all active:scale-95"
               >
                 {submitting ? 'Updating...' : 'Update Password'}
               </button>
@@ -226,7 +226,7 @@ export default function SecurityPage() {
         {/* Password Requirements */}
         <div className="bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
           <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-teal-500 rounded-full"></span>
+            <span className="w-1.5 h-6 bg-primary/100 rounded-full"></span>
             Requirements
           </h2>
 
@@ -242,7 +242,7 @@ export default function SecurityPage() {
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-400">Password Strength</span>
                 <span
-                  className={`font-semibold ${strengthScore <= 2 ? 'text-red-400' : strengthScore <= 4 ? 'text-amber-400' : 'text-emerald-400'
+                  className={`font-semibold ${strengthScore <= 2 ? 'text-red-400' : strengthScore <= 4 ? 'text-amber-400' : 'text-primary'
                     }`}
                 >
                   {strengthScore <= 2 ? 'Weak' : strengthScore <= 4 ? 'Moderate' : 'Strong'}
@@ -260,7 +260,7 @@ export default function SecurityPage() {
                           ? 'bg-red-500'
                           : strengthScore <= 4
                             ? 'bg-amber-500'
-                            : 'bg-emerald-500'
+                            : 'bg-primary/100'
                         : 'bg-transparent'
                         }`}
                     />
@@ -277,8 +277,8 @@ export default function SecurityPage() {
 
 function RequirementItem({ met, label }: { met: boolean; label: string }) {
   return (
-    <div className={`flex items-center gap-3 text-sm transition-colors duration-300 ${met ? 'text-emerald-400' : 'text-gray-500'}`}>
-      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border ${met ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-white/10 bg-white/5'}`}>
+    <div className={`flex items-center gap-3 text-sm transition-colors duration-300 ${met ? 'text-primary' : 'text-gray-500'}`}>
+      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border ${met ? 'border-secondary/50 bg-primary/100/10' : 'border-white/10 bg-white/5'}`}>
         <CheckCircle className={`w-3 h-3 ${met ? 'opacity-100' : 'opacity-20'}`} />
       </div>
       {label}

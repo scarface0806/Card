@@ -13,9 +13,27 @@ interface PremiumButtonProps {
   showIcon?: boolean;
 }
 
+// Arrow icon extracted outside component to avoid "component created during render" lint error
+function ArrowIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      width="10"
+      className={className}
+      xmlns="http://www.w3.org/2000/svg"
+      fill="none"
+      viewBox="0 0 14 15"
+    >
+      <path
+        fill="currentColor"
+        d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z"
+      />
+    </svg>
+  );
+}
+
 /**
  * Premium pill button with animated arrow icon
- * Variants: primary (purple), secondary (cyan), outline
+ * Variants: primary, secondary, outline
  */
 export default function PremiumButton({
   children,
@@ -47,21 +65,21 @@ export default function PremiumButton({
     .join(' ');
 
   const variantClasses = {
-    primary: 'bg-[#7808d0] text-white hover:bg-black',
-    secondary: 'bg-[#0891b2] text-white hover:bg-black',
-    outline: 'border-2 border-[#7808d0] text-[#7808d0] hover:bg-[#7808d0] hover:text-white bg-transparent',
+    primary: 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] active:scale-[0.98] shadow-md hover:shadow-lg',
+    secondary: 'bg-white border-2 border-primary text-primary hover:bg-primary/10 active:scale-[0.98]',
+    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-[#0f2e25] bg-transparent active:scale-[0.98]',
   };
 
   const iconColors = {
-    primary: 'text-[#7808d0] group-hover:text-black',
-    secondary: 'text-[#0891b2] group-hover:text-black',
-    outline: 'text-[#7808d0] group-hover:text-white',
+    primary: 'text-[#0f2e25]',
+    secondary: 'text-[#0f2e25]',
+    outline: 'text-primary group-hover:text-[#0f2e25]',
   };
 
   const iconBgColors = {
-    primary: 'bg-white',
-    secondary: 'bg-white',
-    outline: 'bg-[#7808d0] group-hover:bg-white',
+    primary: 'bg-white/30',
+    secondary: 'bg-white/30',
+    outline: 'bg-primary/20 group-hover:bg-white/30',
   };
 
   const sizeClasses = {
@@ -76,36 +94,12 @@ export default function PremiumButton({
     lg: 'w-7 h-7',
   };
 
-  const IconWrapper = () => (
-    showIcon && (
-      <span className={`flex-shrink-0 ${iconSizes[size]} relative ${iconBgColors[variant]} rounded-full grid place-items-center overflow-hidden ${iconColors[variant]} transition-colors duration-300`}>
-        <svg
-          width="10"
-          className="transition-transform duration-300 ease-in-out group-hover:translate-x-[150%] group-hover:translate-y-[100%]"
-          xmlns="http://www.w3.org/2000/svg"
-          fill="none"
-          viewBox="0 0 14 15"
-        >
-          <path
-            fill="currentColor"
-            d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z"
-          />
-        </svg>
-        <svg
-          className="absolute transition-transform duration-300 ease-in-out delay-100 -translate-x-[150%] -translate-y-[100%] group-hover:translate-x-0 group-hover:translate-y-0"
-          xmlns="http://www.w3.org/2000/svg"
-          width="10"
-          fill="none"
-          viewBox="0 0 14 15"
-        >
-          <path
-            fill="currentColor"
-            d="M13.376 11.552l-.264-10.44-10.44-.24.024 2.28 6.96-.048L.2 12.56l1.488 1.488 9.432-9.432-.048 6.912 2.304.024z"
-          />
-        </svg>
-      </span>
-    )
-  );
+  const iconSpan = showIcon ? (
+    <span className={`flex-shrink-0 ${iconSizes[size]} relative ${iconBgColors[variant]} rounded-full grid place-items-center overflow-hidden ${iconColors[variant]} transition-colors duration-300`}>
+      <ArrowIcon className="transition-transform duration-300 ease-in-out group-hover:translate-x-[150%] group-hover:translate-y-[100%]" />
+      <ArrowIcon className="absolute transition-transform duration-300 ease-in-out delay-100 -translate-x-[150%] -translate-y-[100%] group-hover:translate-x-0 group-hover:translate-y-0" />
+    </span>
+  ) : null;
 
   const classes = [baseClasses, variantClasses[variant], sizeClasses[size], className]
     .filter(Boolean)
@@ -116,7 +110,7 @@ export default function PremiumButton({
       <Link href={href}>
         <button className={classes} disabled={disabled}>
           {children}
-          <IconWrapper />
+          {iconSpan}
         </button>
       </Link>
     );
@@ -130,7 +124,7 @@ export default function PremiumButton({
       type={type}
     >
       {children}
-      <IconWrapper />
+      {iconSpan}
     </button>
   );
 }

@@ -7,11 +7,11 @@ interface StatusBadgeProps {
 
 const statusConfig = {
   active: {
-    bg: 'bg-emerald-500/15',
-    text: 'text-emerald-400',
+    bg: 'bg-primary/100/15',
+    text: 'text-primary',
     dot: 'bg-emerald-400',
     ring: 'ring-emerald-500/20',
-    glow: 'shadow-emerald-500/20',
+    glow: 'shadow-secondary/20',
   },
   inactive: {
     bg: 'bg-gray-500/15',

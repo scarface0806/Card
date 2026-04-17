@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { BRAND } from '@/lib/brand';
 
 export default function PreviewWebsitePage() {
   useEffect(() => {
@@ -30,7 +31,7 @@ export default function PreviewWebsitePage() {
     const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
     if (canvas) {
       const ctx = canvas.getContext('2d');
-      let particles: Array<{
+      const particles: Array<{
         x: number;
         y: number;
         size: number;
@@ -970,11 +971,8 @@ export default function PreviewWebsitePage() {
       <div className="digi-card-container">
         {/* Navigation */}
         <nav className="digi-navbar">
-          <a href="#" className="digi-logo" style={{ display: 'flex', alignItems: 'center', gap: '10px', textDecoration: 'none' }}>
-            <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'linear-gradient(135deg, #0d9488, #10b981)', display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 4px 12px rgba(13, 148, 136, 0.25)' }}>
-              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ transform: 'rotate(45deg)' }}><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
-            </div>
-            <span style={{ fontSize: '1.25rem', fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.02em' }}>Tapvyo</span>
+          <a href="#" className="digi-logo">
+            <img src={BRAND.logo} alt={BRAND.name} className="digi-nav-logo-img" />
           </a>
           <div className="digi-nav-right">
             <div className="digi-theme-toggle">

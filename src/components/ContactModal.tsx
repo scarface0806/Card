@@ -145,7 +145,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
               <form onSubmit={handleSubmit} className="space-y-5">
                 {/* Full Name */}
                 <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                   <input
                     type="text"
                     name="fullName"
@@ -153,13 +153,13 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     onChange={handleChange}
                     placeholder="Full Name *"
                     required
-                    className="w-full pl-12 pr-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
+                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
                   />
                 </div>
 
                 {/* Company/School Name */}
                 <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                   <input
                     type="text"
                     name="companyName"
@@ -167,13 +167,13 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     onChange={handleChange}
                     placeholder="Company or School Name *"
                     required
-                    className="w-full pl-12 pr-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
+                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
                   />
                 </div>
 
                 {/* Contact Number */}
                 <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                   <input
                     type="tel"
                     name="contactNumber"
@@ -181,7 +181,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     onChange={handleChange}
                     placeholder="Contact Number *"
                     required
-                    className="w-full pl-12 pr-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
+                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
                   />
                 </div>
 
@@ -193,20 +193,20 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     onChange={handleChange}
                     placeholder="Email Address *"
                     required
-                    className="w-full px-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
+                    className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
                   />
                 </div>
 
                 {/* Design Option - Only for Custom Card */}
                 {source === 'custom' && (
                   <div className="relative">
-                    <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-teal-500" />
+                    <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                     <select
                       name="hasOwnDesign"
                       value={formData.hasOwnDesign}
                       onChange={handleChange}
                       required
-                      className="w-full pl-12 pr-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] appearance-none bg-white cursor-pointer"
+                      className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] appearance-none bg-white cursor-pointer"
                     >
                       <option value="" disabled>Do you have your own design? *</option>
                       <option value="yes">Yes, I have my own design</option>
@@ -222,7 +222,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
 
                 {/* Message */}
                 <div className="relative">
-                  <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-teal-500" />
+                  <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-primary" />
                   <textarea
                     name="message"
                     value={formData.message}
@@ -230,7 +230,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     placeholder="Tell us about your requirements *"
                     required
                     rows={4}
-                    className="w-full pl-12 pr-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78] resize-none"
+                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78] resize-none"
                   />
                 </div>
 
@@ -240,7 +240,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                   disabled={isSubmitting}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="w-full bg-teal-700 text-white font-semibold py-3 rounded-xl hover:bg-teal-800 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="w-full bg-primary-dark text-white font-semibold py-3 rounded-xl hover:bg-primary-dark transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {isSubmitting ? (
                     <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />

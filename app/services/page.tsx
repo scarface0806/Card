@@ -19,7 +19,6 @@ import {
   Sparkles,
   MessageSquare,
   Code,
-  Settings,
   Video,
 } from 'lucide-react';
 
@@ -64,8 +63,8 @@ const nfcSolutions = [
       'Employee information webpage',
       '3 free website updates',
     ],
-    gradient: 'from-teal-600 to-emerald-600',
-    bgGradient: 'bg-gradient-to-br from-teal-50 to-emerald-50',
+    gradient: 'from-[#33CC33] to-[#28A428]',
+    bgGradient: 'bg-gradient-to-br from-primary/10 to-primary/5',
   },
 ];
 
@@ -168,8 +167,8 @@ const digitalSolutions = [
       'Automation Systems',
     ],
     cta: 'Discuss Your Project',
-    accentColor: 'from-emerald-500 to-green-600',
-    glowColor: 'from-emerald-200/50 to-green-200/40',
+    accentColor: 'from-secondary to-green-600',
+    glowColor: 'from-primary/20 to-green-200/40',
   },
 ];
 
@@ -207,8 +206,8 @@ export default function ServicesPage() {
       <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-20 lg:pt-44 lg:pb-24 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
         {/* Background decorations */}
         <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-teal-200/20 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-64 h-64 bg-emerald-200/20 rounded-full blur-3xl" />
+          <div className="absolute top-20 right-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
+          <div className="absolute bottom-10 left-10 w-64 h-64 bg-primary/15 rounded-full blur-3xl" />
         </div>
         
         <div className="site-container">
@@ -228,7 +227,7 @@ export default function ServicesPage() {
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1] }}
               >
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full hover:border-gray-300 transition-colors duration-300">
-                  <Sparkles className="w-4 h-4 text-teal-600" />
+                  <Sparkles className="w-4 h-4 text-primary" />
                   <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
                     What We Offer
                   </span>
@@ -243,7 +242,7 @@ export default function ServicesPage() {
               >
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-gray-900 tracking-tight">
                   Our{' '}
-                  <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+                  <span className="text-primary">
                     Services
                   </span>
                 </h1>
@@ -270,7 +269,7 @@ export default function ServicesPage() {
                   whileHover={{ y: -3 }}
                   whileTap={{ y: 1 }}
                   transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-3 md:px-10 md:py-4 rounded-xl font-bold text-white text-base md:text-lg bg-gradient-to-r from-teal-600 to-emerald-500 shadow-md transition-shadow duration-220"
+                  className="group inline-flex items-center justify-center gap-2 px-8 py-3 md:px-10 md:py-4 rounded-xl font-bold text-[#0f2e25] text-base md:text-lg bg-gradient-to-r from-primary to-secondary shadow-md transition-shadow duration-220"
                 >
                   Get Started Now
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -331,7 +330,7 @@ export default function ServicesPage() {
                     <ul className="space-y-3 mb-6 flex-grow">
                       {solution.features.map((feature, idx) => (
                         <li key={idx} className="flex items-start gap-2 text-sm text-[#4b635d]">
-                          <Check className="w-4 h-4 text-teal-600 flex-shrink-0 mt-0.5" />
+                          <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
                       ))}
@@ -340,7 +339,7 @@ export default function ServicesPage() {
                     <div className="mt-auto">
                       <button
                         onClick={() => openContactModal(solution.id)}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#0f2e25] hover:bg-[#1a4a3d] text-white font-medium rounded-full transition-all duration-300"
+                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] text-[#0f2e25] font-semibold rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
                       >
                         <MessageSquare className="w-4 h-4" />
                         <span>Contact Us</span>
@@ -355,7 +354,7 @@ export default function ServicesPage() {
           {/* Section 2: Digital Solutions - Modern Bento Grid */}
           <section className="relative">
             {/* Background Gradient Blob */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-br from-teal-100/40 to-emerald-100/30 rounded-full blur-3xl opacity-60 pointer-events-none" />
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
             
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -366,7 +365,7 @@ export default function ServicesPage() {
             >
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0f2e25] font-space-grotesk tracking-tight mb-4">
                 Digital Solutions for{' '}
-                <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+                <span className="text-primary">
                   Modern Businesses
                 </span>
               </h2>
@@ -442,7 +441,7 @@ export default function ServicesPage() {
                     <div className="mt-8">
                       <button
                         onClick={() => openContactModal('general')}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-green-600 text-white font-medium rounded-full hover:shadow-lg hover:shadow-teal-500/25 transition-all duration-300 group/btn"
+                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-full hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all duration-300 group/btn"
                       >
                         <span>{service.cta}</span>
                         <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
@@ -462,9 +461,9 @@ export default function ServicesPage() {
       {/* Modern CTA Section */}
       <section className="relative overflow-hidden py-32 bg-gradient-to-br from-[#0f2e25] via-[#134e40] to-[#0a2a22]">
         {/* Animated Gradient Blobs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-teal-400/20 rounded-full blur-3xl animate-pulse opacity-40" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-emerald-400/15 rounded-full blur-3xl animate-pulse opacity-30" />
-        <div className="absolute top-1/2 right-0 w-64 h-64 bg-teal-300/10 rounded-full blur-3xl animate-pulse opacity-25" />
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-pulse opacity-40" />
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse opacity-30" />
+        <div className="absolute top-1/2 right-0 w-64 h-64 bg-primary/90/10 rounded-full blur-3xl animate-pulse opacity-25" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
@@ -475,7 +474,7 @@ export default function ServicesPage() {
         >
           <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white font-space-grotesk mb-6 leading-tight tracking-tight">
             Let&apos;s Build Something{' '}
-            <span className="bg-gradient-to-r from-teal-300 to-emerald-300 bg-clip-text text-transparent">
+            <span className="text-primary">
               Powerful
             </span>{' '}
             Together.
@@ -487,7 +486,7 @@ export default function ServicesPage() {
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <button
               onClick={() => openContactModal('general')}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-900 font-semibold rounded-full hover:-translate-y-1 transition-all duration-220 shadow-lg hover:shadow-xl"
+              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary-dark font-semibold rounded-full hover:-translate-y-1 transition-all duration-220 shadow-lg hover:shadow-xl"
             >
               <span>Talk to Our Team</span>
               <ArrowRight className="w-5 h-5" />

@@ -98,7 +98,7 @@ export default function FAQSection() {
                   hover:shadow-md"
               >
                 {/* Question Text */}
-                <span className="body-lg font-semibold text-gray-900 pr-4 leading-relaxed hover:text-teal-700 transition-colors duration-300">
+                <span className="body-lg font-semibold text-gray-900 pr-4 leading-relaxed hover:text-primary transition-colors duration-300">
                   {item.title}
                 </span>
 
@@ -106,9 +106,9 @@ export default function FAQSection() {
                 <motion.div
                   animate={{ rotate: openId === item.id ? 180 : 0 }}
                   transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-                  className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-teal-100 transition-all duration-300"
+                  className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-primary/20 transition-all duration-300"
                 >
-                  <ChevronDown className="w-5 h-5 text-teal-600" />
+                  <ChevronDown className="w-5 h-5 text-primary" />
                 </motion.div>
               </button>
 
@@ -145,7 +145,7 @@ export default function FAQSection() {
           <p className="body-base text-gray-600 mb-4">Still have questions?</p>
           <a
             href="#contact"
-            className="inline-block px-8 py-3 bg-gradient-to-r from-teal-600 to-emerald-500 text-white font-semibold
+            className="inline-block px-8 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold
               rounded-xl hover:shadow-lg transition-all duration-220 hover:-translate-y-1"
           >
             Get in Touch

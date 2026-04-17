@@ -2,7 +2,6 @@
 
 import { motion, easeOut } from 'framer-motion';
 import { ArrowRight, CreditCard, Smartphone, TrendingUp } from 'lucide-react';
-import { ROUTES } from '@/utils/constants';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -31,7 +30,7 @@ export default function PremiumHeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
       
       {/* Subtle background elements */}
-      <div className="absolute top-40 right-20 w-96 h-96 bg-teal-500/10 rounded-full blur-3xl" />
+      <div className="absolute top-40 right-20 w-96 h-96 bg-primary/100/10 rounded-full blur-3xl" />
       <div className="absolute bottom-20 left-20 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl" />
 
       <div className="relative container mx-auto max-w-7xl px-4">
@@ -45,9 +44,9 @@ export default function PremiumHeroSection() {
             {/* Badge */}
             <motion.div
               variants={itemVariants}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-teal-500/20 border border-teal-500/30 rounded-full mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/100/20 border border-primary/30 rounded-full mb-8"
             >
-              <span className="text-xs font-semibold text-teal-400 uppercase tracking-wide">World best platform</span>
+              <span className="text-xs font-semibold text-primary uppercase tracking-wide">World best platform</span>
             </motion.div>
 
             {/* Heading */}
@@ -55,7 +54,7 @@ export default function PremiumHeroSection() {
               <h1 className="text-5xl md:text-6xl font-bold leading-tight text-white">
                 Card issuing
                 <br />
-                and <span className="text-teal-400">spending</span>
+                and <span className="text-primary">spending</span>
               </h1>
             </motion.div>
 
@@ -69,7 +68,7 @@ export default function PremiumHeroSection() {
 
             {/* CTA Button */}
             <motion.div variants={itemVariants} className="mb-12">
-              <button className="inline-flex items-center gap-2 px-8 py-3.5 bg-teal-500 hover:bg-teal-600 text-white font-semibold rounded-lg transition-all duration-300 hover:shadow-lg hover:shadow-teal-500/30">
+              <button className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-lg transition-all duration-300 hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg active:scale-[0.98]">
                 Get Started
                 <ArrowRight size={20} />
               </button>
@@ -91,7 +90,7 @@ export default function PremiumHeroSection() {
                 return (
                   <motion.div key={i} variants={itemVariants} className="text-center">
                     <div className="flex justify-center mb-3">
-                      <Icon className="w-6 h-6 text-teal-400" />
+                      <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <p className="text-sm font-semibold text-white">{feature.label}</p>
                   </motion.div>

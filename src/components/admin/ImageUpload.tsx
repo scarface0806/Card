@@ -55,8 +55,8 @@ export default function ImageUpload({
   const dropZoneClass = useMemo(() => {
     const base = "rounded-xl border border-dashed p-4 transition-all";
     const accent = isDragOver
-      ? "border-teal-400 bg-teal-500/10"
-      : "border-white/20 bg-[#0f1424] hover:border-teal-500/40";
+      ? "border-primary/30 bg-primary/100/10"
+      : "border-white/20 bg-[#0f1424] hover:border-primary/40";
     return `${base} ${accent}`;
   }, [isDragOver]);
 
@@ -144,7 +144,7 @@ export default function ImageUpload({
             disabled={isUploading}
             className="flex w-full flex-col items-center justify-center gap-2 py-8 text-center text-sm text-gray-300 disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <UploadCloud className="h-6 w-6 text-teal-300" />
+            <UploadCloud className="h-6 w-6 text-primary" />
             <span>Drag and drop an image here, or click to select</span>
             <span className="text-xs text-gray-500">JPG, PNG, WEBP, GIF up to 5MB</span>
           </button>
@@ -167,7 +167,7 @@ export default function ImageUpload({
           </div>
           <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-teal-500 to-emerald-500 transition-all"
+              className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>

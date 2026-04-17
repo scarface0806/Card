@@ -3,7 +3,7 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { ArrowRight, Users, Zap, Target, Award, TrendingUp } from 'lucide-react';
+import { ArrowRight, Users, Zap, Target, Award } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/utils/constants';
 
@@ -33,19 +33,19 @@ export default function AboutUsPage() {
       icon: Zap,
       title: 'Innovation',
       description: 'Cutting-edge NFC technology meets elegant design in every card',
-      color: 'bg-teal-600',
+      color: 'bg-primary',
     },
     {
       icon: Users,
       title: 'Community',
       description: 'Building a global network of professionals sharing seamlessly',
-      color: 'bg-emerald-600',
+      color: 'bg-primary',
     },
     {
       icon: Target,
       title: 'Simplicity',
       description: 'Complex technology made simple for everyone',
-      color: 'bg-cyan-600',
+      color: 'bg-primary',
     },
   ];
 
@@ -63,8 +63,8 @@ export default function AboutUsPage() {
         {/* Hero Section */}
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
+            <div className="absolute top-20 right-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/15 rounded-full blur-3xl" />
           </div>
 
           <div className="site-container">
@@ -75,7 +75,7 @@ export default function AboutUsPage() {
               className="text-center"
             >
               <motion.div variants={itemVariants} className="mb-8">
-                <span className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-700">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
                   <Award className="w-4 h-4" />
                   About Our Mission
                 </span>
@@ -83,7 +83,7 @@ export default function AboutUsPage() {
 
               <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">
                 Revolutionizing{' '}
-                <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+                <span className="text-primary">
                   Connection
                 </span>
               </motion.h1>
@@ -117,7 +117,7 @@ export default function AboutUsPage() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-teal-50 text-teal-700 border border-teal-200 rounded-xl font-semibold hover:bg-teal-100 transition-all duration-300"
+                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 text-primary border border-primary/20 rounded-xl font-semibold hover:bg-primary/15 transition-all duration-300"
                   >
                     Learn How It Works
                     <ArrowRight className="w-5 h-5" />
@@ -131,9 +131,9 @@ export default function AboutUsPage() {
                 transition={{ duration: 0.8 }}
                 className="relative h-96 rounded-2xl overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-teal-100 to-emerald-100 rounded-2xl border border-teal-200" />
+                <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-secondary/10 rounded-2xl border border-primary/20" />
                 <div className="absolute inset-0 flex items-center justify-center">
-                  <Zap className="w-32 h-32 text-teal-300" />
+                  <Zap className="w-32 h-32 text-primary" />
                 </div>
               </motion.div>
             </motion.div>
@@ -202,7 +202,7 @@ export default function AboutUsPage() {
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     transition={{ delay: index * 0.15 + 0.3, duration: 0.6 }}
-                    className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent mb-2"
+                    className="text-5xl md:text-6xl font-bold text-primary mb-2"
                   >
                     {stat.number}
                   </motion.div>
@@ -220,9 +220,9 @@ export default function AboutUsPage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="relative p-12 md:p-20 rounded-3xl border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 overflow-hidden"
+              className="relative p-12 md:p-20 rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-secondary/10 overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl -z-10" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -z-10" />
               <div className="relative z-10 text-center">
                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Join Our Community</h2>
                 <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto">
@@ -232,7 +232,7 @@ export default function AboutUsPage() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-300"
+                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:from-[#28A428] hover:to-[#e6e600] hover:-translate-y-0.5"
                   >
                     Create Your Card
                     <ArrowRight className="w-5 h-5" />

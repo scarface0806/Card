@@ -20,9 +20,19 @@ export const metadata: Metadata = {
     title: 'Tapvyo - Modern NFC Digital Business Cards',
     description: 'Share your professional information with a single tap using NFC technology.',
     icons: {
-        icon: '/favicon.ico',
+        icon: [
+            { url: '/icon.svg', type: 'image/svg+xml' },
+            { url: '/favicon.ico?v=3', sizes: '48x48' },
+            { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+            { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+        ],
+        shortcut: '/favicon.ico?v=3',
         apple: '/apple-touch-icon.png',
+        other: [
+            { rel: 'maskable icon', url: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png' },
+        ],
     },
+    manifest: '/manifest.json',
     openGraph: {
         images: [
             {
@@ -35,7 +45,7 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
-        images: ['/og-image.png'],
+        images: ['/twitter-image.png'],
     },
 };
 

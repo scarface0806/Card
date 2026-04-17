@@ -79,7 +79,7 @@ export default function TemplatePreviewSection() {
         {loading ? (
           <div className="text-center py-12">
             <div
-              className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-teal-600 border-t-transparent"
+              className="inline-block h-6 w-6 animate-spin rounded-full border-2 border-primary border-t-transparent"
               aria-label="Loading"
             />
           </div>
@@ -98,7 +98,7 @@ export default function TemplatePreviewSection() {
                 whileHover={{ y: -4 }}
                 className="group card overflow-hidden transition-all duration-300"
               >
-                <div className="relative pt-[100%] bg-gradient-to-br from-teal-50 to-emerald-50 overflow-hidden">
+                <div className="relative pt-[100%] bg-gradient-to-r from-primary/10 to-secondary/10 overflow-hidden">
                   <span className="absolute inset-0 flex items-center justify-center text-[#6b7f78]">
                     Template Preview
                   </span>
@@ -106,7 +106,7 @@ export default function TemplatePreviewSection() {
                 <div className="card-padding">
                   <div className="flex items-start justify-between mb-4">
                     <h3 className="heading-3 section-title font-space-grotesk">{template.name}</h3>
-                    <span className="px-3 py-1 bg-teal-50 text-teal-700 text-xs font-semibold rounded-full capitalize border border-teal-200">
+                    <span className="px-3 py-1 bg-primary/10 text-primary text-xs font-semibold rounded-full capitalize border border-primary/20">
                       {template.plan}
                     </span>
                   </div>
@@ -114,7 +114,7 @@ export default function TemplatePreviewSection() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-200 rounded-xl font-semibold transition-all duration-300"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 rounded-xl font-semibold transition-all duration-300"
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -137,7 +137,7 @@ export default function TemplatePreviewSection() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-teal-700 bg-white border border-teal-200 rounded-xl hover:bg-teal-50 hover:border-teal-300 transition-all duration-300"
+              className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-primary bg-white border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300"
             >
               View All Templates
               <ArrowRight className="w-5 h-5" />

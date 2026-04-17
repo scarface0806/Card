@@ -133,7 +133,7 @@ export default function AccountPage() {
       <div className="max-w-3xl bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
         {loading && <p className="text-sm text-gray-400 mb-4">Loading account details...</p>}
         {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
-        {success && <p className="text-sm text-emerald-400 mb-4">{success}</p>}
+        {success && <p className="text-sm text-primary mb-4">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Profile Photo */}
@@ -155,7 +155,7 @@ export default function AccountPage() {
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
               <div className="relative group">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-teal-500/50 transition-colors">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-primary/50 transition-colors">
                   <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
                 </div>
                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
@@ -165,7 +165,7 @@ export default function AccountPage() {
               <div className="flex-1">
                 <div className="flex flex-wrap gap-3">
                   <label className="flex items-center gap-2 px-4 py-2 bg-[#2a3048] hover:bg-[#313755] border border-white/5 text-white rounded-xl cursor-pointer transition-all text-sm font-medium">
-                    <Upload className="w-4 h-4 text-teal-400" />
+                    <Upload className="w-4 h-4 text-primary" />
                     <span>Upload New Photo</span>
                     <input
                       type="file"
@@ -203,7 +203,7 @@ export default function AccountPage() {
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading || saving}
-                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
               />
             </div>
 
@@ -219,7 +219,7 @@ export default function AccountPage() {
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading || saving}
-                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
               />
             </div>
 
@@ -235,7 +235,7 @@ export default function AccountPage() {
                 onChange={handleChange}
                 disabled={loading || saving}
                 placeholder="https://example.com/avatar.png"
-                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
               />
             </div>
           </div>
@@ -251,7 +251,7 @@ export default function AccountPage() {
             <button
               type="submit"
               disabled={loading || saving}
-              className="px-8 py-2.5 bg-gradient-to-r from-teal-600 to-emerald-500 text-white rounded-xl font-semibold shadow-lg shadow-teal-500/20 hover:shadow-teal-500/30 transition-all active:scale-95"
+              className="px-8 py-2.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] rounded-xl font-semibold shadow-lg hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-xl transition-all active:scale-95"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

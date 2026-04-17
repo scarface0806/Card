@@ -59,7 +59,7 @@ const itemVariants = {
 
 export default function FeaturesSection() {
   return (
-    <section className="section-spacing section-warm">
+    <section id="features" className="section-spacing section-warm">
       <div className="site-container">
         {/* Section Header */}
         <motion.div
@@ -99,8 +99,8 @@ export default function FeaturesSection() {
                 whileHover={{ y: -4, scale: 1.02 }}
                 className="card card-padding bg-white"
               >
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-teal-50 flex items-center justify-center mb-5 md:mb-6">
-                  <Icon className="w-6 h-6 md:w-7 md:h-7 text-teal-600" />
+                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 md:mb-6">
+                  <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                 </div>
                 <h3 className="heading-3 text-[#0f2e25] font-space-grotesk mb-2 md:mb-3">{feature.title}</h3>
                 <p className="body-base text-[#4b635d]">{feature.description}</p>
@@ -127,7 +127,7 @@ export default function FeaturesSection() {
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </Link>
-          <p className="body-base text-gray-500 mt-3"><a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a></p>
+          <p className="body-base text-gray-500 mt-3"><a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a></p>
         </motion.div>
       </div>
     </section>

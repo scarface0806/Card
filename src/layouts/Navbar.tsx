@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ArrowUpRight, Wifi, ArrowRight } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
+import BrandLogo from '@/components/common/BrandLogo';
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,13 +42,8 @@ export default function Navbar() {
       <div className="site-container">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href={ROUTES.HOME} className="flex items-center gap-2 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-600 to-emerald-500 flex items-center justify-center shadow-md shadow-teal-500/20 group-hover:shadow-teal-500/30 transition-shadow duration-300">
-              <Wifi className="w-5 h-5 text-white rotate-45" />
-            </div>
-            <span className="text-xl font-bold text-[#0f2e25] font-space-grotesk tracking-tight">
-              Tapvyo
-            </span>
+          <Link href={ROUTES.HOME} className="flex items-center gap-3 group">
+            <BrandLogo size="medium" />
           </Link>
 
           {/* Desktop Menu - Center */}
@@ -58,8 +54,8 @@ export default function Navbar() {
                 href={link.href}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
                   isActive(link.href)
-                    ? 'text-teal-600 bg-teal-50/80'
-                    : 'text-gray-600 hover:text-teal-600 hover:bg-gray-50'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-gray-600 hover:text-primary hover:bg-primary/10'
                 }`}
               >
                 {link.label}
@@ -74,7 +70,7 @@ export default function Navbar() {
               href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
               target="_blank"
               rel="noopener noreferrer"
-              className="relative flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-white bg-gradient-to-r from-green-600 to-emerald-500 rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:scale-105 overflow-hidden group"
+              className="relative flex items-center gap-2 px-6 py-2.5 text-sm font-medium text-[#0f2e25] bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 overflow-hidden group"
             >
               {/* Shine effect overlay */}
               <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
@@ -86,7 +82,7 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2.5 text-[#0f2e25] rounded-xl bg-teal-50 hover:bg-teal-100 transition-colors"
+            className="lg:hidden p-2.5 text-[#0f2e25] rounded-xl bg-primary/10 hover:bg-primary/15 transition-colors"
           >
             {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -100,7 +96,7 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-teal-100 shadow-lg"
+              className="lg:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-xl border-t border-primary/20 shadow-lg"
             >
               <div className="container mx-auto max-w-7xl px-4 py-6 space-y-2">
                 {navLinks.map((link) => (
@@ -109,21 +105,21 @@ export default function Navbar() {
                     href={link.href}
                     className={`block px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
                       isActive(link.href)
-                        ? 'text-teal-600 bg-teal-50 border-l-2 border-teal-600'
-                        : 'text-teal-800 hover:text-teal-600 hover:bg-teal-50'
+                        ? 'text-primary bg-primary/10 border-l-2 border-primary'
+                        : 'text-[#0f2e25] hover:text-primary hover:bg-primary/10'
                     }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.label}
                   </Link>
                 ))}
-                <div className="pt-4 space-y-3 border-t border-teal-100 mt-4">
+                <div className="pt-4 space-y-3 border-t border-primary/10 mt-4">
                   <a
                     href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center text-white bg-gradient-to-r from-green-600 to-emerald-500 rounded-full transition-all duration-300 font-medium shadow-md hover:shadow-lg group"
+                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center text-[#0f2e25] bg-gradient-to-r from-primary to-secondary rounded-full transition-all duration-300 font-medium shadow-md hover:shadow-lg group"
                   >
                     <span>Contact Now</span>
                     <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />

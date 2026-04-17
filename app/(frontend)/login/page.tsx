@@ -25,7 +25,6 @@ export default function LoginPage() {
     register,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<LoginFormData>({
     defaultValues: {
       email: '',
@@ -100,7 +99,7 @@ export default function LoginPage() {
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-teal-400 pointer-events-none" />
+                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-primary pointer-events-none" />
                 <input
                   {...register('email', {
                     required: 'Email is required',
@@ -112,7 +111,7 @@ export default function LoginPage() {
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  className={`w-full pl-12 pr-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 ${
+                  className={`w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
                     errors.email ? 'border-red-500 focus:ring-red-400' : ''
                   }`}
                 />
@@ -128,7 +127,7 @@ export default function LoginPage() {
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-teal-400 pointer-events-none" />
+                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-primary pointer-events-none" />
                 <input
                   {...register('password', {
                     required: 'Password is required',
@@ -140,14 +139,14 @@ export default function LoginPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className={`w-full pl-12 pr-12 py-3 border border-teal-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-400 transition-all duration-200 ${
+                  className={`w-full pl-12 pr-12 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
                     errors.password ? 'border-red-500 focus:ring-red-400' : ''
                   }`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-gray-400 hover:text-teal-600 transition-colors"
+                  className="absolute right-4 top-3.5 text-gray-400 hover:text-primary transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
@@ -163,13 +162,13 @@ export default function LoginPage() {
                 <input
                   {...register('rememberMe')}
                   type="checkbox"
-                  className="w-4 h-4 border border-teal-300 rounded-md text-teal-700 focus:ring-2 focus:ring-teal-400"
+                  className="w-4 h-4 border border-primary/30 rounded-md text-primary focus:ring-2 focus:ring-primary/50"
                 />
                 <span className="text-gray-700">Remember me</span>
               </label>
               <Link
-                href="#"
-                className="text-teal-700 font-medium hover:text-teal-900 transition-colors"
+                href="/contact-us"
+                className="text-primary font-medium hover:text-primary-dark transition-colors"
               >
                 Forgot password?
               </Link>
@@ -179,7 +178,7 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-teal-700 text-white font-semibold py-3 rounded-xl hover:bg-teal-800 disabled:bg-teal-600 disabled:cursor-not-allowed transition-all duration-300 flex items-center justify-center gap-2"
+              className="w-full bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold py-3 rounded-xl hover:from-[#28A428] hover:to-[#e6e600] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
             >
               {isLoading ? (
                 <>
@@ -210,7 +209,7 @@ export default function LoginPage() {
             Don't have an account?{' '}
             <Link
               href={ROUTES.SIGNUP}
-              className="text-teal-700 font-semibold hover:text-teal-900 transition-colors"
+              className="text-primary font-semibold hover:text-primary-dark transition-colors"
             >
               Sign up
             </Link>

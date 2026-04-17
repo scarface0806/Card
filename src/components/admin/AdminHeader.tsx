@@ -47,13 +47,15 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             <Menu className="w-5 h-5" />
           </button>
 
+
+
           {/* Search */}
           <div className="relative hidden sm:block w-full max-w-xs">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-9 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-xl text-gray-300 placeholder-gray-600 focus:outline-none focus:border-teal-500/50 focus:ring-1 focus:ring-teal-500/20 transition-all duration-200"
+              className="w-full pl-9 pr-4 py-2 text-sm bg-white/5 border border-white/10 rounded-xl text-gray-300 placeholder-gray-600 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/20 transition-all duration-200"
             />
           </div>
         </div>
@@ -84,7 +86,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
             title="Notifications"
           >
             <Bell className="w-4 h-4" />
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-teal-500 rounded-full ring-2 ring-[#0d1117]" />
+            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary/100 rounded-full ring-2 ring-[#0d1117]" />
           </button>
 
           {/* Divider */}
@@ -96,7 +98,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
               onClick={() => setProfileOpen(!profileOpen)}
               className="flex items-center gap-2 sm:gap-2.5 hover:bg-white/5 px-2.5 sm:px-3 py-1.5 rounded-xl transition-colors group"
             >
-              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-teal-600 to-emerald-500 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-teal-500/20">
+              <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-primary to-secondary flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-[0_16px_36px_rgba(51,204,51,0.18)]">
                 A
               </div>
               <div className="hidden md:block text-left">

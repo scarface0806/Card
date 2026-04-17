@@ -52,7 +52,7 @@ function TechLogo({ name, logo, bg }: TechLogoProps) {
       </div>
 
       {/* Label */}
-      <span className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-teal-600 transition-colors duration-300 whitespace-nowrap text-center">
+      <span className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-primary transition-colors duration-300 whitespace-nowrap text-center">
         {name}
       </span>
     </motion.div>

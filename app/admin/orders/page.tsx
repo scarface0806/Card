@@ -113,6 +113,7 @@ function buildOrderRow(details: OrderDetails): OrderRow {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<OrderRow[]>([]);
+  const [statusFilter, setStatusFilter] = useState<'all' | 'pending' | 'completed' | 'cancelled'>('all');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -430,6 +431,19 @@ export default function OrdersPage() {
   };
 
   const selectedPresentation = selectedOrder ? getStatusPresentation(selectedOrder.status) : null;
+  const filteredOrders =
+    statusFilter === 'all'
+      ? orders
+      : orders.filter((order) => order.statusTone === statusFilter);
+
+  const cycleFilter = () => {
+    setStatusFilter((current) => {
+      if (current === 'all') return 'pending';
+      if (current === 'pending') return 'completed';
+      if (current === 'completed') return 'cancelled';
+      return 'all';
+    });
+  };
 
   return (
     <main className="space-y-6">
@@ -439,13 +453,16 @@ export default function OrdersPage() {
           <p className="text-gray-400 text-sm mt-1">Review incoming purchase orders and accept or reject them</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
-          <button className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10">
+          <button
+            onClick={cycleFilter}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+          >
             <Filter className="w-4 h-4" />
-            Filter
+            Filter: {statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
           </button>
           <button
             onClick={fetchOrders}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] px-4 py-2.5 rounded-xl hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all font-medium active:scale-95"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -489,7 +506,7 @@ export default function OrdersPage() {
           },
           { key: 'createdDate', label: 'Created Date' },
         ]}
-        data={loading ? [] : orders}
+        data={loading ? [] : filteredOrders}
         onView={handleView}
         onDelete={handleDelete}
         actionLabels={{
@@ -630,7 +647,7 @@ export default function OrdersPage() {
                     type="button"
                     onClick={() => advanceOrderStatus(buildOrderRow(selectedOrder))}
                     disabled={!lifecycleActionLabel(selectedOrder.status)}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-emerald-500/90 text-white hover:bg-emerald-500"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-primary/100/90 text-white hover:bg-primary/100"
                   >
                     {lifecycleActionLabel(selectedOrder.status) || 'Done'}
                   </button>
@@ -679,7 +696,7 @@ export default function OrdersPage() {
                   <select
                     value={form.customerId}
                     onChange={(event) => setForm((prev) => ({ ...prev, customerId: event.target.value }))}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                   >
                     <option value="">Guest Customer</option>
                     {customerOptions.map((customer) => (
@@ -703,7 +720,7 @@ export default function OrdersPage() {
                         price: selected ? String(selected.price) : prev.price,
                       }));
                     }}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                     required
                   >
                     <option value="">Select product</option>
@@ -723,7 +740,7 @@ export default function OrdersPage() {
                       min={1}
                       value={form.quantity}
                       onChange={(event) => setForm((prev) => ({ ...prev, quantity: event.target.value }))}
-                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                       required
                     />
                   </div>
@@ -735,7 +752,7 @@ export default function OrdersPage() {
                       step="0.01"
                       value={form.price}
                       onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))}
-                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                       required
                     />
                   </div>
@@ -747,7 +764,7 @@ export default function OrdersPage() {
                     value={form.address}
                     onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
                     rows={3}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                     placeholder="Enter shipping/customer address"
                   />
                 </div>
@@ -758,7 +775,7 @@ export default function OrdersPage() {
                     value={form.notes}
                     onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
                     rows={3}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-teal-500/30"
+                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
                     placeholder="Order notes"
                   />
                 </div>
@@ -774,7 +791,7 @@ export default function OrdersPage() {
                   <button
                     type="submit"
                     disabled={createLoading}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-teal-600 text-white hover:bg-teal-500 disabled:opacity-60"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold hover:from-[#28A428] hover:to-[#e6e600] disabled:opacity-60 transition-all"
                   >
                     {createLoading ? 'Creating...' : 'Create Order'}
                   </button>

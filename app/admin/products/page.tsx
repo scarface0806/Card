@@ -160,7 +160,7 @@ export default function ProductsPage() {
           <button
             type="button"
             onClick={openCreate}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] px-4 py-2.5 rounded-xl hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all font-medium active:scale-95"
           >
             <Plus className="w-4 h-4" />
             Add Product
@@ -208,14 +208,14 @@ export default function ProductsPage() {
               <article key={product.id} className="rounded-xl border border-white/10 bg-[#151a2d] p-4">
                 <div className="aspect-video overflow-hidden rounded-lg bg-[#0f1426]">
                   <img
-                    src={product.images?.[0] || product.image || "/placeholder.png"}
+                    src={product.images?.[0] || product.image || "/placeholder.svg"}
                     alt={product.name}
                     className="h-full w-full object-cover"
                   />
                 </div>
                 <h3 className="mt-3 text-white font-semibold">{product.name}</h3>
                 <p className="mt-1 text-sm text-gray-400 line-clamp-2">{product.description}</p>
-                <div className="mt-3 text-teal-300 font-semibold">₹{product.price.toLocaleString()}</div>
+                <div className="mt-3 text-primary font-semibold">₹{product.price.toLocaleString()}</div>
                 <p className="mt-1 text-xs text-gray-500">Created {new Date(product.createdAt).toLocaleDateString()}</p>
 
                 <div className="mt-4 flex items-center gap-2">

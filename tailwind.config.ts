@@ -50,6 +50,9 @@ const config: Config = {
         'relaxed': '1.75',
       },
       colors: {
+        'primary': '#33CC33',
+        'primary-dark': '#28A428',
+        'secondary': '#FFFF00',
         'dark': {
           'bg': '#0a0a0f',
           'surface': '#11131a',
@@ -60,15 +63,15 @@ const config: Config = {
           'text-muted': '#71717a',
         },
         'accent': {
-          'primary': '#7c3aed',
-          'secondary': '#4f46e5',
-          'tertiary': '#06b6d4',
+          'primary': '#33CC33',
+          'secondary': '#FFFF00',
+          'tertiary': '#A7FF00',
         },
       },
       backgroundImage: {
-        'gradient-primary': 'linear-gradient(135deg, #7c3aed, #4f46e5, #06b6d4)',
+        'gradient-primary': 'linear-gradient(to right, #33CC33, #FFFF00)',
         'gradient-dark': 'linear-gradient(135deg, #0a0a0f, #11131a)',
-        'radial-glow': 'radial-gradient(circle at center, rgba(124, 58, 237, 0.15), transparent)',
+        'radial-glow': 'radial-gradient(circle at center, rgba(51, 204, 51, 0.15), transparent)',
       },
       backdropBlur: {
         glow: '40px',
@@ -78,6 +81,7 @@ const config: Config = {
         'glow-sm': '0 0 20px rgba(124, 58, 237, 0.3)',
         'glow-md': '0 0 40px rgba(124, 58, 237, 0.4)',
         'glow-lg': '0 0 60px rgba(124, 58, 237, 0.5)',
+        'primary-glow': '0 18px 40px rgba(51, 204, 51, 0.18)',
       },
     },
   },

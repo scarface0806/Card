@@ -24,8 +24,8 @@ export default function PremiumNavbar() {
       <div className="container mx-auto max-w-7xl px-4 md:px-6 py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href={ROUTES.HOME} className="flex items-center gap-3 z-10 group">
-          <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl shadow-lg group-hover:shadow-teal-500/25 transition-all duration-300" />
-          <span className="font-bold text-xl text-teal-900 tracking-tight font-[family-name:var(--font-space-grotesk)]">Tapvyo</span>
+          <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl shadow-lg group-hover:shadow-primary-glow transition-all duration-300" />
+          <span className="font-bold text-xl text-primary-dark tracking-tight font-[family-name:var(--font-space-grotesk)]">Tapvyo</span>
         </Link>
 
         {/* Desktop Navigation - Center Aligned */}
@@ -36,8 +36,8 @@ export default function PremiumNavbar() {
               href={item.href}
               className={`text-sm font-medium px-4 py-2.5 transition-all duration-300 font-[family-name:var(--font-space-grotesk)] ${
                 isActive(item.href)
-                  ? 'text-teal-600 border-b-2 border-teal-600'
-                  : 'text-teal-800 hover:text-teal-600'
+                  ? 'text-primary border-b-2 border-primary'
+                  : 'text-[#0f2e25] hover:text-primary'
               }`}
             >
               {item.label}
@@ -51,7 +51,7 @@ export default function PremiumNavbar() {
             href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative flex items-center gap-2 px-6 py-2.5 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
+            className="relative flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             <span className="relative">Contact Now</span>
@@ -62,7 +62,7 @@ export default function PremiumNavbar() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden z-10 text-teal-800 p-2"
+          className="md:hidden z-10 text-[#0f2e25] p-2"
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -78,8 +78,8 @@ export default function PremiumNavbar() {
                 href={item.href}
                 className={`block text-sm font-medium py-3 px-4 rounded-lg transition-all duration-300 font-[family-name:var(--font-space-grotesk)] ${
                   isActive(item.href)
-                    ? 'text-teal-600 bg-teal-50 border-l-2 border-teal-600'
-                    : 'text-teal-800 hover:text-teal-600 hover:bg-teal-50'
+                    ? 'text-primary bg-primary/10 border-l-2 border-primary'
+                    : 'text-[#0f2e25] hover:text-primary hover:bg-primary/10'
                 }`}
               >
                 {item.label}
@@ -91,7 +91,7 @@ export default function PremiumNavbar() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-green-600 hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg font-[family-name:var(--font-space-grotesk)] group"
+                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-primary hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg font-[family-name:var(--font-space-grotesk)] group"
               >
                 <span>Contact Now</span>
                 <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />

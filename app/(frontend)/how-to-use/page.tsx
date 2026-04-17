@@ -50,8 +50,8 @@ export default function HowToUsePage() {
         <section className="relative pt-32 pb-16 md:pt-44 md:pb-24 overflow-hidden">
           {/* Background decorations */}
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 right-10 w-96 h-96 bg-teal-200/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/20 rounded-full blur-3xl" />
+            <div className="absolute top-20 right-10 w-96 h-96 bg-primary/15 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 left-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
           </div>
 
           <div className="site-container text-center">
@@ -61,7 +61,7 @@ export default function HowToUsePage() {
               transition={{ duration: 0.6 }}
               className="mb-6"
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-700">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
                 <Sparkles className="w-4 h-4" />
                 How It Works
               </span>
@@ -74,7 +74,7 @@ export default function HowToUsePage() {
               className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk leading-tight tracking-tight"
             >
               Your NFC Digital Card in{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-primary">
                 3 Simple Steps
               </span>
             </motion.h1>
@@ -106,15 +106,15 @@ export default function HowToUsePage() {
                   <div className="flex flex-col md:flex-row items-start gap-6 md:gap-10">
                     {/* Icon */}
                     <div className="shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-br from-teal-50 to-emerald-50 border border-teal-100 flex items-center justify-center shadow-sm">
-                        <step.icon className="w-8 h-8 md:w-10 md:h-10 text-teal-600" />
+                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/10 flex items-center justify-center shadow-sm">
+                        <step.icon className="w-8 h-8 md:w-10 md:h-10 text-primary" />
                       </div>
                     </div>
 
                     {/* Content */}
                     <div className="flex-1">
                       {/* Step number */}
-                      <span className="inline-block text-sm font-bold text-teal-600 uppercase tracking-wider mb-2">
+                      <span className="inline-block text-sm font-bold text-primary uppercase tracking-wider mb-2">
                         Step {step.number}
                       </span>
 
@@ -127,11 +127,11 @@ export default function HowToUsePage() {
                       </p>
 
                       {step.highlight && (
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-teal-50 to-emerald-50 border border-teal-200 rounded-full">
-                          <CheckCircle2 className="w-4 h-4 text-teal-600" />
-                          <span className="text-sm font-semibold text-teal-700">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-full">
+                          <CheckCircle2 className="w-4 h-4 text-primary" />
+                          <span className="text-sm font-semibold text-primary">
                             {step.highlight === 'Free Lifetime Website Included' ? (
-                              <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="hover:text-teal-800">Free Lifetime Website</a>
+                              <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="hover:text-[#0f2e25]">Free Lifetime Website</a>
                             ) : step.highlight}
                           </span>
                         </div>
@@ -180,7 +180,7 @@ export default function HowToUsePage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-br from-teal-50 to-emerald-50 border border-gray-200/60 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
+                  className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-gray-200/60 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
                 >
                   <span className="text-3xl mb-3 block">{item.icon}</span>
                   <span className="text-sm font-semibold text-[#0f2e25]">{item.label}</span>
@@ -198,7 +198,7 @@ export default function HowToUsePage() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
-              className="relative bg-gradient-to-br from-teal-700 to-emerald-600 rounded-3xl p-10 md:p-16 text-center overflow-hidden"
+              className="relative bg-gradient-to-br from-primary-dark to-[#1a6b1a] rounded-3xl p-10 md:p-16 text-center overflow-hidden"
             >
               {/* Background decoration */}
               <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
@@ -213,7 +213,7 @@ export default function HowToUsePage() {
                   Contact our team to modify design, add features, or personalize your NFC experience.
                 </p>
                 <Link href={ROUTES.CONTACT}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-teal-700 font-semibold rounded-full hover:bg-teal-50 transition-all duration-220 shadow-lg hover:shadow-xl hover:-translate-y-1 group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-white text-primary font-semibold rounded-full hover:bg-primary/10 transition-all duration-220 shadow-lg hover:shadow-xl hover:-translate-y-1 group">
                     <span>Contact Us</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
@@ -240,13 +240,13 @@ export default function HowToUsePage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href={ROUTES.CREATE_CARD}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 hover:shadow-lg text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:-translate-y-1 group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg text-[#0f2e25] font-semibold rounded-full transition-all duration-220 shadow-md hover:-translate-y-1 group">
                     <span>Create Your Card</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </Link>
                 <Link href={ROUTES.CARDS}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 border-2 border-teal-200 text-teal-700 hover:border-teal-300 hover:bg-teal-50 font-semibold rounded-full transition-all duration-300">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary/20 text-primary hover:border-primary/30 hover:bg-primary/10 font-semibold rounded-full transition-all duration-300">
                     View Card Designs
                   </button>
                 </Link>

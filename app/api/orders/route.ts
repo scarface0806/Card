@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
             : null,
       } as Prisma.OrderUncheckedCreateInput;
 
-      let order = await (async () => {
+      const order = await (async () => {
         try {
           return await prisma.order.create({
             data: guestOrderData,
@@ -242,7 +242,7 @@ export async function POST(request: NextRequest) {
     const qty = quantity || 1;
 
     // Fetch product from database (SECURITY: price comes from DB, not client)
-    let product = await prisma.product.findUnique({
+    const product = await prisma.product.findUnique({
       where: { id: productId },
     });
 

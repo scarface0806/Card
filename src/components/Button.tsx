@@ -28,15 +28,15 @@ export default function Button({
   const baseStyles = 'font-semibold rounded-full transition-all duration-300 inline-flex items-center gap-3 whitespace-nowrap overflow-hidden group';
 
   const variants = {
-    primary: 'bg-[#7808d0] text-white hover:bg-black',
-    secondary: 'bg-[#0891b2] text-white hover:bg-black',
-    outline: 'border-2 border-[#7808d0] text-[#7808d0] hover:bg-[#7808d0] hover:text-white',
+    primary: 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] active:scale-[0.98] shadow-md hover:shadow-lg',
+    secondary: 'bg-white border-2 border-primary text-primary hover:bg-primary/10 active:scale-[0.98]',
+    outline: 'border-2 border-primary text-primary hover:bg-primary hover:text-[#0f2e25] active:scale-[0.98]',
   };
 
   const iconColors = {
-    primary: 'text-[#7808d0] group-hover:text-black',
-    secondary: 'text-[#0891b2] group-hover:text-black',
-    outline: 'text-[#7808d0] group-hover:text-white',
+    primary: 'text-[#0f2e25]',
+    secondary: 'text-primary',
+    outline: 'text-primary group-hover:text-[#0f2e25]',
   };
 
   const sizes = {

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, Wifi, MessageSquare, Loader2 } from 'lucide-react';
+import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
@@ -75,17 +75,17 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
               </span>
             </h2>
             <p className="text-sm md:text-base text-slate-500 section-subtitle">
-              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>.
+              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>.
             </p>
 
             {/* Subtle urgency signal */}
             <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
               <span className="inline-flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
-                <Check className="w-4 h-4 text-teal-600" />
+                <Check className="w-4 h-4 text-primary" />
                 No Hidden Charges
               </span>
               <span className="inline-flex items-center gap-2 text-sm text-gray-600 bg-gray-50 px-4 py-2 rounded-full">
-                <Check className="w-4 h-4 text-teal-600" />
+                <Check className="w-4 h-4 text-primary" />
                 No Renewal Fees
               </span>
               <span className="inline-flex items-center gap-2 text-sm text-amber-700 bg-amber-50 px-4 py-2 rounded-full font-medium">
@@ -98,7 +98,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
           {/* Card Grid */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+              <Loader2 className="w-8 h-8 text-primary animate-spin" />
             </div>
           ) : (
           <motion.div
@@ -116,13 +116,13 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
               >
                 {/* Card Preview */}
                 <div className="relative aspect-[1.6/1] overflow-hidden">
-                  <img src={card.images?.[0] || "/placeholder.png"} alt={card.name} className="h-full w-full object-cover" />
+                  <img src={card.images?.[0] || "/placeholder.svg"} alt={card.name} className="h-full w-full object-cover" />
 
                   {/* Quick View Overlay */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <button
                       onClick={() => handlePreview(card)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-teal-700 font-medium rounded-full hover:bg-teal-50 transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-primary font-medium rounded-full hover:bg-primary/10 transition-all duration-200"
                     >
                       <Eye className="w-4 h-4" />
                       Quick View
@@ -141,7 +141,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                   {/* Price Section */}
                   <div className="mb-3">
                     <div className="flex items-baseline gap-2">
-                      <p className="heading-3 text-teal-700">
+                      <p className="heading-3 text-primary">
                         {card.price}
                       </p>
                       {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
@@ -151,7 +151,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       )}
                     </div>
                     <p className="body-base text-[#4b635d]">
-                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>}
+                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>}
                     </p>
                   </div>
 
@@ -161,13 +161,13 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
                         <p className="text-xs text-purple-700 font-medium mb-1">Design Charges</p>
                         <p className="text-xs text-[#4b635d]">
-                          <span className="text-teal-600 font-semibold">Free</span> if you provide your own design.
+                          <span className="text-primary font-semibold">Free</span> if you provide your own design.
                           Design service available at additional cost.
                         </p>
                       </div>
                     ) : (
                       <p className="text-xs text-[#4b635d] flex items-center gap-1">
-                        <Check className="w-3 h-3 text-teal-600" />
+                        <Check className="w-3 h-3 text-primary" />
                         Contact form included in your digital profile
                       </p>
                     )}
@@ -180,7 +180,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       className={`w-full flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-full transition-all duration-300 group/btn ${
                         card.type === 'custom'
                           ? 'bg-[#0f2e25] hover:bg-[#1a4a3d] text-white'
-                          : 'bg-gradient-to-r from-teal-600 to-green-600 text-white shadow-md hover:shadow-lg'
+                          : 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
                       }`}
                     >
                       {card.type === 'custom' ? (
@@ -208,11 +208,11 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-gradient-to-r from-teal-50 to-emerald-50 rounded-3xl p-10 md:p-14 border border-teal-100"
+            className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl p-10 md:p-14 border border-primary/10"
           >
             <div className="max-w-3xl mx-auto text-center">
               <h3 className="heading-1 text-[#0f2e25] font-space-grotesk mb-3">
-                Every NFC Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700">Free Lifetime Website</a>
+                Every NFC Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
               </h3>
               <p className="body-lg text-[#4b635d] mb-8">
                 No hidden charges. No renewal fees.
@@ -220,14 +220,14 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href={ROUTES.CREATE_CARD}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-1 group">
+                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-1 group">
                     <span>Get Your NFC Card</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </Link>
                 <button
                   onClick={() => onContactClick?.('general')}
-                  className="inline-flex items-center gap-2 px-8 py-4 border-2 border-teal-300 text-teal-700 hover:bg-teal-50 font-semibold rounded-full transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary/30 text-primary hover:bg-primary/10 font-semibold rounded-full transition-all duration-300"
                 >
                   <span>Learn More</span>
                 </button>

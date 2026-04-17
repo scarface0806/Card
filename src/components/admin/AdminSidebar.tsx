@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import BrandLogo from '@/components/common/BrandLogo';
 import {
   BarChart3,
   Users,
@@ -14,7 +15,6 @@ import {
   User,
   Lock,
   ChevronRight,
-  Zap,
 } from 'lucide-react';
 
 const menuItems = [
@@ -72,13 +72,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
         {/* Logo */}
         <div className="px-6 py-5 border-b border-white/10 flex-shrink-0 bg-white/[0.02]">
           <Link href="/admin/dashboard" className="flex items-center gap-3 group">
-            <div className="w-9 h-9 bg-gradient-to-br from-teal-600 to-emerald-500 rounded-xl flex items-center justify-center shadow-lg shadow-teal-500/20 group-hover:shadow-teal-500/40 transition-all duration-200">
-              <Zap className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <span className="text-base font-bold text-white tracking-tight">Tapvyo</span>
-              <p className="text-[10px] text-gray-400 font-medium tracking-widest uppercase">Admin</p>
-            </div>
+            <BrandLogo size="medium" variant="light" />
           </Link>
         </div>
 
@@ -101,14 +95,14 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
                       onClick={onMobileClose}
                       className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200 group relative
                         ${active
-                          ? 'bg-gradient-to-r from-teal-500/25 to-emerald-400/10 text-teal-300 border border-teal-500/30 shadow-[0_8px_20px_rgba(20,184,166,0.14)]'
-                          : 'text-gray-400 hover:text-gray-100 hover:bg-white/5'
+                          ? 'bg-gradient-to-r from-primary/25 to-secondary/15 text-primary border border-primary/30 shadow-[0_8px_20px_rgba(51,204,51,0.14)]'
+                          : 'text-gray-400 hover:text-white hover:bg-white/5'
                         }`}
                     >
                       {active && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-teal-400 rounded-r-full" />
+                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-5 bg-primary rounded-r-full" />
                       )}
-                      <Icon className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${active ? 'text-teal-400' : 'group-hover:scale-110'}`} />
+                      <Icon className={`w-4 h-4 flex-shrink-0 transition-transform duration-200 ${active ? 'text-primary' : 'group-hover:scale-110'}`} />
                       <span className="text-sm font-medium tracking-tight">{item.label}</span>
                       {active && <ChevronRight className="w-3.5 h-3.5 ml-auto opacity-70" />}
                     </Link>

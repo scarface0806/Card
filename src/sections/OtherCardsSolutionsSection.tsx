@@ -116,7 +116,7 @@ export default function OtherCardsSolutionsSection({ onContactClick }: OtherCard
               Need a custom solution?{' '}
               <button
                 onClick={() => onContactClick('custom')}
-                className="text-teal-600 font-semibold hover:underline"
+                className="text-primary font-semibold hover:underline"
               >
                 Talk to our team
               </button>

@@ -17,8 +17,8 @@ const colorConfig = {
     glow: 'shadow-blue-500/10',
   },
   green: {
-    iconBg: 'bg-emerald-500/10 border-emerald-500/20',
-    iconText: 'text-emerald-400',
+    iconBg: 'bg-primary/100/10 border-primary/20',
+    iconText: 'text-primary',
     glow: 'shadow-emerald-500/10',
   },
   purple: {
@@ -32,9 +32,9 @@ const colorConfig = {
     glow: 'shadow-orange-500/10',
   },
   teal: {
-    iconBg: 'bg-teal-500/10 border-teal-500/20',
-    iconText: 'text-teal-400',
-    glow: 'shadow-teal-500/10',
+    iconBg: 'bg-primary/100/10 border-primary/20',
+    iconText: 'text-primary',
+    glow: 'shadow-primary-glow',
   },
   pink: {
     iconBg: 'bg-pink-500/10 border-pink-500/20',
@@ -89,7 +89,7 @@ export default function StatCard({
         {trend ? (
           <>
             <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-1.5 py-0.5 rounded-md ${trend.isPositive
-                ? 'text-emerald-400 bg-emerald-500/10'
+                ? 'text-primary bg-primary/100/10'
                 : 'text-red-400 bg-red-500/10'
               }`}>
               {trend.isPositive

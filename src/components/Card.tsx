@@ -13,7 +13,7 @@ export default function Card({ children, className = '', hover = false }: CardPr
   return (
     <motion.div
       whileHover={hover ? { y: -5 } : {}}
-      className={`bg-white rounded-2xl shadow-lg border border-gray-200 transition-shadow hover:shadow-xl ${className}`}
+      className={`card ${className}`}
     >
       {children}
     </motion.div>

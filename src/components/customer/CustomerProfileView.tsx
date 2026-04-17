@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { BRAND } from '@/lib/brand';
 
 type GalleryItem = {
   id: string;
@@ -860,7 +861,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
       <div className="digi-card-container">
         <nav className="digi-navbar">
           <a href="#" className="digi-logo">
-            <img src={customer.logo || '/no-image-placeholder.svg'} alt="Logo" className="digi-nav-logo-img" />
+            <img src={BRAND.logo} alt={BRAND.name} className="digi-nav-logo-img" />
             {shopName ? <span className="digi-shop-name">{shopName}</span> : null}
           </a>
           <div className="digi-nav-right">

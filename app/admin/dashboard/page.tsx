@@ -110,7 +110,7 @@ export default function Dashboard() {
         </div>
         <button
           onClick={refetch}
-          className="px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-teal-500 transition-colors"
+          className="px-4 py-2 rounded-lg bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold hover:from-[#28A428] hover:to-[#e6e600] transition-all shadow-sm"
         >
           Retry
         </button>
@@ -232,7 +232,7 @@ export default function Dashboard() {
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Order Status Summary</h2>
             <Link
               href="/admin/orders"
-              className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300 transition-colors"
+              className="flex items-center gap-1 text-xs text-primary hover:text-primary transition-colors"
             >
               View all <ArrowUpRight className="w-3 h-3" />
             </Link>
@@ -259,7 +259,7 @@ export default function Dashboard() {
             <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Revenue Snapshot</h2>
             <Link
               href="/admin/orders"
-              className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300 transition-colors"
+              className="flex items-center gap-1 text-xs text-primary hover:text-primary transition-colors"
             >
               View all <ArrowUpRight className="w-3 h-3" />
             </Link>
@@ -282,7 +282,7 @@ export default function Dashboard() {
           <h2 className="text-sm font-semibold text-gray-400 uppercase tracking-widest">Recent Orders</h2>
           <Link
             href="/admin/orders"
-            className="flex items-center gap-1 text-xs text-teal-400 hover:text-teal-300 transition-colors"
+            className="flex items-center gap-1 text-xs text-primary hover:text-primary transition-colors"
           >
             View all <ArrowUpRight className="w-3 h-3" />
           </Link>

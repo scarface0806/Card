@@ -65,7 +65,7 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                   }}
                 >
                   <img
-                    src={card.images?.[0] || card.image || "/placeholder.png"}
+                    src={card.images?.[0] || card.image || "/placeholder.svg"}
                     alt={card.name}
                     className="h-full w-full object-cover"
                   />
@@ -98,17 +98,17 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                         ? 'bg-amber-100 text-amber-700'
                         : card.type === 'custom'
                         ? 'bg-purple-100 text-purple-700'
-                        : 'bg-teal-100 text-teal-700'
+                        : 'bg-primary/20 text-primary'
                     }`}
                   >
                     {card.type === 'custom' ? 'Custom' : card.type === 'premium' ? 'Premium' : 'Basic'}
                   </span>
                 </div>
                 {card.type !== 'custom' && (
-                  <p className="text-2xl font-bold text-teal-700 mb-2">{card.price}</p>
+                  <p className="text-2xl font-bold text-primary mb-2">{card.price}</p>
                 )}
                 <p className="text-sm text-[#4b635d]">
-                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-teal-600 hover:text-teal-700 relative z-10 cursor-pointer" onClick={(e) => e.stopPropagation()}>Free Lifetime Website</a>
+                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary relative z-10 cursor-pointer" onClick={(e) => e.stopPropagation()}>Free Lifetime Website</a>
                 </p>
               </div>
             </div>

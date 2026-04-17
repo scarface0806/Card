@@ -181,7 +181,7 @@ export default function CustomersPage() {
           <button
             type="button"
             onClick={() => router.push('/admin/customers/create')}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-teal-600 to-emerald-500 text-white px-4 py-2.5 rounded-xl hover:shadow-lg hover:shadow-teal-500/20 transition-all font-medium active:scale-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] px-4 py-2.5 rounded-xl hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all font-medium active:scale-95"
           >
             <UserPlus className="w-4 h-4" />
             Create NFC Customer
@@ -225,7 +225,7 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => handleCopy(row.nfcLink)}
-                  className="rounded-lg p-2 text-teal-400 transition hover:bg-teal-500/10"
+                  className="rounded-lg p-2 text-primary transition hover:bg-primary/100/10"
                   aria-label={`Copy NFC link for ${row.name}`}
                 >
                   <Copy className="h-4 w-4" />
@@ -319,7 +319,7 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/admin/customers/${selectedCustomer.id}/edit`)}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-teal-600 text-white hover:bg-teal-500"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold hover:from-[#28A428] hover:to-[#e6e600] transition-all"
                 >
                   Edit Customer
                 </button>

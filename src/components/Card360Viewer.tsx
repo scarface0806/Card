@@ -24,8 +24,8 @@ const cardDesigns = [
   {
     id: 3,
     name: 'Emerald Luxe',
-    gradient: 'from-emerald-700 via-teal-800 to-green-900',
-    accent: 'from-emerald-300 to-teal-200',
+    gradient: 'from-secondary via-primary to-primary-dark',
+    accent: 'from-secondary to-primary',
     icon: '💎',
     description: 'Elegant emerald premium',
   },

@@ -124,7 +124,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Doe"
-                      className="w-full px-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 transition-all"
+                      className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-teal-100 transition-all"
                       required
                     />
                   </div>
@@ -140,7 +140,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full px-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 transition-all"
+                    className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-teal-100 transition-all"
                     required
                   />
                 </div>
@@ -155,7 +155,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 border border-teal-200 rounded-xl focus:outline-none focus:border-teal-600 focus:ring-2 focus:ring-teal-100 transition-all"
+                    className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-teal-100 transition-all"
                     required
                   />
                 </div>
@@ -164,7 +164,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-teal-600 to-green-600 text-white font-semibold rounded-full hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
+                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-full hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
                 >
                   <span>
                     {loading
@@ -228,7 +228,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 </span>
                 <button
                   onClick={() => onModeChange(mode === 'login' ? 'signup' : 'login')}
-                  className="text-teal-600 font-semibold hover:text-teal-700 transition-colors"
+                  className="text-primary font-semibold hover:text-primary transition-colors"
                 >
                   {mode === 'login' ? 'Sign Up' : 'Login'}
                 </button>

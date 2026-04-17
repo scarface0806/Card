@@ -62,7 +62,7 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-white">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto mb-4"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-gray-600">Loading dashboard...</p>
         </div>
       </div>
@@ -77,7 +77,7 @@ export default function DashboardPage() {
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-teal-600 rounded-lg flex items-center justify-center">
+              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">T</span>
               </div>
               <span className="font-bold text-lg text-gray-900">Tapvyo</span>
@@ -85,14 +85,14 @@ export default function DashboardPage() {
 
             {/* Desktop Menu */}
             <nav className="hidden md:flex items-center gap-6">
-              <a href="/" className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition">
+              <a href="/" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                 <Home className="w-5 h-5" />
                 Home
               </a>
-              <a href="/products" className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition">
+              <a href="/products" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                 <span>Products</span>
               </a>
-              <a href="/order" className="flex items-center gap-2 text-gray-700 hover:text-teal-600 transition">
+              <a href="/order" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
                 <span>Orders</span>
               </a>
               <button
@@ -149,20 +149,20 @@ export default function DashboardPage() {
                 Welcome back, {user?.name || 'User'}!
               </h1>
               <p className="text-gray-600 mt-1">{user?.email}</p>
-              {user?.role && <p className="text-sm text-teal-600 font-medium mt-1">Role: {user.role}</p>}
+              {user?.role && <p className="text-sm text-primary font-medium mt-1">Role: {user.role}</p>}
             </div>
           </div>
         </div>
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-teal-500">
+          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-primary">
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-gray-600 text-sm font-medium">Total Orders</p>
                 <p className="text-3xl font-bold text-gray-900 mt-2">0</p>
               </div>
-              <div className="text-teal-500">
+              <div className="text-primary">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3z" />
                 </svg>
@@ -205,13 +205,13 @@ export default function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
               href="/create-card"
-              className="p-4 border-2 border-teal-200 rounded-xl hover:bg-teal-50 transition flex items-center justify-between group"
+              className="p-4 border-2 border-primary/20 rounded-xl hover:bg-primary/10 transition flex items-center justify-between group"
             >
               <div>
                 <p className="font-semibold text-gray-900">Create Your NFC Card</p>
                 <p className="text-sm text-gray-600 mt-1">Design and customize your NFC card</p>
               </div>
-              <span className="text-teal-600 group-hover:translate-x-1 transition">→</span>
+              <span className="text-primary group-hover:translate-x-1 transition">→</span>
             </a>
 
             <a

@@ -8,15 +8,16 @@ export const WHATSAPP_NUMBER = '919999999999';
 
 // Color palette
 export const COLORS = {
-  primary: '#000000', // Black
-  secondary: '#ffffff', // White
-  accent: '#3b82f6', // Blue
+  primary: '#33CC33',
+  secondary: '#FFFF00',
+  accent: '#33CC33',
   lightGray: '#f3f4f6',
   darkGray: '#6b7280',
   border: '#e5e7eb',
   success: '#10b981',
   error: '#ef4444',
   warning: '#f59e0b',
+  brandGradient: 'linear-gradient(to right, #33CC33, #FFFF00)',
 };
 
 // Navigation routes

@@ -98,7 +98,7 @@ export default function CustomerDetailPage() {
   if (loading) {
     return (
       <main className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-teal-400" />
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
       </main>
     );
   }
@@ -129,7 +129,7 @@ export default function CustomerDetailPage() {
           <p className="mt-1 text-sm text-gray-400">Slug: {customer.slug}</p>
         </div>
         <div className="flex gap-2">
-          <Link href={`/admin/customers/${customer.id}/edit`} className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-semibold text-white hover:bg-teal-500">
+          <Link href={`/admin/customers/${customer.id}/edit`} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/100">
             Edit
           </Link>
           <Link href={profileLink} target="_blank" className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">

@@ -133,25 +133,25 @@ function CreateCardContent() {
             className="text-center mb-12"
           >
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full mb-6">
-              <CreditCard className="w-4 h-4 text-teal-600" />
-              <span className="text-sm font-medium text-teal-700">Easy Checkout</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-6">
+              <CreditCard className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Easy Checkout</span>
             </div>
             
             <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
               Create Your{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-primary">
                 Digital Card
               </span>
             </h1>
             <p className="text-lg text-[#4b635d]">
-              Complete the form below to customize your <span className="font-semibold text-teal-700">{selectedTemplate.name}</span> card
+              Complete the form below to customize your <span className="font-semibold text-primary">{selectedTemplate.name}</span> card
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-4 sm:p-6 md:p-8">
+              <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-4 sm:p-6 md:p-8">
                 <Stepper steps={FORM_STEPS} currentStep={currentStep} />
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-12 space-y-8">
@@ -163,7 +163,7 @@ function CreateCardContent() {
                     {currentStep === 5 && <PaymentForm template={selectedTemplate} />}
                   </FormProvider>
 
-                  <div className="flex gap-4 pt-8 border-t border-teal-100">
+                  <div className="flex gap-4 pt-8 border-t border-primary/10">
                     {currentStep > 1 && (
                       <motion.button
                         type="button"
@@ -171,7 +171,7 @@ function CreateCardContent() {
                         whileTap={{ y: 1 }}
                         transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                         onClick={() => setCurrentStep(currentStep - 1)}
-                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-teal-200 hover:bg-teal-50 rounded-xl font-semibold transition-all duration-220"
+                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-220"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         Previous
@@ -183,7 +183,7 @@ function CreateCardContent() {
                       whileTap={{ y: 1 }}
                       transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                       disabled={isSubmitting}
-                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-220 disabled:opacity-50"
+                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
                       {isSubmitting ? (
                         <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
@@ -201,9 +201,9 @@ function CreateCardContent() {
 
             {/* Preview Sidebar */}
             <div className="hidden lg:block">
-              <div className="bg-white rounded-2xl border border-teal-100 shadow-md p-8 sticky top-32">
+              <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-8 sticky top-32">
                 <div className="flex items-center gap-2 mb-6">
-                  <Sparkles className="w-5 h-5 text-teal-600" />
+                  <Sparkles className="w-5 h-5 text-primary" />
                   <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Card Preview</h3>
                 </div>
                 
@@ -213,7 +213,7 @@ function CreateCardContent() {
                   <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
                     selectedTemplate.type === 'premium' 
                       ? 'bg-amber-100 text-amber-700' 
-                      : 'bg-teal-100 text-teal-700'
+                      : 'bg-primary/20 text-primary'
                   }`}>
                     {selectedTemplate.type.charAt(0).toUpperCase() + selectedTemplate.type.slice(1)}
                   </span>
@@ -229,14 +229,14 @@ function CreateCardContent() {
 
                 <div className="mt-4 text-center">
                   <p className="text-lg font-bold text-[#0f2e25]">{selectedTemplate.name}</p>
-                  <p className="text-2xl font-bold text-teal-600 mt-1">{selectedTemplate.price}</p>
+                  <p className="text-2xl font-bold text-primary mt-1">{selectedTemplate.price}</p>
                 </div>
 
                 {/* Features */}
-                <div className="mt-6 pt-6 border-t border-teal-100 space-y-3">
+                <div className="mt-6 pt-6 border-t border-primary/10 space-y-3">
                   {['Free hosting forever', 'NFC card included', 'QR code access', 'Mobile responsive'].map((feature, idx) => (
                     <div key={idx} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-teal-600" />
+                      <Check className="w-4 h-4 text-primary" />
                       <span className="text-sm text-[#4b635d]">{feature}</span>
                     </div>
                   ))}
@@ -259,7 +259,7 @@ export default function CreateCardPage() {
   return (
     <Suspense fallback={
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-teal-600 border-t-transparent" />
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent" />
       </div>
     }>
       <CreateCardContent />

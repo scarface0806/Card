@@ -88,7 +88,7 @@ export default function TestimonialsSection() {
           className="card card-padding md:p-12 lg:p-16 text-center relative bg-white shadow-lg max-w-3xl mx-auto"
         >
           {/* Quote Icon */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 bg-teal-600 rounded-full flex items-center justify-center">
+          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 bg-primary rounded-full flex items-center justify-center">
             <Quote className="w-5 h-5 md:w-6 md:h-6 text-white" />
           </div>
 
@@ -118,8 +118,8 @@ export default function TestimonialsSection() {
               onClick={() => setCurrentIndex(index)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 index === currentIndex 
-                  ? 'bg-teal-600 w-8' 
-                  : 'bg-teal-200 w-2 hover:bg-teal-300'
+                  ? 'bg-primary w-8' 
+                  : 'bg-primary/15 w-2 hover:bg-primary/90'
               }`}
             />
           ))}

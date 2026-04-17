@@ -12,7 +12,7 @@ interface AdminToastProps {
 }
 
 const styleMap: Record<ToastVariant, string> = {
-  success: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+  success: 'border-secondary/20 bg-primary/100/10 text-primary',
   error: 'border-red-500/30 bg-red-500/10 text-red-300',
   info: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
 };

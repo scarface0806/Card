@@ -147,8 +147,8 @@ export default function ProductsPage() {
         {/* Hero */}
         <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
+            <div className="absolute top-20 right-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/15 rounded-full blur-3xl" />
           </div>
 
           <div className="site-container text-center">
@@ -158,7 +158,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-700">
+              <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
                 <Sparkles className="w-4 h-4" />
                 Simple & Transparent Pricing
               </span>
@@ -171,7 +171,7 @@ export default function ProductsPage() {
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight"
             >
               Choose Your{' '}
-              <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+              <span className="text-primary">
                 Plan
               </span>
             </motion.h1>
@@ -192,10 +192,10 @@ export default function ProductsPage() {
           <div className="site-container">
             {loading ? (
               <div className="flex items-center justify-center py-20">
-                <Loader2 className="w-8 h-8 text-teal-600 animate-spin" />
+                <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </div>
             ) : products.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-teal-200 bg-teal-50/40 p-12 text-center">
+              <div className="rounded-2xl border border-dashed border-primary/20 bg-primary/10/40 p-12 text-center">
                 <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk">No products available</h3>
                 <p className="text-[#4b635d] mt-2">Admin can add products from the dashboard to display them here.</p>
               </div>
@@ -215,20 +215,20 @@ export default function ProductsPage() {
                     whileHover={{ y: -6 }}
                     className={`relative group rounded-2xl border transition-all duration-300 overflow-hidden ${
                       isPopular
-                        ? 'border-teal-500 ring-2 ring-teal-500/20 shadow-xl bg-white md:scale-105'
+                        ? 'border-primary ring-2 ring-teal-500/20 shadow-xl bg-white md:scale-105'
                         : 'border-gray-200/60 bg-white shadow-md hover:shadow-xl'
                     }`}
                   >
                     {isPopular && (
-                      <div className="bg-gradient-to-r from-teal-600 to-emerald-500 text-white text-center py-2 text-sm font-semibold">
+                      <div className="bg-gradient-to-r from-primary to-secondary text-[#0f2e25] text-center py-2 text-sm font-semibold">
                         Most Popular
                       </div>
                     )}
 
                     <div className="p-6">
-                      <div className="h-44 w-full overflow-hidden rounded-xl bg-teal-50 mb-6 border border-teal-100">
+                      <div className="h-44 w-full overflow-hidden rounded-xl bg-primary/10 mb-6 border border-primary/10">
                         <img
-                          src={product.images?.[0] || product.image || "/placeholder.png"}
+                          src={product.images?.[0] || product.image || "/placeholder.svg"}
                           alt={product.name}
                           className="h-full w-full object-cover"
                         />
@@ -246,11 +246,11 @@ export default function ProductsPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleBuyNow(product.id)}
-                        disabled={buyingProductId === product.id || status === 'loading'}
+                        disabled={buyingProductId === product.id || !authChecked}
                         className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                           isPopular
-                            ? 'bg-teal-600 text-white hover:bg-teal-700'
-                            : 'bg-teal-50 text-teal-700 border border-teal-200 hover:bg-teal-100'
+                            ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] shadow-md hover:shadow-lg'
+                            : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20'
                         }`}
                       >
                         {buyingProductId === product.id ? (
@@ -268,15 +268,15 @@ export default function ProductsPage() {
 
                       <div className="mt-8 space-y-4">
                         <div className="flex items-center gap-3">
-                          <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-primary flex-shrink-0" />
                           <span className="text-[#4b635d] text-sm">Premium NFC chip</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-primary flex-shrink-0" />
                           <span className="text-[#4b635d] text-sm">Free lifetime website</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                          <Check className="w-5 h-5 text-primary flex-shrink-0" />
                           <span className="text-[#4b635d] text-sm">Instant profile sharing</span>
                         </div>
                       </div>
@@ -312,8 +312,8 @@ export default function ProductsPage() {
                     whileHover={{ y: -6 }}
                     className="p-8 rounded-2xl border border-gray-200/60 bg-white shadow-md hover:shadow-xl transition-all"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center mb-4">
-                      <Icon className="w-6 h-6 text-teal-600" />
+                    <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
+                      <Icon className="w-6 h-6 text-primary" />
                     </div>
                     <h3 className="text-xl font-bold mb-3 text-[#0f2e25] font-space-grotesk">{feature.title}</h3>
                     <p className="text-sm md:text-base text-slate-500">{feature.description}</p>
@@ -334,7 +334,7 @@ export default function ProductsPage() {
             <div className="overflow-x-auto rounded-2xl border border-gray-200/60 shadow-md bg-white">
               <table className="w-full">
                 <thead>
-                  <tr className="border-b border-teal-100 bg-teal-50">
+                  <tr className="border-b border-primary/10 bg-primary/10">
                     <th className="px-6 py-4 text-left text-[#0f2e25] font-semibold">Feature</th>
                     <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Starter</th>
                     <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Professional</th>
@@ -356,7 +356,7 @@ export default function ProductsPage() {
                       whileInView={{ opacity: 1 }}
                       viewport={{ once: true }}
                       transition={{ delay: idx * 0.05 }}
-                      className={`border-b border-teal-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-teal-50/30'}`}
+                      className={`border-b border-teal-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-primary/10/30'}`}
                     >
                       <td className="px-6 py-4 text-[#0f2e25] font-medium">{row.feature}</td>
                       <td className="px-6 py-4 text-center text-[#4b635d]">{row.starter}</td>
@@ -419,9 +419,9 @@ export default function ProductsPage() {
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center relative p-12 md:p-20 rounded-3xl border border-teal-200 bg-gradient-to-br from-teal-50 to-emerald-50 overflow-hidden"
+              className="text-center relative p-12 md:p-20 rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-secondary/10 overflow-hidden"
             >
-              <div className="absolute top-0 right-0 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl -z-10" />
+              <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -z-10" />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight relative z-10">Ready to Stand Out?</h2>
               <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto relative z-10">
                 Choose your plan and start sharing professionally today
@@ -430,7 +430,7 @@ export default function ProductsPage() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-teal-600 text-white hover:bg-teal-700 rounded-xl font-semibold transition-all duration-300"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
                 >
                   Get Your Card Now
                   <ArrowRight className="w-5 h-5" />

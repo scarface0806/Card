@@ -69,14 +69,14 @@ export default function ContactUsPage() {
       title: 'Email',
       description: 'We reply within 24 hours',
       value: 'support@tapvyo.com',
-      color: 'bg-teal-600',
+      color: 'bg-primary',
     },
     {
       icon: Phone,
       title: 'Phone',
       description: 'Available 24/7',
       value: '+91 9999999999',
-      color: 'bg-emerald-600',
+      color: 'bg-secondary',
     },
     {
       icon: MapPin,
@@ -114,8 +114,8 @@ export default function ContactUsPage() {
         {/* Hero */}
         <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
           <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 right-10 w-96 h-96 bg-teal-200/30 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-72 h-72 bg-emerald-200/30 rounded-full blur-3xl" />
+            <div className="absolute top-20 right-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
+            <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/15 rounded-full blur-3xl" />
           </div>
 
           <div className="site-container">
@@ -126,14 +126,14 @@ export default function ContactUsPage() {
               className="text-center mb-12"
             >
               <motion.div variants={itemVariants} className="mb-8">
-                <span className="inline-flex items-center gap-2 px-4 py-2 bg-teal-50 border border-teal-200 rounded-full text-sm font-semibold text-teal-700">
+                <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
                   We're Here to Help
                 </span>
               </motion.div>
 
               <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">
                 Get in{' '}
-                <span className="bg-gradient-to-r from-teal-600 to-emerald-500 bg-clip-text text-transparent">
+                <span className="text-primary">
                   Touch
                 </span>
               </motion.h1>
@@ -166,7 +166,7 @@ export default function ContactUsPage() {
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{method.title}</h3>
                     <p className="text-sm text-[#6b7f78] mb-4">{method.description}</p>
-                    <p className="text-lg font-semibold text-teal-600">{method.value}</p>
+                    <p className="text-lg font-semibold text-primary">{method.value}</p>
                   </motion.div>
                 );
               })}
@@ -199,7 +199,7 @@ export default function ContactUsPage() {
                       onChange={handleChange}
                       placeholder="Your name"
                       required
-                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-teal-100 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-primary/10 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -213,7 +213,7 @@ export default function ContactUsPage() {
                       onChange={handleChange}
                       placeholder="9999999999"
                       required
-                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-teal-100 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-primary/10 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -227,7 +227,7 @@ export default function ContactUsPage() {
                       onChange={handleChange}
                       placeholder="your@email.com"
                       required
-                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-teal-100 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-primary/10 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                     />
                   </div>
 
@@ -239,7 +239,7 @@ export default function ContactUsPage() {
                       value={formData.subject}
                       onChange={handleChange}
                       required
-                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-teal-100 text-[#0f2e25] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
+                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-primary/10 text-[#0f2e25] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all"
                     >
                       <option value="">Select a subject</option>
                       <option value="product">Product Inquiry</option>
@@ -260,7 +260,7 @@ export default function ContactUsPage() {
                       placeholder="Tell us how we can help..."
                       rows={5}
                       required
-                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-teal-100 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition-all resize-none"
+                      className="w-full px-6 py-3 rounded-xl bg-gray-50 border border-primary/10 text-[#0f2e25] placeholder-[#6b7f78] focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-transparent transition-all resize-none"
                     />
                   </div>
 
@@ -269,7 +269,7 @@ export default function ContactUsPage() {
                     whileTap={{ scale: 0.98 }}
                     disabled={isLoading}
                     type="submit"
-                    className="w-full py-4 px-6 rounded-xl bg-teal-600 text-white font-semibold flex items-center justify-center gap-2 hover:bg-teal-700 disabled:opacity-50 transition-all"
+                    className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold flex items-center justify-center gap-2 hover:from-[#28A428] hover:to-[#e6e600] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
                   >
                     {!submitted && (
                       <>
@@ -332,8 +332,8 @@ export default function ContactUsPage() {
                         className="flex gap-4"
                       >
                         <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-lg bg-teal-50 flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-teal-600" />
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Icon className="w-5 h-5 text-primary" />
                           </div>
                         </div>
                         <div>
@@ -346,14 +346,14 @@ export default function ContactUsPage() {
                 </div>
 
                 {/* Stats */}
-                <div className="mt-12 p-8 rounded-2xl border border-gray-200/60 bg-gradient-to-br from-teal-50 to-emerald-50">
+                <div className="mt-12 p-8 rounded-2xl border border-gray-200/60 bg-gradient-to-r from-primary/10 to-secondary/10">
                   <motion.div
                     initial={{ opacity: 0 }}
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true }}
                     className="text-center"
                   >
-                    <p className="text-4xl font-extrabold text-teal-600 mb-2">98%</p>
+                    <p className="text-4xl font-extrabold text-primary mb-2">98%</p>
                     <p className="text-sm text-slate-500">Customer Satisfaction Rate</p>
                   </motion.div>
                 </div>

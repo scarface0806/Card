@@ -80,7 +80,7 @@ function FeatureCard({ icon, title, description, className = '', floatVariant = 
         animate={getFloatAnimation()}
         className="card card-padding max-w-[280px]"
       >
-        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
+        <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 shadow-lg shadow-primary-glow">
           {icon}
         </div>
         <h3 className="heading-3 section-title font-space-grotesk mb-2">
@@ -135,18 +135,18 @@ export default function CurvedFeatureSection() {
       />
 
       {/* Large Curved Arc Line */}
-      <div className="absolute -bottom-[600px] -left-[200px] w-[1200px] h-[1200px] rounded-full border-2 border-teal-500/30 hidden lg:block" />
+      <div className="absolute -bottom-[600px] -left-[200px] w-[1200px] h-[1200px] rounded-full border-2 border-primary/30 hidden lg:block" />
       
       {/* Second Arc Line for depth */}
-      <div className="absolute -bottom-[650px] -left-[250px] w-[1300px] h-[1300px] rounded-full border border-teal-400/15 hidden lg:block" />
+      <div className="absolute -bottom-[650px] -left-[250px] w-[1300px] h-[1300px] rounded-full border border-primary/15 hidden lg:block" />
 
       {/* Third Arc Line */}
-      <div className="absolute -bottom-[550px] -left-[150px] w-[1100px] h-[1100px] rounded-full border border-emerald-500/20 hidden lg:block" />
+      <div className="absolute -bottom-[550px] -left-[150px] w-[1100px] h-[1100px] rounded-full border border-primary/20 hidden lg:block" />
 
       {/* Decorative Dots */}
-      <div className="absolute top-32 right-20 w-2 h-2 rounded-full bg-teal-500/40 hidden lg:block" />
+      <div className="absolute top-32 right-20 w-2 h-2 rounded-full bg-primary/100/40 hidden lg:block" />
       <div className="absolute top-48 right-32 w-3 h-3 rounded-full bg-emerald-400/30 hidden lg:block" />
-      <div className="absolute bottom-40 right-40 w-2 h-2 rounded-full bg-teal-400/50 hidden lg:block" />
+      <div className="absolute bottom-40 right-40 w-2 h-2 rounded-full bg-primary/50 hidden lg:block" />
 
       {/* Content Container */}
       <div className="relative site-container section-spacing">
@@ -225,7 +225,7 @@ export default function CurvedFeatureSection() {
               transition={{ duration: 0.5, delay: index * 0.1 }}
               className="card card-padding"
             >
-              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-500 flex items-center justify-center mb-4 shadow-lg shadow-teal-500/20">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary to-secondary flex items-center justify-center mb-4 shadow-lg shadow-primary-glow">
                 {feature.icon}
               </div>
               <h3 className="heading-3 section-title font-space-grotesk mb-2">
@@ -248,8 +248,8 @@ export default function CurvedFeatureSection() {
         >
           {/* Glowing orb */}
           <div className="relative">
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-teal-400/20 to-emerald-400/20 blur-2xl" />
-            <div className="absolute inset-4 rounded-full bg-gradient-to-br from-teal-500/30 to-emerald-500/30 blur-xl" />
+            <div className="w-32 h-32 rounded-full bg-gradient-to-r from-primary/20 to-secondary/20 blur-2xl" />
+            <div className="absolute inset-4 rounded-full bg-gradient-to-br from-teal-500/30 to-secondary/30 blur-xl" />
           </div>
         </motion.div>
       </div>

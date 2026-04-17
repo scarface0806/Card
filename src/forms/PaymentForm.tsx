@@ -2,7 +2,6 @@
 
 import { useFormContext } from 'react-hook-form';
 import Card from '@/components/Card';
-import Button from '@/components/Button';
 import { Check } from 'lucide-react';
 import { CardTemplate } from '@/utils/cardTemplates';
 
@@ -39,7 +38,7 @@ export default function PaymentForm({ template }: PaymentFormProps) {
         <div className="p-6 space-y-4">
           <h3 className="text-2xl font-bold text-[#0f2e25]">Order Summary</h3>
 
-          <div className="space-y-3 border-t border-teal-100 pt-4">
+          <div className="space-y-3 border-t border-primary/10 pt-4">
             <div className="flex justify-between">
               <span className="text-[#4b635d]">{templateName}</span>
               <span className="font-semibold text-[#0f2e25]">₹{cardPrice}</span>
@@ -49,29 +48,29 @@ export default function PaymentForm({ template }: PaymentFormProps) {
               <span className={`font-semibold px-2 py-0.5 rounded-full text-xs ${
                 templateType === 'premium' 
                   ? 'bg-amber-100 text-amber-700' 
-                  : 'bg-teal-100 text-teal-700'
+                  : 'bg-primary/20 text-primary'
               }`}>
                 {templateType.charAt(0).toUpperCase() + templateType.slice(1)}
               </span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#4b635d]">Lifetime Access</span>
-              <span className="font-semibold text-teal-600">Included</span>
+              <span className="font-semibold text-primary">Included</span>
             </div>
             <div className="flex justify-between">
               <span className="text-[#4b635d]">Shipping & Handling</span>
-              <span className="font-semibold text-teal-600">FREE</span>
+              <span className="font-semibold text-primary">FREE</span>
             </div>
 
-            <div className="border-t border-teal-100 pt-4 flex justify-between">
+            <div className="border-t border-primary/10 pt-4 flex justify-between">
               <span className="text-lg font-bold text-[#0f2e25]">Total</span>
-              <span className="text-2xl font-bold text-teal-600">₹{totalPrice}</span>
+              <span className="text-2xl font-bold text-primary">₹{totalPrice}</span>
             </div>
           </div>
 
-          <div className="bg-teal-50 border border-teal-200 rounded-lg p-3 flex gap-2">
-            <Check className="w-5 h-5 text-teal-600 flex-shrink-0" />
-            <p className="text-sm text-teal-800">One-time payment • No hidden charges</p>
+          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex gap-2">
+            <Check className="w-5 h-5 text-primary flex-shrink-0" />
+            <p className="text-sm text-[#0f2e25]">One-time payment • No hidden charges</p>
           </div>
         </div>
       </Card>
@@ -85,8 +84,8 @@ export default function PaymentForm({ template }: PaymentFormProps) {
               key={method.id}
               className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
                 selectedMethod === method.id
-                  ? 'border-teal-600 bg-teal-50'
-                  : 'border-teal-100 hover:border-teal-300'
+                  ? 'border-primary bg-primary/10'
+                  : 'border-primary/10 hover:border-primary/30'
               }`}
             >
               <input
@@ -109,7 +108,7 @@ export default function PaymentForm({ template }: PaymentFormProps) {
       </div>
 
       {/* Terms Agreement */}
-      <label className="flex items-start gap-3 p-4 bg-teal-50/50 rounded-xl border border-teal-100">
+      <label className="flex items-start gap-3 p-4 bg-primary/10/50 rounded-xl border border-primary/10">
         <input
           type="checkbox"
           {...register('payment.terms', {
@@ -119,11 +118,11 @@ export default function PaymentForm({ template }: PaymentFormProps) {
         />
         <span className="text-sm text-[#4b635d]">
           I agree to the{' '}
-          <a href="/terms-conditions" className="text-teal-600 hover:underline font-semibold">
+          <a href="/terms-conditions" className="text-primary hover:underline font-semibold">
             Terms & Conditions
           </a>{' '}
           and{' '}
-          <a href="/privacy-policy" className="text-teal-600 hover:underline font-semibold">
+          <a href="/privacy-policy" className="text-primary hover:underline font-semibold">
             Privacy Policy
           </a>
         </span>
