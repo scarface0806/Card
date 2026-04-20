@@ -117,7 +117,7 @@ export default function AboutUsPage() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-primary/10 text-primary border border-primary/20 rounded-xl font-semibold hover:bg-primary/15 transition-all duration-300"
+                    className="btn btn-secondary"
                   >
                     Learn How It Works
                     <ArrowRight className="w-5 h-5" />
@@ -232,7 +232,7 @@ export default function AboutUsPage() {
                   <motion.button
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] rounded-xl font-semibold transition-all duration-300 shadow-lg hover:shadow-xl hover:from-[#28A428] hover:to-[#e6e600] hover:-translate-y-0.5"
+                    className="btn btn-lg btn-primary"
                   >
                     Create Your Card
                     <ArrowRight className="w-5 h-5" />

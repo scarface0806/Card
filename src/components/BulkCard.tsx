@@ -66,7 +66,7 @@ export default function BulkCard({ icon: Icon, title, features, cardGradient = '
         onClick={onContactClick}
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
-        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-[#0f2e25] text-white font-semibold rounded-xl hover:bg-[#1a4a3d] transition-all duration-300 group"
+        className="btn btn-secondary w-full group"
       >
         Contact Us
         <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />

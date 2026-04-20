@@ -10,11 +10,6 @@ const uploadFields = [
     label: 'Profile Picture',
     description: 'Recommended size: 500x500px',
   },
-  {
-    key: 'logo',
-    label: 'Company Logo',
-    description: 'Recommended size: 500x500px',
-  },
 ];
 
 export default function UploadForm() {

@@ -269,7 +269,7 @@ export default function ServicesPage() {
                   whileHover={{ y: -3 }}
                   whileTap={{ y: 1 }}
                   transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="group inline-flex items-center justify-center gap-2 px-8 py-3 md:px-10 md:py-4 rounded-xl font-bold text-[#0f2e25] text-base md:text-lg bg-gradient-to-r from-primary to-secondary shadow-md transition-shadow duration-220"
+                  className="btn btn-lg btn-primary group"
                 >
                   Get Started Now
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
@@ -339,7 +339,7 @@ export default function ServicesPage() {
                     <div className="mt-auto">
                       <button
                         onClick={() => openContactModal(solution.id)}
-                        className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] text-[#0f2e25] font-semibold rounded-full shadow-md hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300"
+                        className="btn btn-primary w-full"
                       >
                         <MessageSquare className="w-4 h-4" />
                         <span>Contact Us</span>
@@ -441,7 +441,7 @@ export default function ServicesPage() {
                     <div className="mt-8">
                       <button
                         onClick={() => openContactModal('general')}
-                        className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-full hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all duration-300 group/btn"
+                        className="btn btn-primary group/btn"
                       >
                         <span>{service.cta}</span>
                         <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />

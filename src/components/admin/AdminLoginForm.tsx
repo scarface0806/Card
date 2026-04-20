@@ -162,7 +162,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       <button
         type="submit"
         disabled={isLoading}
-        className="w-full bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold py-3.5 px-4 rounded-xl hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600] transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+        className="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:filter-none"
       >
         {isLoading ? (
           <>

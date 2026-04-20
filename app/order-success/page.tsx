@@ -163,7 +163,7 @@ function OrderSuccessContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-220"
+                className="btn btn-lg btn-secondary w-full sm:w-auto"
               >
                 <Home className="w-4 h-4" />
                 Back to Home
@@ -174,7 +174,7 @@ function OrderSuccessContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="w-full sm:w-auto flex items-center justify-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
+                className="btn btn-lg btn-primary w-full sm:w-auto"
               >
                 <Layout className="w-4 h-4" />
                 Browse More Templates

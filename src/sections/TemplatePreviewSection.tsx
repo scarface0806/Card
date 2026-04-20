@@ -114,7 +114,7 @@ export default function TemplatePreviewSection() {
                     <motion.button
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20 rounded-xl font-semibold transition-all duration-300"
+                      className="btn btn-secondary w-full"
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
@@ -137,7 +137,7 @@ export default function TemplatePreviewSection() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-primary bg-white border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300"
+              className="btn btn-lg btn-secondary"
             >
               View All Templates
               <ArrowRight className="w-5 h-5" />

@@ -213,7 +213,7 @@ export default function HowToUsePage() {
                   Contact our team to modify design, add features, or personalize your NFC experience.
                 </p>
                 <Link href={ROUTES.CONTACT}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] text-[#0f2e25] font-semibold rounded-full transition-all duration-220 shadow-lg hover:shadow-xl hover:-translate-y-1 group">
+                  <button className="btn btn-lg btn-primary">
                     <span>Contact Us</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
@@ -240,13 +240,13 @@ export default function HowToUsePage() {
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
                 <Link href={ROUTES.CREATE_CARD}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg text-[#0f2e25] font-semibold rounded-full transition-all duration-220 shadow-md hover:-translate-y-1 group">
+                  <button className="btn btn-lg btn-primary">
                     <span>Create Your Card</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </Link>
                 <Link href={ROUTES.CARDS}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary/20 text-primary hover:border-primary/30 hover:bg-primary/10 font-semibold rounded-full transition-all duration-300">
+                  <button className="btn btn-lg btn-secondary">
                     View Card Designs
                   </button>
                 </Link>

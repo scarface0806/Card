@@ -122,7 +122,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <button
                       onClick={() => handlePreview(card)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-primary font-medium rounded-full hover:bg-primary/10 transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white/95 text-slate-700 border border-slate-200 font-medium rounded-full shadow-[0_2px_10px_rgba(15,23,42,0.12)] hover:-translate-y-0.5 hover:bg-white hover:text-slate-900 hover:border-slate-300 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-all duration-300"
                     >
                       <Eye className="w-4 h-4" />
                       Quick View
@@ -177,10 +177,10 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                   <div className="mt-auto">
                     <button
                       onClick={() => handleBuyNow(card)}
-                      className={`w-full flex items-center justify-center gap-2 px-6 py-3 font-medium rounded-full transition-all duration-300 group/btn ${
+                      className={`btn w-full group/btn ${
                         card.type === 'custom'
-                          ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
-                          : 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600]'
+                          ? 'btn-secondary'
+                          : 'btn-primary'
                       }`}
                     >
                       {card.type === 'custom' ? (
@@ -220,14 +220,14 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Link href={ROUTES.CREATE_CARD}>
-                  <button className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-full transition-all duration-220 shadow-md hover:shadow-lg hover:-translate-y-1 group">
+                  <button className="btn btn-lg btn-primary group">
                     <span>Get Your NFC Card</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
                   </button>
                 </Link>
                 <button
                   onClick={() => onContactClick?.('general')}
-                  className="inline-flex items-center gap-2 px-8 py-4 border-2 border-primary/30 text-primary hover:bg-primary/10 font-semibold rounded-full transition-all duration-300"
+                  className="btn btn-lg btn-secondary"
                 >
                   <span>Learn More</span>
                 </button>

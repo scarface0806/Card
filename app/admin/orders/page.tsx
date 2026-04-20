@@ -462,7 +462,7 @@ export default function OrdersPage() {
           </button>
           <button
             onClick={fetchOrders}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] px-4 py-2.5 rounded-xl hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all font-medium active:scale-95"
+            className="btn btn-primary w-full sm:w-auto"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh

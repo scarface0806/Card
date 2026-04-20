@@ -269,7 +269,7 @@ export default function ContactUsPage() {
                     whileTap={{ scale: 0.98 }}
                     disabled={isLoading}
                     type="submit"
-                    className="w-full py-4 px-6 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold flex items-center justify-center gap-2 hover:from-[#28A428] hover:to-[#e6e600] disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
+                    className="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {!submitted && (
                       <>
