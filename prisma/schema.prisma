@@ -344,7 +344,6 @@ model PaymentLog {
   updatedAt DateTime @updatedAt
 
   @@index([existingOrderId])
-  @@index([razorpayOrderId])
   @@index([status])
   @@map("payments_log")
 }

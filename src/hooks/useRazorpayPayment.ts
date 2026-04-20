@@ -284,6 +284,9 @@ export function useRazorpayPayment() {
           resolve({ success: false, message: errorMsg });
         }
       });
+    },
+    [loadRazorpayScript, createRazorpayOrder, verifyPayment]
+  );
 
   return {
     initiatePayment,

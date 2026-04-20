@@ -110,7 +110,7 @@ class PaymentAdapterService {
           userPhone: userPhone || order.guestPhone,
           userName: userName || order.guestName,
           metadata: {
-            razorpayResponse: razorpayOrder,
+            razorpayResponse: JSON.parse(JSON.stringify(razorpayOrder)),
           },
         },
       });

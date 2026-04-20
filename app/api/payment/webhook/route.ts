@@ -125,7 +125,7 @@ export async function POST(request: NextRequest) {
               razorpayPaymentId: payment.id,
               status: "SUCCESS",
               metadata: {
-                ...existingPaymentLog.metadata,
+                ...(typeof existingPaymentLog.metadata === 'object' && existingPaymentLog.metadata ? existingPaymentLog.metadata : {}),
                 webhookEvent: event,
                 paymentDetails: {
                   amount: payment.amount,
@@ -166,7 +166,7 @@ export async function POST(request: NextRequest) {
               razorpayPaymentId: payment.id,
               status: "FAILED",
               metadata: {
-                ...existingPaymentLog.metadata,
+                ...(typeof existingPaymentLog.metadata === 'object' && existingPaymentLog.metadata ? existingPaymentLog.metadata : {}),
                 webhookEvent: event,
                 failureReason: {
                   code: payment.error_code,
@@ -204,7 +204,7 @@ export async function POST(request: NextRequest) {
             data: {
               status: "SUCCESS",
               metadata: {
-                ...existingPaymentLog.metadata,
+                ...(typeof existingPaymentLog.metadata === 'object' && existingPaymentLog.metadata ? existingPaymentLog.metadata : {}),
                 webhookEvent: event,
               },
             },

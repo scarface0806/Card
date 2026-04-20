@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ImagePlus, Loader2, Trash2, UploadCloud } from "lucide-react";
-import { useImageUpload } from "../../hooks/useImageUpload";
+import { useImageUpload } from "@/hooks/useImageUpload";
 
 type AspectRatio = "square" | "landscape" | "portrait";
 
@@ -31,7 +31,7 @@ export default function ImageUpload({
 	const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
 	const [isDragOver, setIsDragOver] = useState(false);
 
-	const { imageUrl, publicId, isUploading, progress, error, handleFileSelect, reset } = useImageUpload(folder);
+	const { imageUrl, publicId, isUploading, uploadProgress, error, handleFileSelect, resetImage } = useImageUpload(folder);
 
 	useEffect(() => {
 		setPreviewUrl(currentImageUrl || null);
@@ -76,7 +76,7 @@ export default function ImageUpload({
 	};
 
 	const onReset = () => {
-		reset();
+		resetImage();
 		setPreviewUrl(null);
 		if (fileInputRef.current) {
 			fileInputRef.current.value = "";
@@ -148,16 +148,12 @@ export default function ImageUpload({
 				<div className="space-y-2">
 					<div className="flex items-center gap-2 text-xs text-gray-300">
 						<Loader2 className="h-3.5 w-3.5 animate-spin" />
-						Uploading... {progress}%
-					</div>
-					<div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-						<div
-							className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
-							style={{ width: `${progress}%` }}
-						/>
-					</div>
+					Uploading... {uploadProgress}%
 				</div>
-			) : null}
+				<div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+					<div
+						className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
+						style={{ width: `${uploadProgress}%` }}
 
 			{error ? <p className="text-sm text-red-400">{error}</p> : null}
 		</div>
