@@ -148,12 +148,16 @@ export default function ImageUpload({
 				<div className="space-y-2">
 					<div className="flex items-center gap-2 text-xs text-gray-300">
 						<Loader2 className="h-3.5 w-3.5 animate-spin" />
-					Uploading... {uploadProgress}%
+						Uploading... {uploadProgress}%
+					</div>
+					<div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+						<div
+							className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
+							style={{ width: `${uploadProgress}%` }}
+						/>
+					</div>
 				</div>
-				<div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
-					<div
-						className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
-						style={{ width: `${uploadProgress}%` }}
+			) : null}
 
 			{error ? <p className="text-sm text-red-400">{error}</p> : null}
 		</div>
