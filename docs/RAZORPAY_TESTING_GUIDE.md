@@ -1,6 +1,6 @@
-# Razorpay Payment Adapter - Testing Guide
+# Razorpay Integration - Complete Testing & Verification Guide
 
-Complete testing guide for the Razorpay payment adapter layer.
+Complete end-to-end testing guide for Razorpay payment integration with the order page.
 
 ---
 

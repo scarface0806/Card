@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
 import { ArrowLeft, ArrowRight, CreditCard, Sparkles } from 'lucide-react';
+import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 
 interface FormData {
   personalDetails: {
@@ -50,13 +51,17 @@ interface FormData {
 export default function OrderPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const router = useRouter();
+  const { initiatePayment, isLoading: isPaymentLoading } = useRazorpayPayment();
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
   });
 
-  const { handleSubmit } = methods;
+  const { handleSubmit, watch, formState: { errors } } = methods;
+  const selectedPaymentMethod = watch('payment.method');
+  const agreedToTerms = watch('payment.terms');
 
   const onSubmit = async (data: FormData) => {
     if (currentStep < 5) {
@@ -64,14 +69,32 @@ export default function OrderPage() {
       return;
     }
 
+    // Step 5: Final submission with Razorpay payment
     setIsSubmitting(true);
+    setPaymentError(null);
+
     try {
+      // Validate payment form
+      if (!selectedPaymentMethod) {
+        setPaymentError('Please select a payment method');
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (!agreedToTerms) {
+        setPaymentError('Please accept terms & conditions');
+        setIsSubmitting(false);
+        return;
+      }
+
       const uploads = {
         profileImage: data.uploads?.profileImage?.[0],
         logo: data.uploads?.logo?.[0],
         coverImage: data.uploads?.coverImage?.[0],
       };
 
+      // Step 1: Create order in database
+      console.log('[Order] Creating order in database...');
       const result = await createOrder({
         personalDetails: data.personalDetails,
         businessDetails: data.businessDetails,
@@ -80,13 +103,38 @@ export default function OrderPage() {
         payment: data.payment,
       });
 
-      if (result.success) {
-        localStorage.setItem('lastOrderId', result.orderId);
-        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${result.orderId}`);
+      if (!result.success || !result.orderId) {
+        throw new Error('Failed to create order');
+      }
+
+      console.log('[Order] Order created successfully:', result.orderId);
+      const orderId = result.orderId;
+      const orderTotal = result.data?.total || 599; // Default to ₹599 if not available
+
+      // Step 2: Initiate Razorpay payment
+      console.log('[Payment] Initiating Razorpay payment for order:', orderId);
+      const paymentResponse = await initiatePayment({
+        existingOrderId: orderId,
+        amount: orderTotal,
+        userEmail: data.personalDetails.email,
+        userName: data.personalDetails.name,
+        userPhone: data.personalDetails.mobile,
+        paymentMethod: selectedPaymentMethod,
+      });
+
+      if (paymentResponse.success) {
+        console.log('[Payment] Payment verification successful');
+        // Store order ID and redirect to success page
+        localStorage.setItem('lastOrderId', orderId);
+        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${orderId}`);
+      } else {
+        throw new Error(paymentResponse.message || 'Payment failed');
       }
     } catch (error) {
-      console.error('Order creation failed:', error);
-      alert('Failed to create order. Please try again.');
+      console.error('[Order] Error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process order. Please try again.';
+      setPaymentError(errorMessage);
+      alert(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
