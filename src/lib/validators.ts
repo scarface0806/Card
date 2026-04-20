@@ -170,4 +170,26 @@ export const mainWebsiteLeadSchema = z.object({
   service: z.string().trim().max(120).optional().or(z.literal("")),
 });
 
+// ==================== PAYMENT ADAPTER LAYER SCHEMAS ====================
+
+// Razorpay order creation request
+export const createRazorpayOrderSchema = z.object({
+  existingOrderId: z.string().min(1, "Order ID is required"),
+  amount: z.preprocess(
+    (val) => (val === undefined || val === null || val === "" ? undefined : parseFloat(String(val))),
+    z.number().positive("Amount must be positive").optional()
+  ),
+  userEmail: z.string().email("Invalid email").optional(),
+  userPhone: z.string().min(6, "Invalid phone number").optional(),
+  userName: z.string().min(1).optional(),
+});
+
+// Payment verification request
+export const verifyPaymentSchema = z.object({
+  existingOrderId: z.string().min(1, "Order ID is required"),
+  razorpayPaymentId: z.string().min(1, "Payment ID is required"),
+  razorpayOrderId: z.string().min(1, "Razorpay Order ID is required"),
+  razorpaySignature: z.string().min(1, "Signature is required"),
+});
+
 // Add additional schemas as needed for other endpoints

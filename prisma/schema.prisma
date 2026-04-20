@@ -314,6 +314,41 @@ model Customer {
   @@map("customers")
 }
 
+// ==================== PAYMENT ADAPTER LAYER ====================
+
+model PaymentLog {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  // Link to existing order
+  existingOrderId String @db.ObjectId
+  
+  // Razorpay payment details
+  razorpayOrderId   String @unique
+  razorpayPaymentId String?
+  razorpaySignature String?
+
+  // Payment info
+  amount   Float
+  currency String @default("INR")
+  status   String @default("PENDING") // PENDING, SUCCESS, FAILED
+
+  // Optional user details
+  userEmail  String?
+  userPhone  String?
+  userName   String?
+
+  // Metadata
+  metadata Json?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([existingOrderId])
+  @@index([razorpayOrderId])
+  @@index([status])
+  @@map("payments_log")
+}
+
 model Gallery {
   id         String   @id @default(auto()) @map("_id") @db.ObjectId
   customerId String   @db.ObjectId
