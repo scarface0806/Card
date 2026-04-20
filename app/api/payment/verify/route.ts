@@ -37,18 +37,26 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyPaymentSchema } from "@/lib/validators";
 import { errorResponse } from "@/lib/responses";
 import { getPaymentAdapterService } from "@/lib/payment-adapter";
+import { razorpayDebugger } from "@/lib/razorpay-debug";
 
 export async function POST(request: NextRequest) {
   try {
+    razorpayDebugger.log('INFO', 'POST /api/payment/verify', 'Payment verification request received');
+
     // Parse and validate request body
     const body = await request.json();
+    razorpayDebugger.log('INFO', 'POST /api/payment/verify', 'Request body parsed', {
+      existingOrderId: body.existingOrderId,
+      razorpayOrderId: body.razorpayOrderId,
+      razorpayPaymentId: body.razorpayPaymentId,
+    });
+
     const parsed = verifyPaymentSchema.safeParse(body);
 
     if (!parsed.success) {
-      return errorResponse(
-        parsed.error.issues.map((e) => e.message).join(", "),
-        400
-      );
+      const errorMsg = parsed.error.issues.map((e) => e.message).join(", ");
+      razorpayDebugger.log('WARN', 'POST /api/payment/verify', 'Validation failed', { errors: parsed.error.issues });
+      return errorResponse(errorMsg, 400);
     }
 
     const {
@@ -57,6 +65,12 @@ export async function POST(request: NextRequest) {
       razorpayOrderId,
       razorpaySignature,
     } = parsed.data;
+
+    razorpayDebugger.log('INFO', 'POST /api/payment/verify', 'Starting payment verification', {
+      existingOrderId,
+      razorpayOrderId,
+      razorpayPaymentId,
+    });
 
     // Verify payment using payment adapter
     const paymentAdapter = getPaymentAdapterService();
@@ -67,10 +81,22 @@ export async function POST(request: NextRequest) {
       razorpaySignature,
     });
 
+    if (result.success) {
+      razorpayDebugger.log('SUCCESS', 'POST /api/payment/verify', 'Payment verification successful', {
+        paymentId: result.paymentId,
+      });
+    } else {
+      razorpayDebugger.log('WARN', 'POST /api/payment/verify', 'Payment verification failed', {
+        message: result.message,
+      });
+    }
+
     return NextResponse.json(result, {
       status: result.success ? 200 : 400,
     });
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    razorpayDebugger.log('ERROR', 'POST /api/payment/verify', 'Verification error', { error: errorMsg });
     console.error("Verify payment error:", error);
 
     if (error instanceof Error) {

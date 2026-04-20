@@ -13,6 +13,7 @@
 
 import prisma from "@/lib/prisma";
 import { getRazorpayService, PaymentVerificationParams } from "@/lib/razorpay";
+import { razorpayDebugger } from "@/lib/razorpay-debug";
 
 export interface CreatePaymentParams {
   existingOrderId: string;
@@ -50,6 +51,12 @@ class PaymentAdapterService {
     try {
       const { existingOrderId, amount, userEmail, userPhone, userName } = params;
 
+      razorpayDebugger.log('INFO', 'PaymentAdapter.createRazorpayOrder', 'Starting payment order creation', {
+        existingOrderId,
+        amount,
+        userEmail,
+      });
+
       // Step 1: Verify order exists (read-only, no modification)
       const order = await prisma.order.findUnique({
         where: { id: existingOrderId },
@@ -63,8 +70,14 @@ class PaymentAdapterService {
       });
 
       if (!order) {
+        razorpayDebugger.log('ERROR', 'PaymentAdapter.createRazorpayOrder', `Order not found: ${existingOrderId}`);
         throw new Error(`Order not found: ${existingOrderId}`);
       }
+
+      razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createRazorpayOrder', 'Order found', {
+        orderId: order.id,
+        orderTotal: order.total,
+      });
 
       // Step 2: Create Razorpay order
       const razorpayService = getRazorpayService();
@@ -78,6 +91,11 @@ class PaymentAdapterService {
           phone: userPhone || order.guestPhone,
           name: userName || order.guestName,
         },
+      });
+
+      razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createRazorpayOrder', 'Razorpay order created', {
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
       });
 
       // Step 3: Log payment mapping
@@ -97,6 +115,11 @@ class PaymentAdapterService {
         },
       });
 
+      razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createRazorpayOrder', 'Payment log created', {
+        paymentLogId: paymentLog.id,
+        status: paymentLog.status,
+      });
+
       // Step 4: Return response
       return {
         success: true,
@@ -107,6 +130,8 @@ class PaymentAdapterService {
         paymentLogId: paymentLog.id,
       };
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      razorpayDebugger.log('ERROR', 'PaymentAdapter.createRazorpayOrder', 'Payment order creation failed', { error: errorMsg });
       console.error("Payment creation error:", error);
       throw error;
     }
@@ -132,6 +157,12 @@ class PaymentAdapterService {
         razorpaySignature,
       } = params;
 
+      razorpayDebugger.log('INFO', 'PaymentAdapter.verifyPayment', 'Starting payment verification', {
+        existingOrderId,
+        razorpayOrderId,
+        razorpayPaymentId,
+      });
+
       // Step 1: Verify signature
       const razorpayService = getRazorpayService();
       const isSignatureValid = razorpayService.verifyPaymentSignature({
@@ -141,6 +172,8 @@ class PaymentAdapterService {
       });
 
       if (!isSignatureValid) {
+        razorpayDebugger.log('WARN', 'PaymentAdapter.verifyPayment', 'Signature validation failed, updating payment log with FAILED status');
+        
         // Update payment log with failed status
         await prisma.paymentLog.updateMany({
           where: {
@@ -160,6 +193,8 @@ class PaymentAdapterService {
         };
       }
 
+      razorpayDebugger.log('SUCCESS', 'PaymentAdapter.verifyPayment', 'Signature validation successful, updating payment log with SUCCESS status');
+
       // Step 2: Update payment log with success
       const updatedPayment = await prisma.paymentLog.updateMany({
         where: {
@@ -174,12 +209,19 @@ class PaymentAdapterService {
         },
       });
 
+      razorpayDebugger.log('SUCCESS', 'PaymentAdapter.verifyPayment', 'Payment verification completed successfully', {
+        paymentId: razorpayPaymentId,
+        updatedRecords: updatedPayment.count,
+      });
+
       return {
         success: true,
         message: "Payment verified successfully",
         paymentId: razorpayPaymentId,
       };
     } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+      razorpayDebugger.log('ERROR', 'PaymentAdapter.verifyPayment', 'Payment verification error', { error: errorMsg });
       console.error("Payment verification error:", error);
       throw error;
     }
@@ -216,6 +258,7 @@ let paymentAdapterService: PaymentAdapterService | null = null;
  */
 export function getPaymentAdapterService(): PaymentAdapterService {
   if (!paymentAdapterService) {
+    razorpayDebugger.log('INFO', 'getPaymentAdapterService', 'Initializing PaymentAdapterService');
     paymentAdapterService = new PaymentAdapterService();
   }
   return paymentAdapterService;

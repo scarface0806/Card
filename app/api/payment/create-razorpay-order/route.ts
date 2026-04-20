@@ -34,19 +34,23 @@ import { NextRequest, NextResponse } from "next/server";
 import { createRazorpayOrderSchema } from "@/lib/validators";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { getPaymentAdapterService } from "@/lib/payment-adapter";
+import { razorpayDebugger } from "@/lib/razorpay-debug";
 import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
+    razorpayDebugger.log('INFO', 'POST /api/payment/create-razorpay-order', 'Request received');
+
     // Parse and validate request body
     const body = await request.json();
+    razorpayDebugger.log('INFO', 'POST /api/payment/create-razorpay-order', 'Request body parsed', { existingOrderId: body.existingOrderId });
+    
     const parsed = createRazorpayOrderSchema.safeParse(body);
 
     if (!parsed.success) {
-      return errorResponse(
-        parsed.error.issues.map((e) => e.message).join(", "),
-        400
-      );
+      const errorMsg = parsed.error.issues.map((e) => e.message).join(", ");
+      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Validation failed', { errors: parsed.error.issues });
+      return errorResponse(errorMsg, 400);
     }
 
     const {
@@ -70,6 +74,7 @@ export async function POST(request: NextRequest) {
     });
 
     if (!order) {
+      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Order not found', { existingOrderId });
       return errorResponse("Order not found", 404);
     }
 
@@ -77,11 +82,18 @@ export async function POST(request: NextRequest) {
     const orderAmount = amount || order.total;
 
     if (!orderAmount || orderAmount <= 0) {
+      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Invalid amount', { orderAmount, total: order.total });
       return errorResponse(
         "Invalid amount. Please provide a valid amount or ensure the order has a total.",
         400
       );
     }
+
+    razorpayDebugger.log('INFO', 'POST /api/payment/create-razorpay-order', 'Creating Razorpay order', {
+      existingOrderId,
+      amount: orderAmount,
+      userEmail,
+    });
 
     // Create Razorpay order using payment adapter
     const paymentAdapter = getPaymentAdapterService();
@@ -93,8 +105,15 @@ export async function POST(request: NextRequest) {
       userName: userName || order.guestName || undefined,
     });
 
+    razorpayDebugger.log('SUCCESS', 'POST /api/payment/create-razorpay-order', 'Order creation successful', {
+      razorpayOrderId: result.razorpay_order_id,
+      amount: result.amount,
+    });
+
     return NextResponse.json(result);
   } catch (error) {
+    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    razorpayDebugger.log('ERROR', 'POST /api/payment/create-razorpay-order', 'Order creation failed', { error: errorMsg });
     console.error("Create Razorpay order error:", error);
 
     if (error instanceof Error) {
