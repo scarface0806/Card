@@ -121,10 +121,18 @@ class PaymentAdapterService {
       });
 
       // Step 4: Return response
+      // SECURITY NOTE: Return only the PUBLIC key to frontend
+      // Never expose RAZORPAY_KEY_SECRET
+      const publicKeyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || process.env.RAZORPAY_KEY_ID;
+      
+      if (!publicKeyId) {
+        throw new Error("Razorpay public key not configured. Please set NEXT_PUBLIC_RAZORPAY_KEY_ID or RAZORPAY_KEY_ID in environment variables.");
+      }
+
       return {
         success: true,
         razorpay_order_id: razorpayOrder.id,
-        razorpay_key: process.env.RAZORPAY_KEY_ID,
+        razorpay_key: publicKeyId,
         amount: razorpayOrder.amount,
         currency: razorpayOrder.currency,
         paymentLogId: paymentLog.id,

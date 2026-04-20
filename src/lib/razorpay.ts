@@ -52,11 +52,11 @@ class RazorpayService {
   private apiBaseUrl = "https://api.razorpay.com/v1";
 
   constructor() {
-    const keyId = process.env.RAZORPAY_KEY_ID;
+    const keyId = process.env.RAZORPAY_KEY_ID || process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
     if (!keyId || !keySecret) {
-      const error = "Razorpay credentials not configured. Please set RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in environment variables.";
+      const error = "Razorpay credentials not configured. Please set RAZORPAY_KEY_SECRET in environment variables and either RAZORPAY_KEY_ID or NEXT_PUBLIC_RAZORPAY_KEY_ID.";
       razorpayDebugger.log('ERROR', 'RazorpayService', error);
       throw new Error(error);
     }

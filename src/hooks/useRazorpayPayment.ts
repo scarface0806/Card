@@ -201,8 +201,16 @@ export function useRazorpayPayment() {
           // Step 3: Open checkout
           razorpayDebugger.log('INFO', 'useRazorpayPayment.initiatePayment', 'Opening Razorpay checkout');
 
+          // SECURITY: Use key from API response instead of environment variable
+          // This ensures frontend always uses the correct public key
+          const razorpayKey = orderData.razorpay_key;
+          
+          if (!razorpayKey) {
+            throw new Error('Razorpay key not received from backend');
+          }
+
           const options = {
-            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
+            key: razorpayKey,
             amount: orderData.amount, // in paise
             currency: 'INR',
             name: 'Tapvyo',
