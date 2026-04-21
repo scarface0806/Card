@@ -14,7 +14,7 @@ interface AdminToastProps {
 const styleMap: Record<ToastVariant, string> = {
   success: 'border-secondary/20 bg-primary/100/10 text-primary',
   error: 'border-red-500/30 bg-red-500/10 text-red-300',
-  info: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
+  info: 'border-green-500/30 bg-green-500/10 text-green-300',
 };
 
 function ToastIcon({ variant }: { variant: ToastVariant }) {

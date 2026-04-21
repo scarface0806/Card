@@ -79,7 +79,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="admin-shell flex h-screen overflow-hidden bg-[#0b1020] text-white">
+    <div className="admin-shell flex h-screen overflow-hidden bg-[#020617] text-white">
       {/* Sidebar */}
       <AdminSidebar
         mobileOpen={mobileMenuOpen}
@@ -91,9 +91,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         {/* Header */}
         <AdminHeader onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
-        {/* Main Area */}
-        <main className="flex-1 overflow-y-auto">
-          <div className="mx-auto w-full px-3 py-4 sm:px-4 md:px-6 md:py-6 xl:px-8">
+        {/* Main Area - Proper spacing with 8px grid */}
+        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-[#0f172a] to-[#020617]">
+          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 md:px-8 md:py-8 lg:px-8">
             {children}
           </div>
         </main>

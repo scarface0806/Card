@@ -4,7 +4,7 @@ import Link from "next/link";
 
 export default function UnauthorizedPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] px-4">
       <div className="text-center max-w-md">
         <div className="mb-6">
           <svg
@@ -21,21 +21,21 @@ export default function UnauthorizedPage() {
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Access Denied</h1>
-        <p className="text-gray-600 mb-8">
+        <h1 className="text-3xl font-bold text-white mb-2">Access Denied</h1>
+        <p className="text-gray-400 mb-8">
           You don&apos;t have permission to access this page. This area is
           restricted to administrators only.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 transition-colors"
+            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-gradient-to-r from-green-400 to-emerald-500 hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all"
           >
             Go to Home
           </Link>
           <Link
             href="/dashboard"
-            className="inline-flex items-center justify-center px-6 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 transition-colors"
+            className="inline-flex items-center justify-center px-6 py-3 border border-white/20 text-base font-medium rounded-md text-white bg-white/5 hover:bg-white/10 transition-colors"
           >
             Go to Dashboard
           </Link>

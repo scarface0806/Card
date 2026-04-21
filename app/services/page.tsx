@@ -35,8 +35,8 @@ const nfcSolutions = [
       'Student information webpage',
       '3 free website updates',
     ],
-    gradient: 'from-blue-600 to-indigo-600',
-    bgGradient: 'bg-gradient-to-br from-blue-900/35 to-indigo-900/30',
+    gradient: 'from-green-400 to-emerald-500',
+    bgGradient: 'bg-gradient-to-br from-green-900/35 to-emerald-900/30',
   },
   {
     id: 'business' as ContactSource,
@@ -167,7 +167,7 @@ const digitalSolutions = [
       'Automation Systems',
     ],
     cta: 'Discuss Your Project',
-    accentColor: 'from-secondary to-green-600',
+    accentColor: 'from-green-400 to-emerald-500',
     glowColor: 'from-primary/20 to-green-200/40',
   },
 ];
@@ -203,8 +203,7 @@ export default function ServicesPage() {
       <Navbar />
 
       {/* Hero Banner - Premium Compact Design */}
-      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-20 lg:pt-44 lg:pb-24 overflow-hidden bg-gradient-to-b from-gray-50 to-white">
-        {/* Background decorations */}
+      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-20 lg:pt-44 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#020617] via-[#0f172a] to-[#020617]">
         <div className="absolute inset-0 -z-10">
           <div className="absolute top-20 right-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
           <div className="absolute bottom-10 left-10 w-64 h-64 bg-primary/15 rounded-full blur-3xl" />
@@ -226,9 +225,9 @@ export default function ServicesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1] }}
               >
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-full hover:border-gray-300 transition-colors duration-300">
-                  <Sparkles className="w-4 h-4 text-primary" />
-                  <span className="text-xs font-semibold text-gray-700 uppercase tracking-wide">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:border-white/40 transition-colors duration-300">
+                  <Sparkles className="w-4 h-4 text-green-400" />
+                  <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
                     What We Offer
                   </span>
                 </div>
@@ -240,7 +239,7 @@ export default function ServicesPage() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.1 }}
               >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-gray-900 tracking-tight">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-white tracking-tight">
                   Our{' '}
                   <span className="text-primary">
                     Services
@@ -253,7 +252,7 @@ export default function ServicesPage() {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.2 }}
-                className="text-base sm:text-lg md:text-xl text-gray-600 leading-relaxed max-w-2xl mx-auto px-4"
+                className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto px-4"
               >
                 Comprehensive digital solutions to grow your brand and connect with your audience.
               </motion.p>
@@ -279,7 +278,7 @@ export default function ServicesPage() {
           </div>
       </section>
 
-      <main className="min-h-screen bg-white">
+      <main className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#020617] to-[#020617]">
         <div className="site-container py-16 md:py-20 lg:py-24">
 
           {/* Section 1: NFC Card Solutions */}
@@ -291,7 +290,7 @@ export default function ServicesPage() {
               transition={{ duration: 0.5 }}
               className="text-center mb-12"
             >
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
                 NFC Card Solutions
               </h2>
               <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto">
@@ -310,7 +309,7 @@ export default function ServicesPage() {
                 <motion.div
                   key={solution.id}
                   variants={itemVariants}
-                  className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-gray-200/60 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
+                  className="group flex flex-col h-full bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-3xl shadow-lg border border-white/10 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_40px_rgba(74,222,128,0.2)]"
                 >
                   {/* Card Header */}
                   <div className={`${solution.bgGradient} p-6`}>
@@ -319,17 +318,17 @@ export default function ServicesPage() {
                     >
                       <solution.icon className="w-7 h-7 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk mb-2">
+                    <h3 className="text-xl font-bold text-white font-space-grotesk mb-2">
                       {solution.title}
                     </h3>
-                    <p className="text-sm text-[#4b635d]">{solution.description}</p>
+                    <p className="text-sm text-gray-400">{solution.description}</p>
                   </div>
 
                   {/* Card Content */}
                   <div className="flex flex-col flex-grow p-6">
                     <ul className="space-y-3 mb-6 flex-grow">
                       {solution.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-[#4b635d]">
+                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-400">
                           <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
                           <span>{feature}</span>
                         </li>
@@ -354,7 +353,7 @@ export default function ServicesPage() {
           {/* Section 2: Digital Solutions - Modern Bento Grid */}
           <section className="relative">
             {/* Background Gradient Blob */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-r from-primary/20 to-secondary/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
+            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-r from-green-400/20 to-emerald-500/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
             
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -363,7 +362,7 @@ export default function ServicesPage() {
               transition={{ duration: 0.5 }}
               className="text-center mb-16 relative z-10"
             >
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0f2e25] font-space-grotesk tracking-tight mb-4">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white font-space-grotesk tracking-tight mb-4">
                 Digital Solutions for{' '}
                 <span className="text-primary">
                   Modern Businesses
@@ -408,10 +407,10 @@ export default function ServicesPage() {
                       </div>
 
                       {/* Title & Description */}
-                      <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk mb-3">
+                      <h3 className="text-2xl font-bold text-white font-space-grotesk mb-3">
                         {service.title}
                       </h3>
-                      <p className="text-[#4b635d] mb-6">
+                      <p className="text-gray-400 mb-6">
                         {service.description}
                       </p>
                     </div>
@@ -423,7 +422,7 @@ export default function ServicesPage() {
                       {service.features.map((feature, idx) => (
                         <li
                           key={idx}
-                          className="flex items-center gap-3 text-[#4b635d]"
+                          className="flex items-center gap-3 text-gray-400"
                         >
                           <div
                             className={`rounded-full bg-gradient-to-br ${service.accentColor} flex items-center justify-center flex-shrink-0 w-5 h-5`}
@@ -458,45 +457,83 @@ export default function ServicesPage() {
       {/* Tech Stack Section */}
       <TechStackSection />
 
-      {/* Modern CTA Section */}
-      <section className="relative overflow-hidden py-32 bg-gradient-to-br from-[#0f2e25] via-[#134e40] to-[#0a2a22]">
-        {/* Animated Gradient Blobs */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-primary/15 rounded-full blur-3xl animate-pulse opacity-40" />
-        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-secondary/10 rounded-full blur-3xl animate-pulse opacity-30" />
-        <div className="absolute top-1/2 right-0 w-64 h-64 bg-primary/90/10 rounded-full blur-3xl animate-pulse opacity-25" />
+      {/* Modern CTA Section - Premium SaaS */}
+      <section className="relative overflow-hidden py-24 md:py-32 bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#020617]">
+        {/* Radial Glow Effect */}
+        <div 
+          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-3xl opacity-40 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 40%, transparent 70%)'
+          }}
+        />
+        
+        {/* Animated Accent Blobs */}
+        <div className="absolute top-10 right-1/3 w-64 h-64 bg-green-500/10 rounded-full blur-3xl animate-pulse opacity-30" />
+        <div className="absolute bottom-20 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse opacity-25" />
 
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7 }}
-          className="relative z-10 site-container text-center"
+          whileHover={{ scale: 1.01 }}
+          className="relative z-10 max-w-5xl mx-auto px-6"
         >
-          <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white font-space-grotesk mb-6 leading-tight tracking-tight">
-            Let&apos;s Build Something{' '}
-            <span className="text-primary">
-              Powerful
-            </span>{' '}
-            Together.
-          </h2>
-          <p className="text-base md:text-lg text-white/60 mb-10 max-w-2xl mx-auto">
-            From NFC cards to full-scale digital solutions — we help brands grow.
-          </p>
+          {/* Glass Card Container */}
+          <div className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 md:p-16 shadow-2xl hover:shadow-2xl hover:border-white/20 transition-all duration-300">
+            {/* Gradient overlay on hover */}
+            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-green-500/5 via-transparent to-transparent pointer-events-none" />
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <button
-              onClick={() => openContactModal('general')}
-              className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary hover:from-[#28A428] hover:to-[#e6e600] text-[#0f2e25] font-semibold rounded-full hover:-translate-y-1 transition-all duration-220 shadow-lg hover:shadow-xl"
-            >
-              <span>Talk to Our Team</span>
-              <ArrowRight className="w-5 h-5" />
-            </button>
-            <a
-              href="/services"
-              className="inline-flex items-center gap-2 px-8 py-4 border border-white/40 text-white font-semibold rounded-full hover:bg-white/10 transition-all duration-300"
-            >
-              <span>View Our Services</span>
-            </a>
+            <div className="relative z-10 text-center">
+              {/* Headline with Hierarchy */}
+              <div className="mb-6">
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white font-space-grotesk tracking-tight leading-tight">
+                  Let&apos;s Build Something{' '}
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
+                    Powerful
+                  </span>
+                  <br />
+                  Together.
+                </h2>
+              </div>
+
+              {/* Subtext */}
+              <p className="text-base md:text-lg text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
+                From NFC cards to full-scale digital solutions — we help brands grow faster and smarter.
+              </p>
+
+              {/* CTA Buttons */}
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
+                <motion.button
+                  onClick={() => openContactModal('general')}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-400 to-emerald-500 hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] text-black font-semibold rounded-xl transition-all duration-300 group"
+                >
+                  <span>Talk to Our Team</span>
+                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
+                </motion.button>
+                <motion.a
+                  href="/services"
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="inline-flex items-center gap-2 px-8 py-3 border border-white/20 hover:border-white/40 text-white font-semibold rounded-xl hover:bg-white/5 transition-all duration-300 group"
+                >
+                  <span>View Our Services</span>
+                </motion.a>
+              </div>
+
+              {/* Trust Element */}
+              <motion.div
+                initial={{ opacity: 0 }}
+                whileInView={{ opacity: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                className="text-center text-sm text-gray-500"
+              >
+                <p>✓ Trusted by 10,000+ professionals worldwide</p>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
       </section>

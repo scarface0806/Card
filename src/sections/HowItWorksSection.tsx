@@ -48,9 +48,9 @@ const itemVariants = {
 
 export default function HowItWorksSection() {
   return (
-    <section className="relative section-spacing section-alt overflow-hidden">
+    <section className="relative section section-alt overflow-hidden">
       {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-gray-50/50 via-white to-white pointer-events-none" />
+      <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/40 via-[#0f172a]/30 to-[#020617]/40 pointer-events-none" />
 
       <div className="relative site-container">
         {/* Section Header */}
@@ -101,11 +101,11 @@ export default function HowItWorksSection() {
                     </div>
                   </div>
 
-                  <h3 className="heading-3 text-[#0f2e25] mb-2 md:mb-3 text-center">
+                  <h3 className="heading-3 text-white mb-2 md:mb-3 text-center">
                     {step.title}
                   </h3>
 
-                  <p className="body-base text-[#4b635d] text-center">
+                  <p className="body-base text-gray-400 text-center">
                     {step.description}
                   </p>
                 </div>
@@ -132,7 +132,7 @@ export default function HowItWorksSection() {
               <ArrowRight className="w-5 h-5" />
             </motion.button>
           </Link>
-          <p className="body-base text-gray-500 mt-3">Takes less than 5 minutes</p>
+          <p className="body-base text-gray-400 mt-3">Takes less than 5 minutes</p>
         </motion.div>
       </div>
     </section>

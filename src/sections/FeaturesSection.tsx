@@ -59,7 +59,7 @@ const itemVariants = {
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="section-spacing section-warm">
+    <section id="features" className="section section-warm">
       <div className="site-container">
         {/* Section Header */}
         <motion.div
@@ -97,13 +97,13 @@ export default function FeaturesSection() {
                 key={index}
                 variants={itemVariants}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className="card card-padding bg-white"
+                className="card card-padding"
               >
                 <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 md:mb-6">
                   <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
                 </div>
-                <h3 className="heading-3 text-[#0f2e25] font-space-grotesk mb-2 md:mb-3">{feature.title}</h3>
-                <p className="body-base text-[#4b635d]">{feature.description}</p>
+                <h3 className="heading-3 text-white font-space-grotesk mb-2 md:mb-3">{feature.title}</h3>
+                <p className="body-base text-gray-400">{feature.description}</p>
               </motion.div>
             );
           })}

@@ -23,7 +23,7 @@ interface InteractiveCard3DProps {
 const cardGradients = [
   'from-slate-700 via-slate-800 to-slate-900',
   'from-purple-500 via-pink-500 to-purple-600',
-  'from-blue-400 via-cyan-400 to-blue-500',
+  'from-green-400 via-emerald-400 to-green-500',
   'from-pink-500 via-purple-600 to-blue-500',
 ];
 
@@ -146,7 +146,7 @@ export default function InteractiveCard3D({
 
         {/* Shadow Effect */}
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-56 bg-gradient-to-br from-purple-500/40 via-pink-400/30 to-blue-400/40 rounded-3xl blur-3xl -z-10"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-56 bg-gradient-to-br from-green-500/40 via-emerald-400/30 to-teal-400/40 rounded-3xl blur-3xl -z-10"
           animate={{
             opacity: isHovered ? 0.8 : 0.4,
             scale: isHovered ? 1.15 : 1,

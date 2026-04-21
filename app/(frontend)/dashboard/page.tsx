@@ -60,19 +60,19 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-teal-50 to-white">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] to-[#0f172a]">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading dashboard...</p>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
+          <p className="text-gray-400">Loading dashboard...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-teal-50 via-blue-50 to-white">
+    <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617]">
       {/* Header */}
-      <header className="bg-white shadow-sm sticky top-0 z-40">
+      <header className="bg-gradient-to-b from-[#0f172a] to-[#020617] border-b border-white/10 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             {/* Logo */}
@@ -80,19 +80,19 @@ export default function DashboardPage() {
               <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
                 <span className="text-white font-bold text-lg">T</span>
               </div>
-              <span className="font-bold text-lg text-gray-900">Tapvyo</span>
+              <span className="font-bold text-lg text-white">Tapvyo</span>
             </div>
 
             {/* Desktop Menu */}
             <nav className="hidden md:flex items-center gap-6">
-              <a href="/" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+              <a href="/" className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition">
                 <Home className="w-5 h-5" />
                 Home
               </a>
-              <a href="/products" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+              <a href="/products" className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition">
                 <span>Products</span>
               </a>
-              <a href="/order" className="flex items-center gap-2 text-gray-700 hover:text-primary transition">
+              <a href="/order" className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition">
                 <span>Orders</span>
               </a>
               <button
@@ -107,7 +107,7 @@ export default function DashboardPage() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-lg"
+              className="md:hidden p-2 hover:bg-white/10 rounded-lg transition"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -139,13 +139,13 @@ export default function DashboardPage() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Welcome Section */}
-        <div className="bg-white rounded-2xl shadow-lg p-8 mb-8">
+        <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-2xl border border-white/10 shadow-lg p-8 mb-8">
           <div className="flex items-center gap-4 mb-6">
             <div className="w-16 h-16 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center">
               <User className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
+              <h1 className="text-3xl font-bold text-white">
                 Welcome back, {user?.name || 'User'}!
               </h1>
               <p className="text-gray-600 mt-1">{user?.email}</p>
@@ -156,11 +156,11 @@ export default function DashboardPage() {
 
         {/* Quick Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-primary">
+          <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-xl border border-green-500/30 p-6 shadow-lg">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-600 text-sm font-medium">Total Orders</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">0</p>
+                <p className="text-gray-400 text-sm font-medium">Total Orders</p>
+                <p className="text-3xl font-bold text-white mt-2">0</p>
               </div>
               <div className="text-primary">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -170,13 +170,13 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-blue-500">
+          <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-xl border border-white/10 p-6 shadow-lg">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-600 text-sm font-medium">Products</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">View</p>
+                <p className="text-gray-400 text-sm font-medium">Products</p>
+                <p className="text-3xl font-bold text-white mt-2">View</p>
               </div>
-              <div className="text-blue-500">
+              <div className="text-green-500">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
                   <path d="M7 2a1 1 0 000 2h6a1 1 0 000-2H7zM4 5a2 2 0 012-2 1 1 0 000-2H3a1 1 0 000 2h1v9a2 2 0 002 2h8a2 2 0 002-2V5h1a1 1 0 000-2h-3a1 1 0 000 2h2v9H6V5z" />
                 </svg>
@@ -184,11 +184,11 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-xl shadow p-6 border-l-4 border-purple-500">
+          <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-xl border border-white/10 p-6 shadow-lg">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-gray-600 text-sm font-medium">Account</p>
-                <p className="text-3xl font-bold text-gray-900 mt-2">Active</p>
+                <p className="text-gray-400 text-sm font-medium">Account</p>
+                <p className="text-3xl font-bold text-white mt-2">Active</p>
               </div>
               <div className="text-purple-500">
                 <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
@@ -200,8 +200,8 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-gray-900 mb-6">Quick Actions</h2>
+        <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-2xl border border-white/10 shadow-lg p-8">
+          <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <a
               href="/create-card"
@@ -216,13 +216,13 @@ export default function DashboardPage() {
 
             <a
               href="/products"
-              className="p-4 border-2 border-blue-200 rounded-xl hover:bg-blue-50 transition flex items-center justify-between group"
+              className="p-4 border-2 border-green-200 rounded-xl hover:bg-green-50 transition flex items-center justify-between group"
             >
               <div>
                 <p className="font-semibold text-gray-900">Browse Products</p>
                 <p className="text-sm text-gray-600 mt-1">Explore our NFC card designs</p>
               </div>
-              <span className="text-blue-600 group-hover:translate-x-1 transition">→</span>
+              <span className="text-green-500 group-hover:translate-x-1 transition">→</span>
             </a>
 
             <a
@@ -254,7 +254,7 @@ export default function DashboardPage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 mt-12 py-6 bg-gray-50">
+      <footer className="border-t border-white/10 mt-12 py-6 bg-gradient-to-b from-[#0f172a] to-[#020617]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <p className="text-center text-gray-600 text-sm">
             © 2024 Tapvyo NFC. All rights reserved.

@@ -2,137 +2,92 @@
 
 import { motion } from 'framer-motion';
 
-const DEVICON_CDN = 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons';
+const SIMPLE_ICONS_CDN = 'https://cdn.simpleicons.org';
 
-// Tech stack with real brand logos from devicon CDN
+// Curated core tech stack - no duplicates, clean and minimal
 const techStack = [
-  { name: 'Node.js', logo: `${DEVICON_CDN}/nodejs/nodejs-original.svg`, bg: 'bg-[#eef7ee]' },
-  { name: 'Vue.js', logo: `${DEVICON_CDN}/vuejs/vuejs-original.svg`, bg: 'bg-[#eef8ee]' },
-  { name: 'Tailwind CSS', logo: `${DEVICON_CDN}/tailwindcss/tailwindcss-original.svg`, bg: 'bg-[#ebf5fc]' },
-  { name: 'Bootstrap', logo: `${DEVICON_CDN}/bootstrap/bootstrap-original.svg`, bg: 'bg-[#f0ecf8]' },
-  { name: 'HTML5', logo: `${DEVICON_CDN}/html5/html5-original.svg`, bg: 'bg-[#fdeee8]' },
-  { name: 'CSS3', logo: `${DEVICON_CDN}/css3/css3-original.svg`, bg: 'bg-[#e8eefb]' },
-  { name: 'PHP', logo: `${DEVICON_CDN}/php/php-original.svg`, bg: 'bg-[#eeedf8]' },
-  { name: 'WordPress', logo: `${DEVICON_CDN}/wordpress/wordpress-plain.svg`, bg: 'bg-[#e8edf6]' },
-  { name: 'Sass', logo: `${DEVICON_CDN}/sass/sass-original.svg`, bg: 'bg-[#f8ecf2]' },
-  { name: 'Framer', logo: `${DEVICON_CDN}/framermotion/framermotion-original.svg`, bg: 'bg-[#f0f0f0]' },
-  { name: 'Figma', logo: `${DEVICON_CDN}/figma/figma-original.svg`, bg: 'bg-[#f2ecf5]' },
-  { name: 'React', logo: `${DEVICON_CDN}/react/react-original.svg`, bg: 'bg-[#e8f4fa]' },
-  { name: 'Next.js', logo: `${DEVICON_CDN}/nextjs/nextjs-original.svg`, bg: 'bg-[#f0f0f0]' },
+  { name: 'React', logo: `${SIMPLE_ICONS_CDN}/react/FFFFFF` },
+  { name: 'Next.js', logo: `${SIMPLE_ICONS_CDN}/nextdotjs/FFFFFF` },
+  { name: 'Node.js', logo: `${SIMPLE_ICONS_CDN}/nodedotjs/FFFFFF` },
+  { name: 'Tailwind CSS', logo: `${SIMPLE_ICONS_CDN}/tailwindcss/FFFFFF` },
+  { name: 'Figma', logo: `${SIMPLE_ICONS_CDN}/figma/FFFFFF` },
+  { name: 'HTML5', logo: `${SIMPLE_ICONS_CDN}/html5/FFFFFF` },
+  { name: 'CSS3', logo: `${SIMPLE_ICONS_CDN}/css3/FFFFFF` },
 ];
-
-// Duplicate for seamless infinite scroll
-const duplicatedTech = [...techStack, ...techStack];
 
 interface TechLogoProps {
   name: string;
   logo: string;
-  bg: string;
 }
 
-function TechLogo({ name, logo, bg }: TechLogoProps) {
+function TechLogo({ name, logo }: TechLogoProps) {
   return (
     <motion.div
-      whileHover={{ y: -3 }}
+      whileHover={{ scale: 1.08, y: -4 }}
       transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-      className="shrink-0 flex flex-col items-center gap-3 cursor-default group"
+      className="flex items-center justify-center cursor-default group"
     >
-      {/* Logo Container */}
-      <div
-        className={`w-14 h-14 md:w-16 md:h-16 rounded-xl ${bg} p-3 flex items-center justify-center shadow-sm group-hover:shadow-lg transition-all duration-300`}
-      >
+      {/* Logo Container - Dark Premium Style */}
+      <div className="w-16 h-16 flex items-center justify-center bg-white/5 border border-white/10 rounded-xl shadow-md transition-all duration-300 group-hover:scale-105 group-hover:border-green-400 group-hover:shadow-[0_0_20px_rgba(34,197,94,0.2)]">
         <img
           src={logo}
           alt={name}
-          width={40}
-          height={40}
-          className="w-full h-full object-contain"
+          width={44}
+          height={44}
+          className="w-11 h-11 object-contain opacity-90 group-hover:opacity-100 transition-all duration-300"
           loading="lazy"
         />
       </div>
-
-      {/* Label */}
-      <span className="text-xs md:text-sm font-medium text-gray-600 group-hover:text-primary transition-colors duration-300 whitespace-nowrap text-center">
-        {name}
-      </span>
     </motion.div>
   );
 }
 
 export default function TechStackSection() {
   return (
-    <section className="section-spacing bg-gradient-to-b from-white/80 via-white to-[#f8fffe] overflow-hidden">
-      <div className="site-container mb-20">
+    <section className="section bg-gradient-to-b from-[#0b1220] via-[#0f1528] to-[#0a0e1a] overflow-hidden relative">
+      {/* Subtle gradient glow background */}
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+
+      <div className="site-container relative z-10">
         {/* Section Header */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="section-header !mb-0"
+          className="text-center mb-12 md:mb-16"
         >
-          <h2 className="heading-1 section-title font-space-grotesk">
-            Our Technology{' '}
-            <span className="text-gradient">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold font-space-grotesk mb-4 tracking-tight">
+            <span className="text-white">Our Technology</span>
+            {' '}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
               Stack
             </span>
           </h2>
-          <p className="body-lg section-subtitle">
+          <p className="text-base md:text-lg text-slate-400 max-w-2xl mx-auto">
             Technologies powering our digital solutions.
           </p>
         </motion.div>
-      </div>
 
-      {/* Carousels Container */}
-      <div className="relative overflow-hidden">
-        {/* Left Fade Mask */}
-        <div className="absolute left-0 top-0 bottom-0 w-32 md:w-48 bg-gradient-to-r from-white/80 from-0% via-white/40 to-transparent z-20 pointer-events-none" />
-
-        {/* Right Fade Mask */}
-        <div className="absolute right-0 top-0 bottom-0 w-32 md:w-48 bg-gradient-to-l from-white/80 from-0% via-white/40 to-transparent z-20 pointer-events-none" />
-
-        {/* Row 1 - Scroll Left → Right */}
-        <motion.div className="mb-16 md:mb-20 overflow-hidden">
-          <motion.div
-            className="flex gap-12 md:gap-16 py-8"
-            animate={{
-              x: ['0%', '-50%'],
-            }}
-            transition={{
-              x: {
-                duration: 50,
-                repeat: Infinity,
-                ease: 'linear',
-              },
-            }}
-            whileHover={{ animationPlayState: 'paused' }}
-          >
-            {duplicatedTech.map((tech, index) => (
-              <TechLogo key={`row1-${index}`} {...tech} />
-            ))}
-          </motion.div>
-        </motion.div>
-
-        {/* Row 2 - Scroll Right ← Left */}
-        <motion.div className="overflow-hidden">
-          <motion.div
-            className="flex gap-12 md:gap-16 py-8"
-            animate={{
-              x: ['-50%', '0%'],
-            }}
-            transition={{
-              x: {
-                duration: 55,
-                repeat: Infinity,
-                ease: 'linear',
-              },
-            }}
-            whileHover={{ animationPlayState: 'paused' }}
-          >
-            {duplicatedTech.map((tech, index) => (
-              <TechLogo key={`row2-${index}`} {...tech} />
-            ))}
-          </motion.div>
+        {/* Tech Stack Grid - Clean Single Row */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6, delay: 0.1 }}
+          className="flex flex-wrap justify-center gap-6 max-w-5xl mx-auto"
+        >
+          {techStack.map((tech, idx) => (
+            <motion.div
+              key={tech.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: idx * 0.05 }}
+            >
+              <TechLogo {...tech} />
+            </motion.div>
+          ))}
         </motion.div>
       </div>
     </section>

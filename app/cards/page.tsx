@@ -9,7 +9,7 @@ import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Loader2 } from 'lucide-react';
+import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Loader2, Globe, Shield, Zap, Users, CreditCard, Infinity } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 
 const lifetimeFeatures = [
@@ -92,7 +92,7 @@ export default function CardsPage() {
               <span className="text-sm font-medium text-primary">Premium NFC Cards</span>
             </div>
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
+            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
               Our NFC{' '}
               <span className="text-primary">
                 Card Designs
@@ -119,7 +119,7 @@ export default function CardsPage() {
               <motion.div
                 key={card.id}
                 variants={itemVariants}
-                className="group flex flex-col h-full bg-white rounded-3xl shadow-lg border border-gray-200/60 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
+                className="group flex flex-col h-full bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-3xl shadow-lg border border-white/10 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_40px_rgba(74,222,128,0.2)]"
               >
                 {/* Card Preview */}
                 <div className="relative aspect-[1.6/1] overflow-hidden">
@@ -129,7 +129,7 @@ export default function CardsPage() {
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
                     <button
                       onClick={() => handlePreview(card)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-primary font-medium rounded-full hover:bg-primary/10 transition-all duration-200"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-green-400 to-emerald-500 text-black font-medium rounded-full hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all duration-200"
                     >
                       <Eye className="w-4 h-4" />
                       Quick View
@@ -140,7 +140,7 @@ export default function CardsPage() {
                 {/* Card Details */}
                 <div className="flex flex-col flex-grow p-6">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">
+                    <h3 className="text-xl font-bold text-white font-space-grotesk">
                       {card.name}
                     </h3>
                     <span
@@ -168,7 +168,7 @@ export default function CardsPage() {
                         </p>
                       )}
                     </div>
-                    <p className="text-sm text-[#4b635d]">
+                    <p className="text-sm text-gray-400">
                       {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>}
                     </p>
                   </div>
@@ -178,13 +178,13 @@ export default function CardsPage() {
                     {card.type === 'custom' ? (
                       <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
                         <p className="text-xs text-purple-700 font-medium mb-1">Design Charges</p>
-                        <p className="text-xs text-[#4b635d]">
+                        <p className="text-xs text-gray-500">
                           <span className="text-primary font-semibold">Free</span> if you provide your own design.
                           Design service available at additional cost.
                         </p>
                       </div>
                     ) : (
-                      <p className="text-xs text-[#4b635d] flex items-center gap-1">
+                      <p className="text-xs text-gray-400 flex items-center gap-1">
                         <Check className="w-3 h-3 text-primary" />
                         Contact form included in your digital profile
                       </p>
@@ -221,50 +221,128 @@ export default function CardsPage() {
       {/* Other NFC Card Solutions Section */}
       <OtherCardsSolutionsSection onContactClick={openContactModal} />
 
-      {/* Lifetime Website Info Section */}
-      <section className="py-20 bg-white">
-        <div className="site-container">
+      {/* Lifetime Website Info Section - Premium SaaS Design */}
+      <section className="relative py-24 md:py-32 bg-gradient-to-b from-[#0b1220] via-[#0f1528] to-[#0a0e1a] overflow-hidden">
+        {/* Subtle gradient glow background */}
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 pointer-events-none" />
+
+        <div className="site-container relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-primary/10 rounded-3xl p-10 md:p-16"
+            className="space-y-16"
           >
-            <div className="max-w-3xl mx-auto">
-              <div className="text-center mb-10">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
-                  Every Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
+            {/* Header */}
+            <div className="max-w-4xl">
+              <div className="space-y-6 mb-12">
+                <h2 className="text-5xl md:text-6xl font-extrabold font-space-grotesk tracking-tight leading-tight">
+                  <span className="text-white">Everything You Need to Launch Your</span>
+                  <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
+                    Digital Identity
+                  </span>
+                  <span className="text-white"> — Included</span>
                 </h2>
-                <p className="text-base md:text-lg text-slate-500">
-                  Your personal digital profile that works forever — no hidden costs.
-                </p>
               </div>
+              <p className="text-lg text-gray-400 mb-8 max-w-2xl leading-relaxed">
+                No subscriptions. No hidden costs. Built to scale with you.
+              </p>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-                {lifetimeFeatures.map((feature, index) => (
+              {/* Key Benefits - Left Column */}
+              <div className="space-y-4 mb-12">
+                {[
+                  'Forever hosting with zero renewal fees',
+                  'Complete digital profile ownership',
+                  'Mobile-first responsive design'
+                ].map((benefit, idx) => (
                   <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 10 }}
-                    whileInView={{ opacity: 1, y: 0 }}
+                    key={idx}
+                    initial={{ opacity: 0, x: -20 }}
+                    whileInView={{ opacity: 1, x: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.4, delay: index * 0.1 }}
-                    className="bg-white rounded-2xl p-5 text-center shadow-sm border border-gray-200/60"
+                    transition={{ duration: 0.4, delay: idx * 0.1 }}
+                    className="flex items-start gap-3"
                   >
-                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center mx-auto mb-3">
-                      <Check className="w-5 h-5 text-primary" />
+                    <div className="flex-shrink-0 mt-1">
+                      <div className="flex items-center justify-center h-6 w-6 rounded-full bg-gradient-to-br from-green-500 to-emerald-500">
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
                     </div>
-                    <p className="text-sm font-medium text-[#0f2e25]">{feature}</p>
+                    <span className="text-base font-semibold text-gray-300">{benefit}</span>
                   </motion.div>
                 ))}
               </div>
+
+              {/* Trust Signal */}
+              <p className="text-sm text-gray-500 font-medium">
+                ✓ Trusted by 10,000+ professionals worldwide
+              </p>
             </div>
+
+            {/* Feature Cards Grid - Right Column */}
+            <div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {[
+                  { icon: Infinity, title: 'Free Hosting Forever', desc: 'Your profile stays live forever without extra cost' },
+                  { icon: MessageSquare, title: 'Contact Form Included', desc: 'Built-in messaging to connect with leads' },
+                  { icon: Zap, title: 'Mobile Responsive', desc: 'Perfect display on any device or screen size' },
+                  { icon: Users, title: 'Unlimited Viewers', desc: 'Track unlimited profile views and interactions' },
+                  { icon: CreditCard, title: 'No Renewal Fees', desc: 'One-time purchase, lifetime access' },
+                  { icon: Globe, title: 'Global Reach', desc: 'Share your profile worldwide instantly' },
+                ].map((feature, index) => {
+                  const Icon = feature.icon;
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, y: 20 }}
+                      whileInView={{ opacity: 1, y: 0 }}
+                      viewport={{ once: true }}
+                      transition={{ duration: 0.4, delay: index * 0.08 }}
+                      whileHover={{ scale: 1.03 }}
+                      className="group relative overflow-hidden rounded-2xl border border-white/10 bg-slate-900/60 backdrop-blur-xl p-6 shadow-lg shadow-black/50 hover:shadow-lg hover:shadow-green-500/10 transition-all duration-300"
+                    >
+                      {/* Gradient background on hover */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                      <div className="relative z-10 space-y-3">
+                        <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors duration-300">
+                          <Icon className="w-6 h-6 text-green-400" />
+                        </div>
+                        <h3 className="text-base font-bold text-white">{feature.title}</h3>
+                        <p className="text-sm text-gray-400 leading-snug">{feature.desc}</p>
+                      </div>
+
+                      {/* Subtle glow effect */}
+                      <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-green-500/0 via-green-500/5 to-green-500/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* CTA Section */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8"
+            >
+              <a href="/preview-website" target="_blank" rel="noopener noreferrer">
+                <button className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-semibold rounded-lg hover:bg-primary/90 transition-all duration-300 hover:shadow-lg">
+                  See Example Profile
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              </a>
+            </motion.div>
           </motion.div>
         </div>
       </section>
 
       {/* Need Help Choosing Section */}
-      <section className="py-20 bg-white">
+      <section className="py-20 bg-gradient-to-b from-[#020617] to-[#0f172a]">
         <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -273,7 +351,7 @@ export default function CardsPage() {
             transition={{ duration: 0.6 }}
             className="text-center"
           >
-            <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
+            <h3 className="text-xl md:text-2xl lg:text-3xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
               Need Help Choosing?
             </h3>
             <p className="text-sm md:text-base text-slate-500 mb-6 max-w-xl mx-auto">

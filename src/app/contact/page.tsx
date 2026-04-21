@@ -124,15 +124,15 @@ export default function ContactPage() {
                     <a href={method.href} target="_blank" rel="noopener noreferrer">
                       <Card hover>
                         <div className="p-6 space-y-4">
-                          <div className="bg-blue-50 rounded-lg w-12 h-12 flex items-center justify-center">
-                            <Icon className="w-6 h-6 text-blue-600" />
+                          <div className="bg-green-50 rounded-lg w-12 h-12 flex items-center justify-center">
+                            <Icon className="w-6 h-6 text-green-500" />
                           </div>
                           <div>
                             <h3 className="font-bold text-black">{method.title}</h3>
                             <p className="text-sm text-gray-500 mb-3">
                               {method.description}
                             </p>
-                            <p className="font-semibold text-blue-600 text-sm">
+                            <p className="font-semibold text-green-500 text-sm">
                               {method.value} →
                             </p>
                           </div>
@@ -147,8 +147,8 @@ export default function ContactPage() {
               <motion.div variants={itemVariants}>
                 <Card>
                   <div className="p-6 space-y-4">
-                    <div className="bg-blue-50 rounded-lg w-12 h-12 flex items-center justify-center">
-                      <MapPin className="w-6 h-6 text-blue-600" />
+                    <div className="bg-green-50 rounded-lg w-12 h-12 flex items-center justify-center">
+                      <MapPin className="w-6 h-6 text-green-500" />
                     </div>
                     <div>
                       <h3 className="font-bold text-black">Office</h3>

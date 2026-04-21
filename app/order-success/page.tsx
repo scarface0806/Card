@@ -32,7 +32,7 @@ function OrderSuccessContent() {
   };
 
   return (
-    <main className="pt-32 pb-20 min-h-screen flex items-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+    <main className="pt-32 pb-20 min-h-screen flex items-center bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#111827]">
       <div className="site-container w-full">
         <motion.div
           variants={containerVariants}
@@ -57,10 +57,10 @@ function OrderSuccessContent() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+            <h1 className="text-4xl md:text-5xl font-bold text-white font-space-grotesk mb-4">
               Thank You!
             </h1>
-            <p className="text-xl text-[#4b635d]">
+            <p className="text-xl text-gray-400">
               Your digital business card has been successfully ordered
             </p>
           </motion.div>
@@ -69,18 +69,18 @@ function OrderSuccessContent() {
             variants={itemVariants}
             className="bg-primary/10 border-2 border-primary/20 rounded-2xl p-8"
           >
-            <p className="text-[#6b7f78] text-sm mb-2">Your Order ID</p>
-            <p className="text-3xl font-bold text-[#0f2e25] font-mono">{orderId}</p>
-            <p className="text-[#6b7f78] text-sm mt-4">
+            <p className="text-gray-300 text-sm mb-2">Your Order ID</p>
+            <p className="text-3xl font-bold text-white font-mono">{orderId}</p>
+            <p className="text-gray-300 text-sm mt-4">
               Save this ID for your records
             </p>
           </motion.div>
 
           <motion.div
             variants={itemVariants}
-            className="bg-white rounded-2xl border border-primary/10 shadow-md p-8 space-y-6 text-left"
+            className="card rounded-2xl p-8 space-y-6 text-left"
           >
-            <h3 className="font-bold text-[#0f2e25] font-space-grotesk text-lg">What's Next?</h3>
+            <h3 className="font-bold text-white font-space-grotesk text-lg">What's Next?</h3>
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
@@ -89,10 +89,10 @@ function OrderSuccessContent() {
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold text-[#0f2e25] mb-1">
+                <h4 className="font-semibold text-white mb-1">
                   Confirmation Email
                 </h4>
-                <p className="text-[#4b635d] text-sm">
+                <p className="text-gray-400 text-sm">
                   Check your email for order confirmation and tracking details
                 </p>
               </div>
@@ -105,10 +105,10 @@ function OrderSuccessContent() {
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold text-[#0f2e25] mb-1">
+                <h4 className="font-semibold text-white mb-1">
                   Card Production
                 </h4>
-                <p className="text-[#4b635d] text-sm">
+                <p className="text-gray-400 text-sm">
                   We're preparing your cards with high-quality printing
                 </p>
               </div>
@@ -121,10 +121,10 @@ function OrderSuccessContent() {
                 </div>
               </div>
               <div>
-                <h4 className="font-semibold text-[#0f2e25] mb-1">
+                <h4 className="font-semibold text-white mb-1">
                   Shipping
                 </h4>
-                <p className="text-[#4b635d] text-sm">
+                <p className="text-gray-400 text-sm">
                   Your cards will be shipped within 7-10 business days
                 </p>
               </div>
@@ -133,9 +133,9 @@ function OrderSuccessContent() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6 space-y-3"
+            className="bg-amber-500/10 border-2 border-amber-300/30 rounded-2xl p-6 space-y-3"
           >
-            <h4 className="font-semibold text-[#0f2e25]">Need Help?</h4>
+            <h4 className="font-semibold text-white">Need Help?</h4>
             <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
               <a
                 href="mailto:support@tapvyo-nfc.com"
@@ -192,7 +192,7 @@ export default function OrderSuccessPage() {
     <>
       <Navbar />
       <Suspense fallback={
-        <div className="pt-32 pb-20 min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+        <div className="pt-32 pb-20 min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#111827]">
           <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent" />
         </div>
       }>

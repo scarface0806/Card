@@ -30,8 +30,8 @@ export default function PremiumHeroSection() {
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900" />
       
       {/* Subtle background elements */}
-      <div className="absolute top-40 right-20 w-96 h-96 bg-primary/100/10 rounded-full blur-3xl" />
-      <div className="absolute bottom-20 left-20 w-80 h-80 bg-cyan-500/5 rounded-full blur-3xl" />
+      <div className="absolute top-40 right-20 w-96 h-96 bg-primary/10 rounded-full blur-3xl" />
+      <div className="absolute bottom-20 left-20 w-80 h-80 bg-secondary/10 rounded-full blur-3xl" />
 
       <div className="relative container mx-auto max-w-7xl px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -44,7 +44,7 @@ export default function PremiumHeroSection() {
             {/* Badge */}
             <motion.div
               variants={itemVariants}
-              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/100/20 border border-primary/30 rounded-full mb-8"
+              className="inline-flex items-center gap-2 px-4 py-2 bg-primary/20 border border-primary/30 rounded-full mb-8"
             >
               <span className="text-xs font-semibold text-primary uppercase tracking-wide">World best platform</span>
             </motion.div>
@@ -68,7 +68,7 @@ export default function PremiumHeroSection() {
 
             {/* CTA Button */}
             <motion.div variants={itemVariants} className="mb-12">
-              <button className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-lg transition-all duration-300 hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg active:scale-[0.98]">
+              <button className="inline-flex items-center gap-2 px-8 py-3.5 bg-gradient-to-r from-primary to-secondary text-[#03170f] font-semibold rounded-lg transition-all duration-300 hover:shadow-lg active:scale-[0.98]">
                 Get Started
                 <ArrowRight size={20} />
               </button>
@@ -109,12 +109,12 @@ export default function PremiumHeroSection() {
             {/* Card visual with gradient */}
             <div className="relative w-80 h-96">
               {/* Background gradient glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-teal-500/20 via-cyan-500/10 to-transparent rounded-3xl blur-2xl" />
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-secondary/10 to-transparent rounded-3xl blur-2xl" />
 
               {/* Card container */}
               <div className="relative">
                 {/* Main card */}
-                <div className="absolute top-0 left-0 w-64 h-80 bg-gradient-to-br from-teal-600 to-teal-800 rounded-3xl shadow-2xl transform -rotate-6 hover:rotate-0 transition-transform duration-500">
+                <div className="absolute top-0 left-0 w-64 h-80 bg-gradient-to-br from-primary-dark to-primary rounded-3xl shadow-2xl transform -rotate-6 hover:rotate-0 transition-transform duration-500">
                   <div className="p-8 h-full flex flex-col justify-between text-white">
                     <div>
                       <div className="text-2xl font-bold mb-8">Tapvyo</div>
@@ -142,7 +142,7 @@ export default function PremiumHeroSection() {
 
                 {/* Floating accent card */}
                 <div className="absolute bottom-12 right-0 w-48 h-32 bg-slate-800/90 backdrop-blur-sm rounded-2xl shadow-xl border border-white/10 p-4 transform rotate-12 hover:rotate-0 transition-transform duration-500">
-                  <div className="w-8 h-8 bg-gradient-to-br from-teal-400 to-teal-600 rounded-lg mb-3"></div>
+                  <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg mb-3"></div>
                   <p className="text-sm font-semibold text-white">Premium Account</p>
                   <p className="text-xs text-gray-400 mt-1">Unlock exclusive features</p>
                 </div>

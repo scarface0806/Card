@@ -168,7 +168,7 @@ export default function ProductsPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-white font-space-grotesk tracking-tight"
             >
               Choose Your{' '}
               <span className="text-primary">
@@ -188,7 +188,7 @@ export default function ProductsPage() {
         </section>
 
         {/* Pricing Cards */}
-        <section className="py-20 md:py-28 bg-white">
+        <section className="py-20 md:py-28 bg-gradient-to-b from-[#0f172a] to-[#020617]">
           <div className="site-container">
             {loading ? (
               <div className="flex items-center justify-center py-20">
@@ -196,8 +196,8 @@ export default function ProductsPage() {
               </div>
             ) : products.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-primary/20 bg-primary/10/40 p-12 text-center">
-                <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk">No products available</h3>
-                <p className="text-[#4b635d] mt-2">Admin can add products from the dashboard to display them here.</p>
+                <h3 className="text-2xl font-bold text-white font-space-grotesk">No products available</h3>
+                <p className="text-gray-400 mt-2">Admin can add products from the dashboard to display them here.</p>
               </div>
             ) : (
             <div className="grid md:grid-cols-3 gap-8">
@@ -215,12 +215,12 @@ export default function ProductsPage() {
                     whileHover={{ y: -6 }}
                     className={`relative group rounded-2xl border transition-all duration-300 overflow-hidden ${
                       isPopular
-                        ? 'border-primary ring-2 ring-teal-500/20 shadow-xl bg-white md:scale-105'
-                        : 'border-gray-200/60 bg-white shadow-md hover:shadow-xl'
+                        ? 'border-green-400 ring-2 ring-green-500/20 shadow-[0_0_30px_rgba(74,222,128,0.2)] bg-gradient-to-b from-[#0f172a] to-[#020617] md:scale-105'
+                        : 'border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-md hover:shadow-[0_0_30px_rgba(74,222,128,0.1)]'
                     }`}
                   >
                     {isPopular && (
-                      <div className="bg-gradient-to-r from-primary to-secondary text-[#0f2e25] text-center py-2 text-sm font-semibold">
+                      <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-black text-center py-2 text-sm font-semibold">
                         Most Popular
                       </div>
                     )}
@@ -249,8 +249,8 @@ export default function ProductsPage() {
                         disabled={buyingProductId === product.id || !authChecked}
                         className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                           isPopular
-                            ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] shadow-md hover:shadow-lg'
-                            : 'bg-primary/10 text-primary border border-primary/20 hover:bg-primary/20'
+                            ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-black hover:shadow-[0_0_25px_rgba(74,222,128,0.4)] shadow-md'
+                            : 'bg-green-500/10 text-green-400 border border-green-500/20 hover:bg-green-500/20 hover:shadow-[0_0_20px_rgba(74,222,128,0.1)]'
                         }`}
                       >
                         {buyingProductId === product.id ? (
@@ -293,7 +293,7 @@ export default function ProductsPage() {
         <section className="py-20 md:py-32">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Why Choose Tapvyo?</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-white font-space-grotesk tracking-tight">Why Choose Tapvyo?</h2>
               <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
                 The most advanced NFC digital business card platform on the market
               </p>
@@ -310,12 +310,12 @@ export default function ProductsPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.15 }}
                     whileHover={{ y: -6 }}
-                    className="p-8 rounded-2xl border border-gray-200/60 bg-white shadow-md hover:shadow-xl transition-all"
+                    className="p-8 rounded-2xl border border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-md hover:shadow-[0_0_30px_rgba(74,222,128,0.1)] transition-all"
                   >
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-[#0f2e25] font-space-grotesk">{feature.title}</h3>
+                    <h3 className="text-xl font-bold mb-3 text-white font-space-grotesk">{feature.title}</h3>
                     <p className="text-sm md:text-base text-slate-500">{feature.description}</p>
                   </motion.div>
                 );
@@ -328,15 +328,15 @@ export default function ProductsPage() {
         <section className="py-16 md:py-24 section-alt">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Detailed Comparison</h2>
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-white font-space-grotesk tracking-tight">Detailed Comparison</h2>
             </motion.div>
 
-            <div className="overflow-x-auto rounded-2xl border border-gray-200/60 shadow-md bg-white">
+            <div className="overflow-x-auto rounded-2xl border border-white/10 shadow-md bg-gradient-to-b from-[#0f172a] to-[#020617]">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-primary/10 bg-primary/10">
-                    <th className="px-6 py-4 text-left text-[#0f2e25] font-semibold">Feature</th>
-                    <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Starter</th>
+                    <th className="px-6 py-4 text-left text-white font-semibold">Feature</th>
+                    <th className="px-6 py-4 text-center text-white font-semibold">Starter</th>
                     <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Professional</th>
                     <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Enterprise</th>
                   </tr>
@@ -356,7 +356,7 @@ export default function ProductsPage() {
                       whileInView={{ opacity: 1 }}
                       viewport={{ once: true }}
                       transition={{ delay: idx * 0.05 }}
-                      className={`border-b border-teal-50 ${idx % 2 === 0 ? 'bg-white' : 'bg-primary/10/30'}`}
+                      className={`border-b border-white/10 ${idx % 2 === 0 ? 'bg-[#0f172a]' : 'bg-[#020617]'}`}
                     >
                       <td className="px-6 py-4 text-[#0f2e25] font-medium">{row.feature}</td>
                       <td className="px-6 py-4 text-center text-[#4b635d]">{row.starter}</td>
@@ -402,7 +402,7 @@ export default function ProductsPage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="p-6 rounded-xl border border-gray-200/60 bg-white shadow-sm hover:border-gray-300 hover:shadow-md transition-all"
+                  className="p-6 rounded-xl border border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-sm hover:border-white/20 hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] transition-all"
                 >
                   <h3 className="font-semibold text-lg text-[#0f2e25] mb-2">{faq.q}</h3>
                   <p className="text-[#4b635d]">{faq.a}</p>
@@ -413,13 +413,13 @@ export default function ProductsPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-16 md:py-24 bg-gradient-to-b from-[#020617] via-[#0f172a] to-[#020617]">
           <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center relative p-12 md:p-20 rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-secondary/10 overflow-hidden"
+              className="text-center relative p-12 md:p-20 rounded-3xl border border-green-500/20 bg-gradient-to-r from-green-500/5 to-emerald-500/5 overflow-hidden"
             >
               <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -z-10" />
               <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight relative z-10">Ready to Stand Out?</h2>
@@ -430,7 +430,7 @@ export default function ProductsPage() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-black rounded-xl font-semibold hover:shadow-[0_0_25px_rgba(74,222,128,0.4)] transition-all duration-300 shadow-md"
                 >
                   Get Your Card Now
                   <ArrowRight className="w-5 h-5" />

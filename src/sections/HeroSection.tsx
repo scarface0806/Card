@@ -51,13 +51,13 @@ export default function HeroSection() {
                   <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
                 ))}
               </div>
-              <span className="text-sm font-semibold text-gray-700">4.9/5</span>
-              <span className="text-sm text-gray-500">• Trusted by 10,000+ professionals</span>
+              <span className="text-sm font-semibold text-gray-200">4.9/5</span>
+              <span className="text-sm text-gray-400">• Trusted by 10,000+ professionals</span>
             </motion.div>
 
             {/* Headline - Value-focused */}
             <motion.div variants={itemVariants}>
-              <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-gray-900 leading-[1.08]">
+              <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
                 Share Your Contact{' '}
                 <span className="text-gradient">Instantly</span>
                 <br />
@@ -66,7 +66,7 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Subtext - Outcome focused */}
-            <motion.p variants={itemVariants} className="text-base md:text-lg text-slate-500 max-w-md leading-relaxed">
+            <motion.p variants={itemVariants} className="text-base md:text-lg text-gray-400 max-w-md leading-relaxed">
               Turn every handshake into a lasting connection. Your NFC card shares your complete profile in seconds — no apps needed.
             </motion.p>
 
@@ -96,16 +96,18 @@ export default function HeroSection() {
             </motion.div>
 
             {/* Trust Signals */}
-            <motion.div variants={itemVariants} className="flex flex-wrap gap-x-6 gap-y-3 pt-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Check className="w-4 h-4 text-primary" />
-                <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
-              </div>
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <Check className="w-4 h-4 text-primary" />
-                <span>No Renewal Fees</span>
-              </div>
-            </motion.div>
+            {false && (
+              <motion.div variants={itemVariants} className="flex flex-wrap gap-x-6 gap-y-3 pt-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Check className="w-4 h-4 text-primary" />
+                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Check className="w-4 h-4 text-primary" />
+                  <span>No Renewal Fees</span>
+                </div>
+              </motion.div>
+            )}
           </motion.div>
 
           {/* RIGHT - Card Showcase */}

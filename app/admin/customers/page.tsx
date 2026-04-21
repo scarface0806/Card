@@ -312,7 +312,7 @@ export default function CustomersPage() {
                 <button
                   type="button"
                   onClick={() => router.push(`/admin/customers/${selectedCustomer.id}`)}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-blue-500 text-white hover:bg-blue-400"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 text-black font-semibold hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]"
                 >
                   Open Full View
                 </button>

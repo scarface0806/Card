@@ -78,14 +78,14 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff] py-12 px-4">
+    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] py-12 px-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-white rounded-3xl shadow-xl p-10">
+        <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-3xl border border-white/10 shadow-xl p-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-[#0f2e25] mb-2">Create Your Account</h1>
-            <p className="text-gray-600">Join Tapvyo and start with your NFC business card</p>
+            <h1 className="text-3xl font-bold text-white mb-2">Create Your Account</h1>
+            <p className="text-gray-400">Join Tapvyo and start with your NFC business card</p>
           </div>
 
           {/* Server Error Alert */}
@@ -99,7 +99,7 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Full Name Field */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="fullName" className="block text-sm font-semibold text-gray-300 mb-2">
                 Full Name
               </label>
               <div className="relative">
@@ -127,7 +127,7 @@ export default function SignupPage() {
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-300 mb-2">
                 Email Address
               </label>
               <div className="relative">
@@ -155,7 +155,7 @@ export default function SignupPage() {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="password" className="block text-sm font-semibold text-gray-300 mb-2">
                 Password
               </label>
               <div className="relative">
@@ -190,7 +190,7 @@ export default function SignupPage() {
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-300 mb-2">
                 Confirm Password
               </label>
               <div className="relative">
@@ -234,7 +234,7 @@ export default function SignupPage() {
                 type="checkbox"
                 className="w-5 h-5 border border-primary/30 rounded text-primary focus:ring-2 focus:ring-primary/50 mt-0.5 cursor-pointer"
               />
-              <label htmlFor="agreeToTerms" className="text-sm text-gray-700 cursor-pointer flex-1">
+              <label htmlFor="agreeToTerms" className="text-sm text-gray-300 cursor-pointer flex-1">
                 I agree to the{' '}
                 <Link href={ROUTES.TERMS} className="text-primary font-medium hover:text-primary-dark">
                   Terms & Conditions
@@ -249,7 +249,7 @@ export default function SignupPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold py-3 rounded-xl hover:from-[#28A428] hover:to-[#e6e600] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 shadow-md hover:shadow-lg"
+              className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-semibold py-3 rounded-xl hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 shadow-md"
             >
               {isLoading ? (
                 <>
@@ -267,7 +267,7 @@ export default function SignupPage() {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-white text-gray-500">Or continue with</span>
+                <span className="px-4 bg-[#0f172a] text-gray-400">Or continue with</span>
               </div>
             </div>
 

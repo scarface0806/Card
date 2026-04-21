@@ -17,15 +17,19 @@ export default function PremiumNavbar() {
     { label: 'Contact', href: '/contact-us' },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => {
+    const hrefPath = href.split('#')[0] || '/';
+    if (hrefPath === '/') return pathname === '/';
+    return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
+  };
 
   return (
-    <nav className="fixed top-0 w-full z-50 bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-sm">
-      <div className="container mx-auto max-w-7xl px-4 md:px-6 py-4 flex items-center justify-between">
+    <nav className="fixed top-0 w-full z-50 bg-[#020617]/90 backdrop-blur-xl border-b border-white/10 shadow-sm">
+      <div className="site-container py-4 flex items-center justify-between">
         {/* Logo */}
         <Link href={ROUTES.HOME} className="flex items-center gap-3 z-10 group">
-          <div className="w-9 h-9 bg-gradient-to-br from-teal-400 to-teal-600 rounded-xl shadow-lg group-hover:shadow-primary-glow transition-all duration-300" />
-          <span className="font-bold text-xl text-primary-dark tracking-tight font-[family-name:var(--font-space-grotesk)]">Tapvyo</span>
+          <div className="w-9 h-9 bg-gradient-to-br from-green-400 to-emerald-500 rounded-xl shadow-lg group-hover:shadow-primary-glow transition-all duration-200" />
+          <span className="font-bold text-xl text-white tracking-tight font-[family-name:var(--font-space-grotesk)]">Tapvyo</span>
         </Link>
 
         {/* Desktop Navigation - Center Aligned */}
@@ -34,10 +38,10 @@ export default function PremiumNavbar() {
             <Link
               key={item.href}
               href={item.href}
-              className={`text-sm font-medium px-4 py-2.5 transition-all duration-300 font-[family-name:var(--font-space-grotesk)] ${
+              className={`text-sm font-medium px-4 py-2.5 rounded-lg transition-all duration-200 font-[family-name:var(--font-space-grotesk)] ${
                 isActive(item.href)
-                  ? 'text-primary border-b-2 border-primary'
-                  : 'text-[#0f2e25] hover:text-primary'
+                  ? 'text-green-400 bg-green-500/10 border border-green-500/30'
+                  : 'text-slate-300 hover:text-green-400 hover:bg-green-500/10 border border-transparent'
               }`}
             >
               {item.label}
@@ -51,18 +55,20 @@ export default function PremiumNavbar() {
             href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
             target="_blank"
             rel="noopener noreferrer"
-            className="relative flex items-center gap-2 px-6 py-2.5 bg-primary hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5 overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
+            className="btn btn-primary btn-sm relative overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
           >
             <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 ease-out" />
             <span className="relative">Contact Now</span>
-            <ArrowRight className="relative w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+            <ArrowRight className="relative w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
           </a>
         </div>
 
         {/* Mobile Menu Button */}
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="md:hidden z-10 text-[#0f2e25] p-2"
+          className="md:hidden z-10 text-white p-2.5 rounded-lg border border-white/10 bg-white/5"
+          aria-label="Toggle menu"
+          aria-expanded={isOpen}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
@@ -70,31 +76,32 @@ export default function PremiumNavbar() {
 
       {/* Mobile Menu */}
       {isOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-white/98 backdrop-blur-xl border-b border-gray-100 shadow-lg">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-[#0b1220]/95 backdrop-blur-xl border-b border-white/10 shadow-lg">
           <div className="px-4 py-6 space-y-1">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
-                className={`block text-sm font-medium py-3 px-4 rounded-lg transition-all duration-300 font-[family-name:var(--font-space-grotesk)] ${
+                className={`block text-sm font-medium py-3 px-4 rounded-lg transition-all duration-200 font-[family-name:var(--font-space-grotesk)] ${
                   isActive(item.href)
-                    ? 'text-primary bg-primary/10 border-l-2 border-primary'
-                    : 'text-[#0f2e25] hover:text-primary hover:bg-primary/10'
+                    ? 'text-green-400 bg-green-500/10 border-l-2 border-green-400'
+                    : 'text-slate-200 hover:text-green-400 hover:bg-green-500/10'
                 }`}
+                onClick={() => setIsOpen(false)}
               >
                 {item.label}
               </Link>
             ))}
-            <div className="pt-4 space-y-3 border-t border-gray-100">
+            <div className="pt-4 space-y-3 border-t border-white/10">
               <a
                 href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}
-                className="flex items-center justify-center gap-2 w-full px-4 py-3 bg-primary hover:bg-green-700 text-white font-medium rounded-full transition-all duration-300 shadow-md hover:shadow-lg font-[family-name:var(--font-space-grotesk)] group"
+                className="btn btn-primary btn-mobile-full font-[family-name:var(--font-space-grotesk)] group"
               >
                 <span>Contact Now</span>
-                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
               </a>
             </div>
           </div>

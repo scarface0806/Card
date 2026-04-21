@@ -29,7 +29,11 @@ export default function Navbar() {
     { label: 'Contact', href: '/contact-us' },
   ];
 
-  const isActive = (href: string) => pathname === href;
+  const isActive = (href: string) => {
+    const hrefPath = href.split('#')[0] || '/';
+    if (hrefPath === '/') return pathname === '/';
+    return pathname === hrefPath || pathname.startsWith(`${hrefPath}/`);
+  };
 
   return (
     <nav
@@ -52,10 +56,10 @@ export default function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-300 ${
+                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   isActive(link.href)
-                    ? 'text-primary bg-primary/10'
-                    : 'text-slate-300 hover:text-primary hover:bg-primary/10'
+                      ? 'text-green-400 bg-green-500/10 border border-green-500/30'
+                      : 'text-slate-300 hover:text-green-400 hover:bg-green-500/10 border border-transparent'
                 }`}
               >
                 {link.label}
@@ -70,10 +74,10 @@ export default function Navbar() {
               href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-2.5 text-sm font-semibold text-primary bg-transparent border border-primary rounded-full transition-all duration-300 hover:bg-primary/10 hover:shadow-md group"
+              className="btn btn-secondary btn-sm"
             >
               <span>Contact Now</span>
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
             </a>
           </div>
 
@@ -81,6 +85,8 @@ export default function Navbar() {
           <button
             onClick={() => setIsOpen(!isOpen)}
             className="lg:hidden p-2.5 text-slate-100 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20"
+            aria-label="Toggle menu"
+            aria-expanded={isOpen}
           >
             {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -101,10 +107,10 @@ export default function Navbar() {
                   <Link
                     key={link.href}
                     href={link.href}
-                    className={`block px-4 py-3 rounded-xl transition-all duration-300 font-medium ${
+                    className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
                       isActive(link.href)
-                        ? 'text-primary bg-primary/10 border-l-2 border-primary'
-                        : 'text-slate-200 hover:text-primary hover:bg-primary/10'
+                        ? 'text-green-400 bg-green-500/10 border-l-2 border-green-400'
+                        : 'text-slate-200 hover:text-green-400 hover:bg-green-500/10'
                     }`}
                     onClick={() => setIsOpen(false)}
                   >
@@ -117,10 +123,10 @@ export default function Navbar() {
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center gap-2 w-full px-4 py-3 text-center text-primary bg-transparent border border-primary rounded-full transition-all duration-300 font-semibold hover:bg-primary/10 hover:shadow-md group"
+                    className="btn btn-secondary btn-mobile-full"
                   >
                     <span>Contact Now</span>
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-300" />
+                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
                   </a>
                 </div>
               </div>

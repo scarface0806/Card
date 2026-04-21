@@ -9,15 +9,15 @@ const cardDesigns = [
     id: 1,
     name: 'Obsidian Dark',
     gradient: 'from-slate-900 via-gray-800 to-black',
-    accent: 'from-blue-400 to-cyan-300',
+    accent: 'from-green-400 to-emerald-500',
     icon: '🌙',
     description: 'Premium dark with blue accent',
   },
   {
     id: 2,
     name: 'Ocean Depth',
-    gradient: 'from-blue-700 via-blue-800 to-cyan-900',
-    accent: 'from-cyan-300 to-blue-200',
+    gradient: 'from-green-700 via-emerald-800 to-teal-900',
+    accent: 'from-emerald-300 to-green-200',
     icon: '🌊',
     description: 'Deep ocean with cyan highlights',
   },
@@ -268,7 +268,7 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
                   setRotation(0);
                 }}
                 className={`h-2 rounded-full transition-all ${
-                  idx === currentCard ? 'bg-blue-600 w-8' : 'bg-gray-300 w-2 hover:bg-gray-400'
+                  idx === currentCard ? 'bg-green-500 w-8' : 'bg-gray-300 w-2 hover:bg-gray-400'
                 }`}
                 whileHover={{ scale: 1.1 }}
               />

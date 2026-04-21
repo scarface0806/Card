@@ -55,7 +55,7 @@ export default function TestimonialsSection() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="section-spacing section-teal-soft">
+    <section className="section section-teal-soft">
       <div className="site-container">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -85,7 +85,7 @@ export default function TestimonialsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="card card-padding md:p-12 lg:p-16 text-center relative bg-white shadow-lg max-w-3xl mx-auto"
+          className="card card-padding md:p-12 lg:p-16 text-center relative max-w-3xl mx-auto"
         >
           {/* Quote Icon */}
           <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 bg-primary rounded-full flex items-center justify-center">
@@ -98,13 +98,13 @@ export default function TestimonialsSection() {
             ))}
           </div>
 
-          <blockquote className="heading-3 text-[#0f2e25] mb-6 leading-relaxed font-space-grotesk">
+          <blockquote className="heading-3 text-white mb-6 leading-relaxed font-space-grotesk">
             &ldquo;{current.text}&rdquo;
           </blockquote>
 
           <div>
-            <p className="font-bold text-[#0f2e25] text-lg">{current.name}</p>
-            <p className="body-base text-[#6b7f78]">
+            <p className="font-bold text-white text-lg">{current.name}</p>
+            <p className="body-base text-gray-400">
               {current.role} at {current.company}
             </p>
           </div>

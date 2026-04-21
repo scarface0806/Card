@@ -69,26 +69,26 @@ export default function DataTable<T extends TableRow = TableRow>({
     mobile: boolean
   ) => {
     if (tone === 'danger') {
-      return mobile ? 'text-red-300 bg-red-500/10 hover:bg-red-500/20' : 'text-red-400 hover:bg-red-400/10';
+      return mobile ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20' : 'text-red-400 hover:bg-red-400/10';
     }
     if (tone === 'warning') {
-      return mobile ? 'text-amber-300 bg-amber-500/10 hover:bg-amber-500/20' : 'text-amber-400 hover:bg-amber-400/10';
+      return mobile ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20' : 'text-amber-400 hover:bg-amber-400/10';
     }
     if (tone === 'success') {
-      return mobile ? 'text-primary bg-primary/100/10 hover:bg-primary/100/20' : 'text-primary hover:bg-emerald-400/10';
+      return mobile ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20' : 'text-green-400 hover:bg-green-400/10';
     }
     if (tone === 'info') {
-      return mobile ? 'text-blue-300 bg-blue-500/10 hover:bg-blue-500/20' : 'text-blue-400 hover:bg-blue-400/10';
+      return mobile ? 'text-blue-400 bg-blue-500/10 hover:bg-blue-500/20' : 'text-blue-400 hover:bg-blue-400/10';
     }
-    return mobile ? 'text-gray-200 bg-white/10 hover:bg-white/15' : 'text-gray-300 hover:bg-white/10';
+    return mobile ? 'text-gray-300 bg-white/5 hover:bg-white/10' : 'text-gray-400 hover:bg-white/10';
   };
 
   return (
-    <div className="bg-[#141d31] border border-white/10 rounded-2xl overflow-hidden shadow-[0_12px_28px_rgba(0,0,0,0.2)]">
+    <div className="bg-gradient-to-b from-[#0f172a]/50 to-[#020617]/50 border border-white/10 rounded-lg overflow-hidden shadow-lg">
       {title && (
-        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h3 className="text-base font-semibold text-white">{title}</h3>
-          <span className="text-xs text-gray-600 bg-white/5 px-2.5 py-1 rounded-full">
+          <span className="text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-md border border-white/10">
             {data.length} records
           </span>
         </div>
@@ -97,14 +97,14 @@ export default function DataTable<T extends TableRow = TableRow>({
       <div className="md:hidden divide-y divide-white/10">
         {currentData.length > 0 ? (
           currentData.map((row, rowIndex) => (
-            <div key={rowIndex} className="p-4 space-y-3 bg-white/[0.01]">
-              <div className="grid grid-cols-1 gap-2">
+            <div key={rowIndex} className="p-4 space-y-3 hover:bg-white/[0.02] transition-colors duration-150">
+              <div className="grid grid-cols-1 gap-3">
                 {columns.map((column) => {
                   const rowRecord = row as Record<string, any>;
                   return (
                   <div key={`${rowIndex}-${column.key}`} className="flex items-start justify-between gap-3">
-                    <p className="text-[11px] uppercase tracking-wider text-gray-500 pt-0.5">{column.label}</p>
-                    <div className="text-sm text-right text-gray-200 max-w-[65%] break-words">
+                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-600">{column.label}</p>
+                    <div className="text-sm text-right text-gray-300 max-w-[65%] break-words font-medium">
                       {column.render ? column.render(rowRecord[column.key], row) : rowRecord[column.key]}
                     </div>
                   </div>
@@ -112,11 +112,11 @@ export default function DataTable<T extends TableRow = TableRow>({
               </div>
 
               {actions && (
-                <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-white/10">
+                <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
                   {onView && (
                     <button
                       onClick={() => onView(row)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.view ?? 'info', true)}`}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.view ?? 'info', true)}`}
                     >
                       {actionLabels?.view || 'View'}
                     </button>
@@ -124,7 +124,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                   {onEdit && (
                     <button
                       onClick={() => onEdit(row)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.edit ?? 'warning', true)}`}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.edit ?? 'warning', true)}`}
                     >
                       {actionLabels?.edit || 'Edit'}
                     </button>
@@ -132,19 +132,19 @@ export default function DataTable<T extends TableRow = TableRow>({
                   {onDelete && (
                     <button
                       onClick={() => onDelete(row)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.delete ?? 'danger', true)}`}
+                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.delete ?? 'danger', true)}`}
                     >
                       {actionLabels?.delete || 'Delete'}
                     </button>
                   )}
                   {(extraActions || []).filter((action) => action.visible ? action.visible(row) : true).map((action) => {
                     const toneClass = action.tone === 'danger'
-                      ? 'text-red-300 bg-red-500/10 hover:bg-red-500/20'
+                      ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
                       : action.tone === 'warning'
-                        ? 'text-amber-300 bg-amber-500/10 hover:bg-amber-500/20'
+                        ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
                         : action.tone === 'success'
-                          ? 'text-primary bg-primary/100/10 hover:bg-primary/100/20'
-                          : 'text-gray-200 bg-white/10 hover:bg-white/15';
+                          ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
+                          : 'text-gray-300 bg-white/5 hover:bg-white/10';
 
                     return (
                       <button
@@ -175,12 +175,12 @@ export default function DataTable<T extends TableRow = TableRow>({
 
       <div className="hidden md:block overflow-x-auto">
         <table className="w-full min-w-[760px]">
-          <thead>
-            <tr className="bg-[#1e2440] border-b border-white/5">
+          <thead className="sticky top-0 z-10 bg-gradient-to-b from-[#0f172a] to-[#0a0e1a] border-b border-white/10">
+            <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-5 py-3.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-widest whitespace-nowrap ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
+                  className={`px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
                     }`}
                   style={{ width: column.width }}
                 >
@@ -188,7 +188,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                 </th>
               ))}
               {actions && (
-                <th className="px-5 py-3.5 text-left text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
+                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-widest">
                   Actions
                 </th>
               )}
@@ -199,14 +199,14 @@ export default function DataTable<T extends TableRow = TableRow>({
               currentData.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className="hover:bg-white/[0.03] transition-colors duration-150 group"
+                  className="hover:bg-white/[0.05] transition-colors duration-150 group"
                 >
                   {columns.map((column) => {
                     const rowRecord = row as Record<string, any>;
                     return (
                     <td
                       key={`${rowIndex}-${column.key}`}
-                      className={`px-5 py-4 text-sm text-gray-300 ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
+                      className={`px-6 py-4 text-sm text-gray-300 font-medium ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
                         }`}
                     >
                       {column.render
@@ -215,12 +215,12 @@ export default function DataTable<T extends TableRow = TableRow>({
                     </td>
                   );})}
                   {actions && (
-                    <td className="px-5 py-4 text-sm">
+                    <td className="px-6 py-4 text-sm">
                       <div className="flex items-center gap-2">
                         {onView && (
                           <button
                             onClick={() => onView(row)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.view ?? 'info', false)}`}
+                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.view ?? 'info', false)}`}
                           >
                             {actionLabels?.view || 'View'}
                           </button>
@@ -228,7 +228,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                         {onEdit && (
                           <button
                             onClick={() => onEdit(row)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.edit ?? 'warning', false)}`}
+                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.edit ?? 'warning', false)}`}
                           >
                             {actionLabels?.edit || 'Edit'}
                           </button>
@@ -236,7 +236,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                         {onDelete && (
                           <button
                             onClick={() => onDelete(row)}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.delete ?? 'danger', false)}`}
+                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.delete ?? 'danger', false)}`}
                           >
                             {actionLabels?.delete || 'Delete'}
                           </button>
@@ -247,8 +247,8 @@ export default function DataTable<T extends TableRow = TableRow>({
                             : action.tone === 'warning'
                               ? 'text-amber-400 hover:bg-amber-400/10'
                               : action.tone === 'success'
-                                ? 'text-primary hover:bg-emerald-400/10'
-                                : 'text-gray-300 hover:bg-white/10';
+                                ? 'text-green-400 hover:bg-green-400/10'
+                                : 'text-gray-400 hover:bg-white/10';
 
                           return (
                             <button

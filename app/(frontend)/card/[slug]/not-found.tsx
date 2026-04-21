@@ -29,7 +29,7 @@ export default function CardNotFound() {
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-secondary to-primary text-white font-medium hover:opacity-90 transition-opacity"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-medium hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all"
           >
             <Home className="w-4 h-4" />
             Go to Homepage

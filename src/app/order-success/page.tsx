@@ -72,7 +72,7 @@ function OrderSuccessContent() {
             {/* Order ID */}
             <motion.div
               variants={itemVariants}
-              className="bg-blue-50 border-2 border-blue-200 rounded-xl p-8"
+              className="bg-green-50 border-2 border-green-200 rounded-xl p-8"
             >
               <p className="text-gray-600 text-sm mb-2">Your Order ID</p>
               <p className="text-3xl font-bold text-black font-mono">{orderId}</p>

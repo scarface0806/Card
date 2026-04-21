@@ -45,7 +45,7 @@ export default function HowToUsePage() {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
+      <main className="bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#111827] min-h-screen">
         {/* Hero Section */}
         <section className="relative pt-32 pb-16 md:pt-44 md:pb-24 overflow-hidden">
           {/* Background decorations */}
@@ -71,7 +71,7 @@ export default function HowToUsePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk leading-tight tracking-tight"
+              className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 text-white font-space-grotesk leading-tight tracking-tight"
             >
               Your NFC Digital Card in{' '}
               <span className="text-primary">
@@ -83,7 +83,7 @@ export default function HowToUsePage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed"
+              className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed"
             >
               A modern way to share your professional identity instantly.
             </motion.p>
@@ -101,7 +101,7 @@ export default function HowToUsePage() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.6, delay: index * 0.15 }}
-                  className="relative bg-white rounded-3xl p-8 md:p-12 shadow-lg border border-gray-200/60 hover:shadow-xl transition-shadow duration-300"
+                  className="relative card rounded-3xl p-8 md:p-12 hover:shadow-xl transition-shadow duration-300"
                 >
                   <div className="flex flex-col md:flex-row items-start gap-6 md:gap-10">
                     {/* Icon */}
@@ -118,11 +118,11 @@ export default function HowToUsePage() {
                         Step {step.number}
                       </span>
 
-                      <h3 className="text-2xl md:text-3xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
+                      <h3 className="text-2xl md:text-3xl font-bold text-white font-space-grotesk mb-4">
                         {step.title}
                       </h3>
 
-                      <p className="text-base md:text-lg text-slate-500 leading-relaxed mb-4 max-w-2xl">
+                      <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-4 max-w-2xl">
                         {step.description}
                       </p>
 
@@ -131,7 +131,7 @@ export default function HowToUsePage() {
                           <CheckCircle2 className="w-4 h-4 text-primary" />
                           <span className="text-sm font-semibold text-primary">
                             {step.highlight === 'Free Lifetime Website Included' ? (
-                              <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="hover:text-[#0f2e25]">Free Lifetime Website</a>
+                              <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="hover:text-white">Free Lifetime Website</a>
                             ) : step.highlight}
                           </span>
                         </div>
@@ -150,16 +150,16 @@ export default function HowToUsePage() {
         </section>
 
         {/* Benefits Section */}
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-16 md:py-24">
           <div className="site-container">
             <motion.div
               {...fadeInUp}
               className="text-center mb-12"
             >
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
                 Designed for Modern Professionals
               </h2>
-              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
                 Perfect for entrepreneurs, executives, creators, and business leaders.
                 Share your bio, services, and contact details effortlessly in one tap.
               </p>
@@ -180,10 +180,10 @@ export default function HowToUsePage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-gray-200/60 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
+                  className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
                 >
                   <span className="text-3xl mb-3 block">{item.icon}</span>
-                  <span className="text-sm font-semibold text-[#0f2e25]">{item.label}</span>
+                  <span className="text-sm font-semibold text-white">{item.label}</span>
                 </div>
               ))}
             </motion.div>
@@ -224,7 +224,7 @@ export default function HowToUsePage() {
         </section>
 
         {/* Final CTA */}
-        <section className="py-16 md:py-24 bg-white">
+        <section className="py-16 md:py-24">
           <div className="site-container text-center">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
@@ -232,10 +232,10 @@ export default function HowToUsePage() {
               viewport={{ once: true }}
               transition={{ duration: 0.6 }}
             >
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-[#0f2e25] font-space-grotesk mb-4 tracking-tight">
+              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
                 Ready to Get Started?
               </h2>
-              <p className="text-base md:text-lg text-slate-500 mb-8 max-w-xl mx-auto">
+              <p className="text-base md:text-lg text-gray-400 mb-8 max-w-xl mx-auto">
                 Order your premium NFC digital business card today and start networking smarter.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
