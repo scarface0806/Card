@@ -17,9 +17,9 @@ interface CustomerMetricsCardProps {
 export default function CustomerMetricsCard({ total, active, disabled }: CustomerMetricsCardProps) {
   return (
     // No hover treatment: no click handler exists, so no interactive affordance.
-    <div className="flex h-full flex-col rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] p-5">
+    <div className="flex h-full min-w-0 flex-col rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] p-5">
       <div className="flex min-h-8 items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
+        <p className="truncate text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
           Total Customers
         </p>
         <div className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border border-green-500/25 bg-green-500/10 text-green-400">

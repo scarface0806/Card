@@ -29,7 +29,9 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
     // h-16 + border-b matches the sidebar's logo band exactly, so the two
     // dividers read as a single horizontal line across the whole shell.
     <header className="sticky top-0 z-30 h-16 flex-shrink-0 border-b border-white/10 bg-gradient-to-r from-[#0f172a]/80 to-[#020617]/80 backdrop-blur-xl">
-      <div className="flex h-full items-center gap-3 px-4 sm:px-6 md:px-8">
+      {/* Same gutter as the page content, so the search field and profile menu
+          align with the cards and tables below instead of running wider. */}
+      <div className="admin-gutter flex h-full items-center gap-3">
 
         {/* Left: mobile menu only */}
         <button

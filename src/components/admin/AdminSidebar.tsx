@@ -66,7 +66,10 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-[220px] bg-gradient-to-b from-[#0f172a] to-[#020617] border-r border-white/10 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto shadow-lg
+        /* Fixed width + flex-shrink-0: the sidebar is the single source of the
+           main area's horizontal offset. The main column is flex-1/min-w-0 with
+           no margin-left, so there is no second offset to double up. */
+        className={`fixed left-0 top-0 h-screen w-[220px] flex-shrink-0 bg-gradient-to-b from-[#0f172a] to-[#020617] border-r border-white/10 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto shadow-lg
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Logo — h-16 matches the header height exactly so this divider and the

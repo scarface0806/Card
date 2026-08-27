@@ -1,14 +1,12 @@
 'use client';
 
-import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import React, { useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import StatCard from '@/components/admin/StatCard';
 import CustomerMetricsCard from '@/components/admin/CustomerMetricsCard';
 import PendingOrdersReviewBanner from '@/components/admin/PendingOrdersReviewBanner';
-import DataTable from '@/components/admin/DataTable';
-import StatusBadge from '@/components/admin/StatusBadge';
 import {
   ShoppingCart,
-  ArrowUpRight,
   Target,
   IndianRupee,
   CalendarDays,
@@ -16,20 +14,52 @@ import {
   CheckCircle2,
   Clock,
 } from 'lucide-react';
-import Link from 'next/link';
 import { useDashboard, formatCurrency } from '@/hooks/useDashboard';
 
 /** Shared section heading / link / grid styles, so every group on the page sits
  *  in the same hierarchy: h1 28px -> section 16px -> card label 11px. */
 const SECTION_TITLE = 'text-base font-semibold tracking-tight text-white';
-const SECTION_LINK =
-  'flex items-center gap-1.5 text-xs font-medium text-green-400 transition-colors duration-200 hover:text-green-300';
-const STAT_GRID = 'grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3';
+const STAT_GRID = 'grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3';
 /** Applied to the 3rd card of a 3-card row so it fills the width of the 2-column
  *  range instead of leaving an empty slot beside it. 3 columns only from xl,
  *  where the 220px sidebar still leaves each card wide enough for a full
  *  INR currency value at 28px. */
-const STAT_SPAN_LAST = 'sm:col-span-2 xl:col-span-1';
+const STAT_SPAN_LAST = 'min-w-0 sm:col-span-2 xl:col-span-1';
+
+/** Reusable skeletons so the layout is reserved before data lands. */
+function CardSkeleton({ className = '' }: { className?: string }) {
+  return (
+    <div
+      className={`h-[136px] animate-pulse rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] ${className}`}
+    />
+  );
+}
+
+function TableSkeleton() {
+  return (
+    <div className="min-w-0 space-y-3">
+      <div className="h-5 w-40 animate-pulse rounded bg-white/[0.08]" />
+      <div className="h-64 animate-pulse rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617]" />
+    </div>
+  );
+}
+
+/**
+ * Below-the-fold tables are code-split: DataTable and its pagination tree stay
+ * out of this route's initial JavaScript, so the stat cards paint first.
+ */
+const DashboardTables = dynamic(() => import('@/components/admin/DashboardTables'), {
+  ssr: false,
+  loading: () => (
+    <>
+      <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
+        <TableSkeleton />
+        <TableSkeleton />
+      </div>
+      <TableSkeleton />
+    </>
+  ),
+});
 
 function mapOrderStatusToBadge(status: string): 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled' {
   const normalized = status?.toUpperCase();
@@ -52,25 +82,6 @@ const formatInrCurrency = new Intl.NumberFormat('en-IN', {
 
 export default function Dashboard() {
   const { metrics, loading, error, refetch } = useDashboard(false);
-  const [todayRevenue, setTodayRevenue] = useState(0);
-  const [todayRevenueLoaded, setTodayRevenueLoaded] = useState(false);
-
-  const fetchTodayRevenue = useCallback(async () => {
-    try {
-      const response = await fetch('/api/dashboard', { credentials: 'include' });
-      if (!response.ok) return;
-      const payload = await response.json();
-      setTodayRevenue(Number(payload?.todayRevenue || 0));
-    } catch {
-      // Silently fail — todayRevenue is supplemental
-    } finally {
-      setTodayRevenueLoaded(true);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchTodayRevenue();
-  }, [fetchTodayRevenue]);
 
   const todayLabel = useMemo(
     () => new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }),
@@ -113,23 +124,34 @@ export default function Dashboard() {
     [metrics]
   );
 
-  if (loading) {
+  // Header renders immediately in every state so the page never looks blank.
+  const pageHeader = (
+    <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+      <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
+      {/* Plain label, not a control: there is no date-range filter behind it. */}
+      <p className="text-sm text-[#9ca3af]">{todayLabel}</p>
+    </div>
+  );
+
+  // Only reached on a genuinely cold load — a warm cache renders data directly.
+  if (loading && !metrics) {
     return (
       <div className="space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-          <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
-          <p className="text-sm text-[#9ca3af]">Loading live metrics...</p>
-        </div>
+        {pageHeader}
         <div className={STAT_GRID} aria-hidden="true">
-          {[0, 1, 2].map((i) => (
-            <div
-              key={i}
-              className={`h-[136px] animate-pulse rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] ${
-                i === 2 ? STAT_SPAN_LAST : ''
-              }`}
-            />
-          ))}
+          <CardSkeleton />
+          <CardSkeleton />
+          <CardSkeleton className={STAT_SPAN_LAST} />
         </div>
+        <div className="space-y-3">
+          <div className="h-5 w-24 animate-pulse rounded bg-white/[0.08]" />
+          <div className={STAT_GRID} aria-hidden="true">
+            <CardSkeleton />
+            <CardSkeleton />
+            <CardSkeleton className={STAT_SPAN_LAST} />
+          </div>
+        </div>
+        <TableSkeleton />
       </div>
     );
   }
@@ -137,13 +159,10 @@ export default function Dashboard() {
   if (error || !metrics) {
     return (
       <div className="space-y-5">
-        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
+        {pageHeader}
         <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] p-5">
           <p className="text-sm text-red-300">{error || 'Failed to load dashboard metrics'}</p>
-          <button
-            onClick={refetch}
-            className="btn btn-primary mt-4"
-          >
+          <button onClick={() => refetch(true)} className="btn btn-primary mt-4">
             Retry
           </button>
         </div>
@@ -153,12 +172,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header — title + non-interactive date label */}
-      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
-        {/* Plain label, not a control: there is no date-range filter behind it. */}
-        <p className="text-sm text-[#9ca3af]">{todayLabel}</p>
-      </div>
+      {pageHeader}
 
       {/* Most actionable fact on the page, promoted above the metrics */}
       {metrics.orders.pending > 0 && (
@@ -202,7 +216,7 @@ export default function Dashboard() {
           />
           <StatCard
             label={"Today's Revenue"}
-            value={todayRevenueLoaded ? formatInrCurrency.format(todayRevenue) : '...'}
+            value={formatInrCurrency.format(metrics.revenue.today)}
             icon={<CalendarDays className="h-4 w-4" />}
             color="green"
           />
@@ -220,7 +234,7 @@ export default function Dashboard() {
       {/* Order Volume */}
       <section className="space-y-3">
         <h2 className={SECTION_TITLE}>Order Volume</h2>
-        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2">
           <StatCard
             label="Completed Orders"
             value={metrics.orders.completed}
@@ -236,80 +250,12 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Tables Section — side by side only from xl, where each half is wide
-          enough for a 3-column table without horizontal scrolling. */}
-      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
-        {/* Order Status Summary */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className={SECTION_TITLE}>Order Status</h2>
-            <Link href="/admin/orders" className={SECTION_LINK}>
-              View all <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          <DataTable
-            columns={[
-              { key: 'status', label: 'Status' },
-              { key: 'count', label: 'Count' },
-              {
-                key: 'health',
-                label: 'Status Badge',
-                render: (_value, row) => <StatusBadge status={row.health as any} />,
-              },
-            ]}
-            data={orderStatusRows}
-            actions={false}
-            itemsPerPage={5}
-          />
-        </div>
-
-        {/* Revenue Snapshot */}
-        <div className="space-y-3">
-          <div className="flex items-center justify-between gap-4">
-            <h2 className={SECTION_TITLE}>Revenue Snapshot</h2>
-            <Link href="/admin/orders" className={SECTION_LINK}>
-              View all <ArrowUpRight className="h-3.5 w-3.5" />
-            </Link>
-          </div>
-          <DataTable
-            columns={[
-              { key: 'label', label: 'Metric' },
-              { key: 'value', label: 'Value' },
-            ]}
-            data={revenueRows}
-            actions={false}
-            itemsPerPage={5}
-          />
-        </div>
-      </div>
-
-      {/* Recent Orders — Full Width */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between gap-4">
-          <h2 className={SECTION_TITLE}>Recent Orders</h2>
-          <Link href="/admin/orders" className={SECTION_LINK}>
-            View all <ArrowUpRight className="h-3.5 w-3.5" />
-          </Link>
-        </div>
-        <DataTable
-          columns={[
-            { key: 'orderNum', label: 'Order ID', width: '170px' },
-            { key: 'customer', label: 'Customer' },
-            { key: 'date', label: 'Date', width: '120px' },
-            { key: 'total', label: 'Total', width: '80px' },
-            {
-              key: 'status',
-              label: 'Status',
-              render: (status) => (
-                <StatusBadge status={status as any} />
-              ),
-            },
-          ]}
-          data={recentOrders}
-          actions={false}
-          itemsPerPage={10}
-        />
-      </div>
+      {/* Tables — lazily loaded so the cards above paint first */}
+      <DashboardTables
+        orderStatusRows={orderStatusRows}
+        revenueRows={revenueRows}
+        recentOrders={recentOrders}
+      />
 
       {/* Footer */}
       <p className="border-t border-white/[0.08] pt-6 text-center text-xs text-[#9ca3af]">

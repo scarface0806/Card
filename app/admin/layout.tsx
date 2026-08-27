@@ -87,13 +87,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       />
 
       {/* Main Content */}
-      <div className="flex-1 flex min-w-0 flex-col overflow-hidden">
+      {/* One scroll container for the header AND the content, so both share the
+          same content box and their .admin-gutter edges line up exactly at every
+          width. scrollbar-gutter:stable reserves the scrollbar space up front so
+          the gutter does not shift when content grows past one screen. */}
+      <div className="flex min-w-0 flex-1 flex-col overflow-y-auto [scrollbar-gutter:stable]">
         {/* Header */}
         <AdminHeader onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
         {/* Main Area - Proper spacing with 8px grid */}
-        <main className="flex-1 overflow-y-auto bg-gradient-to-b from-[#0f172a] to-[#020617]">
-          <div className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 md:px-8 md:py-6 lg:px-8">
+        <main className="flex-1 bg-gradient-to-b from-[#0f172a] to-[#020617]">
+          <div className="admin-gutter py-5 md:py-6">
             {children}
           </div>
         </main>

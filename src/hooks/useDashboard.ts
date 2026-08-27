@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { DashboardMetrics, getDashboardMetrics } from "@/services/dashboard";
 
 const INR_FORMATTER = new Intl.NumberFormat("en-IN", {
@@ -11,33 +11,96 @@ const INR_FORMATTER = new Intl.NumberFormat("en-IN", {
 });
 
 /**
- * Hook for fetching dashboard metrics
+ * Module-level cache so navigating away from the dashboard and back paints
+ * instantly from memory instead of showing a spinner. Same idea as React
+ * Query's staleTime + stale-while-revalidate, without adding a dependency.
+ */
+const STALE_TIME_MS = 30_000;
+
+type CacheState = {
+  data: DashboardMetrics | null;
+  fetchedAt: number;
+  inFlight: Promise<DashboardMetrics> | null;
+};
+
+const cache: CacheState = { data: null, fetchedAt: 0, inFlight: null };
+
+function isFresh(): boolean {
+  return cache.data !== null && Date.now() - cache.fetchedAt < STALE_TIME_MS;
+}
+
+/**
+ * Shared fetch. Concurrent callers reuse the same in-flight promise, so a
+ * remount mid-request cannot trigger a duplicate round trip.
+ */
+function loadMetrics(force: boolean): Promise<DashboardMetrics> {
+  if (!force && cache.inFlight) return cache.inFlight;
+  if (!force && isFresh() && cache.data) return Promise.resolve(cache.data);
+
+  const request = getDashboardMetrics()
+    .then((data) => {
+      cache.data = data;
+      cache.fetchedAt = Date.now();
+      return data;
+    })
+    .finally(() => {
+      cache.inFlight = null;
+    });
+
+  cache.inFlight = request;
+  return request;
+}
+
+/**
+ * Hook for fetching dashboard metrics.
+ *
+ * Renders cached data immediately when available and revalidates in the
+ * background, so `loading` is only true on a genuinely cold first load.
  */
 export function useDashboard(autoRefresh: boolean = false, refreshInterval: number = 60000) {
-  const [metrics, setMetrics] = useState<DashboardMetrics | null>(null);
-  const [loading, setLoading] = useState(true);
+  // Seed straight from the cache so a revisit has data on the very first render.
+  const [metrics, setMetrics] = useState<DashboardMetrics | null>(cache.data);
+  const [loading, setLoading] = useState(cache.data === null);
   const [error, setError] = useState<string | null>(null);
+  const mounted = useRef(true);
 
-  const fetchMetrics = useCallback(async () => {
+  const fetchMetrics = useCallback(async (force: boolean = true) => {
+    // Only show the skeleton when there is nothing at all to display.
+    if (!cache.data) setLoading(true);
+
     try {
-      setError(null);
-      const data = await getDashboardMetrics();
+      const data = await loadMetrics(force);
+      if (!mounted.current) return;
       setMetrics(data);
+      setError(null);
     } catch (err) {
+      if (!mounted.current) return;
       setError(err instanceof Error ? err.message : "Failed to fetch metrics");
     } finally {
-      setLoading(false);
+      if (mounted.current) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchMetrics();
+    mounted.current = true;
 
-    // Auto refresh if enabled
-    if (autoRefresh && refreshInterval > 0) {
-      const interval = setInterval(fetchMetrics, refreshInterval);
-      return () => clearInterval(interval);
+    // Fresh cache: paint it and skip the network entirely.
+    if (isFresh()) {
+      setMetrics(cache.data);
+      setLoading(false);
+    } else {
+      fetchMetrics(false);
     }
+
+    let interval: ReturnType<typeof setInterval> | undefined;
+    if (autoRefresh && refreshInterval > 0) {
+      interval = setInterval(() => fetchMetrics(true), refreshInterval);
+    }
+
+    return () => {
+      mounted.current = false;
+      if (interval) clearInterval(interval);
+    };
   }, [fetchMetrics, autoRefresh, refreshInterval]);
 
   return {

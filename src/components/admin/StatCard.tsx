@@ -66,11 +66,11 @@ export default function StatCard({
   return (
     // No hover treatment: these cards have no click handler, so they must not
     // advertise interactivity.
-    <div className="flex h-full flex-col rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] p-5">
+    <div className="flex h-full min-w-0 flex-col rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] p-5">
       {/* Label + icon. min-h-8 keeps the row a fixed height whether or not an
           icon is passed, so every value below sits on the same baseline. */}
       <div className="flex min-h-8 items-center justify-between gap-3">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
+        <p className="truncate text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
           {label}
         </p>
 
