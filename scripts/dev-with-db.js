@@ -11,6 +11,7 @@ const path = require('path');
 
 const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'santhoshuxui2023@gmail.com';
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'KGTPS6565P';
+const JWT_SECRET = process.env.JWT_SECRET || 'tapvyo-local-development-secret';
 
 async function startDevServer() {
   console.log('🚀 Starting Tapvyo NFC Development Server...\n');
@@ -34,6 +35,7 @@ async function startDevServer() {
     process.env.DATABASE_URL = mongoUri;
     process.env.ADMIN_EMAIL = ADMIN_EMAIL;
     process.env.ADMIN_PASSWORD = ADMIN_PASSWORD;
+    process.env.JWT_SECRET = JWT_SECRET;
     console.log('✅ DATABASE_URL configured\n');
 
     // Step 3: Run Prisma seed

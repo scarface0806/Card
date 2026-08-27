@@ -3,16 +3,24 @@ import { v2 as cloudinary, UploadApiResponse, UploadApiErrorResponse } from "clo
 const cloudName = process.env.CLOUDINARY_CLOUD_NAME;
 const apiKey = process.env.CLOUDINARY_API_KEY;
 const apiSecret = process.env.CLOUDINARY_API_SECRET;
+const cloudinaryUrl = process.env.CLOUDINARY_URL;
 
-if (!cloudName || !apiKey || !apiSecret) {
+export function isCloudinaryConfigured(): boolean {
+  return Boolean(
+    cloudinaryUrl?.startsWith("cloudinary://") ||
+    (cloudName && apiKey && apiSecret)
+  );
+}
+
+if (!isCloudinaryConfigured()) {
   console.warn("[Cloudinary] Missing Cloudinary environment variables. Uploads will fail until configured.");
 }
 
 cloudinary.config({
-  cloud_name: cloudName,
-  api_key: apiKey,
-  api_secret: apiSecret,
   secure: true,
+  ...(cloudName && apiKey && apiSecret
+    ? { cloud_name: cloudName, api_key: apiKey, api_secret: apiSecret }
+    : {}),
 });
 
 export type CloudinaryUploadResult = {
@@ -41,6 +49,12 @@ export async function uploadToCloudinary(
 ): Promise<CloudinaryUploadResult> {
   if (!buffer?.length) {
     throw new Error("Empty upload buffer");
+  }
+
+  if (!isCloudinaryConfigured()) {
+    throw new Error(
+      "Cloudinary is not configured. Set CLOUDINARY_URL or CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, and CLOUDINARY_API_SECRET."
+    );
   }
 
   return new Promise((resolve, reject) => {
