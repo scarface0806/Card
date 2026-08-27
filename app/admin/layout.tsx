@@ -93,7 +93,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
         {/* Main Area - Proper spacing with 8px grid */}
         <main className="flex-1 overflow-y-auto bg-gradient-to-b from-[#0f172a] to-[#020617]">
-          <div className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 md:px-8 md:py-8 lg:px-8">
+          <div className="mx-auto w-full max-w-[1440px] px-4 py-5 sm:px-6 md:px-8 md:py-6 lg:px-8">
             {children}
           </div>
         </main>

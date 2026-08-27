@@ -88,7 +88,7 @@ export default function DataTable<T extends TableRow = TableRow>({
       {title && (
         <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <h3 className="text-base font-semibold text-white">{title}</h3>
-          <span className="text-xs text-gray-500 bg-white/5 px-3 py-1 rounded-md border border-white/10">
+          <span className="text-xs text-[#9ca3af] bg-white/5 px-3 py-1 rounded-md border border-white/10">
             {data.length} records
           </span>
         </div>
@@ -103,7 +103,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                   const rowRecord = row as Record<string, any>;
                   return (
                   <div key={`${rowIndex}-${column.key}`} className="flex items-start justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-gray-600">{column.label}</p>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-[#9ca3af]">{column.label}</p>
                     <div className="text-sm text-right text-gray-300 max-w-[65%] break-words font-medium">
                       {column.render ? column.render(rowRecord[column.key], row) : rowRecord[column.key]}
                     </div>
@@ -165,16 +165,26 @@ export default function DataTable<T extends TableRow = TableRow>({
           <div className="px-4 py-16 text-center">
             <div className="flex flex-col items-center justify-center space-y-3">
               <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
-                <Database className="w-6 h-6 text-gray-700" />
+                <Database className="w-6 h-6 text-gray-500" />
               </div>
-              <p className="text-sm text-gray-500 font-medium tracking-tight">No records found</p>
+              <p className="text-sm text-[#9ca3af] font-medium tracking-tight">No records found</p>
             </div>
           </div>
         )}
       </div>
 
-      <div className="hidden md:block overflow-x-auto">
-        <table className="w-full min-w-[760px]">
+      {/* Horizontal scroll is a fallback, not the normal case. The thumb is
+          styled so it reads as part of the dark UI when it does appear. */}
+      <div className="hidden md:block overflow-x-auto [scrollbar-color:rgba(255,255,255,0.16)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.16] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:h-1.5">
+        <table
+          className="w-full"
+          /* The floor scales with column count instead of being a flat 760px,
+             which forced narrow tables (e.g. a 2-column Metric/Value table in a
+             half-width container) to scroll their own columns out of view.
+             Capped at 760px so wide tables keep exactly their old behaviour;
+             per-column content width still wins where it needs more room. */
+          style={{ minWidth: Math.min(760, (columns.length + (actions ? 1 : 0)) * 110) }}
+        >
           <thead className="sticky top-0 z-10 bg-gradient-to-b from-[#0f172a] to-[#0a0e1a] border-b border-white/10">
             <tr>
               {columns.map((column) => (
@@ -274,9 +284,9 @@ export default function DataTable<T extends TableRow = TableRow>({
                 >
                   <div className="flex flex-col items-center justify-center space-y-3">
                     <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
-                      <Database className="w-6 h-6 text-gray-700" />
+                      <Database className="w-6 h-6 text-gray-500" />
                     </div>
-                    <p className="text-sm text-gray-500 font-medium tracking-tight">No records found</p>
+                    <p className="text-sm text-[#9ca3af] font-medium tracking-tight">No records found</p>
                   </div>
                 </td>
               </tr>
@@ -287,7 +297,7 @@ export default function DataTable<T extends TableRow = TableRow>({
 
       {totalPages > 1 && (
         <div className="px-4 sm:px-5 py-3.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#0d1117]/30">
-          <p className="text-xs text-gray-500 font-medium">
+          <p className="text-xs text-[#9ca3af] font-medium">
             Showing <span className="text-gray-300">{startIndex + 1}</span> to{' '}
             <span className="text-gray-300">{Math.min(endIndex, data.length)}</span> of{' '}
             <span className="text-gray-300">{data.length}</span> records
@@ -306,8 +316,11 @@ export default function DataTable<T extends TableRow = TableRow>({
                   key={page}
                   onClick={() => setCurrentPage(page)}
                   className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-semibold transition-all duration-200 ${page === currentPage
-                    ? 'bg-primary/100 text-white shadow-lg shadow-primary-glow active:scale-95'
-                    : 'text-gray-500 hover:bg-white/5 hover:text-gray-300'
+                    /* bg-primary / shadow-primary-glow were dead classes: they
+                       only exist in tailwind.config.ts, which Tailwind v4 never
+                       loads, so the current page had no background at all. */
+                    ? 'bg-green-500 text-black active:scale-95'
+                    : 'text-[#9ca3af] hover:bg-white/5 hover:text-white'
                     }`}
                 >
                   {page}

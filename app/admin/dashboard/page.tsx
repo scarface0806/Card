@@ -2,11 +2,34 @@
 
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
 import StatCard from '@/components/admin/StatCard';
+import CustomerMetricsCard from '@/components/admin/CustomerMetricsCard';
+import PendingOrdersReviewBanner from '@/components/admin/PendingOrdersReviewBanner';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
-import { Users, UserCheck, UserX, ShoppingCart, ArrowUpRight, MessageSquare } from 'lucide-react';
+import {
+  ShoppingCart,
+  ArrowUpRight,
+  Target,
+  IndianRupee,
+  CalendarDays,
+  CalendarRange,
+  CheckCircle2,
+  Clock,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useDashboard, formatCurrency } from '@/hooks/useDashboard';
+
+/** Shared section heading / link / grid styles, so every group on the page sits
+ *  in the same hierarchy: h1 28px -> section 16px -> card label 11px. */
+const SECTION_TITLE = 'text-base font-semibold tracking-tight text-white';
+const SECTION_LINK =
+  'flex items-center gap-1.5 text-xs font-medium text-green-400 transition-colors duration-200 hover:text-green-300';
+const STAT_GRID = 'grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2 xl:grid-cols-3';
+/** Applied to the 3rd card of a 3-card row so it fills the width of the 2-column
+ *  range instead of leaving an empty slot beside it. 3 columns only from xl,
+ *  where the 220px sidebar still leaves each card wide enough for a full
+ *  INR currency value at 28px. */
+const STAT_SPAN_LAST = 'sm:col-span-2 xl:col-span-1';
 
 function mapOrderStatusToBadge(status: string): 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled' {
   const normalized = status?.toUpperCase();
@@ -92,10 +115,20 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="space-y-8">
-        <div className="admin-section-header">
-          <h1 className="admin-title">Dashboard</h1>
-          <p className="admin-description">Loading live metrics...</p>
+      <div className="space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+          <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
+          <p className="text-sm text-[#9ca3af]">Loading live metrics...</p>
+        </div>
+        <div className={STAT_GRID} aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className={`h-[136px] animate-pulse rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] ${
+                i === 2 ? STAT_SPAN_LAST : ''
+              }`}
+            />
+          ))}
         </div>
       </div>
     );
@@ -103,133 +136,115 @@ export default function Dashboard() {
 
   if (error || !metrics) {
     return (
-      <div className="space-y-8">
-        <div className="admin-section-header">
-          <h1 className="admin-title">Dashboard</h1>
-          <p className="admin-description text-red-400">{error || 'Failed to load dashboard metrics'}</p>
+      <div className="space-y-5">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
+        <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] p-5">
+          <p className="text-sm text-red-300">{error || 'Failed to load dashboard metrics'}</p>
+          <button
+            onClick={refetch}
+            className="btn btn-primary mt-4"
+          >
+            Retry
+          </button>
         </div>
-        <button
-          onClick={refetch}
-          className="btn btn-primary"
-        >
-          Retry
-        </button>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
-      {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="admin-section-header mb-0">
-          <h1 className="admin-title">Dashboard</h1>
-          <p className="admin-description">
-            Welcome back, Admin. Here&apos;s your business overview.
-          </p>
-        </div>
-        <div className="flex items-center gap-3 px-4 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-gray-400">
-          <span>{todayLabel}</span>
-        </div>
+    <div className="space-y-6">
+      {/* Page Header — title + non-interactive date label */}
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
+        {/* Plain label, not a control: there is no date-range filter behind it. */}
+        <p className="text-sm text-[#9ca3af]">{todayLabel}</p>
       </div>
 
-      {/* Stat Cards Grid */}
-      <div className="admin-container">
-        <StatCard
-          label="Total Customers"
-          value={metrics.customers.total}
-          icon={<Users className="w-5 h-5" />}
-          color="blue"
-        />
-        <StatCard
-          label="Active Customers"
-          value={metrics.customers.active}
-          icon={<UserCheck className="w-5 h-5" />}
-          color="green"
-        />
-        <StatCard
-          label="Disabled Customers"
-          value={metrics.customers.disabled}
-          icon={<UserX className="w-5 h-5" />}
-          color="purple"
+      {/* Most actionable fact on the page, promoted above the metrics */}
+      {metrics.orders.pending > 0 && (
+        <PendingOrdersReviewBanner count={metrics.orders.pending} />
+      )}
+
+      {/* Primary metrics — three even columns */}
+      <div className={STAT_GRID}>
+        <CustomerMetricsCard
+          total={metrics.customers.total}
+          active={metrics.customers.active}
+          disabled={metrics.customers.disabled}
         />
         <StatCard
           label="Total Orders"
           value={metrics.orders.total}
-          icon={<ShoppingCart className="w-5 h-5" />}
+          icon={<ShoppingCart className="h-4 w-4" />}
           description={`${metrics.orders.pending} pending`}
-          color="teal"
-        />
-        <StatCard
-          label="Total Leads"
-          value={metrics.leads.total}
-          icon={<MessageSquare className="w-5 h-5" />}
-          description={`${metrics.leads.thisMonth} this month`}
           color="green"
         />
+        <div className={STAT_SPAN_LAST}>
+          <StatCard
+            label="Total Leads"
+            value={metrics.leads.total}
+            icon={<Target className="h-4 w-4" />}
+            description={`${metrics.leads.thisMonth} this month`}
+            color="green"
+          />
+        </div>
       </div>
 
-      <section className="space-y-6">
-        <div className="admin-section-header">
-          <h2 className="admin-section-title">Revenue Analytics</h2>
-        </div>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          <div className="card card-padding">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Total Orders</p>
-            <p className="mt-4 text-2xl sm:text-3xl font-bold text-white">
-              {metrics.orders.total.toLocaleString()}
-            </p>
-          </div>
-
-          <div className="card card-padding">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Completed Orders</p>
-            <p className="mt-4 text-2xl sm:text-3xl font-bold text-white">
-              {metrics.orders.completed.toLocaleString()}
-            </p>
-          </div>
-
-          <div className="card card-padding">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Pending Orders</p>
-            <p className="mt-4 text-2xl sm:text-3xl font-bold text-white">
-              {metrics.orders.pending.toLocaleString()}
-            </p>
-          </div>
-
-          <div className="card card-padding">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Total Revenue</p>
-            <p className="mt-4 text-2xl sm:text-3xl font-bold text-white">
-              {formatInrCurrency.format(metrics.revenue.total)}
-            </p>
-          </div>
-
-          <div className="card card-padding">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Today&apos;s Revenue</p>
-            <p className="mt-4 text-2xl sm:text-3xl font-bold text-white">
-              {todayRevenueLoaded ? formatInrCurrency.format(todayRevenue) : '...'}
-            </p>
-          </div>
-
-          <div className="card card-padding">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">Monthly Revenue</p>
-            <p className="mt-4 text-2xl sm:text-3xl font-bold text-white">
-              {formatInrCurrency.format(metrics.revenue.thisMonth)}
-            </p>
+      {/* Revenue */}
+      <section className="space-y-3">
+        <h2 className={SECTION_TITLE}>Revenue</h2>
+        <div className={STAT_GRID}>
+          <StatCard
+            label="Total Revenue"
+            value={formatInrCurrency.format(metrics.revenue.total)}
+            icon={<IndianRupee className="h-4 w-4" />}
+            color="green"
+          />
+          <StatCard
+            label={"Today's Revenue"}
+            value={todayRevenueLoaded ? formatInrCurrency.format(todayRevenue) : '...'}
+            icon={<CalendarDays className="h-4 w-4" />}
+            color="green"
+          />
+          <div className={STAT_SPAN_LAST}>
+            <StatCard
+              label="Monthly Revenue"
+              value={formatInrCurrency.format(metrics.revenue.thisMonth)}
+              icon={<CalendarRange className="h-4 w-4" />}
+              color="green"
+            />
           </div>
         </div>
       </section>
 
-      {/* Tables Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+      {/* Order Volume */}
+      <section className="space-y-3">
+        <h2 className={SECTION_TITLE}>Order Volume</h2>
+        <div className="grid grid-cols-1 items-stretch gap-5 sm:grid-cols-2">
+          <StatCard
+            label="Completed Orders"
+            value={metrics.orders.completed}
+            icon={<CheckCircle2 className="h-4 w-4" />}
+            color="green"
+          />
+          <StatCard
+            label="Pending Orders"
+            value={metrics.orders.pending}
+            icon={<Clock className="h-4 w-4" />}
+            color="orange"
+          />
+        </div>
+      </section>
+
+      {/* Tables Section — side by side only from xl, where each half is wide
+          enough for a 3-column table without horizontal scrolling. */}
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
         {/* Order Status Summary */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="admin-section-title">Order Status</h2>
-            <Link
-              href="/admin/orders"
-              className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors duration-200"
-            >
-              View all <ArrowUpRight className="w-3.5 h-3.5" />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className={SECTION_TITLE}>Order Status</h2>
+            <Link href="/admin/orders" className={SECTION_LINK}>
+              View all <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <DataTable
@@ -249,14 +264,11 @@ export default function Dashboard() {
         </div>
 
         {/* Revenue Snapshot */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="admin-section-title">Revenue Snapshot</h2>
-            <Link
-              href="/admin/orders"
-              className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors duration-200"
-            >
-              View all <ArrowUpRight className="w-3.5 h-3.5" />
+        <div className="space-y-3">
+          <div className="flex items-center justify-between gap-4">
+            <h2 className={SECTION_TITLE}>Revenue Snapshot</h2>
+            <Link href="/admin/orders" className={SECTION_LINK}>
+              View all <ArrowUpRight className="h-3.5 w-3.5" />
             </Link>
           </div>
           <DataTable
@@ -272,19 +284,16 @@ export default function Dashboard() {
       </div>
 
       {/* Recent Orders — Full Width */}
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="admin-section-title">Recent Orders</h2>
-          <Link
-            href="/admin/orders"
-            className="flex items-center gap-1.5 text-xs text-green-400 hover:text-green-300 transition-colors duration-200"
-          >
-            View all <ArrowUpRight className="w-3.5 h-3.5" />
+      <div className="space-y-3">
+        <div className="flex items-center justify-between gap-4">
+          <h2 className={SECTION_TITLE}>Recent Orders</h2>
+          <Link href="/admin/orders" className={SECTION_LINK}>
+            View all <ArrowUpRight className="h-3.5 w-3.5" />
           </Link>
         </div>
         <DataTable
           columns={[
-            { key: 'orderNum', label: 'Order ID', width: '120px' },
+            { key: 'orderNum', label: 'Order ID', width: '170px' },
             { key: 'customer', label: 'Customer' },
             { key: 'date', label: 'Date', width: '120px' },
             { key: 'total', label: 'Total', width: '80px' },
@@ -303,7 +312,7 @@ export default function Dashboard() {
       </div>
 
       {/* Footer */}
-      <p className="text-xs text-gray-600 text-center mt-16 pt-8 border-t border-white/10">
+      <p className="border-t border-white/[0.08] pt-6 text-center text-xs text-[#9ca3af]">
         © {new Date().getFullYear()} Tapvyo Admin Panel · All rights reserved
       </p>
     </div>

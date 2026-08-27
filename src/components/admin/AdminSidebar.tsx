@@ -11,10 +11,10 @@ import {
   Package,
   ShoppingCart,
   Mail,
-  MessageSquare,
+  Target,
+  Contact,
   User,
   Lock,
-  ChevronRight,
 } from 'lucide-react';
 
 const menuItems = [
@@ -28,11 +28,11 @@ const menuItems = [
     section: 'MANAGEMENT',
     items: [
       { label: 'Customers', href: '/admin/customers', icon: Users },
-      { label: 'Leads', href: '/admin/leads', icon: MessageSquare },
+      { label: 'Leads', href: '/admin/leads', icon: Target },
       { label: 'Cards', href: '/admin/cards', icon: CreditCard },
       { label: 'Products', href: '/admin/products', icon: Package },
       { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
-      { label: 'Contacts', href: '/admin/contacts', icon: MessageSquare },
+      { label: 'Contacts', href: '/admin/contacts', icon: Contact },
       { label: 'Newsletters', href: '/admin/newsletters', icon: Mail },
     ],
   },
@@ -66,24 +66,25 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
 
       {/* Sidebar */}
       <aside
-        className={`fixed left-0 top-0 h-screen w-64 bg-gradient-to-b from-[#0f172a] to-[#020617] border-r border-white/10 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto shadow-lg
+        className={`fixed left-0 top-0 h-screen w-[220px] bg-gradient-to-b from-[#0f172a] to-[#020617] border-r border-white/10 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto shadow-lg
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        {/* Logo */}
-        <div className="px-6 py-6 border-b border-white/10 flex-shrink-0 bg-white/[0.02]">
-          <Link href="/admin/dashboard" className="flex items-center gap-3 group">
-            <BrandLogo size="medium" variant="light" />
+        {/* Logo — h-16 matches the header height exactly so this divider and the
+            header's bottom border form one continuous horizontal line. */}
+        <div className="flex h-16 flex-shrink-0 items-center border-b border-white/10 bg-white/[0.02] px-5">
+          <Link href="/admin/dashboard" className="flex items-center gap-3">
+            <BrandLogo size="small" variant="light" />
           </Link>
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-8 overflow-y-auto">
+        <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
           {menuItems.map((section) => (
             <div key={section.section}>
-              <p className="px-3 mb-3 text-xs font-semibold text-gray-500 uppercase tracking-widest">
+              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
                 {section.section}
               </p>
-              <div className="space-y-1">
+              <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const Icon = item.icon;
                   const active = isActive(item.href);
@@ -93,18 +94,17 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
                       key={item.href}
                       href={item.href}
                       onClick={onMobileClose}
-                      className={`flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 group relative
+                      /* Active state uses exactly two signals: a tinted
+                         background and green foreground. No accent bar, no
+                         border, no glow, no chevron (there is no submenu). */
+                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 transition-colors duration-200
                         ${active
-                          ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-400 border border-green-500/30 shadow-[0_0_20px_rgba(74,222,128,0.15)]'
-                          : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                          ? 'bg-green-500/10 text-green-400'
+                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
                         }`}
                     >
-                      {active && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-gradient-to-b from-green-400 to-emerald-500 rounded-r-full" />
-                      )}
-                      <Icon className={`w-4 h-4 flex-shrink-0 transition-all duration-200 ${active ? 'text-green-400' : 'group-hover:scale-110 group-hover:text-green-400/60'}`} />
-                      <span className="text-sm font-medium tracking-tight flex-1">{item.label}</span>
-                      {active && <ChevronRight className="w-3.5 h-3.5 opacity-70 flex-shrink-0" />}
+                      <Icon className="h-4 w-4 flex-shrink-0" />
+                      <span className="text-sm font-medium tracking-tight">{item.label}</span>
                     </Link>
                   );
                 })}
@@ -113,11 +113,9 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
           ))}
         </nav>
 
-        {/* Footer */}
-        <div className="flex-shrink-0 px-4 py-4 border-t border-white/10 bg-white/[0.02]">
-          <p className="text-xs text-gray-500 text-center">
-            © {new Date().getFullYear()} Tapvyo. All rights reserved.
-          </p>
+        {/* Footer — build stamp (mirrors "version" in package.json) */}
+        <div className="flex-shrink-0 border-t border-white/10 bg-white/[0.02] px-3 py-3">
+          <p className="text-[11px] tabular-nums text-[#9ca3af]">v0.1.0</p>
         </div>
       </aside>
     </>

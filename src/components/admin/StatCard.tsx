@@ -10,42 +10,47 @@ interface StatCardProps {
   description?: string;
 }
 
-const colorConfig = {
-  blue: {
-    iconBg: 'bg-blue-500/10 border-blue-500/20',
-    iconText: 'text-blue-400',
-    trendBg: 'bg-blue-500/10',
-  },
+/**
+ * Restrained semantic palette. Mirrors StatusBadge so the stat row and the
+ * table badges speak the same language:
+ *   green   → primary / positive metric
+ *   neutral → inactive, disabled, zero-state
+ *   amber   → pending / needs attention
+ *   red     → error
+ * Nothing else is allowed on screen.
+ */
+const tone = {
   green: {
-    iconBg: 'bg-green-500/10 border-green-500/20',
+    iconBg: 'bg-green-500/10 border-green-500/25',
     iconText: 'text-green-400',
-    trendBg: 'bg-green-500/10',
   },
-  purple: {
-    iconBg: 'bg-purple-500/10 border-purple-500/20',
-    iconText: 'text-purple-400',
-    trendBg: 'bg-purple-500/10',
+  neutral: {
+    iconBg: 'bg-white/[0.06] border-white/[0.12]',
+    iconText: 'text-gray-400',
   },
-  orange: {
-    iconBg: 'bg-orange-500/10 border-orange-500/20',
-    iconText: 'text-orange-400',
-    trendBg: 'bg-orange-500/10',
-  },
-  teal: {
-    iconBg: 'bg-emerald-500/10 border-emerald-500/20',
-    iconText: 'text-emerald-400',
-    trendBg: 'bg-emerald-500/10',
-  },
-  pink: {
-    iconBg: 'bg-pink-500/10 border-pink-500/20',
-    iconText: 'text-pink-400',
-    trendBg: 'bg-pink-500/10',
+  amber: {
+    iconBg: 'bg-amber-500/10 border-amber-500/25',
+    iconText: 'text-amber-400',
   },
   red: {
-    iconBg: 'bg-red-500/10 border-red-500/20',
+    iconBg: 'bg-red-500/10 border-red-500/25',
     iconText: 'text-red-400',
-    trendBg: 'bg-red-500/10',
   },
+} as const;
+
+/**
+ * The public `color` values are unchanged for prop compatibility, but each one
+ * now resolves onto one of the four semantic tones above — so no off-system
+ * colour can reach the screen regardless of what a caller passes.
+ */
+const colorConfig: Record<NonNullable<StatCardProps['color']>, (typeof tone)[keyof typeof tone]> = {
+  green: tone.green,
+  teal: tone.green,
+  blue: tone.neutral,
+  purple: tone.neutral,
+  pink: tone.neutral,
+  orange: tone.amber,
+  red: tone.red,
 };
 
 export default function StatCard({
@@ -59,49 +64,51 @@ export default function StatCard({
   const config = colorConfig[color];
 
   return (
-    <div
-      className={`relative bg-gradient-to-br from-[#0f172a]/50 to-[#020617]/50 border border-white/10 rounded-lg p-6 
-        hover:border-green-500/30 hover:bg-gradient-to-br hover:from-[#0f172a]/80 hover:to-[#020617]/80
-        hover:shadow-[0_0_20px_rgba(74,222,128,0.15)]
-        transition-all duration-300 group overflow-hidden`}
-    >
-      {/* Subtle gradient shimmer on hover */}
-      <div className="absolute inset-0 bg-gradient-to-br from-green-400/[0.03] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none rounded-lg" />
+    // No hover treatment: these cards have no click handler, so they must not
+    // advertise interactivity.
+    <div className="flex h-full flex-col rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] p-5">
+      {/* Label + icon. min-h-8 keeps the row a fixed height whether or not an
+          icon is passed, so every value below sits on the same baseline. */}
+      <div className="flex min-h-8 items-center justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
+          {label}
+        </p>
 
-      <div className="relative flex items-start justify-between mb-4">
-        {/* Label */}
-        <p className="text-xs font-semibold text-gray-500 uppercase tracking-widest">{label}</p>
-
-        {/* Icon */}
         {icon && (
-          <div className={`w-10 h-10 rounded-md border flex items-center justify-center flex-shrink-0 ${config.iconBg} ${config.iconText} transition-all duration-200`}>
+          <div
+            className={`flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg border ${config.iconBg} ${config.iconText}`}
+          >
             {icon}
           </div>
         )}
       </div>
 
       {/* Value */}
-      <p className="relative text-2xl sm:text-3xl font-bold text-white tracking-tight">
+      <p className="mt-3 text-[28px] font-bold leading-none tracking-tight text-white tabular-nums">
         {typeof value === 'number' ? value.toLocaleString() : value}
       </p>
 
-      {/* Trend or description */}
-      <div className="relative mt-3 flex items-center gap-1.5">
+      {/* Fixed-height subtitle slot — rendered even when empty so that numbers
+          share one baseline across the whole row. */}
+      <div className="mt-2.5 flex h-5 items-center gap-1.5">
         {trend ? (
           <>
-            <span className={`inline-flex items-center gap-0.5 text-xs font-semibold px-2 py-1 rounded-md transition-colors duration-200 ${trend.isPositive
-                ? 'text-green-400 bg-green-500/10'
-                : 'text-red-400 bg-red-500/10'
-              }`}>
-              {trend.isPositive
-                ? <TrendingUp className="w-3 h-3" />
-                : <TrendingDown className="w-3 h-3" />}
+            <span
+              className={`inline-flex items-center gap-0.5 rounded-md px-1.5 py-0.5 text-[11px] font-semibold ${
+                trend.isPositive ? 'bg-green-500/10 text-green-400' : 'bg-red-500/10 text-red-400'
+              }`}
+            >
+              {trend.isPositive ? (
+                <TrendingUp className="h-3 w-3" />
+              ) : (
+                <TrendingDown className="h-3 w-3" />
+              )}
               {Math.abs(trend.value)}%
             </span>
-            <span className="text-xs text-gray-600">vs last month</span>
+            <span className="text-xs text-[#9ca3af]">vs last month</span>
           </>
         ) : description ? (
-          <p className="text-xs text-gray-600">{description}</p>
+          <p className="text-xs text-[#9ca3af]">{description}</p>
         ) : null}
       </div>
     </div>
