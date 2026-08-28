@@ -12,6 +12,7 @@ interface ProductContextType {
   getProductBySlug: (slug: string) => Product | undefined;
   getProductById: (id: string) => Product | undefined;
   refreshProducts: () => Promise<void>;
+  retryProducts: () => Promise<void>;
 }
 
 const ProductContext = createContext<ProductContextType | undefined>(undefined);
@@ -25,22 +26,33 @@ export function ProductProvider({ children }: ProductProviderProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await productService.getProducts({ limit: 100 });
-      setProducts(response.products);
+      const response = await productService.getProducts({ limit: 100 }, signal);
+      if (!signal?.aborted) {
+        setProducts(response.products);
+      }
     } catch (err) {
-      console.error("Failed to fetch products:", err);
-      setError(err instanceof Error ? err.message : "Failed to fetch products");
+      if (!signal?.aborted) {
+        console.error("Failed to fetch products:", err);
+        setError(err instanceof Error ? err.message : "Failed to fetch products");
+      }
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) {
+        setLoading(false);
+      }
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    const controller = new AbortController();
+    fetchProducts(controller.signal);
+
+    return () => {
+      controller.abort();
+    };
   }, [fetchProducts]);
 
   const featuredProducts = products.filter((p) => p.isFeatured);
@@ -65,6 +77,7 @@ export function ProductProvider({ children }: ProductProviderProps) {
         getProductBySlug,
         getProductById,
         refreshProducts: fetchProducts,
+        retryProducts: fetchProducts,
       }}
     >
       {children}

@@ -116,8 +116,22 @@ export async function GET(request: NextRequest) {
       count: products.length,
     });
   } catch (error) {
-    console.error("Get products error:", error);
-    return errorResponse("Failed to fetch products", 500);
+    if (error instanceof Error) {
+      console.error("Get products error:", {
+        message: error.message,
+        stack: error.stack,
+        cause: error.cause,
+      });
+    } else {
+      console.error("Get products error:", error);
+    }
+
+    const message =
+      process.env.NODE_ENV === "development" && error instanceof Error
+        ? error.message
+        : "Failed to fetch products";
+
+    return errorResponse(message, 500);
   }
 }
 

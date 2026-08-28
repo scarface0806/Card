@@ -5,6 +5,17 @@ import prisma from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/responses';
 import { Role } from '@prisma/client';
 
+const REQUIRED_AUTH_ENV_VARS = ['DATABASE_URL', 'JWT_SECRET'] as const;
+const missingAuthEnvVars = REQUIRED_AUTH_ENV_VARS.filter(
+  (name) => !process.env[name]?.trim()
+);
+
+if (missingAuthEnvVars.length > 0) {
+  console.error(
+    `[Auth] Missing environment variables at server startup: ${missingAuthEnvVars.join(', ')}`
+  );
+}
+
 function sanitizeEmail(email: unknown): string {
   return typeof email === 'string' ? email.trim().toLowerCase() : '';
 }

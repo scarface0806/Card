@@ -1,7 +1,6 @@
 import { Product } from "@prisma/client";
 
-// Use relative base URL for client-side requests to avoid cross-origin issues.
-const API_BASE_URL = "";
+const API_BASE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
 
 export interface ProductFilters {
   page?: number;
@@ -53,7 +52,13 @@ export interface CreateProductData {
 export type UpdateProductData = Partial<CreateProductData>;
 
 class ProductService {
-  private baseUrl = `${API_BASE_URL}/api/products`;
+  private get baseUrl(): string {
+    const baseUrl =
+      API_BASE_URL ||
+      (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
+
+    return `${baseUrl}/api/products`;
+  }
 
   private async getAuthHeaders(): Promise<HeadersInit> {
     // Get token from cookie or localStorage
@@ -74,7 +79,10 @@ class ProductService {
   /**
    * Get all products with optional filters
    */
-  async getProducts(filters?: ProductFilters): Promise<ProductsResponse> {
+  async getProducts(
+    filters?: ProductFilters,
+    signal?: AbortSignal
+  ): Promise<ProductsResponse> {
     const params = new URLSearchParams();
 
     if (filters) {
@@ -97,30 +105,22 @@ class ProductService {
       const response = await fetch(url, {
         method: "GET",
         cache: "no-store",
+        signal,
       });
 
       if (!response.ok) {
-        let errorMessage = `Failed to fetch products (${response.status} ${response.statusText})`;
-
-        try {
-          const errorJson = await response.json();
-          if (errorJson?.error) {
-            errorMessage = errorJson.error;
-          }
-        } catch {
-          // Ignore invalid JSON from the server error response.
-        }
-
-        throw new Error(errorMessage);
+        const responseBody = await response.text();
+        throw new Error(
+          `Failed to fetch products: ${response.status} ${response.statusText}${
+            responseBody ? ` - ${responseBody}` : ""
+          }`
+        );
       }
 
       return response.json();
     } catch (error) {
-      if (error instanceof Error) {
-        throw new Error(error.message);
-      }
-
-      throw new Error("Failed to fetch products");
+      console.error("Product request failed:", error);
+      throw new Error("Failed to fetch products", { cause: error });
     }
   }
 
