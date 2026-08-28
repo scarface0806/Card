@@ -1,4 +1,5 @@
 import { Product } from "@prisma/client";
+import { isAbortError, logFetchError } from "@/lib/fetch-utils";
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_APP_URL?.replace(/\/$/, "");
 
@@ -119,7 +120,11 @@ class ProductService {
 
       return response.json();
     } catch (error) {
-      console.error("Product request failed:", error);
+      // An aborted request is normal teardown (unmount / effect re-run):
+      // rethrow it untouched so callers can recognise it, and log nothing.
+      if (isAbortError(error)) throw error;
+
+      logFetchError("Product request failed:", error);
       throw new Error("Failed to fetch products", { cause: error });
     }
   }
@@ -127,10 +132,14 @@ class ProductService {
   /**
    * Get a single product by ID or slug
    */
-  async getProduct(idOrSlug: string): Promise<ProductResponse> {
+  async getProduct(
+    idOrSlug: string,
+    signal?: AbortSignal
+  ): Promise<ProductResponse> {
     const response = await fetch(`${this.baseUrl}/${idOrSlug}`, {
       method: "GET",
       cache: "no-store",
+      signal,
     });
 
     if (!response.ok) {
@@ -208,8 +217,11 @@ class ProductService {
   /**
    * Get featured products
    */
-  async getFeaturedProducts(limit = 4): Promise<ProductsResponse> {
-    return this.getProducts({ featured: true, limit });
+  async getFeaturedProducts(
+    limit = 4,
+    signal?: AbortSignal
+  ): Promise<ProductsResponse> {
+    return this.getProducts({ featured: true, limit }, signal);
   }
 
   /**
@@ -217,9 +229,10 @@ class ProductService {
    */
   async getProductsByCategory(
     category: string,
-    filters?: Omit<ProductFilters, "category">
+    filters?: Omit<ProductFilters, "category">,
+    signal?: AbortSignal
   ): Promise<ProductsResponse> {
-    return this.getProducts({ ...filters, category });
+    return this.getProducts({ ...filters, category }, signal);
   }
 
   /**
@@ -227,9 +240,10 @@ class ProductService {
    */
   async searchProducts(
     query: string,
-    filters?: Omit<ProductFilters, "search">
+    filters?: Omit<ProductFilters, "search">,
+    signal?: AbortSignal
   ): Promise<ProductsResponse> {
-    return this.getProducts({ ...filters, search: query });
+    return this.getProducts({ ...filters, search: query }, signal);
   }
 }
 

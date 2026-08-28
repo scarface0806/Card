@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import { RotateCw, Send } from 'lucide-react';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface SubscriberRow {
   id: string;
@@ -29,7 +30,7 @@ export default function NewslettersPage() {
     content: '',
   });
 
-  const fetchSubscribers = useCallback(async () => {
+  const fetchSubscribers = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
@@ -37,14 +38,16 @@ export default function NewslettersPage() {
 
       const response = await fetch('/api/admin/subscribers?limit=200', {
         credentials: 'include',
+        signal,
       });
 
       if (!response.ok) {
-        const payload = await response.json();
+        const payload = await response.json().catch(() => ({}));
         throw new Error(payload.error || 'Failed to fetch subscribers');
       }
 
       const payload = await response.json();
+      if (signal?.aborted) return;
       const mapped: SubscriberRow[] = (payload.subscribers || []).map((subscriber: any, index: number) => ({
         id: subscriber.id,
         sno: index + 1,
@@ -57,14 +60,18 @@ export default function NewslettersPage() {
 
       setData(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch subscribers');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchSubscribers();
+    const controller = new AbortController();
+    fetchSubscribers(controller.signal);
+
+    return () => controller.abort();
   }, [fetchSubscribers]);
 
   const handleRefresh = () => {

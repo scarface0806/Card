@@ -8,6 +8,7 @@ import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import StatusBadge from '@/components/admin/StatusBadge';
 import RightDrawer from '@/components/ui/RightDrawer';
 import { Copy, RefreshCw, UserPlus } from 'lucide-react';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface CustomerRow {
   id: string;
@@ -36,21 +37,23 @@ export default function CustomersPage() {
   const [confirmLoading, setConfirmLoading] = useState(false);
   const [selectedCustomer, setSelectedCustomer] = useState<CustomerRow | null>(null);
 
-  const fetchCustomers = useCallback(async () => {
+  const fetchCustomers = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch('/api/admin/customers?limit=200', {
         credentials: 'include',
+        signal,
       });
 
       if (!response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to fetch customers');
       }
 
       const data = await response.json();
+      if (signal?.aborted) return;
       const mapped: CustomerRow[] = (data.customers || []).map((customer: any, index: number) => ({
         id: customer.id,
         sno: index + 1,
@@ -65,14 +68,18 @@ export default function CustomersPage() {
 
       setCustomers(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch customers');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCustomers();
+    const controller = new AbortController();
+    fetchCustomers(controller.signal);
+
+    return () => controller.abort();
   }, [fetchCustomers]);
 
   const handleCopy = async (value: string) => {
@@ -172,7 +179,7 @@ export default function CustomersPage() {
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             type="button"
-            onClick={fetchCustomers}
+            onClick={() => fetchCustomers()}
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
           >
             <RefreshCw className="w-4 h-4" />

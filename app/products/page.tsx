@@ -9,6 +9,7 @@ import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import { useState, useEffect } from 'react';
+import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
 interface Product {
   id: string;
@@ -37,16 +38,23 @@ export default function ProductsPage() {
   const { initiatePayment, isLoading: isPaymentLoading } = useRazorpayPayment();
 
   useEffect(() => {
+    const controller = new AbortController();
+
     // Check auth status using the custom JWT system
     const checkAuth = async () => {
       try {
-        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        const res = await fetch('/api/auth/me', {
+          credentials: 'include',
+          signal: controller.signal,
+        });
+        if (controller.signal.aborted) return;
         setIsLoggedIn(res.ok);
 
         // Keep the profile around so Checkout can be prefilled without a
         // second round trip when the user hits Buy Now.
         if (res.ok) {
           const data = await res.json().catch(() => null);
+          if (controller.signal.aborted) return;
           if (data?.user) {
             setCurrentUser({
               email: data.user.email,
@@ -55,26 +63,35 @@ export default function ProductsPage() {
             });
           }
         }
-      } catch {
+      } catch (error) {
+        // Aborted on unmount: leave state alone, nothing went wrong.
+        if (controller.signal.aborted || isAbortError(error)) return;
         setIsLoggedIn(false);
       } finally {
-        setAuthChecked(true);
+        if (!controller.signal.aborted) setAuthChecked(true);
       }
     };
     checkAuth();
+
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const fetchProducts = async () => {
       try {
         setLoading(true);
-        const response = await fetch('/api/products?limit=6');
-        
+        const response = await fetch('/api/products?limit=6', {
+          signal: controller.signal,
+        });
+
         if (!response.ok) {
           throw new Error('Failed to fetch products');
         }
 
         const data = await response.json();
+        if (controller.signal.aborted) return;
         const transformedProducts: Product[] = (data.products || []).slice(0, 6).map((product: any) => ({
           id: product.id,
           name: product.name || 'Untitled product',
@@ -86,14 +103,17 @@ export default function ProductsPage() {
 
         setProducts(transformedProducts);
       } catch (error) {
-        console.error('Error fetching products:', error);
+        if (controller.signal.aborted || isAbortError(error)) return;
+        logFetchError('Error fetching products:', error);
         setProducts([]);
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     fetchProducts();
+
+    return () => controller.abort();
   }, []);
 
   const handleBuyNow = async (productId: string) => {
@@ -153,7 +173,7 @@ export default function ProductsPage() {
 
       alert(paymentResponse.message || 'Payment could not be completed. Please try again.');
     } catch (error) {
-      console.error('Order error:', error);
+      logFetchError('Order error:', error);
       alert(error instanceof Error ? error.message : 'Failed to create order. Please try again.');
     } finally {
       setBuyingProductId(null);

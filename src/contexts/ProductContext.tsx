@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
 import { Product } from "@prisma/client";
 import productService from "@/services/products";
+import { isAbortError, logFetchError } from "@/lib/fetch-utils";
 
 interface ProductContextType {
   products: Product[];
@@ -35,10 +36,11 @@ export function ProductProvider({ children }: ProductProviderProps) {
         setProducts(response.products);
       }
     } catch (err) {
-      if (!signal?.aborted) {
-        console.error("Failed to fetch products:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch products");
-      }
+      // Aborted on unmount / effect re-run: no state update, no console noise.
+      if (signal?.aborted || isAbortError(err)) return;
+
+      logFetchError("Failed to fetch products:", err);
+      setError(err instanceof Error ? err.message : "Failed to fetch products");
     } finally {
       if (!signal?.aborted) {
         setLoading(false);
@@ -54,6 +56,10 @@ export function ProductProvider({ children }: ProductProviderProps) {
       controller.abort();
     };
   }, [fetchProducts]);
+
+  // Arg-less wrapper: keeps a click handler's event from being mistaken
+  // for an AbortSignal when this is passed straight to onClick.
+  const refreshProducts = useCallback(() => fetchProducts(), [fetchProducts]);
 
   const featuredProducts = products.filter((p) => p.isFeatured);
 
@@ -76,8 +82,8 @@ export function ProductProvider({ children }: ProductProviderProps) {
         error,
         getProductBySlug,
         getProductById,
-        refreshProducts: fetchProducts,
-        retryProducts: fetchProducts,
+        refreshProducts,
+        retryProducts: refreshProducts,
       }}
     >
       {children}

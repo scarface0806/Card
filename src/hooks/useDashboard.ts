@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { DashboardMetrics, getDashboardMetrics } from "@/services/dashboard";
+import { isAbortError } from "@/lib/fetch-utils";
 
 const INR_FORMATTER = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -74,7 +75,7 @@ export function useDashboard(autoRefresh: boolean = false, refreshInterval: numb
       setMetrics(data);
       setError(null);
     } catch (err) {
-      if (!mounted.current) return;
+      if (!mounted.current || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : "Failed to fetch metrics");
     } finally {
       if (mounted.current) setLoading(false);

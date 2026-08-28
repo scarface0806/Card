@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { Copy, ExternalLink, Loader2, UploadCloud } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
 import ImageUpload from '@/components/admin/ImageUpload';
+import { logFetchError } from '@/lib/fetch-utils';
 
 interface GallerySlot {
   file: File | null;
@@ -235,7 +236,7 @@ export default function CreateCustomerPage() {
           // Silently handle mail API test failure - don't show error to user
         } catch (mailError) {
           // Silently catch mail API test errors - customer was created successfully
-          console.error('Mail API test error:', mailError);
+          logFetchError('Mail API test error:', mailError);
         }
       }
 

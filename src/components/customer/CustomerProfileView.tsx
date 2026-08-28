@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { BRAND } from '@/lib/brand';
+import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
 type GalleryItem = {
   id: string;
@@ -229,6 +230,10 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
       setFeedback({ type: 'success', text: 'Your message has been sent successfully' });
       setForm({ name: '', phone: '', email: '', subject: '', message: '' });
     } catch (error) {
+      // An abort means the page went away mid-submit - nothing to report.
+      if (isAbortError(error)) return;
+
+      logFetchError('Lead submission failed:', error);
       setFeedback({ type: 'error', text: error instanceof Error ? error.message : 'Failed to submit message' });
     } finally {
       setSubmitting(false);

@@ -11,10 +11,13 @@ export default function AdminLoginPage() {
 
   // Redirect guard - validate active admin session.
   useEffect(() => {
+    const controller = new AbortController();
+
     const validateAdminSession = async () => {
       try {
         const response = await fetch('/api/auth/me', {
           credentials: 'include',
+          signal: controller.signal,
         });
 
         if (!response.ok) {
@@ -22,15 +25,19 @@ export default function AdminLoginPage() {
         }
 
         const data = await response.json();
+        if (controller.signal.aborted) return;
+
         if (data?.user?.role === 'ADMIN') {
           router.push('/admin/dashboard');
         }
       } catch {
-        // No-op: stay on login page.
+        // No-op (aborts included): stay on the login page.
       }
     };
 
     validateAdminSession();
+
+    return () => controller.abort();
   }, [router]);
 
   return (

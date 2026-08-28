@@ -4,6 +4,7 @@ import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import AdminSidebar from '@/components/admin/AdminSidebar';
 import AdminHeader from '@/components/admin/AdminHeader';
+import { isAbortError } from '@/lib/fetch-utils';
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -13,7 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const authVerifiedRef = useRef(false);
 
-  const verifyAdmin = useCallback(async () => {
+  const verifyAdmin = useCallback(async (signal?: AbortSignal) => {
     if (pathname === '/admin/login') {
       setAuthorized(true);
       setCheckingAuth(false);
@@ -30,6 +31,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     try {
       const response = await fetch('/api/auth/me', {
         credentials: 'include',
+        signal,
       });
 
       if (!response.ok) {
@@ -37,23 +39,32 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       }
 
       const payload = await response.json();
+      if (signal?.aborted) return;
+
       if (payload?.user?.role !== 'ADMIN') {
         throw new Error('Admin access required');
       }
 
       authVerifiedRef.current = true;
       setAuthorized(true);
-    } catch {
+    } catch (error) {
+      // An aborted check means the layout unmounted or the route changed.
+      // Treating it as "unauthorized" would bounce the admin to /admin/login.
+      if (signal?.aborted || isAbortError(error)) return;
+
       authVerifiedRef.current = false;
       setAuthorized(false);
       router.replace('/admin/login');
     } finally {
-      setCheckingAuth(false);
+      if (!signal?.aborted) setCheckingAuth(false);
     }
   }, [pathname, router]);
 
   useEffect(() => {
-    verifyAdmin();
+    const controller = new AbortController();
+    verifyAdmin(controller.signal);
+
+    return () => controller.abort();
   }, [verifyAdmin]);
 
   if (checkingAuth) {

@@ -8,6 +8,7 @@ import productService, {
   UpdateProductData,
 } from "@/services/products";
 import { Product } from "@prisma/client";
+import { isAbortError } from "@/lib/fetch-utils";
 
 interface UseProductsState {
   products: Product[];
@@ -33,26 +34,37 @@ export function useProducts(initialFilters?: ProductFilters): UseProductsReturn 
     initialFilters
   );
 
-  const fetchProducts = useCallback(async (newFilters?: ProductFilters) => {
-    setState((prev) => ({ ...prev, loading: true, error: null }));
-    setFilters(newFilters);
+  const runFetch = useCallback(
+    async (newFilters?: ProductFilters, signal?: AbortSignal) => {
+      setState((prev) => ({ ...prev, loading: true, error: null }));
+      setFilters(newFilters);
 
-    try {
-      const data = await productService.getProducts(newFilters);
-      setState({
-        products: data.products,
-        pagination: data.pagination,
-        loading: false,
-        error: null,
-      });
-    } catch (err) {
-      setState((prev) => ({
-        ...prev,
-        loading: false,
-        error: err instanceof Error ? err.message : "Failed to fetch products",
-      }));
-    }
-  }, []);
+      try {
+        const data = await productService.getProducts(newFilters, signal);
+        if (signal?.aborted) return;
+        setState({
+          products: data.products,
+          pagination: data.pagination,
+          loading: false,
+          error: null,
+        });
+      } catch (err) {
+        // Aborted request: the component is gone, leave state untouched.
+        if (signal?.aborted || isAbortError(err)) return;
+        setState((prev) => ({
+          ...prev,
+          loading: false,
+          error: err instanceof Error ? err.message : "Failed to fetch products",
+        }));
+      }
+    },
+    []
+  );
+
+  const fetchProducts = useCallback(
+    (newFilters?: ProductFilters) => runFetch(newFilters),
+    [runFetch]
+  );
 
   const loadMore = useCallback(async () => {
     if (!state.pagination?.hasMore || state.loading) return;
@@ -86,7 +98,12 @@ export function useProducts(initialFilters?: ProductFilters): UseProductsReturn 
   }, [filters, fetchProducts]);
 
   useEffect(() => {
-    fetchProducts(initialFilters);
+    const controller = new AbortController();
+    runFetch(initialFilters, controller.signal);
+
+    return () => controller.abort();
+    // Initial filters are a snapshot taken on mount by design.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return {
@@ -114,13 +131,15 @@ export function useProduct(idOrSlug?: string): UseProductReturn {
     error: null,
   });
 
-  const fetchProduct = useCallback(async (id: string) => {
+  const runFetch = useCallback(async (id: string, signal?: AbortSignal) => {
     setState({ product: null, loading: true, error: null });
 
     try {
-      const data = await productService.getProduct(id);
+      const data = await productService.getProduct(id, signal);
+      if (signal?.aborted) return;
       setState({ product: data.product, loading: false, error: null });
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setState({
         product: null,
         loading: false,
@@ -129,11 +148,19 @@ export function useProduct(idOrSlug?: string): UseProductReturn {
     }
   }, []);
 
+  const fetchProduct = useCallback(
+    (id: string) => runFetch(id),
+    [runFetch]
+  );
+
   useEffect(() => {
-    if (idOrSlug) {
-      fetchProduct(idOrSlug);
-    }
-  }, [idOrSlug, fetchProduct]);
+    if (!idOrSlug) return;
+
+    const controller = new AbortController();
+    runFetch(idOrSlug, controller.signal);
+
+    return () => controller.abort();
+  }, [idOrSlug, runFetch]);
 
   return { ...state, fetchProduct };
 }

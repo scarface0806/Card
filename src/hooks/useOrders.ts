@@ -14,6 +14,7 @@ import {
   updateOrderStatus,
   cancelOrder,
 } from "@/services/orders";
+import { isAbortError } from "@/lib/fetch-utils";
 
 // ============ User Hooks ============
 
@@ -30,23 +31,33 @@ export function useOrders(initialFilters: OrderFilters = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getUserOrders(filters);
-      setOrders(data.orders);
-      setPagination(data.pagination);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch orders");
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+  const runFetch = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getUserOrders(filters, signal);
+        if (signal?.aborted) return;
+        setOrders(data.orders);
+        setPagination(data.pagination);
+      } catch (err) {
+        if (signal?.aborted || isAbortError(err)) return;
+        setError(err instanceof Error ? err.message : "Failed to fetch orders");
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    [filters]
+  );
+
+  const fetchOrders = useCallback(() => runFetch(), [runFetch]);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    const controller = new AbortController();
+    runFetch(controller.signal);
+
+    return () => controller.abort();
+  }, [runFetch]);
 
   const setPage = useCallback((page: number) => {
     setFilters((prev) => ({ ...prev, page }));
@@ -75,24 +86,34 @@ export function useOrder(orderId: string | null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrder = useCallback(async () => {
-    if (!orderId) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getOrder(orderId);
-      setOrder(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch order");
-    } finally {
-      setLoading(false);
-    }
-  }, [orderId]);
+  const runFetch = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!orderId) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getOrder(orderId, signal);
+        if (signal?.aborted) return;
+        setOrder(data);
+      } catch (err) {
+        if (signal?.aborted || isAbortError(err)) return;
+        setError(err instanceof Error ? err.message : "Failed to fetch order");
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    [orderId]
+  );
+
+  const fetchOrder = useCallback(() => runFetch(), [runFetch]);
 
   useEffect(() => {
-    fetchOrder();
-  }, [fetchOrder]);
+    const controller = new AbortController();
+    runFetch(controller.signal);
+
+    return () => controller.abort();
+  }, [runFetch]);
 
   return {
     order,
@@ -149,24 +170,34 @@ export function useAdminOrders(initialFilters: OrderFilters = {}) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrders = useCallback(async () => {
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAllOrders(filters);
-      setOrders(data.orders);
-      setPagination(data.pagination);
-      setSummary(data.summary);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch orders");
-    } finally {
-      setLoading(false);
-    }
-  }, [filters]);
+  const runFetch = useCallback(
+    async (signal?: AbortSignal) => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAllOrders(filters, signal);
+        if (signal?.aborted) return;
+        setOrders(data.orders);
+        setPagination(data.pagination);
+        setSummary(data.summary);
+      } catch (err) {
+        if (signal?.aborted || isAbortError(err)) return;
+        setError(err instanceof Error ? err.message : "Failed to fetch orders");
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    [filters]
+  );
+
+  const fetchOrders = useCallback(() => runFetch(), [runFetch]);
 
   useEffect(() => {
-    fetchOrders();
-  }, [fetchOrders]);
+    const controller = new AbortController();
+    runFetch(controller.signal);
+
+    return () => controller.abort();
+  }, [runFetch]);
 
   const setPage = useCallback((page: number) => {
     setFilters((prev) => ({ ...prev, page }));
@@ -206,24 +237,34 @@ export function useAdminOrder(orderId: string | null) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchOrder = useCallback(async () => {
-    if (!orderId) return;
-    
-    setLoading(true);
-    setError(null);
-    try {
-      const data = await getAdminOrder(orderId);
-      setOrder(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to fetch order");
-    } finally {
-      setLoading(false);
-    }
-  }, [orderId]);
+  const runFetch = useCallback(
+    async (signal?: AbortSignal) => {
+      if (!orderId) return;
+
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await getAdminOrder(orderId, signal);
+        if (signal?.aborted) return;
+        setOrder(data);
+      } catch (err) {
+        if (signal?.aborted || isAbortError(err)) return;
+        setError(err instanceof Error ? err.message : "Failed to fetch order");
+      } finally {
+        if (!signal?.aborted) setLoading(false);
+      }
+    },
+    [orderId]
+  );
+
+  const fetchOrder = useCallback(() => runFetch(), [runFetch]);
 
   useEffect(() => {
-    fetchOrder();
-  }, [fetchOrder]);
+    const controller = new AbortController();
+    runFetch(controller.signal);
+
+    return () => controller.abort();
+  }, [runFetch]);
 
   return {
     order,

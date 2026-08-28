@@ -84,7 +84,8 @@ export interface OrderFilters {
 
 // Get user's orders
 export async function getUserOrders(
-  filters: OrderFilters = {}
+  filters: OrderFilters = {},
+  signal?: AbortSignal
 ): Promise<OrdersResponse> {
   const params = new URLSearchParams();
   
@@ -96,10 +97,11 @@ export async function getUserOrders(
   
   const response = await fetch(url, {
     credentials: "include",
+    signal,
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to fetch orders");
   }
 
@@ -107,9 +109,13 @@ export async function getUserOrders(
 }
 
 // Get single order by ID
-export async function getOrder(orderId: string): Promise<Order> {
+export async function getOrder(
+  orderId: string,
+  signal?: AbortSignal
+): Promise<Order> {
   const response = await fetch(`/api/orders/${orderId}`, {
     credentials: "include",
+    signal,
   });
 
   if (!response.ok) {
@@ -145,7 +151,8 @@ export async function createOrder(
 
 // Get all orders (admin only)
 export async function getAllOrders(
-  filters: OrderFilters = {}
+  filters: OrderFilters = {},
+  signal?: AbortSignal
 ): Promise<OrdersResponse & { summary: { total: number; byStatus: Record<string, number> } }> {
   const params = new URLSearchParams();
   
@@ -163,10 +170,11 @@ export async function getAllOrders(
   
   const response = await fetch(url, {
     credentials: "include",
+    signal,
   });
 
   if (!response.ok) {
-    const error = await response.json();
+    const error = await response.json().catch(() => ({}));
     throw new Error(error.error || "Failed to fetch orders");
   }
 
@@ -174,9 +182,13 @@ export async function getAllOrders(
 }
 
 // Get single order (admin)
-export async function getAdminOrder(orderId: string): Promise<Order> {
+export async function getAdminOrder(
+  orderId: string,
+  signal?: AbortSignal
+): Promise<Order> {
   const response = await fetch(`/api/admin/orders/${orderId}`, {
     credentials: "include",
+    signal,
   });
 
   if (!response.ok) {

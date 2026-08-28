@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
+import { isAbortError } from '@/lib/fetch-utils';
 
 type GalleryItem = {
   id: string;
@@ -55,7 +56,7 @@ export default function CustomerDetailPage() {
   const [customer, setCustomer] = useState<CustomerDetail | null>(null);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
 
     const load = async () => {
       if (!id) return;
@@ -65,6 +66,7 @@ export default function CustomerDetailPage() {
 
         const response = await fetch(`/api/customers/${id}`, {
           credentials: 'include',
+          signal: controller.signal,
         });
 
         const payload = await response.json().catch(() => ({}));
@@ -73,21 +75,19 @@ export default function CustomerDetailPage() {
           throw new Error(payload?.error || payload?.message || 'Failed to fetch customer');
         }
 
-        if (!active) return;
+        if (controller.signal.aborted) return;
         setCustomer(payload.customer || null);
       } catch (err) {
-        if (!active) return;
+        if (controller.signal.aborted || isAbortError(err)) return;
         setError(err instanceof Error ? err.message : 'Failed to fetch customer');
       } finally {
-        if (active) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     load();
 
-    return () => {
-      active = false;
-    };
+    return () => controller.abort();
   }, [id]);
 
   const profileLink = useMemo(() => {

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import AdminToast from '@/components/admin/AdminToast';
 import ProductForm, { ProductFormValues } from '@/components/ProductForm';
 import { Package, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface ProductItem {
   id: string;
@@ -30,21 +31,23 @@ export default function ProductsPage() {
   const [formOpen, setFormOpen] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const fetchProducts = useCallback(async () => {
+  const fetchProducts = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch('/api/products?limit=200', {
         credentials: 'include',
+        signal,
       });
 
       if (!response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to fetch products');
       }
 
       const data = await response.json();
+      if (signal?.aborted) return;
       const mapped: ProductItem[] = (data.products || []).map((product: any) => ({
         id: product.id,
         name: product.name || 'Untitled product',
@@ -57,14 +60,18 @@ export default function ProductsPage() {
 
       setProducts(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch products');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchProducts();
+    const controller = new AbortController();
+    fetchProducts(controller.signal);
+
+    return () => controller.abort();
   }, [fetchProducts]);
 
   const closeForm = () => {
@@ -151,7 +158,7 @@ export default function ProductsPage() {
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             type="button"
-            onClick={fetchProducts}
+            onClick={() => fetchProducts()}
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
           >
             <RefreshCw className="w-4 h-4" />

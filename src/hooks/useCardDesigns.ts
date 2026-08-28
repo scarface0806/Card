@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { Product } from "@prisma/client";
 import productService from "@/services/products";
+import { isAbortError, logFetchError } from "@/lib/fetch-utils";
 import { formatPrice } from "@/utils/formatPrice";
 
 export interface CardDesign {
@@ -149,15 +150,20 @@ export function useCardDesigns(): UseCardDesignsReturn {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchCardDesigns = useCallback(async () => {
+  const fetchCardDesigns = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
-      const response = await productService.getProducts({
-        limit: 50,
-        sortBy: "price",
-        sortOrder: "asc",
-      });
+      const response = await productService.getProducts(
+        {
+          limit: 50,
+          sortBy: "price",
+          sortOrder: "asc",
+        },
+        signal
+      );
+
+      if (signal?.aborted) return;
 
       if (response.products.length > 0) {
         const designs = response.products.map(productToCardDesign);
@@ -165,17 +171,26 @@ export function useCardDesigns(): UseCardDesignsReturn {
       }
       // If no products, keep fallback
     } catch (err) {
-      console.error("Failed to fetch card designs:", err);
+      if (signal?.aborted || isAbortError(err)) return;
+
+      logFetchError("Failed to fetch card designs:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch designs");
       // Keep fallback designs on error
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCardDesigns();
+    const controller = new AbortController();
+    fetchCardDesigns(controller.signal);
+
+    return () => controller.abort();
   }, [fetchCardDesigns]);
+
+  // Arg-less wrapper so passing `refresh` to onClick cannot leak a
+  // React event into the AbortSignal parameter.
+  const refresh = useCallback(() => fetchCardDesigns(), [fetchCardDesigns]);
 
   const getDesignBySlug = useCallback(
     (slug: string) => cardDesigns.find((d) => d.slug === slug),
@@ -187,7 +202,7 @@ export function useCardDesigns(): UseCardDesignsReturn {
     loading,
     error,
     getDesignBySlug,
-    refresh: fetchCardDesigns,
+    refresh,
   };
 }
 

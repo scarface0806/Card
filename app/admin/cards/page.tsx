@@ -6,6 +6,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import { ExternalLink, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface CardRow {
   id: string;
@@ -48,21 +49,23 @@ export default function CardsPage() {
   });
   const [editLoading, setEditLoading] = useState(false);
 
-  const fetchCards = useCallback(async () => {
+  const fetchCards = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch('/api/admin/cards?limit=200', {
         credentials: 'include',
+        signal,
       });
 
       if (!response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to fetch cards');
       }
 
       const data = await response.json();
+      if (signal?.aborted) return;
       const mapped: CardRow[] = (data.cards || []).map((card: any, index: number) => {
         const ownerName = card.user?.name || card.user?.email || 'Unassigned';
         const detailsName = [card.details?.firstName, card.details?.lastName].filter(Boolean).join(' ');
@@ -82,14 +85,18 @@ export default function CardsPage() {
 
       setCards(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch cards');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchCards();
+    const controller = new AbortController();
+    fetchCards(controller.signal);
+
+    return () => controller.abort();
   }, [fetchCards]);
 
   const handleEdit = (row: CardRow) => {
@@ -191,7 +198,7 @@ export default function CardsPage() {
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
-            onClick={fetchCards}
+            onClick={() => fetchCards()}
             className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
           >
             <RefreshCw className="w-4 h-4" />

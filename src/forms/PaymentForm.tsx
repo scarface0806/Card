@@ -2,14 +2,8 @@
 
 import { useFormContext } from 'react-hook-form';
 import Card from '@/components/Card';
-import { Check } from 'lucide-react';
+import { Check, CreditCard } from 'lucide-react';
 import { CardTemplate } from '@/utils/cardTemplates';
-
-const paymentMethods = [
-  { id: 'card', label: 'Credit/Debit Card' },
-  { id: 'upi', label: 'UPI' },
-  { id: 'wallet', label: 'Digital Wallet' },
-];
 
 interface PaymentFormProps {
   template?: CardTemplate;
@@ -18,11 +12,8 @@ interface PaymentFormProps {
 export default function PaymentForm({ template }: PaymentFormProps) {
   const {
     register,
-    watch,
     formState: { errors },
   } = useFormContext();
-
-  const selectedMethod = watch('payment.method');
 
   // Calculate pricing based on template
   const cardPrice = template?.priceValue || 599;
@@ -75,36 +66,23 @@ export default function PaymentForm({ template }: PaymentFormProps) {
         </div>
       </Card>
 
-      {/* Payment Methods */}
+      {/* Payment Method - Razorpay Checkout covers every method natively,
+          so there is nothing for the customer to pick here. */}
       <div className="space-y-4">
         <h3 className="text-xl font-bold text-white">Payment Method</h3>
-        <div className="space-y-3">
-          {paymentMethods.map((method) => (
-            <label
-              key={method.id}
-              className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all duration-300 ${
-                selectedMethod === method.id
-                  ? 'border-primary bg-primary/10'
-                  : 'border-primary/10 hover:border-primary/30'
-              }`}
-            >
-              <input
-                type="radio"
-                value={method.id}
-                {...register('payment.method', {
-                  required: 'Payment method is required',
-                })}
-                className="w-4 h-4 cursor-pointer accent-teal-600"
-              />
-              <span className="ml-3 font-semibold text-white">{method.label}</span>
-            </label>
-          ))}
+
+        <input type="hidden" value="card" {...register('payment.method')} />
+
+        <div className="flex items-start gap-3 p-4 border-2 border-primary rounded-xl bg-primary/10">
+          <CreditCard className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold text-white">Credit/Debit Card</p>
+            <p className="mt-1 text-sm text-gray-400">
+              Pay securely through Razorpay. UPI, Google Pay, wallets and net banking
+              are all available in the payment window.
+            </p>
+          </div>
         </div>
-        {errors.payment && 'method' in errors.payment && (
-          <p className="text-red-500 text-sm">
-            {errors.payment.method?.message as string}
-          </p>
-        )}
       </div>
 
       {/* Terms Agreement */}

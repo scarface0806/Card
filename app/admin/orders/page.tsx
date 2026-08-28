@@ -7,6 +7,7 @@ import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import RightDrawer from '@/components/ui/RightDrawer';
 import { ShoppingCart, Filter, RefreshCw } from 'lucide-react';
+import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
 interface OrderRow {
   id: string;
@@ -156,21 +157,23 @@ export default function OrdersPage() {
     return null;
   }, []);
 
-  const fetchOrders = useCallback(async () => {
+  const fetchOrders = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch('/api/admin/orders?limit=200', {
         credentials: 'include',
+        signal,
       });
 
       if (!response.ok) {
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         throw new Error(data.error || 'Failed to fetch orders');
       }
 
       const data = await response.json();
+      if (signal?.aborted) return;
       const mapped: OrderRow[] = (data.orders || []).map((order: any, index: number) => {
         const customerName = order.guestName || order.user?.name || order.guestEmail || order.user?.email || 'Guest';
         const phone = order.guestPhone || order.user?.phone || order.shippingAddress?.phone || '-';
@@ -197,14 +200,18 @@ export default function OrdersPage() {
 
       setOrders(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch orders');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchOrders();
+    const controller = new AbortController();
+    fetchOrders(controller.signal);
+
+    return () => controller.abort();
   }, [fetchOrders]);
 
   const handleView = async (row: OrderRow) => {
@@ -273,7 +280,8 @@ export default function OrdersPage() {
       }
       setToast({ variant: 'success', message: `Order ${row.orderID} updated successfully` });
     } catch (error) {
-      console.error('Order lifecycle update error:', error);
+      if (isAbortError(error)) return;
+      logFetchError('Order lifecycle update error:', error);
       setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to update order' });
     }
   };
@@ -305,7 +313,8 @@ export default function OrdersPage() {
       }
       setToast({ variant: 'success', message: `Order ${row.orderID} cancelled successfully` });
     } catch (error) {
-      console.error('Cancel order error:', error);
+      if (isAbortError(error)) return;
+      logFetchError('Cancel order error:', error);
       setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to cancel order' });
     }
   };
@@ -363,6 +372,7 @@ export default function OrdersPage() {
         setProductOptions(productsPayload.products || []);
       }
     } catch (error) {
+      if (isAbortError(error)) return;
       setToast({ variant: 'error', message: 'Failed to load customer/product options' });
     }
   }, []);
@@ -461,7 +471,7 @@ export default function OrdersPage() {
             Filter: {statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
           </button>
           <button
-            onClick={fetchOrders}
+            onClick={() => fetchOrders()}
             className="btn btn-primary w-full sm:w-auto"
           >
             <RefreshCw className="w-4 h-4" />

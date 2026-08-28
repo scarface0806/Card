@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import Stepper from '@/components/Stepper';
+import { logFetchError } from '@/lib/fetch-utils';
 import PersonalDetailsForm from '@/forms/PersonalDetailsForm';
 import BusinessDetailsForm from '@/forms/BusinessDetailsForm';
 import SocialLinksForm from '@/forms/SocialLinksForm';
@@ -16,7 +17,6 @@ import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
 import { ArrowLeft, ArrowRight, CreditCard, Sparkles } from 'lucide-react';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
-import QRPaymentButton from '@/components/QRPaymentButton';
 
 interface FormData {
   personalDetails: {
@@ -53,12 +53,14 @@ export default function OrderPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [upiOrderId, setUpiOrderId] = useState<string | null>(null);
   const router = useRouter();
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
+    // Razorpay Checkout handles card / UPI / wallet / net banking itself,
+    // so there is no method for the customer to choose.
+    defaultValues: { payment: { method: 'card' } },
   });
 
   const { handleSubmit, watch, formState: { errors } } = methods;
@@ -122,12 +124,6 @@ export default function OrderPage() {
       console.log('[Order] Order created for:', result.orderId);
       const orderId = result.orderId;
 
-      if (selectedPaymentMethod === 'upi') {
-        localStorage.setItem('lastOrderId', orderId);
-        setUpiOrderId(orderId);
-        return;
-      }
-
       // Step 2: Initiate Razorpay payment. No amount is sent - the server reads
       // the price from the order row, so it cannot be tampered with here.
       const paymentResponse = await initiatePayment({
@@ -149,7 +145,7 @@ export default function OrderPage() {
         paymentResponse.message || 'Payment could not be completed. Please try again.'
       );
     } catch (error) {
-      console.error('[Order] Error:', error);
+      logFetchError('[Order] Error:', error);
       setPaymentError(
         error instanceof Error ? error.message : 'Failed to process order. Please try again.'
       );
@@ -200,10 +196,6 @@ export default function OrderPage() {
                     {currentStep === 5 && <PaymentForm />}
                   </FormProvider>
 
-                  {upiOrderId && (
-                    <QRPaymentButton existingOrderId={upiOrderId} />
-                  )}
-
                   {paymentError && (
                     <div
                       role="alert"
@@ -247,7 +239,7 @@ export default function OrderPage() {
                       type="submit"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      disabled={isBusy || Boolean(upiOrderId)}
+                      disabled={isBusy}
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
                       {isBusy ? (

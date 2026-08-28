@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { fetchTemplates } from '@/services/api';
+import { logFetchError } from '@/lib/fetch-utils';
 import { ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
@@ -19,18 +20,26 @@ export default function TemplatePreviewSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadTemplates = async () => {
       try {
         const data = await fetchTemplates();
+        if (cancelled) return;
         setTemplates(data.slice(0, 3)); // Show only first 3
       } catch (error) {
-        console.error('Failed to load templates:', error);
+        if (cancelled) return;
+        logFetchError('Failed to load templates:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadTemplates();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const containerVariants = {

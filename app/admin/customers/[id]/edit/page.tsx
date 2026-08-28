@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
 import ImageUpload from '@/components/admin/ImageUpload';
+import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
 interface GalleryItem {
   id: string;
@@ -110,14 +111,19 @@ export default function EditCustomerPage() {
   const [form, setForm] = useState<FormState>(emptyForm);
 
   useEffect(() => {
-    let active = true;
+    const controller = new AbortController();
 
     const loadCustomer = async () => {
       if (!id) return;
       try {
         setLoading(true);
-        const response = await fetch(`/api/admin/customers/${id}`, { credentials: 'include' });
+        const response = await fetch(`/api/admin/customers/${id}`, {
+          credentials: 'include',
+          signal: controller.signal,
+        });
         const payload = await response.json();
+        if (controller.signal.aborted) return;
+
         if (!response.ok) {
           throw new Error(payload.error || 'Failed to fetch customer');
         }
@@ -136,7 +142,6 @@ export default function EditCustomerPage() {
           };
         });
 
-        if (!active) return;
         setForm({
           name: customer.name || '',
           designation: customer.designation || '',
@@ -165,17 +170,16 @@ export default function EditCustomerPage() {
           gallery: normalizedGallery,
         });
       } catch (error) {
-        if (!active) return;
+        if (controller.signal.aborted || isAbortError(error)) return;
         setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to load customer' });
       } finally {
-        if (active) setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     loadCustomer();
-    return () => {
-      active = false;
-    };
+
+    return () => controller.abort();
   }, [id]);
 
   const socialFields = useMemo(

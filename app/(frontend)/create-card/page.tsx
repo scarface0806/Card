@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import Stepper from '@/components/Stepper';
+import { logFetchError } from '@/lib/fetch-utils';
 import PersonalDetailsForm from '@/forms/PersonalDetailsForm';
 import BusinessDetailsForm from '@/forms/BusinessDetailsForm';
 import SocialLinksForm from '@/forms/SocialLinksForm';
@@ -18,7 +19,6 @@ import { getTemplateBySlug, getDefaultTemplate, CardTemplate } from '@/utils/car
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, CreditCard, Sparkles, Check } from 'lucide-react';
-import QRPaymentButton from '@/components/QRPaymentButton';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   ssr: false,
@@ -63,7 +63,6 @@ function CreateCardContent() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  const [upiOrderId, setUpiOrderId] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<CardTemplate>(getDefaultTemplate());
   const router = useRouter();
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
@@ -71,6 +70,9 @@ function CreateCardContent() {
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
+    // Razorpay Checkout handles card / UPI / wallet / net banking itself,
+    // so there is no method for the customer to choose.
+    defaultValues: { payment: { method: 'card' } },
   });
 
   const { handleSubmit, watch } = methods;
@@ -134,12 +136,6 @@ function CreateCardContent() {
 
       const orderId = result.orderId;
 
-      if (data.payment?.method === 'upi') {
-        localStorage.setItem('lastOrderId', orderId);
-        setUpiOrderId(orderId);
-        return;
-      }
-
       // Step 2: Open Razorpay Checkout. This resolves only once the modal has
       // closed - via the handler (paid), ondismiss (cancelled), or payment.failed.
       // No amount is sent: the server reads the price from the order row.
@@ -163,7 +159,7 @@ function CreateCardContent() {
         paymentResponse.message || 'Payment could not be completed. Please try again.'
       );
     } catch (error) {
-      console.error('Order creation failed:', error);
+      logFetchError('Order creation failed:', error);
       setPaymentError(
         error instanceof Error ? error.message : 'Failed to create order. Please try again.'
       );
@@ -214,10 +210,6 @@ function CreateCardContent() {
                     {currentStep === 5 && <PaymentForm template={selectedTemplate} />}
                   </FormProvider>
 
-                  {upiOrderId && (
-                    <QRPaymentButton existingOrderId={upiOrderId} />
-                  )}
-
                   {paymentError && (
                     <div
                       className={`mt-6 rounded-xl border p-4 text-sm ${
@@ -261,7 +253,7 @@ function CreateCardContent() {
                       whileHover={{ y: -2 }}
                       whileTap={{ y: 1 }}
                       transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                      disabled={isBusy || Boolean(upiOrderId)}
+                      disabled={isBusy}
                       className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isBusy ? (

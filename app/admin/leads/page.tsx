@@ -5,6 +5,7 @@ import { RefreshCw } from 'lucide-react';
 import DataTable from '@/components/admin/DataTable';
 import AdminToast from '@/components/admin/AdminToast';
 import RightDrawer from '@/components/ui/RightDrawer';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface LeadRow {
   id: string;
@@ -30,15 +31,17 @@ export default function AdminLeadsPage() {
   const [viewLead, setViewLead] = useState<LeadRow | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  const fetchLeads = useCallback(async () => {
+  const fetchLeads = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch('/api/admin/leads?type=main&limit=200', {
         credentials: 'include',
+        signal,
       });
       const payload = await response.json();
+      if (signal?.aborted) return;
 
       if (!response.ok) {
         throw new Error(payload.error || 'Failed to fetch leads');
@@ -57,9 +60,10 @@ export default function AdminLeadsPage() {
 
       setRows(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch leads');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
@@ -87,7 +91,10 @@ export default function AdminLeadsPage() {
   }, [rows]);
 
   useEffect(() => {
-    fetchLeads();
+    const controller = new AbortController();
+    fetchLeads(controller.signal);
+
+    return () => controller.abort();
   }, [fetchLeads]);
 
   return (
@@ -99,7 +106,7 @@ export default function AdminLeadsPage() {
         </div>
         <button
           type="button"
-          onClick={fetchLeads}
+          onClick={() => fetchLeads()}
           className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#2a3048] px-4 py-2.5 font-medium text-white transition hover:bg-[#313755]"
         >
           <RefreshCw className="h-4 w-4" />

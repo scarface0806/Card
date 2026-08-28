@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Upload } from 'lucide-react';
 import ImageUpload from '@/components/admin/ImageUpload';
+import { isAbortError } from '@/lib/fetch-utils';
 
 export default function AccountPage() {
   const [loading, setLoading] = useState(true);
@@ -28,6 +29,8 @@ export default function AccountPage() {
   }, [formData.name]);
 
   useEffect(() => {
+    const controller = new AbortController();
+
     const loadAccount = async () => {
       try {
         setLoading(true);
@@ -35,8 +38,10 @@ export default function AccountPage() {
 
         const response = await fetch('/api/admin/account', {
           credentials: 'include',
+          signal: controller.signal,
         });
         const payload = await response.json();
+        if (controller.signal.aborted) return;
 
         if (!response.ok || !payload.success) {
           throw new Error(payload.error || 'Failed to load account');
@@ -55,13 +60,16 @@ export default function AccountPage() {
           user.avatar || `https://ui-avatars.com/api/?name=${safeName}&background=0D8ABC&color=fff`
         );
       } catch (err) {
+        if (controller.signal.aborted || isAbortError(err)) return;
         setError(err instanceof Error ? err.message : 'Failed to load account');
       } finally {
-        setLoading(false);
+        if (!controller.signal.aborted) setLoading(false);
       }
     };
 
     loadAccount();
+
+    return () => controller.abort();
   }, []);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

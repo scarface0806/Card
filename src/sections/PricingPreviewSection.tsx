@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { fetchPricingPlans } from '@/services/api';
+import { logFetchError } from '@/lib/fetch-utils';
 import { Check, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
@@ -23,18 +24,26 @@ export default function PricingPreviewSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadPlans = async () => {
       try {
         const data = await fetchPricingPlans();
+        if (cancelled) return;
         setPlans(data);
       } catch (error) {
-        console.error('Failed to load pricing:', error);
+        if (cancelled) return;
+        logFetchError('Failed to load pricing:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     loadPlans();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const containerVariants = {

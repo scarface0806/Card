@@ -7,6 +7,7 @@ import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import RightDrawer from '@/components/ui/RightDrawer';
 import { RotateCw, Filter } from 'lucide-react';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface ContactRow {
   id: string;
@@ -36,16 +37,19 @@ export default function ContactsPage() {
   const [confirmTarget, setConfirmTarget] = useState<ContactRow | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
 
-  const fetchContacts = useCallback(async () => {
+  const fetchContacts = useCallback(async (signal?: AbortSignal) => {
     try {
       setLoading(true);
       setError(null);
 
       const response = await fetch('/api/contacts?limit=200', {
         credentials: 'include',
+        signal,
       });
 
       const payload = await response.json();
+      if (signal?.aborted) return;
+
       if (!response.ok || !payload.success) {
         throw new Error(payload.error || 'Failed to fetch contacts');
       }
@@ -66,14 +70,18 @@ export default function ContactsPage() {
 
       setData(mapped);
     } catch (err) {
+      if (signal?.aborted || isAbortError(err)) return;
       setError(err instanceof Error ? err.message : 'Failed to fetch contacts');
     } finally {
-      setLoading(false);
+      if (!signal?.aborted) setLoading(false);
     }
   }, []);
 
   useEffect(() => {
-    fetchContacts();
+    const controller = new AbortController();
+    fetchContacts(controller.signal);
+
+    return () => controller.abort();
   }, [fetchContacts]);
 
   const handleRefresh = () => {
