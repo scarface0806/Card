@@ -5,7 +5,7 @@ import DataTable from '@/components/admin/DataTable';
 import StatusBadge from '@/components/admin/StatusBadge';
 import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
-import { Plus, RefreshCw } from 'lucide-react';
+import { ExternalLink, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 
 interface CardRow {
   id: string;
@@ -15,6 +15,9 @@ interface CardRow {
   type: string;
   status: 'active' | 'inactive' | 'pending';
   createdDate: string;
+  nfcLink: string;
+  title: string;
+  company: string;
 }
 
 interface ToastState {
@@ -36,6 +39,14 @@ export default function CardsPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [confirmTarget, setConfirmTarget] = useState<CardRow | null>(null);
   const [confirmLoading, setConfirmLoading] = useState(false);
+  const [editTarget, setEditTarget] = useState<CardRow | null>(null);
+  const [editDetails, setEditDetails] = useState({
+    firstName: '',
+    lastName: '',
+    title: '',
+    company: '',
+  });
+  const [editLoading, setEditLoading] = useState(false);
 
   const fetchCards = useCallback(async () => {
     try {
@@ -58,11 +69,14 @@ export default function CardsPage() {
         return {
           id: card.id,
           sno: index + 1,
-          name: detailsName || card.slug,
+          name: detailsName || card.user?.name || card.slug,
           owner: ownerName,
           type: card.cardType || 'standard',
           status: mapCardStatus(card.status),
           createdDate: new Date(card.createdAt).toLocaleDateString(),
+          nfcLink: `${window.location.origin}/card/${card.slug}`,
+          title: card.details?.title || '',
+          company: card.details?.company || '',
         };
       });
 
@@ -78,7 +92,44 @@ export default function CardsPage() {
     fetchCards();
   }, [fetchCards]);
 
-  const handleEdit = async (row: CardRow) => {
+  const handleEdit = (row: CardRow) => {
+    setEditTarget(row);
+    setEditDetails({
+      firstName: row.name.split(' ')[0] || '',
+      lastName: row.name.split(' ').slice(1).join(' '),
+      title: row.title,
+      company: row.company,
+    });
+  };
+
+  const saveEdit = async () => {
+    if (!editTarget) return;
+
+    try {
+      setEditLoading(true);
+      const response = await fetch(`/api/admin/cards/${editTarget.id}/detail`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ details: editDetails }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || 'Failed to edit card');
+      }
+
+      await fetchCards();
+      setEditTarget(null);
+      setToast({ variant: 'success', message: 'Card updated successfully' });
+    } catch (err) {
+      setToast({ variant: 'error', message: err instanceof Error ? err.message : 'Failed to edit card' });
+    } finally {
+      setEditLoading(false);
+    }
+  };
+
+  const handleToggleStatus = async (row: CardRow) => {
     const nextStatus = row.status === 'active' ? 'INACTIVE' : 'ACTIVE';
     try {
       const response = await fetch(`/api/admin/cards/${row.id}`, {
@@ -106,27 +157,23 @@ export default function CardsPage() {
     setConfirmTarget(row);
   };
 
-  const confirmDisableCard = async () => {
+  const confirmDeleteCard = async () => {
     if (!confirmTarget) return;
 
     try {
       setConfirmLoading(true);
       const response = await fetch(`/api/admin/cards/${confirmTarget.id}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        method: 'DELETE',
         credentials: 'include',
-        body: JSON.stringify({ status: 'INACTIVE' }),
       });
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || 'Failed to disable card');
+        throw new Error(data.error || 'Failed to delete card');
       }
 
       await fetchCards();
-      setToast({ variant: 'success', message: `Card ${confirmTarget.name} disabled successfully` });
+      setToast({ variant: 'success', message: `Card ${confirmTarget.name} deleted successfully` });
       setConfirmTarget(null);
     } catch (err) {
       setToast({ variant: 'error', message: err instanceof Error ? err.message : 'Failed to disable card' });
@@ -165,14 +212,46 @@ export default function CardsPage() {
 
       <AdminConfirmPanel
         open={!!confirmTarget}
-        title="Disable card"
-        description={confirmTarget ? `Mark ${confirmTarget.name} as inactive?` : ''}
-        confirmText="Disable Card"
+        title="Delete card"
+        description={confirmTarget ? `Delete ${confirmTarget.name}? This action cannot be undone.` : ''}
+        confirmText="Delete Card"
         onCancel={() => setConfirmTarget(null)}
-        onConfirm={confirmDisableCard}
+        onConfirm={confirmDeleteCard}
         loading={confirmLoading}
         tone="danger"
       />
+
+      {editTarget && (
+        <section className="rounded-2xl border border-white/10 bg-[#101628] p-5">
+          <div className="flex items-center justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold text-white">Edit Card</h2>
+              <p className="mt-1 text-sm text-gray-400">Update the profile details shown on the NFC card.</p>
+            </div>
+            <button type="button" onClick={() => setEditTarget(null)} className="text-sm text-gray-400 hover:text-white">
+              Cancel
+            </button>
+          </div>
+          <div className="mt-5 grid gap-4 sm:grid-cols-2">
+            {(['firstName', 'lastName', 'title', 'company'] as const).map((field) => (
+              <label key={field} className="space-y-2 text-sm font-medium text-gray-300">
+                {field === 'title' ? 'Title' : field === 'firstName' ? 'First name' : field === 'lastName' ? 'Last name' : 'Company'}
+                <input
+                  value={editDetails[field]}
+                  onChange={(event) => setEditDetails((current) => ({ ...current, [field]: event.target.value }))}
+                  className="w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-2.5 text-white outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                />
+              </label>
+            ))}
+          </div>
+          <div className="mt-5 flex justify-end">
+            <button type="button" onClick={saveEdit} disabled={editLoading} className="btn btn-primary disabled:opacity-50">
+              <Pencil className="h-4 w-4" />
+              {editLoading ? 'Saving...' : 'Save Card'}
+            </button>
+          </div>
+        </section>
+      )}
 
       <DataTable
         columns={[
@@ -182,6 +261,15 @@ export default function CardsPage() {
           { key: 'type', label: 'Card Type', width: '120px' },
           { key: 'createdDate', label: 'Created', width: '120px' },
           {
+            key: 'nfcLink',
+            label: 'NFC Link',
+            render: (value: string) => (
+              <a href={value} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:text-primary-light" title={value}>
+                Open <ExternalLink className="h-3.5 w-3.5" />
+              </a>
+            ),
+          },
+          {
             key: 'status',
             label: 'Status',
             render: (status) => <StatusBadge status={status as any} />,
@@ -190,6 +278,14 @@ export default function CardsPage() {
         data={loading ? [] : cards}
         onEdit={handleEdit}
         onDelete={handleDelete}
+        extraActions={[
+          {
+            key: 'toggle-status',
+            label: (row: CardRow) => (row.status === 'active' ? 'Deactivate' : 'Activate'),
+            onClick: handleToggleStatus,
+            tone: 'warning',
+          },
+        ]}
       />
     </main>
   );

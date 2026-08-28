@@ -40,7 +40,10 @@ async function handler(request: NextRequest, user: AuthUser) {
 
     const updatedCard = await prisma.card.update({
       where: { id },
-      data: { status: status as CardStatus },
+      data: {
+        status: status as CardStatus,
+        isActive: status === "ACTIVE",
+      },
       select: {
         id: true,
         slug: true,
@@ -65,4 +68,32 @@ async function handler(request: NextRequest, user: AuthUser) {
   }
 }
 
+async function deleteHandler(request: NextRequest, user: AuthUser) {
+  try {
+    const id = getIdFromUrl(request.url);
+    const existingCard = await prisma.card.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+
+    if (!existingCard) {
+      return errorResponse("Card not found", 404);
+    }
+
+    await prisma.card.delete({ where: { id } });
+
+    return NextResponse.json({
+      message: "Card deleted successfully",
+      deletedId: id,
+    });
+  } catch (error) {
+    console.error("Admin delete card error:", error);
+    return NextResponse.json(
+      { error: "Failed to delete card" },
+      { status: 500 }
+    );
+  }
+}
+
 export const PUT = withRateLimit(withAdmin(handler), 30);
+export const DELETE = withRateLimit(withAdmin(deleteHandler), 30);

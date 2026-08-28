@@ -12,10 +12,6 @@ export function isCloudinaryConfigured(): boolean {
   );
 }
 
-if (!isCloudinaryConfigured()) {
-  console.warn("[Cloudinary] Missing Cloudinary environment variables. Uploads will fail until configured.");
-}
-
 cloudinary.config({
   secure: true,
   ...(cloudName && apiKey && apiSecret

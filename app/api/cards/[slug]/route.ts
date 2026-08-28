@@ -34,7 +34,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Check if card is active
-    if (!card.isActive) {
+    if (!card.isActive || card.status !== "ACTIVE") {
       return errorResponse("This card is no longer active", 410);
     }
 

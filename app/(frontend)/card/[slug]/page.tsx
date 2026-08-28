@@ -172,7 +172,14 @@ export default async function CardPage({ params }: PageProps) {
 
   const customer = await getCustomerProfile(slug);
   if (customer && !customer.isActive) {
-    notFound();
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-center text-white">
+        <div className="max-w-md space-y-3">
+          <h1 className="text-2xl font-semibold">This profile is deactivated</h1>
+          <p className="text-gray-400">Please contact the profile owner for an active NFC link.</p>
+        </div>
+      </main>
+    );
   }
 
   if (customer) {
@@ -183,8 +190,19 @@ export default async function CardPage({ params }: PageProps) {
   const card = await getCard(slug);
 
   // Handle not found or inactive
-  if (!card || !card.isActive) {
+  if (!card) {
     notFound();
+  }
+
+  if (!card.isActive || card.status !== 'ACTIVE') {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-center text-white">
+        <div className="max-w-md space-y-3">
+          <h1 className="text-2xl font-semibold">This NFC card is deactivated</h1>
+          <p className="text-gray-400">Please contact the card owner for more information.</p>
+        </div>
+      </main>
+    );
   }
 
   // Handle expired card
