@@ -36,6 +36,22 @@ export interface RazorpayOrderResponse {
   created_at: number;
 }
 
+export interface RazorpayQrCodeResponse {
+  id: string;
+  image_url: string;
+  short_url: string;
+  status: string;
+}
+
+export interface RazorpayPaymentResponse {
+  id: string;
+  order_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  method: string;
+}
+
 export interface PaymentVerificationParams {
   razorpay_order_id: string;
   razorpay_payment_id: string;
@@ -164,6 +180,63 @@ class RazorpayService {
       console.error("Razorpay order creation error:", error);
       throw error;
     }
+  }
+
+  async createQrCode(params: {
+    amount: number;
+    currency: string;
+    description: string;
+    notes?: Record<string, string>;
+  }): Promise<RazorpayQrCodeResponse> {
+    const body = new URLSearchParams({
+      type: "upi",
+      name: "Payment",
+      usage: "single_use",
+      fixed_amount: "true",
+      payment_amount: params.amount.toString(),
+      description: params.description,
+      ...(params.notes && { notes: JSON.stringify(params.notes) }),
+    });
+
+    const response = await fetch(`${this.apiBaseUrl}/payments/qr_codes`, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64")}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: body.toString(),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(`Razorpay QR API Error: ${error.error?.description || "Unknown error"}`);
+    }
+
+    return response.json() as Promise<RazorpayQrCodeResponse>;
+  }
+
+  async getOrderPayments(orderId: string): Promise<RazorpayPaymentResponse[]> {
+    const response = await fetch(`${this.apiBaseUrl}/orders/${encodeURIComponent(orderId)}/payments`, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64")}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Unable to read Razorpay payment status");
+    const data = await response.json() as { items?: RazorpayPaymentResponse[] };
+    return data.items || [];
+  }
+
+  async getQrCodePayments(qrCodeId: string): Promise<RazorpayPaymentResponse[]> {
+    const response = await fetch(`${this.apiBaseUrl}/payments/qr_codes/${encodeURIComponent(qrCodeId)}/payments`, {
+      headers: {
+        Authorization: `Basic ${Buffer.from(`${this.keyId}:${this.keySecret}`).toString("base64")}`,
+      },
+    });
+
+    if (!response.ok) throw new Error("Unable to read Razorpay QR payment status");
+    const data = await response.json() as { items?: RazorpayPaymentResponse[] };
+    return data.items || [];
   }
 
   /**

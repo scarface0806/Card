@@ -334,6 +334,7 @@ model PaymentLog {
   
   // Razorpay payment details
   razorpayOrderId   String @unique
+  razorpayQrCodeId  String?
   razorpayPaymentId String?
   razorpaySignature String?
 

@@ -16,6 +16,7 @@ import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
 import { ArrowLeft, ArrowRight, CreditCard, Sparkles } from 'lucide-react';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
+import QRPaymentButton from '@/components/QRPaymentButton';
 
 interface FormData {
   personalDetails: {
@@ -52,6 +53,7 @@ export default function OrderPage() {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [upiOrderId, setUpiOrderId] = useState<string | null>(null);
   const router = useRouter();
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
   const methods = useForm<FormData>({
@@ -119,6 +121,12 @@ export default function OrderPage() {
 
       console.log('[Order] Order created for:', result.orderId);
       const orderId = result.orderId;
+
+      if (selectedPaymentMethod === 'upi') {
+        localStorage.setItem('lastOrderId', orderId);
+        setUpiOrderId(orderId);
+        return;
+      }
 
       // Step 2: Initiate Razorpay payment. No amount is sent - the server reads
       // the price from the order row, so it cannot be tampered with here.
@@ -192,6 +200,10 @@ export default function OrderPage() {
                     {currentStep === 5 && <PaymentForm />}
                   </FormProvider>
 
+                  {upiOrderId && (
+                    <QRPaymentButton existingOrderId={upiOrderId} />
+                  )}
+
                   {paymentError && (
                     <div
                       role="alert"
@@ -235,7 +247,7 @@ export default function OrderPage() {
                       type="submit"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      disabled={isBusy}
+                      disabled={isBusy || Boolean(upiOrderId)}
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
                       {isBusy ? (

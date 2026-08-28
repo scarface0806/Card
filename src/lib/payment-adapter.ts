@@ -48,6 +48,12 @@ export interface VerifyPaymentResult {
   alreadyFulfilled?: boolean;
 }
 
+export interface PaymentStatusResult {
+  success: boolean;
+  paymentId?: string;
+  message: string;
+}
+
 /**
  * Payment Adapter Service
  * Handles payment creation and verification
@@ -321,6 +327,66 @@ class PaymentAdapterService {
       console.error("Get payment log error:", error);
       throw error;
     }
+  }
+
+  async checkCapturedPayment(params: {
+    existingOrderId: string;
+    razorpayOrderId: string;
+    razorpayQrCodeId: string;
+  }): Promise<PaymentStatusResult> {
+    const paymentLog = await prisma.paymentLog.findUnique({
+      where: { razorpayOrderId: params.razorpayOrderId },
+    });
+
+    if (!paymentLog || paymentLog.existingOrderId !== params.existingOrderId) {
+      return { success: false, message: "Payment status unavailable" };
+    }
+
+    if (paymentLog.razorpayQrCodeId !== params.razorpayQrCodeId) {
+      return { success: false, message: "Payment status unavailable" };
+    }
+
+    if (paymentLog.status === "SUCCESS" && paymentLog.razorpayPaymentId) {
+      return { success: true, paymentId: paymentLog.razorpayPaymentId, message: "Payment confirmed" };
+    }
+
+    const capturedPayment = (await getRazorpayService().getQrCodePayments(params.razorpayQrCodeId))
+      .find((payment) =>
+        payment.status === "captured" &&
+        payment.amount === toPaise(paymentLog.amount) &&
+        payment.currency === paymentLog.currency
+      );
+
+    if (!capturedPayment) {
+      return { success: false, message: "Payment is still pending" };
+    }
+
+    const claimed = await prisma.paymentLog.updateMany({
+      where: { id: paymentLog.id, status: { not: "SUCCESS" } },
+      data: { status: "SUCCESS", razorpayPaymentId: capturedPayment.id },
+    });
+
+    await prisma.order.updateMany({
+      where: { id: params.existingOrderId, paymentStatus: { not: "PAID" } },
+      data: {
+        paymentStatus: "PAID",
+        paymentMethod: "razorpay_upi",
+        paymentId: capturedPayment.id,
+      },
+    });
+
+    return {
+      success: true,
+      paymentId: capturedPayment.id,
+      message: claimed.count ? "Payment confirmed" : "Payment already confirmed",
+    };
+  }
+
+  async attachQrCode(paymentLogId: string, razorpayQrCodeId: string): Promise<void> {
+    await prisma.paymentLog.updateMany({
+      where: { id: paymentLogId, status: "PENDING", razorpayQrCodeId: null },
+      data: { razorpayQrCodeId },
+    });
   }
 }
 
