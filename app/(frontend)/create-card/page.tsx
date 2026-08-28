@@ -15,6 +15,7 @@ import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
 import { getTemplateBySlug, getDefaultTemplate, CardTemplate } from '@/utils/cardTemplates';
+import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, CreditCard, Sparkles, Check } from 'lucide-react';
 
@@ -60,16 +61,28 @@ function CreateCardContent() {
   
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] = useState<CardTemplate>(getDefaultTemplate());
   const router = useRouter();
-  
+  const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
+
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
   });
 
   const { handleSubmit, watch } = methods;
-  
+
+  // One flag for every "do not let them click again" state - form submit,
+  // order creation, the Checkout modal being open, and verification.
+  const isBusy = isSubmitting || isPaymentLoading;
+  const busyLabel =
+    paymentStatus === 'awaiting_payment'
+      ? 'Waiting for payment...'
+      : paymentStatus === 'verifying'
+        ? 'Confirming payment...'
+        : null;
+
   // Watch specific fields for live preview - real-time updates
   const fullName = watch('personalDetails.name', '');
   const designation = watch('personalDetails.designation', '');
@@ -92,12 +105,16 @@ function CreateCardContent() {
     }
 
     setIsSubmitting(true);
+    setPaymentError(null);
+
     try {
       const uploads = {
         profileImage: data.uploads?.profileImage?.[0],
         logo: data.uploads?.logo?.[0],
       };
 
+      // Step 1: Create the order in the database. It lands as PENDING/unpaid -
+      // this call is NOT a payment and must never redirect to the success page.
       const result = await createOrder({
         personalDetails: data.personalDetails,
         businessDetails: data.businessDetails,
@@ -109,13 +126,39 @@ function CreateCardContent() {
         payment: data.payment,
       });
 
-      if (result.success) {
-        localStorage.setItem('lastOrderId', result.orderId);
-        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${result.orderId}`);
+      if (!result.success || !result.orderId) {
+        throw new Error('Failed to create order');
       }
+
+      const orderId = result.orderId;
+
+      // Step 2: Open Razorpay Checkout. This resolves only once the modal has
+      // closed - via the handler (paid), ondismiss (cancelled), or payment.failed.
+      // No amount is sent: the server reads the price from the order row.
+      const paymentResponse = await initiatePayment({
+        existingOrderId: orderId,
+        userEmail: data.personalDetails.email,
+        userName: data.personalDetails.name,
+        userPhone: data.personalDetails.mobile,
+        paymentMethod: data.payment?.method,
+      });
+
+      // Step 3: Navigate only when /api/payment/verify confirmed the signature
+      // server-side. A cancelled or failed payment leaves the order PENDING.
+      if (paymentResponse.success) {
+        localStorage.setItem('lastOrderId', orderId);
+        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${orderId}`);
+        return;
+      }
+
+      setPaymentError(
+        paymentResponse.message || 'Payment could not be completed. Please try again.'
+      );
     } catch (error) {
       console.error('Order creation failed:', error);
-      alert('Failed to create order. Please try again.');
+      setPaymentError(
+        error instanceof Error ? error.message : 'Failed to create order. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -163,6 +206,30 @@ function CreateCardContent() {
                     {currentStep === 5 && <PaymentForm template={selectedTemplate} />}
                   </FormProvider>
 
+                  {paymentError && (
+                    <div
+                      className={`mt-6 rounded-xl border p-4 text-sm ${
+                        paymentStatus === 'cancelled'
+                          ? 'border-amber-300 bg-amber-50 text-amber-800'
+                          : 'border-red-300 bg-red-50 text-red-800'
+                      }`}
+                    >
+                      <p className="font-semibold">
+                        {paymentStatus === 'cancelled'
+                          ? 'Payment cancelled'
+                          : paymentStatus === 'verification_failed'
+                            ? 'We could not confirm your payment'
+                            : 'Payment failed'}
+                      </p>
+                      <p className="mt-1">{paymentError}</p>
+                      {paymentStatus === 'verification_failed' && (
+                        <p className="mt-2">
+                          Please do not pay again. Email us and we will confirm your order manually.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex gap-4 pt-8 border-t border-primary/10">
                     {currentStep > 1 && (
                       <motion.button
@@ -182,11 +249,14 @@ function CreateCardContent() {
                       whileHover={{ y: -2 }}
                       whileTap={{ y: 1 }}
                       transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                      disabled={isSubmitting}
+                      disabled={isBusy}
                       className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {isSubmitting ? (
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      {isBusy ? (
+                        <>
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          {busyLabel}
+                        </>
                       ) : (
                         <>
                           {currentStep === 5 ? 'Place Order' : 'Next'}

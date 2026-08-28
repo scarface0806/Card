@@ -7,6 +7,7 @@ import { Check, Zap, Palette, Shield, ArrowRight, Sparkles, Loader2 } from 'luci
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants';
+import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import { useState, useEffect } from 'react';
 
 interface Product {
@@ -18,14 +19,22 @@ interface Product {
   image: string;
 }
 
+interface CurrentUser {
+  email: string;
+  name: string;
+  phone?: string | null;
+}
+
 export default function ProductsPage() {
   const router = useRouter();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
+  const [currentUser, setCurrentUser] = useState<CurrentUser | null>(null);
   const [hoveredProduct, setHoveredProduct] = useState<string | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [buyingProductId, setBuyingProductId] = useState<string | null>(null);
+  const { initiatePayment, isLoading: isPaymentLoading } = useRazorpayPayment();
 
   useEffect(() => {
     // Check auth status using the custom JWT system
@@ -33,6 +42,19 @@ export default function ProductsPage() {
       try {
         const res = await fetch('/api/auth/me', { credentials: 'include' });
         setIsLoggedIn(res.ok);
+
+        // Keep the profile around so Checkout can be prefilled without a
+        // second round trip when the user hits Buy Now.
+        if (res.ok) {
+          const data = await res.json().catch(() => null);
+          if (data?.user) {
+            setCurrentUser({
+              email: data.user.email,
+              name: data.user.name,
+              phone: data.user.phone,
+            });
+          }
+        }
       } catch {
         setIsLoggedIn(false);
       } finally {
@@ -107,13 +129,29 @@ export default function ProductsPage() {
       }
 
       const data = await response.json();
+      const orderId = data.order?.id;
 
-      // Redirect to order success page
-      if (data.order?.id) {
-        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${data.order.id}`);
-      } else {
-        router.push(ROUTES.ORDER_SUCCESS);
+      if (!orderId) {
+        throw new Error('Failed to create order');
       }
+
+      // The order above is PENDING and unpaid. Open Razorpay Checkout and let
+      // it settle - this resolves via the handler (paid), ondismiss (cancelled),
+      // or payment.failed. No amount is sent; the server prices the order.
+      const paymentResponse = await initiatePayment({
+        existingOrderId: orderId,
+        userEmail: currentUser?.email ?? '',
+        userName: currentUser?.name ?? '',
+        userPhone: currentUser?.phone ?? undefined,
+      });
+
+      // Redirect only after /api/payment/verify confirmed the signature.
+      if (paymentResponse.success) {
+        router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${orderId}`);
+        return;
+      }
+
+      alert(paymentResponse.message || 'Payment could not be completed. Please try again.');
     } catch (error) {
       console.error('Order error:', error);
       alert(error instanceof Error ? error.message : 'Failed to create order. Please try again.');
@@ -246,7 +284,7 @@ export default function ProductsPage() {
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
                         onClick={() => handleBuyNow(product.id)}
-                        disabled={buyingProductId === product.id || !authChecked}
+                        disabled={buyingProductId === product.id || isPaymentLoading || !authChecked}
                         className={`w-full flex items-center justify-center gap-2 py-3.5 px-6 rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                           isPopular
                             ? 'bg-gradient-to-r from-green-400 to-emerald-500 text-black hover:shadow-[0_0_25px_rgba(74,222,128,0.4)] shadow-md'
