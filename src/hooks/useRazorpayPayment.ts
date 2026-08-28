@@ -1,221 +1,161 @@
 /**
  * Razorpay Payment Hook
- * 
+ *
  * This hook handles Razorpay payment integration seamlessly.
  * It plugs into the existing order flow without any UI changes.
- * 
+ *
  * Usage in order page:
- * - const { initiatePayment, isLoading, error } = useRazorpayPayment();
+ * - const { initiatePayment, isLoading, error, status } = useRazorpayPayment();
  * - In Place Order button click: await initiatePayment(orderData)
+ *
+ * The hook never decides on its own that a payment succeeded. Checkout's handler
+ * callback runs in the browser and is spoofable, so the result is whatever
+ * /api/payment/verify says after recomputing the signature server-side.
  */
 
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { razorpayDebugger } from '@/lib/razorpay-debug';
+
+const CHECKOUT_SCRIPT_SRC = 'https://checkout.razorpay.com/v1/checkout.js';
 
 interface PaymentOrderData {
   existingOrderId: string; // Order ID from database
-  amount: number; // Amount in ₹ (will be converted to paise)
   userEmail: string;
   userName: string;
   userPhone?: string;
   paymentMethod?: string; // 'card', 'upi', 'wallet'
 }
 
+/** What actually happened, so the page can show the right UI. */
+export type PaymentStatus =
+  | 'idle'
+  | 'loading_checkout'
+  | 'creating_order'
+  | 'awaiting_payment'
+  | 'verifying'
+  | 'succeeded'
+  | 'cancelled'
+  | 'failed'
+  | 'verification_failed';
+
 interface PaymentResponse {
   success: boolean;
+  status: PaymentStatus;
   message?: string;
   paymentId?: string;
-  orderId?: string;
+}
+
+/** Resolves once the Checkout script is on the page, or false if it will not load. */
+function loadCheckoutScript(): Promise<boolean> {
+  if (typeof window === 'undefined') return Promise.resolve(false);
+
+  // Already loaded and evaluated.
+  if ((window as any).Razorpay) return Promise.resolve(true);
+
+  const existing = document.querySelector<HTMLScriptElement>(
+    `script[src="${CHECKOUT_SCRIPT_SRC}"]`
+  );
+
+  const script = existing ?? document.createElement('script');
+
+  const settled = new Promise<boolean>((resolve) => {
+    script.addEventListener('load', () => resolve(Boolean((window as any).Razorpay)), { once: true });
+    script.addEventListener('error', () => resolve(false), { once: true });
+  });
+
+  if (!existing) {
+    script.src = CHECKOUT_SCRIPT_SRC;
+    script.async = true;
+    document.body.appendChild(script);
+  }
+
+  return settled;
 }
 
 export function useRazorpayPayment() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [isScriptLoaded, setIsScriptLoaded] = useState(false);
+  const [status, setStatus] = useState<PaymentStatus>('idle');
 
-  /**
-   * Load Razorpay script if not already loaded
-   */
-  const loadRazorpayScript = useCallback(async () => {
-    if (isScriptLoaded) return true;
+  // Guards against a double-click creating two Razorpay orders. A ref rather
+  // than state because it has to be correct synchronously, before React renders.
+  const inFlight = useRef(false);
 
-    try {
-      razorpayDebugger.log('INFO', 'useRazorpayPayment', 'Loading Razorpay script');
+  const initiatePayment = useCallback(
+    async (data: PaymentOrderData): Promise<PaymentResponse> => {
+      if (inFlight.current) {
+        razorpayDebugger.log('WARN', 'useRazorpayPayment', 'Payment already in progress, ignoring duplicate call');
+        return { success: false, status: 'awaiting_payment', message: 'A payment is already in progress' };
+      }
 
-      return new Promise((resolve) => {
-        const script = document.createElement('script');
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js';
-        script.async = true;
-        script.onload = () => {
-          razorpayDebugger.log('SUCCESS', 'useRazorpayPayment', 'Razorpay script loaded');
-          setIsScriptLoaded(true);
-          resolve(true);
-        };
-        script.onerror = () => {
-          razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Failed to load Razorpay script');
-          resolve(false);
-        };
-        document.body.appendChild(script);
-      });
-    } catch (err) {
-      razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Error loading script', { error: String(err) });
-      return false;
-    }
-  }, [isScriptLoaded]);
+      inFlight.current = true;
+      setError(null);
+      setIsLoading(true);
 
-  /**
-   * Create Razorpay order via backend API
-   */
-  const createRazorpayOrder = useCallback(
-    async (data: PaymentOrderData): Promise<any> => {
+      const finish = (result: PaymentResponse): PaymentResponse => {
+        inFlight.current = false;
+        setIsLoading(false);
+        setStatus(result.status);
+        setError(result.success ? null : result.message ?? null);
+        return result;
+      };
+
       try {
-        razorpayDebugger.log('INFO', 'useRazorpayPayment.createOrder', 'Creating Razorpay order', {
+        razorpayDebugger.log('INFO', 'useRazorpayPayment', 'Payment flow started', {
           existingOrderId: data.existingOrderId,
-          amount: data.amount,
         });
 
-        const response = await fetch('/api/payment/create-razorpay-order', {
+        // Step 1: Load Checkout and wait for it. `new window.Razorpay()` before
+        // this resolves is the classic "Razorpay is not defined" crash.
+        setStatus('loading_checkout');
+        const scriptLoaded = await loadCheckoutScript();
+
+        if (!scriptLoaded) {
+          razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Checkout script failed to load');
+          return finish({
+            success: false,
+            status: 'failed',
+            message:
+              'We could not load the secure payment window. Check your internet connection or any ad blocker, then try again.',
+          });
+        }
+
+        // Step 2: Create the order server-side. The amount comes from the DB.
+        setStatus('creating_order');
+        const response = await fetch('/api/payment/order', {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             existingOrderId: data.existingOrderId,
-            amount: data.amount,
             userEmail: data.userEmail,
             userName: data.userName,
             userPhone: data.userPhone,
           }),
         });
 
-        if (!response.ok) {
-          const errorData = await response.json();
-          razorpayDebugger.log('ERROR', 'useRazorpayPayment.createOrder', 'API error', {
-            status: response.status,
-            error: errorData,
-          });
-          throw new Error(errorData.error || 'Failed to create order');
+        const orderData = await response.json().catch(() => null);
+
+        if (!response.ok || !orderData?.orderId) {
+          const message = orderData?.error || orderData?.message || 'Could not start the payment. Please try again.';
+          razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Order creation failed', { status: response.status });
+          return finish({ success: false, status: 'failed', message });
         }
 
-        const orderData = await response.json();
-        razorpayDebugger.log('SUCCESS', 'useRazorpayPayment.createOrder', 'Order created', {
-          razorpayOrderId: orderData.razorpay_order_id,
-          amount: orderData.amount,
+        razorpayDebugger.log('SUCCESS', 'useRazorpayPayment', 'Payment order created', {
+          razorpayOrderId: orderData.orderId,
         });
 
-        return orderData;
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-        razorpayDebugger.log('ERROR', 'useRazorpayPayment.createOrder', 'Order creation error', {
-          error: errorMsg,
-        });
-        throw err;
-      }
-    },
-    []
-  );
+        // Step 3: Open Checkout. Resolution is deferred to whichever callback fires.
+        setStatus('awaiting_payment');
 
-  /**
-   * Verify payment signature with backend
-   */
-  const verifyPayment = useCallback(
-    async (
-      existingOrderId: string,
-      razorpayPaymentId: string,
-      razorpayOrderId: string,
-      razorpaySignature: string
-    ): Promise<PaymentResponse> => {
-      try {
-        razorpayDebugger.log('INFO', 'useRazorpayPayment.verify', 'Verifying payment', {
-          orderId: razorpayOrderId,
-          paymentId: razorpayPaymentId,
-        });
-
-        const response = await fetch('/api/payment/verify', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            existingOrderId,
-            razorpayPaymentId,
-            razorpayOrderId,
-            razorpaySignature,
-          }),
-        });
-
-        if (!response.ok) {
-          const errorData = await response.json();
-          razorpayDebugger.log('ERROR', 'useRazorpayPayment.verify', 'Verification failed', {
-            status: response.status,
-            error: errorData,
-          });
-          throw new Error(errorData.error || 'Payment verification failed');
-        }
-
-        const result = await response.json();
-        razorpayDebugger.log('SUCCESS', 'useRazorpayPayment.verify', 'Payment verified', {
-          paymentId: result.paymentId,
-        });
-
-        return result;
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Unknown error';
-        razorpayDebugger.log('ERROR', 'useRazorpayPayment.verify', 'Verification error', {
-          error: errorMsg,
-        });
-        throw err;
-      }
-    },
-    []
-  );
-
-  /**
-   * Initiate payment flow (main function to call from Place Order button)
-   */
-  const initiatePayment = useCallback(
-    async (data: PaymentOrderData): Promise<PaymentResponse> => {
-      return new Promise(async (resolve) => {
-        setError(null);
-        setIsLoading(true);
-
-        try {
-          razorpayDebugger.log('INFO', 'useRazorpayPayment.initiatePayment', 'Payment flow started', {
-            existingOrderId: data.existingOrderId,
-            amount: data.amount,
-          });
-
-          // Step 1: Load Razorpay script
-          const scriptLoaded = await loadRazorpayScript();
-          if (!scriptLoaded) {
-            const error = 'Failed to load Razorpay script. Please check your internet connection.';
-            setError(error);
-            setIsLoading(false);
-            resolve({ success: false, message: error });
-            return;
-          }
-
-          // Step 2: Create Razorpay order
-          const orderData = await createRazorpayOrder(data);
-
-          // Step 3: Open checkout
-          razorpayDebugger.log('INFO', 'useRazorpayPayment.initiatePayment', 'Opening Razorpay checkout');
-
-          // SECURITY: Use key from API response instead of environment variable
-          // This ensures frontend always uses the correct public key
-          const razorpayKey = orderData.razorpay_key;
-          
-          if (!razorpayKey) {
-            throw new Error('Razorpay key not received from backend');
-          }
-
+        return await new Promise<PaymentResponse>((resolve) => {
           const options = {
-            key: razorpayKey,
-            amount: orderData.amount, // in paise
-            currency: 'INR',
+            key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || orderData.keyId,
+            amount: orderData.amount, // integer paise, from the server
+            currency: orderData.currency || 'INR',
+            order_id: orderData.orderId, // server-created order id
             name: 'Tapvyo',
             description: 'NFC Digital Card Purchase',
-            order_id: orderData.razorpay_order_id,
             prefill: {
               name: data.userName,
               email: data.userEmail,
@@ -223,83 +163,115 @@ export function useRazorpayPayment() {
             },
             notes: {
               existingOrderId: data.existingOrderId,
-              paymentMethod: data.paymentMethod || 'card',
             },
             theme: {
               color: '#0f2e25',
             },
-            handler: async (response: any) => {
-              razorpayDebugger.log('SUCCESS', 'useRazorpayPayment', 'Payment handler called', {
-                paymentId: response.razorpay_payment_id,
-                orderId: response.razorpay_order_id,
+            handler: async (checkoutResponse: any) => {
+              razorpayDebugger.log('INFO', 'useRazorpayPayment', 'Checkout handler fired', {
+                paymentId: checkoutResponse.razorpay_payment_id,
+                orderId: checkoutResponse.razorpay_order_id,
               });
 
-              try {
-                // Step 4: Verify payment signature
-                const verificationResult = await verifyPayment(
-                  data.existingOrderId,
-                  response.razorpay_payment_id,
-                  response.razorpay_order_id,
-                  response.razorpay_signature
-                );
+              setStatus('verifying');
 
-                if (verificationResult.success) {
-                  razorpayDebugger.log('SUCCESS', 'useRazorpayPayment', 'Payment completed successfully');
-                  setIsLoading(false);
-                  resolve({ success: true, message: 'Payment successful', paymentId: response.razorpay_payment_id });
-                } else {
-                  throw new Error(verificationResult.message || 'Payment verification failed');
+              try {
+                const verifyRes = await fetch('/api/payment/verify', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    existingOrderId: data.existingOrderId,
+                    razorpayPaymentId: checkoutResponse.razorpay_payment_id,
+                    razorpayOrderId: checkoutResponse.razorpay_order_id,
+                    razorpaySignature: checkoutResponse.razorpay_signature,
+                  }),
+                });
+
+                const verification = await verifyRes.json().catch(() => null);
+
+                // Only the server's verdict counts.
+                if (verifyRes.ok && verification?.success) {
+                  razorpayDebugger.log('SUCCESS', 'useRazorpayPayment', 'Payment verified by server');
+                  resolve(
+                    finish({
+                      success: true,
+                      status: 'succeeded',
+                      message: 'Payment successful',
+                      paymentId: checkoutResponse.razorpay_payment_id,
+                    })
+                  );
+                  return;
                 }
-              } catch (verifyErr) {
-                const errorMsg = verifyErr instanceof Error ? verifyErr.message : 'Verification error';
-                razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Verification error', { error: errorMsg });
-                setError(errorMsg);
-                setIsLoading(false);
-                resolve({ success: false, message: errorMsg });
+
+                razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Server rejected the payment');
+                resolve(
+                  finish({
+                    success: false,
+                    status: 'verification_failed',
+                    message: `We could not confirm your payment. If money has left your account, contact support with payment ID ${checkoutResponse.razorpay_payment_id} and we will sort it out.`,
+                    paymentId: checkoutResponse.razorpay_payment_id,
+                  })
+                );
+              } catch {
+                razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Verification request failed');
+                resolve(
+                  finish({
+                    success: false,
+                    status: 'verification_failed',
+                    message: `We could not reach our servers to confirm your payment. If money has left your account, contact support with payment ID ${checkoutResponse.razorpay_payment_id}.`,
+                    paymentId: checkoutResponse.razorpay_payment_id,
+                  })
+                );
               }
             },
             modal: {
               ondismiss: () => {
                 razorpayDebugger.log('WARN', 'useRazorpayPayment', 'Checkout dismissed by user');
-                setIsLoading(false);
-                resolve({ success: false, message: 'Payment cancelled by user' });
+                resolve(
+                  finish({
+                    success: false,
+                    status: 'cancelled',
+                    message: 'Payment cancelled. Your order is saved - you can pay again whenever you are ready.',
+                  })
+                );
               },
             },
           };
 
           const rzp = new (window as any).Razorpay(options);
 
-          rzp.on('payment.failed', (response: any) => {
-            const errorMsg = response.error?.description || 'Payment failed';
+          rzp.on('payment.failed', (failure: any) => {
             razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Payment failed', {
-              code: response.error?.code,
-              description: response.error?.description,
+              code: failure?.error?.code,
+              paymentId: failure?.error?.metadata?.payment_id,
             });
-            setError(errorMsg);
-            setIsLoading(false);
-            resolve({ success: false, message: errorMsg });
+
+            resolve(
+              finish({
+                success: false,
+                status: 'failed',
+                message:
+                  failure?.error?.description ||
+                  'Your payment could not be completed. No money has been taken - please try another card or method.',
+              })
+            );
           });
 
-          razorpayDebugger.log('INFO', 'useRazorpayPayment', 'Triggering checkout open');
           rzp.open();
-        } catch (err) {
-          const errorMsg = err instanceof Error ? err.message : 'Unknown error occurred';
-          razorpayDebugger.log('ERROR', 'useRazorpayPayment.initiatePayment', 'Payment initiation failed', {
-            error: errorMsg,
-          });
-          setError(errorMsg);
-          setIsLoading(false);
-          resolve({ success: false, message: errorMsg });
-        }
-      });
+        });
+      } catch (err) {
+        const errorMsg = err instanceof Error ? err.message : 'Something went wrong. Please try again.';
+        razorpayDebugger.log('ERROR', 'useRazorpayPayment', 'Payment initiation failed', { error: errorMsg });
+        return finish({ success: false, status: 'failed', message: errorMsg });
+      }
     },
-    [loadRazorpayScript, createRazorpayOrder, verifyPayment]
+    []
   );
 
   return {
     initiatePayment,
     isLoading,
     error,
-    isScriptLoaded,
+    status,
   };
 }

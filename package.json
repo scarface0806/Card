@@ -11,7 +11,9 @@
     "postinstall": "prisma generate",
     "prisma:seed": "prisma db seed",
     "setup:local": "node scripts/setup-local.js",
-    "seed:admin": "ts-node scripts/seedAdmin.ts"
+    "seed:admin": "ts-node scripts/seedAdmin.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -52,6 +54,7 @@
     "mongodb-memory-server": "^11.0.1",
     "tailwindcss": "^4",
     "ts-node": "^10.9.2",
-    "typescript": "^5"
+    "typescript": "^5",
+    "vitest": "^4.1.11"
   }
 }

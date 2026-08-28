@@ -1,137 +1,63 @@
 /**
  * POST /api/payment/create-razorpay-order
- * 
- * Creates a Razorpay order for an existing internal order.
- * This endpoint is part of the isolated Payment Adapter Layer.
- * 
- * Request Body:
- * {
- *   existingOrderId: string (MongoDB ObjectId)
- *   amount?: number (optional, if not provided, fetches from order)
- *   userEmail?: string (optional)
- *   userPhone?: string (optional)
- *   userName?: string (optional)
- * }
- * 
- * Response:
- * {
- *   success: true,
- *   razorpay_order_id: string,
- *   razorpay_key: string,
- *   amount: number (in paise),
- *   currency: "INR",
- *   paymentLogId: string
- * }
- * 
- * Key Features:
- * - Does NOT modify existing order
- * - Reads order data only to fetch amount if not provided
- * - Creates payment log entry mapping internal order to Razorpay order
- * - Completely isolated from core order logic
+ *
+ * DEPRECATED alias for POST /api/payment/order.
+ *
+ * Kept so any older client or the scripts/test-razorpay-flow.ts harness keeps
+ * working. It returns the legacy snake_case field names in addition to the new
+ * ones. New code should call /api/payment/order.
+ *
+ * Note: like the new route, any `amount` in the request body is IGNORED - the
+ * price is always read from Order.total in the database.
  */
 
 import { NextRequest, NextResponse } from "next/server";
-import { createRazorpayOrderSchema } from "@/lib/validators";
-import { errorResponse, successResponse } from "@/lib/responses";
+import { createPaymentOrderSchema } from "@/lib/validators";
+import { errorResponse } from "@/lib/responses";
 import { getPaymentAdapterService } from "@/lib/payment-adapter";
 import { razorpayDebugger } from "@/lib/razorpay-debug";
-import prisma from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
-    razorpayDebugger.log('INFO', 'POST /api/payment/create-razorpay-order', 'Request received');
-
-    // Parse and validate request body
     const body = await request.json();
-    razorpayDebugger.log('INFO', 'POST /api/payment/create-razorpay-order', 'Request body parsed', { existingOrderId: body.existingOrderId });
-    
-    const parsed = createRazorpayOrderSchema.safeParse(body);
+    const parsed = createPaymentOrderSchema.safeParse(body);
 
     if (!parsed.success) {
       const errorMsg = parsed.error.issues.map((e) => e.message).join(", ");
-      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Validation failed', { errors: parsed.error.issues });
+      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Validation failed');
       return errorResponse(errorMsg, 400);
     }
 
-    const {
+    const { existingOrderId, userEmail, userPhone, userName } = parsed.data;
+
+    const paymentAdapter = getPaymentAdapterService();
+    const result = await paymentAdapter.createPaymentOrder({
       existingOrderId,
-      amount,
       userEmail,
       userPhone,
       userName,
-    } = parsed.data;
-
-    // Get order to fetch amount if not provided
-    const order = await prisma.order.findUnique({
-      where: { id: existingOrderId },
-      select: {
-        id: true,
-        total: true,
-        guestEmail: true,
-        guestName: true,
-        guestPhone: true,
-      },
     });
 
-    if (!order) {
-      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Order not found', { existingOrderId });
-      return errorResponse("Order not found", 404);
-    }
-
-    // Use provided amount or fallback to order total
-    const orderAmount = amount || order.total;
-
-    if (!orderAmount || orderAmount <= 0) {
-      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Invalid amount', { orderAmount, total: order.total });
-      return errorResponse(
-        "Invalid amount. Please provide a valid amount or ensure the order has a total.",
-        400
-      );
-    }
-
-    razorpayDebugger.log('INFO', 'POST /api/payment/create-razorpay-order', 'Creating Razorpay order', {
-      existingOrderId,
-      amount: orderAmount,
-      userEmail,
-    });
-
-    // Create Razorpay order using payment adapter
-    const paymentAdapter = getPaymentAdapterService();
-    const result = await paymentAdapter.createRazorpayOrder({
-      existingOrderId,
-      amount: orderAmount,
-      userEmail: userEmail || order.guestEmail || undefined,
-      userPhone: userPhone || order.guestPhone || undefined,
-      userName: userName || order.guestName || undefined,
-    });
-
-    razorpayDebugger.log('SUCCESS', 'POST /api/payment/create-razorpay-order', 'Order creation successful', {
-      razorpayOrderId: result.razorpay_order_id,
+    return NextResponse.json({
+      success: true,
+      // legacy field names
+      razorpay_order_id: result.orderId,
+      razorpay_key: result.keyId,
+      paymentLogId: result.paymentLogId,
+      // current field names
+      orderId: result.orderId,
+      keyId: result.keyId,
       amount: result.amount,
+      currency: result.currency,
     });
-
-    return NextResponse.json(result);
   } catch (error) {
-    const errorMsg = error instanceof Error ? error.message : 'Unknown error';
+    const errorMsg = error instanceof Error ? error.message : "Unknown error";
     razorpayDebugger.log('ERROR', 'POST /api/payment/create-razorpay-order', 'Order creation failed', { error: errorMsg });
-    console.error("Create Razorpay order error:", error);
+    console.error("Create Razorpay order error:", errorMsg);
 
-    if (error instanceof Error) {
-      return errorResponse(error.message, 400);
-    }
-
-    return errorResponse("Failed to create Razorpay order", 500);
+    return errorResponse(
+      error instanceof Error ? error.message : "Failed to create Razorpay order",
+      400
+    );
   }
-}
-
-// OPTIONS handler for CORS
-export async function OPTIONS(request: NextRequest) {
-  return new NextResponse(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
 }

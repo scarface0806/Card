@@ -53,7 +53,7 @@ export default function OrderPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const router = useRouter();
-  const { initiatePayment, isLoading: isPaymentLoading } = useRazorpayPayment();
+  const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
@@ -62,6 +62,16 @@ export default function OrderPage() {
   const { handleSubmit, watch, formState: { errors } } = methods;
   const selectedPaymentMethod = watch('payment.method');
   const agreedToTerms = watch('payment.terms');
+
+  // One flag for every "do not let them click again" state - form submit,
+  // order creation, the Checkout modal being open, and verification.
+  const isBusy = isSubmitting || isPaymentLoading;
+  const busyLabel =
+    paymentStatus === 'awaiting_payment'
+      ? 'Waiting for payment...'
+      : paymentStatus === 'verifying'
+        ? 'Confirming payment...'
+        : null;
 
   const onSubmit = async (data: FormData) => {
     if (currentStep < 5) {
@@ -107,34 +117,34 @@ export default function OrderPage() {
         throw new Error('Failed to create order');
       }
 
-      console.log('[Order] Order created successfully:', result.orderId);
+      console.log('[Order] Order created for:', result.orderId);
       const orderId = result.orderId;
-      const orderTotal = result.data?.total || 599; // Default to ₹599 if not available
 
-      // Step 2: Initiate Razorpay payment
-      console.log('[Payment] Initiating Razorpay payment for order:', orderId);
+      // Step 2: Initiate Razorpay payment. No amount is sent - the server reads
+      // the price from the order row, so it cannot be tampered with here.
       const paymentResponse = await initiatePayment({
         existingOrderId: orderId,
-        amount: orderTotal,
         userEmail: data.personalDetails.email,
         userName: data.personalDetails.name,
         userPhone: data.personalDetails.mobile,
         paymentMethod: selectedPaymentMethod,
       });
 
+      // Navigate only when the server confirmed the signature.
       if (paymentResponse.success) {
-        console.log('[Payment] Payment verification successful');
-        // Store order ID and redirect to success page
         localStorage.setItem('lastOrderId', orderId);
         router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${orderId}`);
-      } else {
-        throw new Error(paymentResponse.message || 'Payment failed');
+        return;
       }
+
+      setPaymentError(
+        paymentResponse.message || 'Payment could not be completed. Please try again.'
+      );
     } catch (error) {
       console.error('[Order] Error:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Failed to process order. Please try again.';
-      setPaymentError(errorMessage);
-      alert(errorMessage);
+      setPaymentError(
+        error instanceof Error ? error.message : 'Failed to process order. Please try again.'
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -182,12 +192,38 @@ export default function OrderPage() {
                     {currentStep === 5 && <PaymentForm />}
                   </FormProvider>
 
+                  {paymentError && (
+                    <div
+                      role="alert"
+                      className={`rounded-xl border px-4 py-3 text-sm ${
+                        paymentStatus === 'cancelled'
+                          ? 'border-amber-300 bg-amber-50 text-amber-800'
+                          : 'border-red-300 bg-red-50 text-red-800'
+                      }`}
+                    >
+                      <p className="font-semibold">
+                        {paymentStatus === 'cancelled'
+                          ? 'Payment cancelled'
+                          : paymentStatus === 'verification_failed'
+                            ? 'We could not confirm your payment'
+                            : 'Payment failed'}
+                      </p>
+                      <p className="mt-1">{paymentError}</p>
+                      {paymentStatus === 'verification_failed' && (
+                        <p className="mt-2">
+                          Please do not pay again. Email us and we will confirm your order manually.
+                        </p>
+                      )}
+                    </div>
+                  )}
+
                   <div className="flex gap-4 pt-8 border-t border-primary/10">
                     {currentStep > 1 && (
                       <motion.button
                         type="button"
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.98 }}
+                        disabled={isBusy}
                         onClick={() => setCurrentStep(currentStep - 1)}
                         className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-300"
                       >
@@ -199,11 +235,14 @@ export default function OrderPage() {
                       type="submit"
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      disabled={isSubmitting}
+                      disabled={isBusy}
                       className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                     >
-                      {isSubmitting ? (
-                        <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      {isBusy ? (
+                        <>
+                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          {busyLabel}
+                        </>
                       ) : (
                         <>
                           {currentStep === 5 ? 'Place Order' : 'Next'}

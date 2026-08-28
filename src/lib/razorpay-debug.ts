@@ -40,54 +40,11 @@ class RazorpayDebugger {
   }
 
   /**
-   * Validate Razorpay environment variables
+   * NOTE: environment validation used to live here. It read
+   * the Razorpay key secret from the environment, and because this module is
+   * imported by the client-side useRazorpayPayment hook, that identifier ended up
+   * in the browser bundle. It now lives in the server-only razorpay-env-check.
    */
-  validateEnvironment(): { valid: boolean; issues: string[] } {
-    const issues: string[] = [];
-
-    // Check RAZORPAY_KEY_ID
-    const keyId = process.env.RAZORPAY_KEY_ID;
-    if (!keyId) {
-      issues.push('❌ RAZORPAY_KEY_ID is not set');
-    } else if (keyId.trim() !== keyId) {
-      issues.push('⚠️ RAZORPAY_KEY_ID has leading/trailing spaces');
-    } else if (!keyId.startsWith('rzp_test_') && !keyId.startsWith('rzp_live_')) {
-      issues.push('⚠️ RAZORPAY_KEY_ID does not start with rzp_test_ or rzp_live_');
-    } else {
-      this.log('SUCCESS', 'ENV', 'RAZORPAY_KEY_ID is valid', { keyId: keyId.substring(0, 15) + '...' });
-    }
-
-    // Check RAZORPAY_KEY_SECRET
-    const keySecret = process.env.RAZORPAY_KEY_SECRET;
-    if (!keySecret) {
-      issues.push('❌ RAZORPAY_KEY_SECRET is not set');
-    } else if (keySecret.trim() !== keySecret) {
-      issues.push('⚠️ RAZORPAY_KEY_SECRET has leading/trailing spaces');
-    } else if (keySecret.length < 20) {
-      issues.push('⚠️ RAZORPAY_KEY_SECRET seems too short (expected 20+ characters)');
-    } else {
-      this.log('SUCCESS', 'ENV', 'RAZORPAY_KEY_SECRET is valid', { length: keySecret.length });
-    }
-
-    // Check RAZORPAY_MODE
-    const mode = process.env.RAZORPAY_MODE;
-    if (!mode) {
-      issues.push('⚠️ RAZORPAY_MODE is not set (defaulting to test)');
-    } else if (mode !== 'test' && mode !== 'live') {
-      issues.push(`⚠️ RAZORPAY_MODE is "${mode}" but should be "test" or "live"`);
-    } else {
-      this.log('SUCCESS', 'ENV', `RAZORPAY_MODE is set to "${mode}"`);
-    }
-
-    const valid = issues.length === 0;
-    if (!valid) {
-      this.log('WARN', 'ENV', 'Environment validation failed', { issues });
-    } else {
-      this.log('SUCCESS', 'ENV', 'All environment variables are valid');
-    }
-
-    return { valid, issues };
-  }
 
   /**
    * Get all debug logs

@@ -172,17 +172,18 @@ export const mainWebsiteLeadSchema = z.object({
 
 // ==================== PAYMENT ADAPTER LAYER SCHEMAS ====================
 
-// Razorpay order creation request
-export const createRazorpayOrderSchema = z.object({
+// Razorpay order creation request.
+// NOTE: `amount` is intentionally absent. The price is read from Order.total
+// server-side, so a client-supplied amount would be a tampering vector.
+export const createPaymentOrderSchema = z.object({
   existingOrderId: z.string().min(1, "Order ID is required"),
-  amount: z.preprocess(
-    (val) => (val === undefined || val === null || val === "" ? undefined : parseFloat(String(val))),
-    z.number().positive("Amount must be positive").optional()
-  ),
   userEmail: z.string().email("Invalid email").optional(),
   userPhone: z.string().min(6, "Invalid phone number").optional(),
   userName: z.string().min(1).optional(),
 });
+
+/** @deprecated use createPaymentOrderSchema */
+export const createRazorpayOrderSchema = createPaymentOrderSchema;
 
 // Payment verification request
 export const verifyPaymentSchema = z.object({

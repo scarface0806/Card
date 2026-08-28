@@ -43,6 +43,28 @@ export interface PaymentVerificationParams {
 }
 
 /**
+ * Constant-time comparison of two hex-encoded digests.
+ *
+ * A plain `===` on a signature leaks, through timing, how many leading bytes an
+ * attacker got right. Length is compared first because timingSafeEqual throws on
+ * mismatched buffer lengths — and length is not secret.
+ */
+export function timingSafeEqualHex(expected: string, received: string): boolean {
+  if (typeof received !== "string" || expected.length !== received.length) {
+    return false;
+  }
+
+  const expectedBuf = Buffer.from(expected, "hex");
+  const receivedBuf = Buffer.from(received, "hex");
+
+  if (expectedBuf.length === 0 || expectedBuf.length !== receivedBuf.length) {
+    return false;
+  }
+
+  return crypto.timingSafeEqual(expectedBuf, receivedBuf);
+}
+
+/**
  * Razorpay Service Class
  * Handles all Razorpay API interactions
  */
@@ -76,7 +98,6 @@ class RazorpayService {
     // Log successful initialization
     razorpayDebugger.log('SUCCESS', 'RazorpayService', 'Service initialized', {
       keyIdPrefix: this.keyId.substring(0, 15) + '...',
-      keySecretLength: this.keySecret.length,
       mode: process.env.RAZORPAY_MODE || 'test',
     });
   }
@@ -88,6 +109,12 @@ class RazorpayService {
    */
   async createOrder(params: RazorpayOrderParams): Promise<RazorpayOrderResponse> {
     try {
+      // Razorpay rejects non-integer amounts. Fail loudly here rather than
+      // shipping a float to their API and getting an opaque 400 back.
+      if (!Number.isSafeInteger(params.amount) || params.amount <= 0) {
+        throw new Error("Razorpay amount must be a positive integer in paise");
+      }
+
       const url = `${this.apiBaseUrl}/orders`;
       
       razorpayDebugger.log('INFO', 'RazorpayService.createOrder', 'Creating Razorpay order', {
@@ -151,33 +178,35 @@ class RazorpayService {
     try {
       const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = params;
 
+      // Log identifiers only. The signature itself is secret-derived material
+      // and must never reach the logs, not even partially.
       razorpayDebugger.log('INFO', 'RazorpayService.verifyPaymentSignature', 'Verifying payment signature', {
         orderId: razorpay_order_id,
         paymentId: razorpay_payment_id,
-        signatureLength: razorpay_signature.length,
       });
 
-      // Create the signature body: order_id|payment_id
+      // Razorpay signs the literal string `order_id|payment_id` with the key secret.
       const body = `${razorpay_order_id}|${razorpay_payment_id}`;
 
-      // Generate expected signature
       const expectedSignature = crypto
         .createHmac("sha256", this.keySecret)
         .update(body)
         .digest("hex");
 
-      // Compare signatures
-      const isValid = expectedSignature === razorpay_signature;
-      
+      const isValid = timingSafeEqualHex(expectedSignature, razorpay_signature);
+
       if (isValid) {
-        razorpayDebugger.log('SUCCESS', 'RazorpayService.verifyPaymentSignature', 'Signature verified successfully');
+        razorpayDebugger.log('SUCCESS', 'RazorpayService.verifyPaymentSignature', 'Signature verified successfully', {
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id,
+        });
       } else {
         razorpayDebugger.log('ERROR', 'RazorpayService.verifyPaymentSignature', 'Signature verification failed', {
-          expectedSignature: expectedSignature.substring(0, 16) + '...',
-          receivedSignature: razorpay_signature.substring(0, 16) + '...',
+          orderId: razorpay_order_id,
+          paymentId: razorpay_payment_id,
         });
       }
-      
+
       return isValid;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
@@ -205,18 +234,18 @@ class RazorpayService {
       }
 
       const expectedSignature = crypto
-        .createHmac("sha256", webhookSecret)
+        .createHmac("sha256", webhookSecret.trim())
         .update(body)
         .digest("hex");
 
-      const isValid = expectedSignature === signature;
-      
+      const isValid = timingSafeEqualHex(expectedSignature, signature);
+
       if (isValid) {
         razorpayDebugger.log('SUCCESS', 'RazorpayService.verifyWebhookSignature', 'Webhook signature verified');
       } else {
         razorpayDebugger.log('ERROR', 'RazorpayService.verifyWebhookSignature', 'Webhook signature verification failed');
       }
-      
+
       return isValid;
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : 'Unknown error';
