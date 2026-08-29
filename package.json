@@ -13,7 +13,8 @@
     "setup:local": "node scripts/setup-local.js",
     "seed:admin": "ts-node scripts/seedAdmin.ts",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "check:links": "node scripts/check-links.mjs"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
