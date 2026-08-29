@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
 import { fetchPricingPlans } from '@/services/api';
 import { logFetchError } from '@/lib/fetch-utils';
@@ -169,16 +170,14 @@ export default function PricingPreviewSection() {
           transition={{ delay: 0.5 }}
           className="text-center mt-12"
         >
-          <Link href={ROUTES.ORDER}>
-            <motion.button
+          <MotionLink href={ROUTES.ORDER}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="inline-flex items-center gap-2 px-8 py-4 text-base font-semibold text-primary bg-white border border-primary/20 rounded-xl hover:bg-primary/10 hover:border-primary/30 transition-all duration-300"
             >
               View Full Pricing &amp; Compare
               <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </Link>
+            </MotionLink>
         </motion.div>
       </div>
     </section>

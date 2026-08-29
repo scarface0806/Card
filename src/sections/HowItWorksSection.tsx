@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
 import { UserPlus, Cpu, Share2, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
@@ -122,16 +122,14 @@ export default function HowItWorksSection() {
           transition={{ duration: 0.6, delay: 0.3 }}
           className="text-center mt-12 md:mt-16"
         >
-          <Link href={ROUTES.CREATE_CARD}>
-            <motion.button
+          <MotionLink href={ROUTES.CREATE_CARD}
               whileHover={{ y: -3 }}
               whileTap={{ y: 1 }}
               className="btn btn-lg btn-primary"
             >
               Start Creating Now
               <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </Link>
+            </MotionLink>
           <p className="body-base text-gray-400 mt-3">Takes less than 5 minutes</p>
         </motion.div>
       </div>

@@ -254,7 +254,7 @@ export default function ProductsPage() {
               </div>
             ) : products.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-primary/20 bg-primary/10/40 p-12 text-center">
-                <h3 className="text-2xl font-bold text-white font-space-grotesk">No products available</h3>
+                <h2 className="text-2xl font-bold text-white font-space-grotesk">No products available</h2>
                 <p className="text-gray-400 mt-2">Admin can add products from the dashboard to display them here.</p>
               </div>
             ) : (
@@ -292,7 +292,7 @@ export default function ProductsPage() {
                         />
                       </div>
 
-                      <h3 className="text-2xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{product.name}</h3>
+                      <h2 className="text-2xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{product.name}</h2>
                       <p className="text-[#6b7f78] text-sm mb-6">{product.description}</p>
 
                       <div className="mb-8">

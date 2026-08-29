@@ -169,9 +169,9 @@ export default function CardsPage() {
                 {/* Card Details */}
                 <div className="flex flex-col flex-grow p-6">
                   <div className="flex items-center justify-between mb-3">
-                    <h3 className="text-xl font-bold text-white font-space-grotesk">
+                    <h2 className="text-xl font-bold text-white font-space-grotesk">
                       {card.name}
-                    </h3>
+                    </h2>
                     <span
                       className={`px-3 py-1 rounded-full text-xs font-semibold ${
                         card.type === 'premium'

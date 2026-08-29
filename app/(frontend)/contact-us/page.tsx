@@ -169,7 +169,7 @@ export default function ContactUsPage() {
                     <div className={`w-16 h-16 mx-auto rounded-xl ${method.color} mb-6 flex items-center justify-center transition-transform duration-220`}>
                       <Icon className="w-8 h-8 text-white" />
                     </div>
-                    <h3 className="text-xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{method.title}</h3>
+                    <h2 className="text-xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{method.title}</h2>
                     <p className="text-sm text-[#6b7f78] mb-4">{method.description}</p>
                     {/* Email / phone / address are actionable, not just text. */}
                     <a

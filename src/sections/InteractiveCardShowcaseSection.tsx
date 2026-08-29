@@ -67,7 +67,7 @@ export default function InteractiveCardShowcaseSection() {
               whileHover={{ y: -2 }}
               whileTap={{ y: 1 }}
               transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-              className={`px-6 md:px-7 py-2.5 md:py-3 rounded-lg font-semibold text-sm md:text-base whitespace-nowrap border transition-all duration-300 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
+              className={`px-6 md:px-7 py-3 min-h-[44px] rounded-lg font-semibold text-sm md:text-base whitespace-nowrap border transition-all duration-300 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
                 selectedCard === idx
                   ? 'text-white border-transparent bg-gradient-to-r from-[#0A1631] via-[#122B54] to-[#1A3D76] shadow-[0_10px_24px_rgba(10,22,49,0.28),inset_0_1px_0_rgba(255,255,255,0.16)] hover:from-[#0D1D3E] hover:via-[#163462] hover:to-[#214B8A]'
                   : 'bg-white text-slate-600 border-slate-200 shadow-[0_1px_2px_rgba(15,23,42,0.06)] hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 hover:shadow-[0_6px_16px_rgba(15,23,42,0.08)]'

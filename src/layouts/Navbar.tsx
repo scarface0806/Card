@@ -47,7 +47,7 @@ export default function Navbar() {
       <div className="site-container">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link href={ROUTES.HOME} className="flex items-center gap-3 group">
+          <Link href={ROUTES.HOME} className="flex min-h-[44px] items-center gap-3 group">
             <BrandLogo size="medium" />
           </Link>
 
@@ -85,7 +85,7 @@ export default function Navbar() {
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden p-2.5 text-slate-100 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20"
+            className="lg:hidden flex h-11 w-11 items-center justify-center text-slate-100 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20"
             aria-label="Toggle menu"
             aria-expanded={isOpen}
           >

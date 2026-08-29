@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Star, Quote, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
@@ -127,7 +127,7 @@ export default function TestimonialsSection() {
               aria-current={index === currentIndex}
               // The dot itself stays 8px tall; the button around it is a full
               // 44px tap target with the padding clipped out of the layout.
-              className="group -my-5 py-5 px-1"
+              className="group -my-5 flex min-w-[24px] justify-center py-5"
             >
               <span
                 className={`block h-2 rounded-full transition-all duration-300 ${
@@ -148,16 +148,14 @@ export default function TestimonialsSection() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="text-center mt-12"
         >
-          <Link href={ROUTES.CREATE_CARD}>
-            <motion.button
+          <MotionLink href={ROUTES.CREATE_CARD}
               whileHover={{ y: -3 }}
               whileTap={{ y: 1 }}
               className="btn btn-lg btn-primary"
             >
               Join Thousands of Happy Users
               <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </Link>
+            </MotionLink>
         </motion.div>
       </div>
     </section>

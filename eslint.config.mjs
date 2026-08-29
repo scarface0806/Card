@@ -1,11 +1,17 @@
 import { defineConfig, globalIgnores } from "eslint/config";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
+// eslint-config-next no longer registers the react plugin itself, but the rule
+// overrides below reference react/*. Without this import eslint refuses to
+// start at all - "could not find plugin react" - so linting was dead.
+import reactPlugin from "eslint-plugin-react";
+import reactHooksPlugin from "eslint-plugin-react-hooks";
 
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
   {
+    plugins: { react: reactPlugin, "react-hooks": reactHooksPlugin },
     rules: {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-require-imports": "warn",
@@ -24,6 +30,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Scratch worktree used by the audit tooling; never source.
+    ".audit-tmp/**",
   ]),
 ]);
 

@@ -180,7 +180,7 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
                 <div className="space-y-2">
                   <div>
                     <p className="text-xs md:text-xs lg:text-sm text-white/70 mb-0.5">Cardholder</p>
-                    <h3 className="text-lg md:text-xl lg:text-2xl font-bold">John Doe</h3>
+                    <p className="text-lg md:text-xl lg:text-2xl font-bold">John Doe</p>
                     <p className="text-xs md:text-xs lg:text-sm text-white/70 mt-0.5">Product Designer</p>
                   </div>
                   <div className="flex justify-between pt-2 border-t border-white/10">

@@ -352,7 +352,7 @@ export default function ServicesPage() {
           </section>
 
           {/* Section 2: Digital Solutions - Modern Bento Grid */}
-          <section className="relative">
+          <section className="relative overflow-hidden">
             {/* Background Gradient Blob */}
             <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-r from-green-400/20 to-emerald-500/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
             

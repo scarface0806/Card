@@ -118,9 +118,9 @@ export default function HowToUsePage() {
                         Step {step.number}
                       </span>
 
-                      <h3 className="text-2xl md:text-3xl font-bold text-white font-space-grotesk mb-4">
+                      <h2 className="text-2xl md:text-3xl font-bold text-white font-space-grotesk mb-4">
                         {step.title}
-                      </h3>
+                      </h2>
 
                       <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-4 max-w-2xl">
                         {step.description}

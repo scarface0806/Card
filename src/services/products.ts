@@ -54,11 +54,20 @@ export type UpdateProductData = Partial<CreateProductData>;
 
 class ProductService {
   private get baseUrl(): string {
-    const baseUrl =
-      API_BASE_URL ||
-      (typeof window !== "undefined" ? window.location.origin : "http://localhost:3000");
+    // In the browser, always call our own origin with a relative URL.
+    //
+    // This used to prefer NEXT_PUBLIC_APP_URL over window.location.origin. The
+    // moment that value drifts from the origin actually serving the page -
+    // which is the case on every preview deployment, and on any deploy where
+    // the var is stale - every product request becomes cross-origin and the
+    // browser blocks it. The catalogue then silently falls back to hardcoded
+    // designs and nobody sees an error.
+    if (typeof window !== "undefined") {
+      return "/api/products";
+    }
 
-    return `${baseUrl}/api/products`;
+    // Server-side rendering has no origin to infer, so it needs the absolute URL.
+    return `${API_BASE_URL || "http://localhost:3000"}/api/products`;
   }
 
   private async getAuthHeaders(): Promise<HeadersInit> {

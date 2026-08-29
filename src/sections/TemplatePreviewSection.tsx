@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
 import { fetchTemplates } from '@/services/api';
 import { logFetchError } from '@/lib/fetch-utils';
@@ -119,16 +119,14 @@ export default function TemplatePreviewSection() {
                       {template.plan}
                     </span>
                   </div>
-                  <Link href={ROUTES.ORDER}>
-                    <motion.button
+                  <MotionLink href={ROUTES.ORDER}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                       className="btn btn-secondary w-full"
                     >
                       Use Template
                       <ArrowRight className="w-4 h-4" />
-                    </motion.button>
-                  </Link>
+                    </MotionLink>
                 </div>
               </motion.div>
             ))}
@@ -142,16 +140,14 @@ export default function TemplatePreviewSection() {
           transition={{ delay: 0.5 }}
           className="text-center mt-12"
         >
-          <Link href={ROUTES.CARDS}>
-            <motion.button
+          <MotionLink href={ROUTES.CARDS}
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               className="btn btn-lg btn-secondary"
             >
               View All Templates
               <ArrowRight className="w-5 h-5" />
-            </motion.button>
-          </Link>
+            </MotionLink>
         </motion.div>
       </div>
     </section>

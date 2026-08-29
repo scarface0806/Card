@@ -271,7 +271,7 @@ export default function CreateCardClient({
               <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-8 sticky top-32">
                 <div className="flex items-center gap-2 mb-6">
                   <Sparkles className="w-5 h-5 text-primary" />
-                  <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Card Preview</h3>
+                  <h2 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Card Preview</h2>
                 </div>
                 
                 {/* Selected Template Badge */}

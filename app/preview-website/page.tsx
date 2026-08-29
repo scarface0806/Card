@@ -624,7 +624,7 @@ export default function PreviewWebsitePage() {
           transform: translateY(0);
         }
 
-        .digi-work-overlay h4 {
+        .digi-work-overlay h3 {
           font-size: 1rem;
           font-weight: 700;
           margin-bottom: 3px;
@@ -1188,7 +1188,7 @@ export default function PreviewWebsitePage() {
                 decoding="async"
                 />
                 <div className="digi-work-overlay">
-                  <h4>Premium NFC Card</h4>
+                  <h3>Premium NFC Card</h3>
                   <p>Matte Black Edition</p>
                 </div>
               </div>
@@ -1202,7 +1202,7 @@ export default function PreviewWebsitePage() {
                 decoding="async"
                 />
                 <div className="digi-work-overlay">
-                  <h4>Analytics Dashboard</h4>
+                  <h3>Analytics Dashboard</h3>
                   <p>Real-time Insights</p>
                 </div>
               </div>
@@ -1216,7 +1216,7 @@ export default function PreviewWebsitePage() {
                 decoding="async"
                 />
                 <div className="digi-work-overlay">
-                  <h4>Digital Profile</h4>
+                  <h3>Digital Profile</h3>
                   <p>Custom Website</p>
                 </div>
               </div>
@@ -1230,7 +1230,7 @@ export default function PreviewWebsitePage() {
                 decoding="async"
                 />
                 <div className="digi-work-overlay">
-                  <h4>Corporate Solution</h4>
+                  <h3>Corporate Solution</h3>
                   <p>Enterprise NFC</p>
                 </div>
               </div>
@@ -1244,7 +1244,7 @@ export default function PreviewWebsitePage() {
                 decoding="async"
                 />
                 <div className="digi-work-overlay">
-                  <h4>Event Networking</h4>
+                  <h3>Event Networking</h3>
                   <p>Conference Cards</p>
                 </div>
               </div>
@@ -1258,7 +1258,7 @@ export default function PreviewWebsitePage() {
                 decoding="async"
                 />
                 <div className="digi-work-overlay">
-                  <h4>Brand Identity</h4>
+                  <h3>Brand Identity</h3>
                   <p>Custom Designs</p>
                 </div>
               </div>
