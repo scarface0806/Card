@@ -1,14 +1,14 @@
 import type { Metadata } from 'next';
 import CreateCardClient from './CreateCardClient';
 import { getDefaultTemplate, getTemplateBySlug } from '@/utils/cardTemplates';
-import { SITE_NAME } from '@/lib/site-config';
+import { pageMetadata } from '@/lib/page-metadata';
 
-export const metadata: Metadata = {
-  title: `Create Your Digital Card | ${SITE_NAME}`,
+export const metadata: Metadata = pageMetadata({
+  title: 'Create Your Digital Card',
   description:
     'Design and order your NFC business card in five steps. Enter your details, pick a template and check out - free lifetime digital profile included.',
-  alternates: { canonical: '/create-card' },
-};
+  path: '/create-card',
+});
 
 /**
  * Server component so the page has real markup in the initial HTML.

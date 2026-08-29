@@ -1,6 +1,8 @@
 import type { Metadata } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 import './globals.css';
+import JsonLd from '@/components/JsonLd';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site-config';
 
 const inter = Inter({
     variable: '--font-inter',
@@ -16,9 +18,23 @@ const plusJakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-    metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://tapvyo.com'),
-    title: 'Tapvyo - Modern NFC Digital Business Cards',
-    description: 'Share your professional information with a single tap using NFC technology.',
+    // metadataBase used to default to https://tapvyo.com, which does not
+    // resolve. Every OG and Twitter image URL it produced was dead. SITE_URL
+    // resolves to the actual deployment origin.
+    metadataBase: new URL(SITE_URL),
+    title: {
+        // Each route sets its own title; this is the suffix and the fallback.
+        default: `${SITE_NAME} - ${SITE_TAGLINE}`,
+        template: `%s | ${SITE_NAME}`,
+    },
+    description: SITE_DESCRIPTION,
+    applicationName: SITE_NAME,
+    alternates: { canonical: '/' },
+    robots: {
+        index: true,
+        follow: true,
+        googleBot: { index: true, follow: true, "max-image-preview": "large" },
+    },
     icons: {
         icon: [
             { url: '/favicon.ico', sizes: 'any' },
@@ -34,6 +50,12 @@ export const metadata: Metadata = {
     },
     manifest: '/manifest.json',
     openGraph: {
+        type: 'website',
+        siteName: SITE_NAME,
+        locale: 'en_IN',
+        url: '/',
+        title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+        description: SITE_DESCRIPTION,
         images: [
             {
                 url: '/og-image.png',
@@ -45,6 +67,8 @@ export const metadata: Metadata = {
     },
     twitter: {
         card: 'summary_large_image',
+        title: `${SITE_NAME} - ${SITE_TAGLINE}`,
+        description: SITE_DESCRIPTION,
         images: ['/twitter-image.png'],
     },
 };
@@ -58,6 +82,7 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${plusJakarta.variable} antialiased`} suppressHydrationWarning>
                 {children}
+                <JsonLd />
             </body>
         </html>
     );

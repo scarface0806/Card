@@ -10,11 +10,34 @@
  * page updates.
  */
 
-/** Public origin. Falls back through both env var names used in this repo. */
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ||
-  process.env.NEXT_PUBLIC_APP_URL ||
-  'https://tapvyo-nfc-card.vercel.app';
+/**
+ * Public origin, used for metadataBase, canonicals, the sitemap and JSON-LD.
+ *
+ * Resolution order matters. NEXT_PUBLIC_APP_URL is "http://localhost:3000" in
+ * .env.local, so it must come AFTER the Vercel-provided values or a production
+ * build would stamp localhost into every canonical URL.
+ */
+function resolveSiteUrl(): string {
+  const trim = (url: string) => (url.endsWith("/") ? url.slice(0, -1) : url);
+
+  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  if (explicit) return trim(explicit);
+
+  // Set by Vercel on production deployments; stable across deploys.
+  const vercelProd = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
+  if (vercelProd) return `https://${vercelProd}`;
+
+  // Per-deployment preview URL.
+  const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
+  if (vercelUrl) return `https://${vercelUrl}`;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
+  if (appUrl) return trim(appUrl);
+
+  return "https://tapvyo-nfc-card.vercel.app";
+}
+
+export const SITE_URL = resolveSiteUrl();
 
 export const SITE_NAME = 'Tapvyo';
 export const SITE_TAGLINE = 'Modern NFC Digital Business Cards';
