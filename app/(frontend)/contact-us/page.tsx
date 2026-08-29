@@ -214,11 +214,13 @@ export default function ContactUsPage() {
 
                   <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Name</label>
+                      <label htmlFor="contact-name" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Name</label>
                       <motion.input
                         whileFocus={{ scale: 1.01 }}
                         type="text"
+                        id="contact-name"
                         name="name"
+                        autoComplete="name"
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Your name"
@@ -228,25 +230,31 @@ export default function ContactUsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Phone</label>
+                      <label htmlFor="contact-phone" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Phone</label>
                       <motion.input
                         whileFocus={{ scale: 1.01 }}
                         type="tel"
+                        id="contact-phone"
                         name="phone"
+                        inputMode="tel"
+                        autoComplete="tel"
                         value={formData.phone}
                         onChange={handleChange}
-                        placeholder="9999999999"
+                        placeholder="9876543210"
                         required
                         className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40 transition-all"
                       />
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Email</label>
+                      <label htmlFor="contact-email" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Email</label>
                       <motion.input
                         whileFocus={{ scale: 1.01 }}
                         type="email"
+                        id="contact-email"
                         name="email"
+                        inputMode="email"
+                        autoComplete="email"
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="your@email.com"
@@ -256,9 +264,10 @@ export default function ContactUsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Subject</label>
+                      <label htmlFor="contact-subject" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Subject</label>
                       <motion.select
                         whileFocus={{ scale: 1.01 }}
+                        id="contact-subject"
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
@@ -275,9 +284,10 @@ export default function ContactUsPage() {
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Message</label>
+                      <label htmlFor="contact-message" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Message</label>
                       <motion.textarea
                         whileFocus={{ scale: 1.01 }}
+                        id="contact-message"
                         name="message"
                         value={formData.message}
                         onChange={handleChange}

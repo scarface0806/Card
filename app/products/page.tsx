@@ -5,6 +5,7 @@ import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 import { Check, Zap, Palette, Shield, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
 import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import { useRouter } from 'next/navigation';
 import { ROUTES } from '@/utils/constants';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
@@ -484,16 +485,14 @@ export default function ProductsPage() {
               <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto relative z-10">
                 Choose your plan and start sharing professionally today
               </p>
-              <Link href={ROUTES.CREATE_CARD}>
-                <motion.button
+              <MotionLink href={ROUTES.CREATE_CARD}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-black rounded-xl font-semibold hover:shadow-[0_0_25px_rgba(74,222,128,0.4)] transition-all duration-300 shadow-md"
                 >
                   Get Your Card Now
                   <ArrowRight className="w-5 h-5" />
-                </motion.button>
-              </Link>
+                </MotionLink>
             </motion.div>
           </div>
         </section>

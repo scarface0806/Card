@@ -5,6 +5,7 @@ import { PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-config';
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
@@ -160,8 +161,7 @@ function OrderSuccessContent() {
             variants={itemVariants}
             className="flex flex-col sm:flex-row gap-4 justify-center pt-8"
           >
-            <Link href={ROUTES.HOME}>
-              <motion.button
+            <MotionLink href={ROUTES.HOME}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
@@ -169,10 +169,8 @@ function OrderSuccessContent() {
               >
                 <Home className="w-4 h-4" />
                 Back to Home
-              </motion.button>
-            </Link>
-            <Link href={ROUTES.CARDS}>
-              <motion.button
+              </MotionLink>
+            <MotionLink href={ROUTES.CARDS}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
@@ -180,8 +178,7 @@ function OrderSuccessContent() {
               >
                 <Layout className="w-4 h-4" />
                 Browse More Templates
-              </motion.button>
-            </Link>
+              </MotionLink>
           </motion.div>
         </motion.div>
       </div>

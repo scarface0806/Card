@@ -219,12 +219,10 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href={ROUTES.CREATE_CARD}>
-                  <button className="btn btn-lg btn-primary group">
+                <Link href={ROUTES.CREATE_CARD} className="btn btn-lg btn-primary group">
                     <span>Get Your NFC Card</span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
-                </Link>
+                  </Link>
                 <button
                   onClick={() => onContactClick('general')}
                   className="btn btn-lg btn-secondary"

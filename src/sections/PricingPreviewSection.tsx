@@ -132,11 +132,10 @@ export default function PricingPreviewSection() {
                     <span className="text-[#6b7f78] ml-2">/{plan.period}</span>
                   </div>
 
-                  <Link href={ROUTES.ORDER} className="block mb-6">
-                    <motion.button
+                  <MotionLink href={ROUTES.ORDER}
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
-                      className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
+                      className={`block mb-6 w-full flex items-center justify-center gap-2 px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
                         plan.highlighted
                           ? 'bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] shadow-md hover:shadow-lg'
                           : 'bg-primary/10 text-primary hover:bg-primary/20 border border-primary/20'
@@ -144,8 +143,7 @@ export default function PricingPreviewSection() {
                     >
                       Choose Plan
                       <ArrowRight className="w-4 h-4" />
-                    </motion.button>
-                  </Link>
+                    </MotionLink>
 
                   <div className="space-y-3">
                     {plan.features.slice(0, 4).map((feature, index) => (

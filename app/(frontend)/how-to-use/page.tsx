@@ -212,12 +212,10 @@ export default function HowToUsePage() {
                   You can upgrade or customize your digital profile anytime.
                   Contact our team to modify design, add features, or personalize your NFC experience.
                 </p>
-                <Link href={ROUTES.CONTACT}>
-                  <button className="btn btn-lg btn-primary">
+                <Link href={ROUTES.CONTACT} className="btn btn-lg btn-primary">
                     <span>Contact Us</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
-                </Link>
+                  </Link>
               </div>
             </motion.div>
           </div>
@@ -239,17 +237,13 @@ export default function HowToUsePage() {
                 Order your premium NFC digital business card today and start networking smarter.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href={ROUTES.CREATE_CARD}>
-                  <button className="btn btn-lg btn-primary">
+                <Link href={ROUTES.CREATE_CARD} className="btn btn-lg btn-primary">
                     <span>Create Your Card</span>
                     <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
-                  </button>
-                </Link>
-                <Link href={ROUTES.CARDS}>
-                  <button className="btn btn-lg btn-secondary">
+                  </Link>
+                <Link href={ROUTES.CARDS} className="btn btn-lg btn-secondary">
                     View Card Designs
-                  </button>
-                </Link>
+                  </Link>
               </div>
             </motion.div>
           </div>

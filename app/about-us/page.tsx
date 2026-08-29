@@ -5,6 +5,7 @@ import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 import { ArrowRight, Users, Zap, Target, Award } from 'lucide-react';
 import Link from 'next/link';
+import MotionLink from '@/components/MotionLink';
 import { ROUTES } from '@/utils/constants';
 
 export default function AboutUsPage() {
@@ -113,16 +114,14 @@ export default function AboutUsPage() {
                 <p className="text-base md:text-lg text-slate-500 mb-6">
                   Our team of engineers and designers worked tirelessly to create the perfect blend of technology and elegance. The result? A seamless experience that lets professionals share their complete information with a single tap.
                 </p>
-                <Link href={ROUTES.HOW_TO_USE}>
-                  <motion.button
+                <MotionLink href={ROUTES.HOW_TO_USE}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="btn btn-secondary"
                   >
                     Learn How It Works
                     <ArrowRight className="w-5 h-5" />
-                  </motion.button>
-                </Link>
+                  </MotionLink>
               </div>
               <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
@@ -228,16 +227,14 @@ export default function AboutUsPage() {
                 <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto">
                   Be part of the revolution. Create your modern digital business card today.
                 </p>
-                <Link href={ROUTES.ORDER}>
-                  <motion.button
+                <MotionLink href={ROUTES.ORDER}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className="btn btn-lg btn-primary"
                   >
                     Create Your Card
                     <ArrowRight className="w-5 h-5" />
-                  </motion.button>
-                </Link>
+                  </MotionLink>
               </div>
             </motion.div>
           </div>

@@ -203,6 +203,7 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
                     <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
                     <select
                       name="hasOwnDesign"
+                      aria-label="Do you have your own design?"
                       value={formData.hasOwnDesign}
                       onChange={handleChange}
                       required

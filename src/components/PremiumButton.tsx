@@ -106,12 +106,23 @@ export default function PremiumButton({
     .join(' ');
 
   if (href) {
-    return (
-      <Link href={href}>
-        <button className={classes} disabled={disabled}>
+    // A single <a>, not a <button> nested inside one. The old markup was
+    // invalid HTML and exposed two overlapping controls to assistive tech.
+    // A link has no disabled state, so a disabled one renders as inert text
+    // and leaves the tab order rather than staying silently clickable.
+    if (disabled) {
+      return (
+        <span className={[classes, 'pointer-events-none opacity-50'].join(' ')} aria-disabled="true">
           {children}
           {iconSpan}
-        </button>
+        </span>
+      );
+    }
+
+    return (
+      <Link href={href} className={classes}>
+        {children}
+        {iconSpan}
       </Link>
     );
   }

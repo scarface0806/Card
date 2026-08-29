@@ -208,7 +208,7 @@ export default function CardsPage() {
                       <div className="bg-purple-50 border border-purple-200 rounded-xl p-3">
                         <p className="text-xs text-purple-700 font-medium mb-1">Design Charges</p>
                         <p className="text-xs text-gray-500">
-                          <span className="text-primary font-semibold">Free</span> if you provide your own design.
+                          <span className="text-green-700 font-semibold">Free</span> if you provide your own design.
                           Design service available at additional cost.
                         </p>
                       </div>
