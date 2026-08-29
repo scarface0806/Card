@@ -49,3 +49,6 @@ demo-state.json
 error.txt
 tmpcookies.txt
 *.log
+
+# Temporary audit tooling output (Lighthouse, responsive sweep)
+.audit-tmp/

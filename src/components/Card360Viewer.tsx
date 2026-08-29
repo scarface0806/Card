@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
 const cardDesigns = [
@@ -60,6 +60,7 @@ interface Card360ViewerProps {
 }
 
 export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps) {
+  const prefersReducedMotion = useReducedMotion();
   const [currentCard, setCurrentCard] = useState(selectedCardIndex ?? 0);
   const [rotation, setRotation] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -76,6 +77,9 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
   const card = cardDesigns[currentCard];
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    // Rotation is the whole effect here, so for reduced motion the card simply
+    // stays flat rather than tracking the pointer.
+    if (prefersReducedMotion) return;
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -134,7 +138,10 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
             }}
             style={{
               transformStyle: 'preserve-3d',
-              willChange: 'transform',
+              // Promote to its own layer only while the pointer is actually
+              // over the card. A permanent will-change keeps a compositor
+              // layer alive for a card nobody is touching.
+              willChange: isHovered ? 'transform' : 'auto',
             } as React.CSSProperties}
           >
             {/* Front of Card */}

@@ -11,7 +11,7 @@ import { ROUTES } from '@/utils/constants';
 import { ContactSource } from '@/components/ContactModal';
 
 interface CardDesignsHomeSectionProps {
-  onContactClick?: (source: ContactSource) => void;
+  onContactClick: (source: ContactSource) => void;
 }
 
 export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHomeSectionProps) {
@@ -28,7 +28,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
   const handleBuyNow = (card: CardDesign) => {
     if (card.type === 'custom') {
-      onContactClick?.('custom');
+      onContactClick('custom');
       return;
     }
     router.push(`/create-card?template=${card.slug}`);
@@ -226,7 +226,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                   </button>
                 </Link>
                 <button
-                  onClick={() => onContactClick?.('general')}
+                  onClick={() => onContactClick('general')}
                   className="btn btn-lg btn-secondary"
                 >
                   <span>Learn More</span>
