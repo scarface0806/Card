@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
+import { motion, useReducedMotion } from 'framer-motion';
 import { Star, Quote, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
@@ -45,12 +45,18 @@ const testimonials: Testimonial[] = [
 export default function TestimonialsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const prefersReducedMotion = useReducedMotion();
+
   useEffect(() => {
+    // Do not auto-advance for anyone who asked the OS for reduced motion -
+    // the dots still let them move through at their own pace.
+    if (prefersReducedMotion) return;
+
     const timer = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % testimonials.length);
     }, 5000);
     return () => clearInterval(timer);
-  }, []);
+  }, [prefersReducedMotion]);
 
   const current = testimonials[currentIndex];
 
@@ -115,13 +121,22 @@ export default function TestimonialsSection() {
           {testimonials.map((_, index) => (
             <button
               key={index}
+              type="button"
               onClick={() => setCurrentIndex(index)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                index === currentIndex 
-                  ? 'bg-primary w-8' 
-                  : 'bg-primary/15 w-2 hover:bg-primary/90'
-              }`}
-            />
+              aria-label={`Show testimonial ${index + 1} of ${testimonials.length}`}
+              aria-current={index === currentIndex}
+              // The dot itself stays 8px tall; the button around it is a full
+              // 44px tap target with the padding clipped out of the layout.
+              className="group -my-5 py-5 px-1"
+            >
+              <span
+                className={`block h-2 rounded-full transition-all duration-300 ${
+                  index === currentIndex
+                    ? 'bg-primary w-8'
+                    : 'bg-primary/15 w-2 group-hover:bg-primary/90'
+                }`}
+              />
+            </button>
           ))}
         </div>
 

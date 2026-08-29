@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import Link from 'next/link';
+import { ROUTES } from '@/utils/constants';
 
 const faqItems = [
   {
@@ -143,12 +145,9 @@ export default function FAQSection() {
           className="mt-14 md:mt-16 text-center"
         >
           <p className="body-base text-gray-600 mb-4">Still have questions?</p>
-          <a
-            href="#contact"
-            className="btn btn-primary"
-          >
+          <Link href={ROUTES.CONTACT} className="btn btn-primary">
             Get in Touch
-          </a>
+          </Link>
         </motion.div>
       </div>
     </section>

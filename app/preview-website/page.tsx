@@ -2,10 +2,54 @@
 
 import { ADDRESS, PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL, whatsappLink } from '@/lib/site-config';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BRAND } from '@/lib/brand';
 
+type SubmitState =
+  | { status: 'idle' }
+  | { status: 'submitting' }
+  | { status: 'success' }
+  | { status: 'error'; message: string };
+
 export default function PreviewWebsitePage() {
+  // The Send Message form used to have no onSubmit at all - it looked
+  // interactive and silently threw every enquiry away.
+  const [submitState, setSubmitState] = useState<SubmitState>({ status: 'idle' });
+
+  const handleContactSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const data = new FormData(form);
+
+    setSubmitState({ status: 'submitting' });
+    try {
+      const response = await fetch('/api/contacts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          name: String(data.get('fullname') ?? ''),
+          email: String(data.get('email') ?? ''),
+          phone: String(data.get('phone') ?? ''),
+          subject: String(data.get('subject') ?? ''),
+          message: String(data.get('message') ?? ''),
+        }),
+      });
+
+      const payload = await response.json().catch(() => null);
+      if (!response.ok) {
+        throw new Error(payload?.message || 'Could not send your message. Please try again.');
+      }
+
+      form.reset();
+      setSubmitState({ status: 'success' });
+    } catch (error) {
+      setSubmitState({
+        status: 'error',
+        message: error instanceof Error ? error.message : 'Could not send your message. Please try again.',
+      });
+    }
+  };
+
   useEffect(() => {
     // Theme Toggle
     const themeSwitch = document.getElementById('theme-switch') as HTMLInputElement;
@@ -758,6 +802,55 @@ export default function PreviewWebsitePage() {
           min-height: 130px;
         }
 
+        /* Visually hidden but read by screen readers - the inputs are
+           placeholder-only by design, so each needs a real label. */
+        .digi-sr-only {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          padding: 0;
+          margin: -1px;
+          overflow: hidden;
+          clip: rect(0, 0, 0, 0);
+          white-space: nowrap;
+          border: 0;
+        }
+
+        .digi-form-status:empty {
+          display: none;
+        }
+
+        .digi-form-status {
+          margin: 0 0 12px;
+          font-size: 14px;
+          line-height: 1.5;
+        }
+
+        .digi-submit-btn:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+
+        .digi-demo-banner {
+          display: flex;
+          flex-wrap: wrap;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          padding: 10px 16px;
+          background: #0f2e25;
+          color: #d1fae5;
+          font-size: 14px;
+          text-align: center;
+        }
+
+        .digi-demo-banner a {
+          color: #4ade80;
+          font-weight: 600;
+          text-decoration: underline;
+          text-underline-offset: 3px;
+        }
+
         .digi-submit-btn {
           display: inline-flex;
           align-items: center;
@@ -969,7 +1062,18 @@ export default function PreviewWebsitePage() {
       `}</style>
 
       <div className="frontend-dark digi-preview-wrapper">
-      <canvas id="particle-canvas"></canvas>
+      {/* This page is a sample of the profile a customer gets, populated with
+          placeholder people, stock photography and Tapvyo's own contact
+          details. Saying so up front is honest and stops the stock imagery
+          reading as real portfolio work. */}
+      <div className="digi-demo-banner" role="note">
+        <span>
+          <strong>Demo profile.</strong> An example of the free website included
+          with every Tapvyo card. Content and images are placeholders.
+        </span>
+        <a href="/create-card">Create yours</a>
+      </div>
+      <canvas id="particle-canvas" aria-hidden="true"></canvas>
 
       <div className="digi-card-container">
         {/* Navigation */}
@@ -1009,6 +1113,9 @@ export default function PreviewWebsitePage() {
               <img
                 src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&h=400&fit=crop"
                 alt="Tapvyo"
+              width={400}
+              height={400}
+              decoding="async"
               />
             </div>
             <div className="digi-profile-info">
@@ -1075,6 +1182,10 @@ export default function PreviewWebsitePage() {
                 <img
                   src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop"
                   alt="NFC Business Card"
+                width={400}
+                height={300}
+                loading="lazy"
+                decoding="async"
                 />
                 <div className="digi-work-overlay">
                   <h4>Premium NFC Card</h4>
@@ -1085,6 +1196,10 @@ export default function PreviewWebsitePage() {
                 <img
                   src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
                   alt="Digital Dashboard"
+                width={400}
+                height={300}
+                loading="lazy"
+                decoding="async"
                 />
                 <div className="digi-work-overlay">
                   <h4>Analytics Dashboard</h4>
@@ -1095,6 +1210,10 @@ export default function PreviewWebsitePage() {
                 <img
                   src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
                   alt="Digital Profile"
+                width={400}
+                height={300}
+                loading="lazy"
+                decoding="async"
                 />
                 <div className="digi-work-overlay">
                   <h4>Digital Profile</h4>
@@ -1105,6 +1224,10 @@ export default function PreviewWebsitePage() {
                 <img
                   src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&h=300&fit=crop"
                   alt="Corporate Solution"
+                width={400}
+                height={300}
+                loading="lazy"
+                decoding="async"
                 />
                 <div className="digi-work-overlay">
                   <h4>Corporate Solution</h4>
@@ -1115,6 +1238,10 @@ export default function PreviewWebsitePage() {
                 <img
                   src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=300&fit=crop"
                   alt="Networking Event"
+                width={400}
+                height={300}
+                loading="lazy"
+                decoding="async"
                 />
                 <div className="digi-work-overlay">
                   <h4>Event Networking</h4>
@@ -1125,6 +1252,10 @@ export default function PreviewWebsitePage() {
                 <img
                   src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=300&fit=crop"
                   alt="Brand Identity"
+                width={400}
+                height={300}
+                loading="lazy"
+                decoding="async"
                 />
                 <div className="digi-work-overlay">
                   <h4>Brand Identity</h4>
@@ -1190,27 +1321,79 @@ export default function PreviewWebsitePage() {
               </div>
 
               <div className="digi-form-right">
-                <form className="digi-contact-form">
+                <form className="digi-contact-form" onSubmit={handleContactSubmit}>
                   <div className="digi-form-row">
                     <div className="digi-form-group">
-                      <input type="text" name="fullname" placeholder="Your Name" required />
+                      <label htmlFor="pw-fullname" className="digi-sr-only">Your name</label>
+                      <input
+                        id="pw-fullname"
+                        type="text"
+                        name="fullname"
+                        placeholder="Your Name"
+                        autoComplete="name"
+                        required
+                      />
                     </div>
                     <div className="digi-form-group">
-                      <input type="tel" name="phone" placeholder="Phone Number" maxLength={10} required />
+                      <label htmlFor="pw-phone" className="digi-sr-only">Phone number</label>
+                      <input
+                        id="pw-phone"
+                        type="tel"
+                        name="phone"
+                        placeholder="Phone Number"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        maxLength={10}
+                        required
+                      />
                     </div>
                   </div>
                   <div className="digi-form-row">
                     <div className="digi-form-group">
-                      <input type="email" name="email" placeholder="Your Email" required />
+                      <label htmlFor="pw-email" className="digi-sr-only">Your email</label>
+                      <input
+                        id="pw-email"
+                        type="email"
+                        name="email"
+                        placeholder="Your Email"
+                        inputMode="email"
+                        autoComplete="email"
+                        required
+                      />
                     </div>
                     <div className="digi-form-group">
-                      <input type="text" name="subject" placeholder="Subject" />
+                      <label htmlFor="pw-subject" className="digi-sr-only">Subject</label>
+                      <input
+                        id="pw-subject"
+                        type="text"
+                        name="subject"
+                        placeholder="Subject"
+                      />
                     </div>
                   </div>
                   <div className="digi-form-group">
-                    <textarea name="message" placeholder="Your Message" rows={5}></textarea>
+                    <label htmlFor="pw-message" className="digi-sr-only">Your message</label>
+                    <textarea
+                      id="pw-message"
+                      name="message"
+                      placeholder="Your Message"
+                      rows={5}
+                      required
+                    ></textarea>
                   </div>
-                  <button type="submit" className="digi-submit-btn">
+
+                  {/* Submission outcome is always visible and announced. */}
+                  <p aria-live="polite" className="digi-form-status">
+                    {submitState.status === 'success' &&
+                      'Thanks - your message has been sent. We will reply shortly.'}
+                    {submitState.status === 'error' && submitState.message}
+                  </p>
+
+                  <button
+                    type="submit"
+                    className="digi-submit-btn"
+                    disabled={submitState.status === 'submitting'}
+                  >
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
                       <path fill="none" d="M0 0h24v24H0z"></path>
                       <path
@@ -1218,7 +1401,9 @@ export default function PreviewWebsitePage() {
                         d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
                       ></path>
                     </svg>
-                    <span>Send Message</span>
+                    <span>
+                      {submitState.status === 'submitting' ? 'Sending...' : 'Send Message'}
+                    </span>
                   </button>
                 </form>
               </div>
@@ -1235,6 +1420,7 @@ export default function PreviewWebsitePage() {
               allowFullScreen
               loading="lazy"
               referrerPolicy="no-referrer-when-downgrade"
+              title="Map showing our location in Tiruchirappalli, Tamil Nadu"
             ></iframe>
           </section>
         </main>

@@ -6,6 +6,7 @@ import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import ContactModal, { ContactSource } from '@/components/ContactModal';
 import TechStackSection from '@/sections/TechStackSection';
+import { ROUTES } from '@/utils/constants';
 import {
   GraduationCap,
   Briefcase,
@@ -514,12 +515,12 @@ export default function ServicesPage() {
                   <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
                 </motion.button>
                 <motion.a
-                  href="/services"
+                  href={ROUTES.CARDS}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="inline-flex items-center gap-2 px-8 py-3 border border-white/20 hover:border-white/40 text-white font-semibold rounded-xl hover:bg-white/5 transition-all duration-300 group"
                 >
-                  <span>View Our Services</span>
+                  <span>View Our Cards</span>
                 </motion.a>
               </div>
 
