@@ -9,7 +9,7 @@ import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Loader2, Globe, Shield, Zap, Users, CreditCard, Infinity } from 'lucide-react';
+import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Globe, Shield, Zap, Users, CreditCard, Infinity } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 
 const lifetimeFeatures = [
@@ -103,10 +103,39 @@ export default function CardsPage() {
             </p>
           </motion.div>
 
-          {/* Card Grid */}
+          {/* Card Grid.
+              The hook seeds itself with fallback designs, so there is always
+              something to render on the server - the skeleton below only ever
+              shows if that ever stops being true. */}
           {loading ? (
-            <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20"
+              aria-busy="true"
+              aria-label="Loading card designs"
+            >
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div
+                  key={i}
+                  className="h-96 rounded-2xl border border-white/10 bg-slate-900/60 animate-pulse motion-reduce:animate-none"
+                />
+              ))}
+            </div>
+          ) : cardDesigns.length === 0 ? (
+            <div className="mb-20 rounded-2xl border border-white/10 bg-slate-900/60 py-20 text-center">
+              <p className="text-lg font-semibold text-white">
+                No card designs available right now.
+              </p>
+              <p className="mt-2 text-sm text-slate-400">
+                Our catalogue is being updated. Get in touch and we will walk you
+                through the current options.
+              </p>
+              <button
+                onClick={() => openContactModal('general')}
+                className="mt-6 inline-flex min-h-[44px] items-center gap-2 rounded-lg bg-primary px-6 py-3 font-semibold text-white transition-colors hover:bg-primary/90 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+              >
+                Talk to our team
+                <ArrowRight className="h-4 w-4" />
+              </button>
             </div>
           ) : (
           <motion.div

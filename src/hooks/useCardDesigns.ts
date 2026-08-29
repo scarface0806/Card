@@ -147,12 +147,16 @@ interface UseCardDesignsReturn {
 
 export function useCardDesigns(): UseCardDesignsReturn {
   const [cardDesigns, setCardDesigns] = useState<CardDesign[]>(fallbackCardDesigns);
-  const [loading, setLoading] = useState(true);
+  // Starts false, not true. The state is already seeded with the fallback
+  // designs, so there is real content to render immediately - gating the grid
+  // behind a spinner meant the server HTML shipped a spinner over data it
+  // already had, and /cards rendered zero card designs. `loading` now means
+  // "the initial render has nothing to show", which is never the case here.
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCardDesigns = useCallback(async (signal?: AbortSignal) => {
     try {
-      setLoading(true);
       setError(null);
       const response = await productService.getProducts(
         {
