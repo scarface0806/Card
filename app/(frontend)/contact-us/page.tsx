@@ -1,5 +1,7 @@
 'use client';
 
+import { ADDRESS, PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-config';
+
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
@@ -68,21 +70,24 @@ export default function ContactUsPage() {
       icon: Mail,
       title: 'Email',
       description: 'We reply within 24 hours',
-      value: 'support@tapvyo.com',
+      value: SUPPORT_EMAIL,
+      href: `mailto:${SUPPORT_EMAIL}`,
       color: 'bg-primary',
     },
     {
       icon: Phone,
       title: 'Phone',
       description: 'Available 24/7',
-      value: '+91 9999999999',
+      value: PHONE_DISPLAY,
+      href: `tel:${PHONE_E164}`,
       color: 'bg-secondary',
     },
     {
       icon: MapPin,
       title: 'Office',
       description: 'Visit us anytime',
-      value: 'Bangalore, India',
+      value: ADDRESS.full,
+      href: `https://maps.google.com/?q=${encodeURIComponent(ADDRESS.full)}`,
       color: 'bg-cyan-700',
     },
   ];
@@ -166,7 +171,16 @@ export default function ContactUsPage() {
                     </div>
                     <h3 className="text-xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{method.title}</h3>
                     <p className="text-sm text-[#6b7f78] mb-4">{method.description}</p>
-                    <p className="text-lg font-semibold text-primary">{method.value}</p>
+                    {/* Email / phone / address are actionable, not just text. */}
+                    <a
+                      href={method.href}
+                      {...(method.href.startsWith('http')
+                        ? { target: '_blank', rel: 'noopener noreferrer' }
+                        : {})}
+                      className="inline-flex min-h-[44px] items-center justify-center text-lg font-semibold text-primary underline-offset-4 hover:underline focus-visible:underline"
+                    >
+                      {method.value}
+                    </a>
                   </motion.div>
                 );
               })}

@@ -2,7 +2,15 @@
 
 import Link from 'next/link';
 import { Mail, Phone, MapPin } from 'lucide-react';
-import { ROUTES, SUPPORT_EMAIL, SUPPORT_PHONE } from '@/utils/constants';
+import { ROUTES } from '@/utils/constants';
+import {
+  ACTIVE_SOCIAL_PROFILES,
+  ADDRESS,
+  PHONE_DISPLAY,
+  PHONE_E164,
+  SITE_NAME,
+  SUPPORT_EMAIL,
+} from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
 
 export default function Footer() {
@@ -82,15 +90,15 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
                   <Phone className="w-4 h-4 text-primary" />
                 </div>
-                <a href={`tel:${SUPPORT_PHONE}`} className="hover:text-primary transition-colors">
-                  {SUPPORT_PHONE}
+                <a href={`tel:${PHONE_E164}`} className="hover:text-primary transition-colors">
+                  {PHONE_DISPLAY}
                 </a>
               </li>
               <li className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
                   <MapPin className="w-4 h-4 text-primary" />
                 </div>
-                <span>India</span>
+                <span>{ADDRESS.full}</span>
               </li>
             </ul>
           </div>
@@ -98,19 +106,28 @@ export default function Footer() {
 
         <div className="border-t border-[#1F2937] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-slate-400 text-sm">
-            &copy; {currentYear} Tapvyo. All rights reserved.
+            &copy; {currentYear} {SITE_NAME}. All rights reserved.
           </p>
-          <div className="flex gap-6">
-            <a href="https://x.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-primary transition-colors text-sm">
-              Twitter
-            </a>
-            <a href="https://www.linkedin.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-primary transition-colors text-sm">
-              LinkedIn
-            </a>
-            <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="text-slate-400 hover:text-primary transition-colors text-sm">
-              Instagram
-            </a>
-          </div>
+          {/* Only profiles with a confirmed URL are rendered - see
+              ACTIVE_SOCIAL_PROFILES in site-config. An unconfirmed profile is
+              omitted rather than linked to a bare homepage. */}
+          {ACTIVE_SOCIAL_PROFILES.length > 0 && (
+            <ul className="flex gap-6">
+              {ACTIVE_SOCIAL_PROFILES.map((social) => (
+                <li key={social.name}>
+                  <a
+                    href={social.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center min-h-[44px] text-slate-400 hover:text-primary focus-visible:text-primary transition-colors text-sm"
+                  >
+                    {social.name}
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
       </div>
     </footer>

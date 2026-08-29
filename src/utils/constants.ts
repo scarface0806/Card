@@ -1,10 +1,17 @@
-// App branding & metadata
-export const APP_NAME = 'Tapvyo NFC';
-export const APP_DESCRIPTION = 'Modern NFC Digital Business Card Platform';
-export const APP_URL = 'https://tapvyo-nfc.com';
-export const SUPPORT_EMAIL = 'support@tapvyo-nfc.com';
-export const SUPPORT_PHONE = '+91 9999999999';
-export const WHATSAPP_NUMBER = '919999999999';
+// App branding & metadata.
+// Contact details live in ONE place only - see src/lib/site-config.ts.
+// These re-exports keep older imports working; do not add new contact values
+// here, add them to site-config.
+export {
+  SITE_NAME as APP_NAME,
+  SITE_DESCRIPTION as APP_DESCRIPTION,
+  SITE_URL as APP_URL,
+  SUPPORT_EMAIL,
+  PHONE_E164 as SUPPORT_PHONE,
+  PHONE_DISPLAY as SUPPORT_PHONE_DISPLAY,
+  WHATSAPP_NUMBER,
+  whatsappLink,
+} from '@/lib/site-config';
 
 // Color palette
 export const COLORS = {
@@ -23,16 +30,17 @@ export const COLORS = {
 // Navigation routes
 export const ROUTES = {
   HOME: '/',
-  FEATURES: '/features',
+  // Features is a section on the homepage, not a route of its own.
+  FEATURES: '/#features',
   CARDS: '/cards',
-  HOW_IT_WORKS: '/how-it-works',
   CREATE_CARD: '/create-card',
-  COMPANY: '/company',
   ABOUT: '/about-us',
   HOW_TO_USE: '/how-to-use',
   PRODUCTS: '/products',
   SERVICES: '/services',
-  ORDER: '/order',
+  // /order is a permanent redirect to /create-card (see next.config.ts).
+  // CTAs point at the canonical route directly so there is no extra hop.
+  ORDER: '/create-card',
   ORDER_SUCCESS: '/order-success',
   CONTACT: '/contact-us',
   PRIVACY: '/privacy-policy',
@@ -50,13 +58,9 @@ export const FORM_STEPS = [
   { id: 5, label: 'Payment' },
 ];
 
-// Social links
-export const SOCIAL_LINKS = [
-  { name: 'Instagram', url: 'https://instagram.com', icon: 'Instagram' },
-  { name: 'Facebook', url: 'https://facebook.com', icon: 'Facebook' },
-  { name: 'LinkedIn', url: 'https://linkedin.com', icon: 'Linkedin' },
-  { name: 'YouTube', url: 'https://youtube.com', icon: 'Youtube' },
-];
+// Social links - profile URLs come from site-config so there is one source of
+// truth and unconfirmed profiles are omitted rather than shipped as dead links.
+export { ACTIVE_SOCIAL_PROFILES as SOCIAL_LINKS } from '@/lib/site-config';
 
 // Animation config
 export const ANIMATION_CONFIG = {

@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
+import { whatsappLink } from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
 
 export default function Navbar() {
@@ -71,7 +72,7 @@ export default function Navbar() {
           <div className="hidden lg:flex items-center gap-4">
             {/* Contact Now - WhatsApp CTA Button */}
             <a
-              href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+              href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="btn btn-secondary btn-sm"
@@ -119,7 +120,7 @@ export default function Navbar() {
                 ))}
                 <div className="pt-4 space-y-3 border-t border-primary/10 mt-4">
                   <a
-                    href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+                    href={whatsappLink()}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}

@@ -1,5 +1,7 @@
 'use client';
 
+import { PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-config';
+
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
@@ -138,18 +140,18 @@ function OrderSuccessContent() {
             <h4 className="font-semibold text-white">Need Help?</h4>
             <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
               <a
-                href="mailto:support@tapvyo-nfc.com"
+                href={`mailto:${SUPPORT_EMAIL}`}
                 className="flex items-center justify-center gap-2 text-primary hover:text-primary font-medium"
               >
                 <Mail className="w-4 h-4" />
-                support@tapvyo-nfc.com
+                {SUPPORT_EMAIL}
               </a>
               <a
-                href="tel:+919999999999"
+                href={`tel:${PHONE_E164}`}
                 className="flex items-center justify-center gap-2 text-primary hover:text-primary font-medium"
               >
                 <Phone className="w-4 h-4" />
-                +91 9999999999
+                {PHONE_DISPLAY}
               </a>
             </div>
           </motion.div>

@@ -1,5 +1,7 @@
 'use client';
 
+import { PHONE_DISPLAY, SUPPORT_EMAIL } from '@/lib/site-config';
+
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
@@ -34,7 +36,7 @@ export default function PrivacyPolicyPage() {
     {
       title: '6. Contact Us',
       content:
-        'If you have any questions about this Privacy Policy, please contact us at: support@tapvyo-nfc.com or +91 9999999999',
+        `If you have any questions about this Privacy Policy, please contact us at: ${SUPPORT_EMAIL} or ${PHONE_DISPLAY}`,
     },
   ];
 

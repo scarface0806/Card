@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
+import { whatsappLink } from '@/lib/site-config';
 
 export default function PremiumNavbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -52,7 +53,7 @@ export default function PremiumNavbar() {
         {/* Right Actions */}
         <div className="hidden md:flex items-center gap-4 z-10">
           <a
-            href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+            href={whatsappLink()}
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-primary btn-sm relative overflow-hidden font-[family-name:var(--font-space-grotesk)] group"
@@ -94,7 +95,7 @@ export default function PremiumNavbar() {
             ))}
             <div className="pt-4 space-y-3 border-t border-white/10">
               <a
-                href="https://wa.me/917871361025?text=Hi%20I%20want%20a%20NFC%20digital%20business%20card"
+                href={whatsappLink()}
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={() => setIsOpen(false)}

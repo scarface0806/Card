@@ -1,5 +1,7 @@
 'use client';
 
+import { ADDRESS, PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL, whatsappLink } from '@/lib/site-config';
+
 import { useEffect } from 'react';
 import { BRAND } from '@/lib/brand';
 
@@ -972,7 +974,7 @@ export default function PreviewWebsitePage() {
       <div className="digi-card-container">
         {/* Navigation */}
         <nav className="digi-navbar">
-          <a href="#" className="digi-logo">
+          <a href="/" className="digi-logo" aria-label={`${BRAND.name} home`}>
             <img src={BRAND.logo} alt={BRAND.name} className="digi-nav-logo-img" />
           </a>
           <div className="digi-nav-right">
@@ -1025,7 +1027,7 @@ export default function PreviewWebsitePage() {
 
               <div className="digi-social-icons">
                 <a
-                  href="https://wa.me/919876543210"
+                  href={whatsappLink()}
                   className="digi-social-icon"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -1156,8 +1158,8 @@ export default function PreviewWebsitePage() {
                       <i className="fa-solid fa-phone"></i>
                     </div>
                     <div className="digi-phone-numbers">
-                      <a href="tel:+919876543210" className="digi-contact-link">
-                        +91 98765 43210
+                      <a href={`tel:${PHONE_E164}`} className="digi-contact-link">
+                        {PHONE_DISPLAY}
                       </a>
                     </div>
                   </div>
@@ -1165,8 +1167,8 @@ export default function PreviewWebsitePage() {
                     <div className="digi-detail-icon email">
                       <i className="fa-solid fa-envelope"></i>
                     </div>
-                    <a href="mailto:hello@tapvyo.com" className="digi-contact-link">
-                      hello@tapvyo.com
+                    <a href={`mailto:${SUPPORT_EMAIL}`} className="digi-contact-link">
+                      {SUPPORT_EMAIL}
                     </a>
                   </div>
                   <div className="digi-contact-detail-item">
@@ -1174,14 +1176,14 @@ export default function PreviewWebsitePage() {
                       <i className="fa-solid fa-location-dot"></i>
                     </div>
                     <a
-                      href="https://maps.google.com/?q=Trichy,+Tamilnadu,+India"
+                      href={`https://maps.google.com/?q=${encodeURIComponent(ADDRESS.full)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="digi-contact-link"
                     >
-                      Trichy, Tamilnadu,
+                      {ADDRESS.city}, {ADDRESS.state},
                       <br />
-                      India
+                      {ADDRESS.country}
                     </a>
                   </div>
                 </div>
