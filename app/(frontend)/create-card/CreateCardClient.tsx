@@ -15,8 +15,14 @@ import PaymentForm from '@/forms/PaymentForm';
 import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
-import { ArrowLeft, ArrowRight, CreditCard, Sparkles } from 'lucide-react';
+import { CardTemplate } from '@/utils/cardTemplates';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
+import dynamic from 'next/dynamic';
+import { ArrowLeft, ArrowRight, CreditCard, Sparkles, Check } from 'lucide-react';
+
+const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
+  loading: () => <div className="w-full h-96 bg-gray-100 rounded-xl animate-pulse" />,
+});
 
 interface FormData {
   personalDetails: {
@@ -31,6 +37,7 @@ interface FormData {
     website: string;
     about: string;
     services: string;
+    googleLocation?: string;
   };
   socialLinks: {
     instagram?: string;
@@ -41,7 +48,6 @@ interface FormData {
   uploads: {
     profileImage?: FileList;
     logo?: FileList;
-    coverImage?: FileList;
   };
   payment: {
     method: string;
@@ -49,12 +55,21 @@ interface FormData {
   };
 }
 
-export default function OrderPage() {
+export default function CreateCardClient({
+  template,
+}: {
+  /** Resolved on the server from ?template= so the first paint is correct. */
+  template: CardTemplate;
+}) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+  // Server already resolved the template, so this renders correctly on first
+  // paint instead of flashing the default and swapping in an effect.
+  const selectedTemplate = template;
   const router = useRouter();
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
+
   const methods = useForm<FormData>({
     mode: 'onBlur',
     reValidateMode: 'onChange',
@@ -63,9 +78,7 @@ export default function OrderPage() {
     defaultValues: { payment: { method: 'card' } },
   });
 
-  const { handleSubmit, watch, formState: { errors } } = methods;
-  const selectedPaymentMethod = watch('payment.method');
-  const agreedToTerms = watch('payment.terms');
+  const { handleSubmit, watch } = methods;
 
   // One flag for every "do not let them click again" state - form submit,
   // order creation, the Checkout modal being open, and verification.
@@ -77,43 +90,36 @@ export default function OrderPage() {
         ? 'Confirming payment...'
         : null;
 
+  // Watch specific fields for live preview - real-time updates
+  const fullName = watch('personalDetails.name', '');
+  const designation = watch('personalDetails.designation', '');
+  const company = watch('personalDetails.company', '');
+
   const onSubmit = async (data: FormData) => {
     if (currentStep < 5) {
       setCurrentStep(currentStep + 1);
       return;
     }
 
-    // Step 5: Final submission with Razorpay payment
     setIsSubmitting(true);
     setPaymentError(null);
 
     try {
-      // Validate payment form
-      if (!selectedPaymentMethod) {
-        setPaymentError('Please select a payment method');
-        setIsSubmitting(false);
-        return;
-      }
-
-      if (!agreedToTerms) {
-        setPaymentError('Please accept terms & conditions');
-        setIsSubmitting(false);
-        return;
-      }
-
       const uploads = {
         profileImage: data.uploads?.profileImage?.[0],
         logo: data.uploads?.logo?.[0],
-        coverImage: data.uploads?.coverImage?.[0],
       };
 
-      // Step 1: Create order in database
-      console.log('[Order] Creating order in database...');
+      // Step 1: Create the order in the database. It lands as PENDING/unpaid -
+      // this call is NOT a payment and must never redirect to the success page.
       const result = await createOrder({
         personalDetails: data.personalDetails,
         businessDetails: data.businessDetails,
         socialLinks: data.socialLinks,
         uploads,
+        template: selectedTemplate.slug,
+        templateName: selectedTemplate.name,
+        templatePrice: selectedTemplate.priceValue,
         payment: data.payment,
       });
 
@@ -121,20 +127,21 @@ export default function OrderPage() {
         throw new Error('Failed to create order');
       }
 
-      console.log('[Order] Order created for:', result.orderId);
       const orderId = result.orderId;
 
-      // Step 2: Initiate Razorpay payment. No amount is sent - the server reads
-      // the price from the order row, so it cannot be tampered with here.
+      // Step 2: Open Razorpay Checkout. This resolves only once the modal has
+      // closed - via the handler (paid), ondismiss (cancelled), or payment.failed.
+      // No amount is sent: the server reads the price from the order row.
       const paymentResponse = await initiatePayment({
         existingOrderId: orderId,
         userEmail: data.personalDetails.email,
         userName: data.personalDetails.name,
         userPhone: data.personalDetails.mobile,
-        paymentMethod: selectedPaymentMethod,
+        paymentMethod: data.payment?.method,
       });
 
-      // Navigate only when the server confirmed the signature.
+      // Step 3: Navigate only when /api/payment/verify confirmed the signature
+      // server-side. A cancelled or failed payment leaves the order PENDING.
       if (paymentResponse.success) {
         localStorage.setItem('lastOrderId', orderId);
         router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${orderId}`);
@@ -145,9 +152,9 @@ export default function OrderPage() {
         paymentResponse.message || 'Payment could not be completed. Please try again.'
       );
     } catch (error) {
-      logFetchError('[Order] Error:', error);
+      logFetchError('Order creation failed:', error);
       setPaymentError(
-        error instanceof Error ? error.message : 'Failed to process order. Please try again.'
+        error instanceof Error ? error.message : 'Failed to create order. Please try again.'
       );
     } finally {
       setIsSubmitting(false);
@@ -178,13 +185,13 @@ export default function OrderPage() {
               </span>
             </h1>
             <p className="text-lg text-[#4b635d]">
-              Complete the form below to customize your professional card
+              Complete the form below to customize your <span className="font-semibold text-primary">{selectedTemplate.name}</span> card
             </p>
           </motion.div>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-8">
+              <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-4 sm:p-6 md:p-8">
                 <Stepper steps={FORM_STEPS} currentStep={currentStep} />
 
                 <form onSubmit={handleSubmit(onSubmit)} className="mt-12 space-y-8">
@@ -193,13 +200,12 @@ export default function OrderPage() {
                     {currentStep === 2 && <BusinessDetailsForm />}
                     {currentStep === 3 && <SocialLinksForm />}
                     {currentStep === 4 && <UploadForm />}
-                    {currentStep === 5 && <PaymentForm />}
+                    {currentStep === 5 && <PaymentForm template={selectedTemplate} />}
                   </FormProvider>
 
                   {paymentError && (
                     <div
-                      role="alert"
-                      className={`rounded-xl border px-4 py-3 text-sm ${
+                      className={`mt-6 rounded-xl border p-4 text-sm ${
                         paymentStatus === 'cancelled'
                           ? 'border-amber-300 bg-amber-50 text-amber-800'
                           : 'border-red-300 bg-red-50 text-red-800'
@@ -225,11 +231,11 @@ export default function OrderPage() {
                     {currentStep > 1 && (
                       <motion.button
                         type="button"
-                        whileHover={{ scale: 1.02 }}
-                        whileTap={{ scale: 0.98 }}
-                        disabled={isBusy}
+                        whileHover={{ y: -2 }}
+                        whileTap={{ y: 1 }}
+                        transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                         onClick={() => setCurrentStep(currentStep - 1)}
-                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-300"
+                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-220"
                       >
                         <ArrowLeft className="w-4 h-4" />
                         Previous
@@ -237,10 +243,11 @@ export default function OrderPage() {
                     )}
                     <motion.button
                       type="submit"
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ y: 1 }}
+                      transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                       disabled={isBusy}
-                      className="flex-1 flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] hover:from-[#28A428] hover:to-[#e6e600] rounded-xl font-semibold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
+                      className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isBusy ? (
                         <>
@@ -259,16 +266,50 @@ export default function OrderPage() {
               </div>
             </div>
 
+            {/* Preview Sidebar */}
             <div className="hidden lg:block">
               <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-8 sticky top-32">
                 <div className="flex items-center gap-2 mb-6">
                   <Sparkles className="w-5 h-5 text-primary" />
-                  <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Preview</h3>
+                  <h3 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Card Preview</h3>
                 </div>
-                <div className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-xl pt-[150%] relative flex items-center justify-center border border-primary/10">
-                  <span className="absolute inset-0 flex items-center justify-center text-[#6b7f78]">Your card preview</span>
+                
+                {/* Selected Template Badge */}
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-sm text-[#6b7f78]">Selected Template</span>
+                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
+                    selectedTemplate.type === 'premium' 
+                      ? 'bg-amber-100 text-amber-700' 
+                      : 'bg-primary/20 text-primary'
+                  }`}>
+                    {selectedTemplate.type.charAt(0).toUpperCase() + selectedTemplate.type.slice(1)}
+                  </span>
                 </div>
-                <p className="text-sm text-[#6b7f78] mt-4 text-center">
+
+                {/* Card Preview */}
+                <CardLivePreview
+                  fullName={fullName}
+                  designation={designation}
+                  company={company}
+                  template={selectedTemplate}
+                />
+
+                <div className="mt-4 text-center">
+                  <p className="text-lg font-bold text-[#0f2e25]">{selectedTemplate.name}</p>
+                  <p className="text-2xl font-bold text-primary mt-1">{selectedTemplate.price}</p>
+                </div>
+
+                {/* Features */}
+                <div className="mt-6 pt-6 border-t border-primary/10 space-y-3">
+                  {['Free hosting forever', 'NFC card included', 'QR code access', 'Mobile responsive'].map((feature, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-primary" />
+                      <span className="text-sm text-[#4b635d]">{feature}</span>
+                    </div>
+                  ))}
+                </div>
+
+                <p className="text-xs text-[#6b7f78] mt-4 text-center">
                   Updates in real-time as you fill the form
                 </p>
               </div>
@@ -280,4 +321,3 @@ export default function OrderPage() {
     </>
   );
 }
-

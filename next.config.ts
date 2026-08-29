@@ -26,6 +26,15 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "lh3.googleusercontent.com" },
     ],
   },
+  async redirects() {
+    return [
+      // /order and /create-card were two live routes running near-identical
+      // five-step checkout forms, reached from different CTAs. /create-card is
+      // canonical: it is the target of nearly every CTA and it is the only one
+      // that supports ?template=. /order carried no functionality of its own.
+      { source: "/order", destination: "/create-card", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {
