@@ -155,7 +155,7 @@ export default function DashboardPage() {
             <button
               type="button"
               onClick={() => setMobileMenuOpen((open) => !open)}
-              className="tv-nav-toggle tv-focus md:hidden"
+              className="tv-nav-toggle tv-focus inline-flex md:hidden"
               aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
               aria-expanded={mobileMenuOpen}
               aria-controls="dashboard-menu"

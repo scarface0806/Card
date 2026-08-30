@@ -122,7 +122,7 @@ export default function Navbar() {
           <button
             type="button"
             onClick={() => setIsOpen((open) => !open)}
-            className="tv-nav-toggle tv-focus lg:hidden"
+            className="tv-nav-toggle tv-focus inline-flex lg:hidden"
             aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
             aria-controls="mobile-menu"

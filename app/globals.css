@@ -2836,8 +2836,12 @@ body {
 }
 
 /* --- Mobile toggle ------------------------------------------------------ */
+/* Deliberately sets no `display`. This file is unlayered, and unlayered CSS
+   beats anything in @layer utilities regardless of source order, so a
+   `display` here would defeat the `lg:hidden` utility on the element and the
+   hamburger would stay visible on desktop. The element carries
+   `inline-flex lg:hidden` instead, where the cascade can resolve it. */
 .tv-nav-toggle {
-  display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 2.75rem;
