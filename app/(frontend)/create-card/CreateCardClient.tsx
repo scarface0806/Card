@@ -1,5 +1,6 @@
 'use client';
 
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
 import { useForm, FormProvider } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
@@ -19,6 +20,7 @@ import { CardTemplate } from '@/utils/cardTemplates';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';
+import { createCardFormSchema, type CreateCardFormValues } from '@/lib/validations/createCardFormSchema';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   loading: () => (
@@ -33,36 +35,7 @@ const CARD_FACTS = [
   'Edit your details any time',
 ];
 
-interface FormData {
-  personalDetails: {
-    name: string;
-    designation: string;
-    company: string;
-    mobile: string;
-    email: string;
-  };
-  businessDetails: {
-    address: string;
-    website: string;
-    about: string;
-    services: string;
-    googleLocation?: string;
-  };
-  socialLinks: {
-    instagram?: string;
-    facebook?: string;
-    linkedin?: string;
-    youtube?: string;
-  };
-  uploads: {
-    profileImage?: FileList;
-    logo?: FileList;
-  };
-  payment: {
-    method: string;
-    terms: boolean;
-  };
-}
+type FormData = CreateCardFormValues;
 
 export default function CreateCardClient({
   template,
@@ -79,12 +52,40 @@ export default function CreateCardClient({
   const router = useRouter();
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
 
-  const methods = useForm<FormData>({
+  const methods = useForm({
     mode: 'onBlur',
     reValidateMode: 'onChange',
-    // Razorpay Checkout handles card / UPI / wallet / net banking itself,
-    // so there is no method for the customer to choose.
-    defaultValues: { payment: { method: 'card' } },
+    resolver: zodResolver(createCardFormSchema),
+    defaultValues: {
+      personalDetails: {
+        name: '',
+        designation: '',
+        company: '',
+        mobile: '',
+        email: '',
+      },
+      businessDetails: {
+        address: '',
+        website: '',
+        about: '',
+        services: '',
+        googleLocation: '',
+      },
+      socialLinks: {
+        instagram: '',
+        facebook: '',
+        linkedin: '',
+        youtube: '',
+      },
+      uploads: {
+        profileImage: null,
+        logo: null,
+      },
+      payment: {
+        method: 'card',
+        terms: false,
+      },
+    },
   });
 
   const { handleSubmit, watch } = methods;
@@ -100,9 +101,9 @@ export default function CreateCardClient({
         : 'Placing order...';
 
   // Watch specific fields for live preview - real-time updates
-  const fullName = watch('personalDetails.name', '');
-  const designation = watch('personalDetails.designation', '');
-  const company = watch('personalDetails.company', '');
+  const fullName = watch('personalDetails.name') ?? '';
+  const designation = watch('personalDetails.designation') ?? '';
+  const company = watch('personalDetails.company') ?? '';
 
   const onSubmit = async (data: FormData) => {
     if (currentStep < 5) {

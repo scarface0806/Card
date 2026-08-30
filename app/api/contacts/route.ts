@@ -4,6 +4,7 @@ import { getMongoDb } from "@/lib/mongodb";
 import { z } from "zod";
 import { ObjectId } from "mongodb";
 import { authenticate } from "@/lib/auth-middleware";
+import { contactFormSchema } from "@/lib/validations/contactFormSchema";
 
 // Contact document type from MongoDB
 interface ContactDocument {
@@ -20,21 +21,15 @@ interface ContactDocument {
 
 export const runtime = "nodejs";
 
-// Validation schema for contact submissions
-const contactSubmitSchema = z.object({
-  name: z.string().trim().min(1, "Name is required").max(120),
-  email: z.string().trim().email("Valid email is required"),
-  phone: z.string().trim().min(6, "Phone is required").max(30),
-  message: z.string().trim().min(1, "Message is required").max(2000),
-  subject: z.string().trim().max(250).optional().or(z.literal("")),
-});
-
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Validate input
-    const parsed = contactSubmitSchema.safeParse(body);
+    if (body.website || (typeof body.website === 'string' && body.website.trim().length > 0)) {
+      return errorResponse("Invalid submission", 400);
+    }
+
+    const parsed = contactFormSchema.safeParse(body);
     if (!parsed.success) {
       return errorResponse(
         parsed.error.issues.map((issue) => issue.message).join(", "),
