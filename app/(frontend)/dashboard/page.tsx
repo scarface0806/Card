@@ -1,8 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { LogOut, Home, Settings, User, Menu, X } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter, usePathname } from 'next/navigation';
+import { LogOut, Menu, X, User, ArrowUpRight } from 'lucide-react';
+import BrandLogo from '@/components/common/BrandLogo';
+import { ROUTES } from '@/utils/constants';
+import { SITE_NAME } from '@/lib/site-config';
 
 interface UserData {
   id: string;
@@ -11,11 +15,19 @@ interface UserData {
   role?: string;
 }
 
+const NAV_LINKS = [
+  { label: 'Home', href: ROUTES.HOME },
+  { label: 'Cards', href: ROUTES.CARDS },
+  { label: 'Products', href: ROUTES.PRODUCTS },
+];
+
 export default function DashboardPage() {
   const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<UserData | null>(null);
   const [loading, setLoading] = useState(true);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [lastOrderId, setLastOrderId] = useState<string | null>(null);
 
   useEffect(() => {
     // Check if user is logged in
@@ -24,6 +36,8 @@ export default function DashboardPage() {
       router.push('/login');
       return;
     }
+
+    setLastOrderId(localStorage.getItem('lastOrderId'));
 
     // Try to get user from localStorage
     const storedUser = localStorage.getItem('user');
@@ -60,204 +74,207 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] to-[#0f172a]">
+      <div className="tv-hero min-h-screen flex items-center justify-center">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-400 mx-auto mb-4"></div>
-          <p className="text-gray-400">Loading dashboard...</p>
+          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#4CAE89] border-t-transparent mx-auto mb-4" />
+          <p className="tv-mono">Loading dashboard</p>
         </div>
       </div>
     );
   }
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617]">
-      {/* Header */}
-      <header className="bg-gradient-to-b from-[#0f172a] to-[#020617] border-b border-white/10 sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo */}
-            <div className="flex items-center gap-2">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">T</span>
-              </div>
-              <span className="font-bold text-lg text-white">Tapvyo</span>
-            </div>
+  const initial = (user?.name || user?.email || '?').trim().charAt(0).toUpperCase();
 
-            {/* Desktop Menu */}
-            <nav className="hidden md:flex items-center gap-6">
-              <a href="/" className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition">
-                <Home className="w-5 h-5" />
-                Home
-              </a>
-              <a href="/products" className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition">
-                <span>Products</span>
-              </a>
-              <a href="/order" className="flex items-center gap-2 text-gray-400 hover:text-green-400 transition">
-                <span>Orders</span>
-              </a>
+  // /order is a redirect to the checkout, so linking "your order" at it sent
+  // people to a fresh order form. Point at the confirmation for the order we
+  // actually know about, and at support when there isn't one.
+  const orderHref = lastOrderId
+    ? `${ROUTES.ORDER_SUCCESS}?orderId=${lastOrderId}`
+    : ROUTES.CONTACT;
+
+  const quickActions = [
+    {
+      href: ROUTES.CREATE_CARD,
+      title: 'Create your NFC card',
+      description: 'Design and order a card in five steps.',
+    },
+    {
+      href: ROUTES.CARDS,
+      title: 'Browse designs',
+      description: 'See every template and finish we print.',
+    },
+    {
+      href: orderHref,
+      title: lastOrderId ? 'Your latest order' : 'Ask about an order',
+      description: lastOrderId
+        ? `Order ${lastOrderId}`
+        : 'We will look it up from your email address.',
+    },
+    ...(user?.role === 'ADMIN'
+      ? [
+          {
+            href: '/admin/dashboard',
+            title: 'Admin panel',
+            description: 'Orders, customers and products.',
+          },
+        ]
+      : []),
+  ];
+
+  return (
+    <div className="tv-hero min-h-screen">
+      {/* Signed-in header. Same materials as the marketing nav, fewer moves. */}
+      <header className="tv-appbar">
+        <div className="site-container">
+          <div className="flex items-center justify-between h-16 gap-4">
+            <Link href={ROUTES.HOME} className="tv-focus flex min-h-[44px] items-center">
+              <BrandLogo size="small" />
+            </Link>
+
+            <nav aria-label="Dashboard" className="hidden md:flex items-center gap-1">
+              {NAV_LINKS.map((link) => (
+                <Link
+                  key={link.href}
+                  href={link.href}
+                  className="tv-navlink tv-focus"
+                  aria-current={pathname === link.href ? 'page' : undefined}
+                >
+                  {link.label}
+                </Link>
+              ))}
               <button
+                type="button"
                 onClick={handleLogout}
-                className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition"
+                className="tv-btn tv-btn-secondary !min-h-[40px] ml-3"
               >
-                <LogOut className="w-5 h-5" />
-                Logout
+                <LogOut className="w-4 h-4" aria-hidden="true" />
+                Log out
               </button>
             </nav>
 
-            {/* Mobile Menu Button */}
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-white/10 rounded-lg transition"
+              type="button"
+              onClick={() => setMobileMenuOpen((open) => !open)}
+              className="tv-nav-toggle tv-focus md:hidden"
+              aria-label={mobileMenuOpen ? 'Close menu' : 'Open menu'}
+              aria-expanded={mobileMenuOpen}
+              aria-controls="dashboard-menu"
             >
-              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+              {mobileMenuOpen ? (
+                <X className="w-5 h-5" aria-hidden="true" />
+              ) : (
+                <Menu className="w-5 h-5" aria-hidden="true" />
+              )}
             </button>
           </div>
 
-          {/* Mobile Menu */}
           {mobileMenuOpen && (
-            <nav className="md:hidden pb-4 space-y-2">
-              <a href="/" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                Home
-              </a>
-              <a href="/products" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                Products
-              </a>
-              <a href="/order" className="block px-4 py-2 text-gray-700 hover:bg-gray-100 rounded-lg">
-                Orders
-              </a>
+            <nav id="dashboard-menu" aria-label="Dashboard" className="md:hidden pb-6">
+              <ul>
+                {NAV_LINKS.map((link, index) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="tv-nav-mobile-link tv-focus"
+                      aria-current={pathname === link.href ? 'page' : undefined}
+                      onClick={() => setMobileMenuOpen(false)}
+                    >
+                      <span className="tv-nav-mobile-num" aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
               <button
+                type="button"
                 onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-red-600 hover:bg-red-50 rounded-lg"
+                className="tv-btn tv-btn-secondary w-full mt-5"
               >
-                Logout
+                <LogOut className="w-4 h-4" aria-hidden="true" />
+                Log out
               </button>
             </nav>
           )}
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Welcome Section */}
-        <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-2xl border border-white/10 shadow-lg p-8 mb-8">
-          <div className="flex items-center gap-4 mb-6">
-            <div className="w-16 h-16 bg-gradient-to-br from-teal-400 to-teal-600 rounded-full flex items-center justify-center">
-              <User className="w-8 h-8 text-white" />
-            </div>
-            <div>
-              <h1 className="text-3xl font-bold text-white">
-                Welcome back, {user?.name || 'User'}!
-              </h1>
-              <p className="text-gray-600 mt-1">{user?.email}</p>
-              {user?.role && <p className="text-sm text-primary font-medium mt-1">Role: {user.role}</p>}
-            </div>
+      <main className="site-container tv-section-tight">
+        {/* Welcome */}
+        <div className="flex flex-wrap items-center gap-5 mb-10">
+          <div
+            className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full border border-[rgba(201,169,97,0.42)] bg-[rgba(201,169,97,0.12)] text-[#C9A961] font-semibold text-xl"
+            aria-hidden="true"
+          >
+            {initial || <User className="w-6 h-6" />}
           </div>
+          <div className="min-w-0">
+            <span className="tv-eyebrow">Your account</span>
+            <h1 className="tv-h3 mt-2">Welcome back, {user?.name || 'there'}</h1>
+            <p className="tv-small mt-1 break-words">{user?.email}</p>
+          </div>
+          {user?.role && (
+            <span className="tv-tag tv-tag-brass ml-auto">{user.role}</span>
+          )}
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-xl border border-green-500/30 p-6 shadow-lg">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">Total Orders</p>
-                <p className="text-3xl font-bold text-white mt-2">0</p>
-              </div>
-              <div className="text-primary">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 6H6.28l-.31-1.243A1 1 0 005 4H3z" />
-                </svg>
-              </div>
+        <hr className="tv-rule" />
+
+        {/* Account facts. A spec sheet, not three tiles in three different
+            accent colours. */}
+        <section aria-labelledby="account-heading" className="mt-10">
+          <h2 id="account-heading" className="tv-mono mb-3">
+            At a glance
+          </h2>
+          <div className="tv-summary max-w-xl">
+            <div className="tv-summary-row">
+              <span className="tv-summary-key">Orders placed</span>
+              <span className="tv-summary-val">{lastOrderId ? '1' : '0'}</span>
+            </div>
+            <div className="tv-summary-row">
+              <span className="tv-summary-key">Digital profile</span>
+              <span className="tv-summary-val tv-summary-val-patina">Active</span>
+            </div>
+            <div className="tv-summary-row">
+              <span className="tv-summary-key">Hosting</span>
+              <span className="tv-summary-val tv-summary-val-patina">Free, forever</span>
             </div>
           </div>
+        </section>
 
-          <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-xl border border-white/10 p-6 shadow-lg">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">Products</p>
-                <p className="text-3xl font-bold text-white mt-2">View</p>
-              </div>
-              <div className="text-green-500">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path d="M7 2a1 1 0 000 2h6a1 1 0 000-2H7zM4 5a2 2 0 012-2 1 1 0 000-2H3a1 1 0 000 2h1v9a2 2 0 002 2h8a2 2 0 002-2V5h1a1 1 0 000-2h-3a1 1 0 000 2h2v9H6V5z" />
-                </svg>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-xl border border-white/10 p-6 shadow-lg">
-            <div className="flex justify-between items-start">
-              <div>
-                <p className="text-gray-400 text-sm font-medium">Account</p>
-                <p className="text-3xl font-bold text-white mt-2">Active</p>
-              </div>
-              <div className="text-purple-500">
-                <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
-                  <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-2xl border border-white/10 shadow-lg p-8">
-          <h2 className="text-2xl font-bold text-white mb-6">Quick Actions</h2>
+        {/* Quick actions */}
+        <section aria-labelledby="actions-heading" className="mt-12">
+          <h2 id="actions-heading" className="tv-mono mb-4">
+            Quick actions
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <a
-              href="/create-card"
-              className="p-4 border-2 border-primary/20 rounded-xl hover:bg-primary/10 transition flex items-center justify-between group"
-            >
-              <div>
-                <p className="font-semibold text-gray-900">Create Your NFC Card</p>
-                <p className="text-sm text-gray-600 mt-1">Design and customize your NFC card</p>
-              </div>
-              <span className="text-primary group-hover:translate-x-1 transition">→</span>
-            </a>
-
-            <a
-              href="/products"
-              className="p-4 border-2 border-green-200 rounded-xl hover:bg-green-50 transition flex items-center justify-between group"
-            >
-              <div>
-                <p className="font-semibold text-gray-900">Browse Products</p>
-                <p className="text-sm text-gray-600 mt-1">Explore our NFC card designs</p>
-              </div>
-              <span className="text-green-500 group-hover:translate-x-1 transition">→</span>
-            </a>
-
-            <a
-              href="/order"
-              className="p-4 border-2 border-purple-200 rounded-xl hover:bg-purple-50 transition flex items-center justify-between group"
-            >
-              <div>
-                <p className="font-semibold text-gray-900">View Orders</p>
-                <p className="text-sm text-gray-600 mt-1">Check your order history</p>
-              </div>
-              <span className="text-purple-600 group-hover:translate-x-1 transition">→</span>
-            </a>
-
-            {/* Admin Panel */}
-            {user?.role === 'ADMIN' && (
-              <a
-                href="/admin/dashboard"
-                className="p-4 border-2 border-orange-200 rounded-xl hover:bg-orange-50 transition flex items-center justify-between group"
+            {quickActions.map((action) => (
+              <Link
+                key={action.title}
+                href={action.href}
+                className="tv-panel tv-panel-pad tv-focus group flex items-start justify-between gap-4"
               >
-                <div>
-                  <p className="font-semibold text-gray-900">Admin Panel</p>
-                  <p className="text-sm text-gray-600 mt-1">Manage your business</p>
-                </div>
-                <span className="text-orange-600 group-hover:translate-x-1 transition">→</span>
-              </a>
-            )}
+                <span className="min-w-0">
+                  <span className="tv-h4 block">{action.title}</span>
+                  <span className="tv-small mt-1 block break-words">
+                    {action.description}
+                  </span>
+                </span>
+                <ArrowUpRight
+                  className="w-5 h-5 shrink-0 text-[#4CAE89] transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+                  aria-hidden="true"
+                />
+              </Link>
+            ))}
           </div>
-        </div>
+        </section>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-white/10 mt-12 py-6 bg-gradient-to-b from-[#0f172a] to-[#020617]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <p className="text-center text-gray-600 text-sm">
-            © 2024 Tapvyo NFC. All rights reserved.
+      <footer className="tv-surface-graphite border-t border-[#F1F3F1]/10 mt-16">
+        <div className="site-container py-6">
+          <p className="tv-small text-center">
+            &copy; {new Date().getFullYear()} {SITE_NAME}. All rights reserved.
           </p>
         </div>
       </footer>

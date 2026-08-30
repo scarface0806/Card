@@ -1,6 +1,7 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
+import { Info } from 'lucide-react';
 import Input from '@/components/Input';
 import { validation } from '@/utils/validators';
 
@@ -19,21 +20,40 @@ export default function SocialLinksForm() {
 
   return (
     <div className="space-y-6">
-      {socialLinks.map((social) => (
-        <Input
-          key={social.key}
-          label={social.label}
-          placeholder={social.placeholder}
-          type="url"
-          {...register(`socialLinks.${social.key as any}` as const, validation.url)}
-          error={
-            ((errors.socialLinks as any)?.[social.key]?.message as string) || undefined
-          }
-        />
-      ))}
-      <p className="text-sm text-gray-500 mt-4">
-        Leave blank if you don't have a social media account on that platform
-      </p>
+      <header>
+        <span className="tv-eyebrow">Step 03</span>
+        <h2 className="tv-h3 mt-3">Social links</h2>
+        <p className="tv-small mt-2 tv-measure-body">
+          Each link you add becomes a tappable button on your profile. All four are
+          optional.
+        </p>
+      </header>
+
+      <hr className="tv-rule" />
+
+      <div className="space-y-5">
+        {socialLinks.map((social) => (
+          <Input
+            key={social.key}
+            label={social.label}
+            placeholder={social.placeholder}
+            type="url"
+            inputMode="url"
+            {...register(`socialLinks.${social.key as any}` as const, validation.url)}
+            error={
+              ((errors.socialLinks as any)?.[social.key]?.message as string) || undefined
+            }
+          />
+        ))}
+      </div>
+
+      <div className="tv-notice">
+        <Info className="tv-notice-icon w-4 h-4" aria-hidden="true" />
+        <p>
+          Leave a field blank if you don&apos;t have a profile on that platform — the
+          button simply won&apos;t appear.
+        </p>
+      </div>
     </div>
   );
 }

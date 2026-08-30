@@ -18,11 +18,20 @@ import { FORM_STEPS, ROUTES } from '@/utils/constants';
 import { CardTemplate } from '@/utils/cardTemplates';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
-import { ArrowLeft, ArrowRight, CreditCard, Sparkles, Check } from 'lucide-react';
+import { ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
-  loading: () => <div className="w-full h-96 bg-gray-100 rounded-xl animate-pulse" />,
+  loading: () => (
+    <div className="w-full rounded-xl pt-[63%] bg-[rgba(241,243,241,0.05)] animate-pulse" />
+  ),
 });
+
+const CARD_FACTS = [
+  'Free digital profile, hosted forever',
+  'NFC chip encoded and ready to tap',
+  'QR code for phones without NFC',
+  'Edit your details any time',
+];
 
 interface FormData {
   personalDetails: {
@@ -88,7 +97,7 @@ export default function CreateCardClient({
       ? 'Waiting for payment...'
       : paymentStatus === 'verifying'
         ? 'Confirming payment...'
-        : null;
+        : 'Placing order...';
 
   // Watch specific fields for live preview - real-time updates
   const fullName = watch('personalDetails.name', '');
@@ -164,37 +173,33 @@ export default function CreateCardClient({
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f4f7f6] via-[#e8f2ef] to-[#ffffff]">
+      <main className="tv-hero min-h-screen pt-32 pb-24">
         <div className="site-container">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
+          {/* Page head. Editorial, matching /cards and /order-success rather
+              than the old centred badge-pill stack. */}
+          <motion.header
+            initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-12"
+            transition={{ duration: 0.32, ease: [0.25, 0.1, 0.25, 1] }}
+            className="mb-10 md:mb-14"
           >
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full mb-6">
-              <CreditCard className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Easy Checkout</span>
-            </div>
-            
-            <h1 className="text-4xl md:text-5xl font-bold text-[#0f2e25] font-space-grotesk mb-4">
-              Create Your{' '}
-              <span className="text-primary">
-                Digital Card
-              </span>
-            </h1>
-            <p className="text-lg text-[#4b635d]">
-              Complete the form below to customize your <span className="font-semibold text-primary">{selectedTemplate.name}</span> card
+            <span className="tv-eyebrow">Checkout</span>
+            <h1 className="tv-h2 mt-4 tv-measure-display">Create your card</h1>
+            <p className="tv-lead mt-4 tv-measure-lead">
+              Five short steps. You are ordering the{' '}
+              <span className="text-[#F1F3F1] font-semibold">{selectedTemplate.name}</span>{' '}
+              card — {selectedTemplate.price}, shipping included.
             </p>
-          </motion.div>
+          </motion.header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
             <div className="lg:col-span-2">
-              <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-4 sm:p-6 md:p-8">
+              <div className="tv-panel tv-panel-pad hover:!transform-none hover:!shadow-none hover:!border-[rgba(241,243,241,0.10)]">
                 <Stepper steps={FORM_STEPS} currentStep={currentStep} />
 
-                <form onSubmit={handleSubmit(onSubmit)} className="mt-12 space-y-8">
+                <hr className="tv-rule my-8" />
+
+                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
                   <FormProvider {...methods}>
                     {currentStep === 1 && <PersonalDetailsForm />}
                     {currentStep === 2 && <BusinessDetailsForm />}
@@ -205,88 +210,81 @@ export default function CreateCardClient({
 
                   {paymentError && (
                     <div
-                      className={`mt-6 rounded-xl border p-4 text-sm ${
-                        paymentStatus === 'cancelled'
-                          ? 'border-amber-300 bg-amber-50 text-amber-800'
-                          : 'border-red-300 bg-red-50 text-red-800'
+                      role="alert"
+                      className={`tv-notice ${
+                        paymentStatus === 'cancelled' ? 'tv-notice-warn' : 'tv-notice-error'
                       }`}
                     >
-                      <p className="font-semibold">
-                        {paymentStatus === 'cancelled'
-                          ? 'Payment cancelled'
-                          : paymentStatus === 'verification_failed'
-                            ? 'We could not confirm your payment'
-                            : 'Payment failed'}
-                      </p>
-                      <p className="mt-1">{paymentError}</p>
-                      {paymentStatus === 'verification_failed' && (
-                        <p className="mt-2">
-                          Please do not pay again. Email us and we will confirm your order manually.
-                        </p>
-                      )}
+                      <AlertTriangle className="tv-notice-icon w-4 h-4" aria-hidden="true" />
+                      <div>
+                        <span className="tv-notice-title">
+                          {paymentStatus === 'cancelled'
+                            ? 'Payment cancelled'
+                            : paymentStatus === 'verification_failed'
+                              ? 'We could not confirm your payment'
+                              : 'Payment failed'}
+                        </span>
+                        <p>{paymentError}</p>
+                        {paymentStatus === 'verification_failed' && (
+                          <p className="mt-2">
+                            Please do not pay again. Email us and we will confirm your
+                            order manually.
+                          </p>
+                        )}
+                      </div>
                     </div>
                   )}
 
-                  <div className="flex gap-4 pt-8 border-t border-primary/10">
+                  <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-[rgba(241,243,241,0.10)]">
                     {currentStep > 1 && (
-                      <motion.button
+                      <button
                         type="button"
-                        whileHover={{ y: -2 }}
-                        whileTap={{ y: 1 }}
-                        transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                         onClick={() => setCurrentStep(currentStep - 1)}
-                        className="flex items-center gap-2 px-6 py-3 text-[#4b635d] bg-white border border-primary/20 hover:bg-primary/10 rounded-xl font-semibold transition-all duration-220"
+                        className="tv-btn tv-btn-secondary tv-btn-block"
                       >
-                        <ArrowLeft className="w-4 h-4" />
-                        Previous
-                      </motion.button>
+                        <ArrowLeft className="w-4 h-4" aria-hidden="true" />
+                        Back
+                      </button>
                     )}
-                    <motion.button
+                    <button
                       type="submit"
-                      whileHover={{ y: -2 }}
-                      whileTap={{ y: 1 }}
-                      transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
                       disabled={isBusy}
-                      className="btn btn-primary flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="tv-btn tv-btn-primary tv-btn-block sm:flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {isBusy ? (
                         <>
-                          <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                          <span className="h-4 w-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
                           {busyLabel}
                         </>
                       ) : (
                         <>
-                          {currentStep === 5 ? 'Place Order' : 'Next'}
-                          <ArrowRight className="w-4 h-4" />
+                          {currentStep === 5
+                            ? `Pay ${selectedTemplate.price} and place order`
+                            : 'Continue'}
+                          <ArrowRight className="w-4 h-4" aria-hidden="true" />
                         </>
                       )}
-                    </motion.button>
+                    </button>
                   </div>
                 </form>
               </div>
             </div>
 
-            {/* Preview Sidebar */}
-            <div className="hidden lg:block">
-              <div className="bg-white rounded-2xl border border-primary/10 shadow-md p-8 sticky top-32">
-                <div className="flex items-center gap-2 mb-6">
-                  <Sparkles className="w-5 h-5 text-primary" />
-                  <h2 className="text-xl font-bold text-[#0f2e25] font-space-grotesk">Card Preview</h2>
-                </div>
-                
-                {/* Selected Template Badge */}
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-[#6b7f78]">Selected Template</span>
-                  <span className={`text-xs font-semibold px-2 py-1 rounded-full ${
-                    selectedTemplate.type === 'premium' 
-                      ? 'bg-amber-100 text-amber-700' 
-                      : 'bg-primary/20 text-primary'
-                  }`}>
-                    {selectedTemplate.type.charAt(0).toUpperCase() + selectedTemplate.type.slice(1)}
+            {/* Order rail. Sticky on desktop; on mobile the summary in step 5
+                carries the same numbers, so this is not repeated there. */}
+            <aside className="hidden lg:block">
+              <div className="tv-panel tv-panel-pad sticky top-28 hover:!transform-none hover:!shadow-none hover:!border-[rgba(241,243,241,0.10)]">
+                <div className="flex items-baseline justify-between gap-3 mb-4">
+                  <h2 className="tv-mono">Your card</h2>
+                  <span
+                    className={`tv-tag ${
+                      selectedTemplate.type === 'premium' ? 'tv-tag-brass' : 'tv-tag-patina'
+                    }`}
+                  >
+                    {selectedTemplate.type}
                   </span>
                 </div>
 
-                {/* Card Preview */}
                 <CardLivePreview
                   fullName={fullName}
                   designation={designation}
@@ -294,26 +292,24 @@ export default function CreateCardClient({
                   template={selectedTemplate}
                 />
 
-                <div className="mt-4 text-center">
-                  <p className="text-lg font-bold text-[#0f2e25]">{selectedTemplate.name}</p>
-                  <p className="text-2xl font-bold text-primary mt-1">{selectedTemplate.price}</p>
+                <div className="mt-5 flex items-baseline justify-between gap-3">
+                  <p className="tv-h4">{selectedTemplate.name}</p>
+                  <p className="tv-summary-total-val !text-2xl">{selectedTemplate.price}</p>
                 </div>
 
-                {/* Features */}
-                <div className="mt-6 pt-6 border-t border-primary/10 space-y-3">
-                  {['Free hosting forever', 'NFC card included', 'QR code access', 'Mobile responsive'].map((feature, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <Check className="w-4 h-4 text-primary" />
-                      <span className="text-sm text-[#4b635d]">{feature}</span>
-                    </div>
+                <hr className="tv-rule my-5" />
+
+                <ul className="tv-spec">
+                  {CARD_FACTS.map((fact) => (
+                    <li key={fact} className="tv-spec-row">
+                      {fact}
+                    </li>
                   ))}
-                </div>
+                </ul>
 
-                <p className="text-xs text-[#6b7f78] mt-4 text-center">
-                  Updates in real-time as you fill the form
-                </p>
+                <p className="tv-mono mt-5">Preview updates as you type</p>
               </div>
-            </div>
+            </aside>
           </div>
         </div>
       </main>

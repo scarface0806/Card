@@ -18,22 +18,25 @@ export default function CardLivePreview({
   template,
 }: CardLivePreviewProps) {
   return (
-    <div 
-      className="rounded-xl pt-[63%] relative overflow-hidden border border-gray-200 shadow-lg transition-all duration-300"
+    <div
+      // A hairline in the system's rule colour, not border-gray-200, so the
+      // card edge reads as part of the dark shell instead of a light-mode
+      // leftover sitting on it.
+      className="relative overflow-hidden rounded-xl pt-[63%] border border-[rgba(241,243,241,0.14)] shadow-[0_18px_44px_rgba(0,0,0,0.45)]"
       style={{ background: template.color }}
     >
-      {/* NFC Icon */}
+      {/* NFC mark */}
       <div className="absolute top-4 right-4">
-        <Wifi className="w-6 h-6 text-white/60 rotate-45" />
+        <Wifi className="w-6 h-6 text-white/60 rotate-45" aria-hidden="true" />
       </div>
-      
-      {/* Shine effect */}
+
+      {/* Sheen across the laminate */}
       <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent pointer-events-none" />
-      
-      {/* Card Content Preview */}
-      <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/70 via-black/40 to-transparent">
+
+      {/* Live content */}
+      <div className="absolute bottom-0 left-0 right-0 px-4 py-3 bg-gradient-to-t from-black/75 via-black/45 to-transparent">
         <AnimatePresence mode="wait">
-          <motion.h3
+          <motion.p
             key={fullName || 'name-placeholder'}
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
@@ -42,9 +45,9 @@ export default function CardLivePreview({
             className="text-white font-semibold text-base md:text-lg leading-tight break-words line-clamp-2"
           >
             {fullName || 'Your Name'}
-          </motion.h3>
+          </motion.p>
         </AnimatePresence>
-        
+
         <AnimatePresence mode="wait">
           <motion.p
             key={designation || 'designation-placeholder'}
@@ -57,7 +60,7 @@ export default function CardLivePreview({
             {designation || 'Your Designation'}
           </motion.p>
         </AnimatePresence>
-        
+
         <AnimatePresence mode="wait">
           {company && (
             <motion.p
@@ -66,7 +69,7 @@ export default function CardLivePreview({
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -5 }}
               transition={{ duration: 0.15, delay: 0.04 }}
-              className="text-white/60 text-xs leading-tight break-words line-clamp-1 mt-0.5"
+              className="text-white/65 text-xs leading-tight break-words line-clamp-1 mt-0.5"
             >
               {company}
             </motion.p>
@@ -76,4 +79,3 @@ export default function CardLivePreview({
     </div>
   );
 }
-

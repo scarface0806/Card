@@ -1,8 +1,7 @@
 'use client';
 
 import { useFormContext } from 'react-hook-form';
-import Card from '@/components/Card';
-import { Check, CreditCard } from 'lucide-react';
+import { CreditCard, ShieldCheck } from 'lucide-react';
 import { CardTemplate } from '@/utils/cardTemplates';
 
 interface PaymentFormProps {
@@ -21,93 +20,118 @@ export default function PaymentForm({ template }: PaymentFormProps) {
   const totalPrice = cardPrice + shippingFee;
   const templateName = template?.name || 'NFC Digital Card';
   const templateType = template?.type || 'basic';
+  const termsError =
+    errors.payment && 'terms' in errors.payment
+      ? (errors.payment.terms?.message as string)
+      : '';
 
   return (
     <div className="space-y-8">
-      {/* Order Summary */}
-      <Card>
-        <div className="p-6 space-y-4">
-          <h3 className="text-2xl font-bold text-white">Order Summary</h3>
+      <header>
+        <span className="tv-eyebrow">Step 05</span>
+        <h2 className="tv-h3 mt-3">Review and pay</h2>
+        <p className="tv-small mt-2 tv-measure-body">
+          One payment, nothing recurring. Your digital profile stays live for free.
+        </p>
+      </header>
 
-          <div className="space-y-3 border-t border-primary/10 pt-4">
-            <div className="flex justify-between">
-              <span className="text-gray-400">{templateName}</span>
-              <span className="font-semibold text-white">₹{cardPrice}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Card Type</span>
-              <span className={`font-semibold px-2 py-0.5 rounded-full text-xs ${
-                templateType === 'premium' 
-                  ? 'bg-amber-500/20 text-amber-300' 
-                  : 'bg-primary/20 text-primary'
-              }`}>
-                {templateType.charAt(0).toUpperCase() + templateType.slice(1)}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Lifetime Access</span>
-              <span className="font-semibold text-primary">Included</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-400">Shipping & Handling</span>
-              <span className="font-semibold text-primary">FREE</span>
-            </div>
+      <hr className="tv-rule" />
 
-            <div className="border-t border-primary/10 pt-4 flex justify-between">
-              <span className="text-lg font-bold text-white">Total</span>
-              <span className="text-2xl font-bold text-primary">₹{totalPrice}</span>
-            </div>
+      {/* Order summary — a spec sheet rather than another nested card. */}
+      <section aria-labelledby="order-summary-heading">
+        <h3 id="order-summary-heading" className="tv-mono mb-3">
+          Order summary
+        </h3>
+
+        <div className="tv-summary">
+          <div className="tv-summary-row">
+            <span className="tv-summary-key">{templateName}</span>
+            <span className="tv-summary-val">₹{cardPrice}</span>
           </div>
-
-          <div className="bg-primary/10 border border-primary/20 rounded-lg p-3 flex gap-2">
-            <Check className="w-5 h-5 text-primary flex-shrink-0" />
-            <p className="text-sm text-gray-200">One-time payment • No hidden charges</p>
+          <div className="tv-summary-row">
+            <span className="tv-summary-key">Card type</span>
+            <span
+              className={`tv-tag ${
+                templateType === 'premium' ? 'tv-tag-brass' : 'tv-tag-patina'
+              }`}
+            >
+              {templateType}
+            </span>
+          </div>
+          <div className="tv-summary-row">
+            <span className="tv-summary-key">Lifetime digital profile</span>
+            <span className="tv-summary-val tv-summary-val-patina">Included</span>
+          </div>
+          <div className="tv-summary-row">
+            <span className="tv-summary-key">Shipping &amp; handling</span>
+            <span className="tv-summary-val tv-summary-val-patina">Free</span>
           </div>
         </div>
-      </Card>
 
-      {/* Payment Method - Razorpay Checkout covers every method natively,
+        <div className="tv-summary-total">
+          <span className="tv-summary-total-key">Total payable</span>
+          <span className="tv-summary-total-val">₹{totalPrice}</span>
+        </div>
+
+        <p className="tv-small mt-3">One-time payment · No hidden charges · No renewals</p>
+      </section>
+
+      {/* Payment method — Razorpay Checkout covers every method natively,
           so there is nothing for the customer to pick here. */}
-      <div className="space-y-4">
-        <h3 className="text-xl font-bold text-white">Payment Method</h3>
+      <section aria-labelledby="payment-method-heading">
+        <h3 id="payment-method-heading" className="tv-mono mb-3">
+          Payment method
+        </h3>
 
         <input type="hidden" value="card" {...register('payment.method')} />
 
-        <div className="flex items-start gap-3 p-4 border-2 border-primary rounded-xl bg-primary/10">
-          <CreditCard className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-          <div>
-            <p className="font-semibold text-white">Credit/Debit Card</p>
-            <p className="mt-1 text-sm text-gray-400">
-              Pay securely through Razorpay. UPI, Google Pay, wallets and net banking
-              are all available in the payment window.
-            </p>
-          </div>
+        <div className="tv-notice tv-notice-patina">
+          <CreditCard className="tv-notice-icon w-4 h-4" aria-hidden="true" />
+          <p>
+            <span className="tv-notice-title">Secure checkout via Razorpay</span>
+            Cards, UPI, Google Pay, wallets and net banking are all available in the
+            payment window.
+          </p>
         </div>
+      </section>
+
+      {/* Terms agreement */}
+      <div>
+        <label className="tv-check">
+          <input
+            type="checkbox"
+            className="tv-check-box tv-focus"
+            aria-invalid={termsError ? true : undefined}
+            aria-describedby={termsError ? 'payment-terms-error' : undefined}
+            {...register('payment.terms', {
+              required: 'You must accept the Terms & Conditions to continue',
+            })}
+          />
+          <span className="tv-small">
+            I agree to the{' '}
+            <a href="/terms-conditions" className="tv-btn-tertiary !min-h-0 !text-sm">
+              Terms &amp; Conditions
+            </a>{' '}
+            and{' '}
+            <a href="/privacy-policy" className="tv-btn-tertiary !min-h-0 !text-sm">
+              Privacy Policy
+            </a>
+          </span>
+        </label>
+        {termsError && (
+          <p id="payment-terms-error" role="alert" className="tv-form-error mt-2">
+            {termsError}
+          </p>
+        )}
       </div>
 
-      {/* Terms Agreement */}
-      <label className="flex items-start gap-3 p-4 bg-primary/10 rounded-xl border border-primary/20">
-        <input
-          type="checkbox"
-          {...register('payment.terms', {
-            required: 'You must accept terms & conditions',
-          })}
-          className="w-4 h-4 mt-1 cursor-pointer accent-teal-600"
-        />
-        <span className="text-sm text-gray-400">
-          I agree to the{' '}
-          <a href="/terms-conditions" className="text-primary hover:underline font-semibold">
-            Terms & Conditions
-          </a>{' '}
-          and{' '}
-          <a href="/privacy-policy" className="text-primary hover:underline font-semibold">
-            Privacy Policy
-          </a>
-        </span>
-      </label>
-      {errors.payment && 'terms' in errors.payment && (
-        <p className="text-red-500 text-sm">{errors.payment.terms?.message as string}</p>
-      )}
+      <div className="tv-notice">
+        <ShieldCheck className="tv-notice-icon w-4 h-4" aria-hidden="true" />
+        <p>
+          Your card details are entered on Razorpay&apos;s own window and are never sent
+          to or stored by Tapvyo.
+        </p>
+      </div>
     </div>
   );
 }

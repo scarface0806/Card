@@ -3,11 +3,20 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
 import { whatsappLink } from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
+
+const NAV_LINKS = [
+  { label: 'Features', href: '/#features' },
+  { label: 'How It Works', href: '/how-to-use' },
+  { label: 'Cards', href: '/cards' },
+  { label: 'Services', href: '/services' },
+  { label: 'About', href: '/about-us' },
+  { label: 'Contact', href: '/contact-us' },
+];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,17 +27,41 @@ export default function Navbar() {
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
-    window.addEventListener('scroll', handleScroll);
+    // Read once on mount: on a page restored mid-scroll the header used to
+    // paint in its transparent state until the first scroll event.
+    handleScroll();
+    window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { label: 'Features', href: '/#features' },
-    { label: 'How It Works', href: '/how-to-use' },
-    { label: 'Cards', href: '/cards' },
-    { label: 'Services', href: '/services' },
-    { label: 'Contact', href: '/contact-us' },
-  ];
+  // Navigating with the panel open left it covering the new page. Adjusted
+  // during render rather than in an effect: an effect would paint the new page
+  // once with the menu still over it before closing it, and back/forward
+  // navigation has no click handler to close it.
+  const [menuPathname, setMenuPathname] = useState(pathname);
+  if (menuPathname !== pathname) {
+    setMenuPathname(pathname);
+    setIsOpen(false);
+  }
+
+  // Escape closes the panel, and the page behind it does not scroll while it
+  // is open.
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setIsOpen(false);
+    };
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    window.addEventListener('keydown', onKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [isOpen]);
 
   const isActive = (href: string) => {
     const hrefPath = href.split('#')[0] || '/';
@@ -38,101 +71,139 @@ export default function Navbar() {
 
   return (
     <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ${
-        scrolled
-          ? 'bg-[#070A09]/92 backdrop-blur-2xl border-b border-[#F1F3F1]/10'
-          : 'bg-[#070A09]/60 backdrop-blur-xl border-b border-transparent'
-      }`}
+      aria-label="Main"
+      className={`tv-nav ${scrolled ? 'tv-nav-scrolled' : 'tv-nav-rest'}`}
     >
       <div className="site-container">
-        <div className="flex items-center justify-between h-20">
-          {/* Logo */}
-          <Link href={ROUTES.HOME} className="flex min-h-[44px] items-center gap-3 group">
+        <div className="tv-nav-bar">
+          {/* Wordmark */}
+          <Link
+            href={ROUTES.HOME}
+            className="tv-focus flex min-h-[44px] items-center"
+            aria-label="Tapvyo — home"
+          >
             <BrandLogo size="medium" />
           </Link>
 
-          {/* Desktop Menu - Center */}
-          <div className="hidden lg:flex items-center gap-1">
-            {navLinks.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
-                  isActive(link.href)
-                      ? 'text-[#4CAE89] bg-[#4CAE89]/10 border border-[#4CAE89]/30'
-                      : 'text-[#A9B5B0] hover:text-[#F1F3F1] hover:bg-[#F1F3F1]/10 border border-transparent'
-                }`}
-              >
-                {link.label}
-              </Link>
+          {/* Desktop navigation */}
+          <ul className="hidden lg:flex items-center">
+            {NAV_LINKS.map((link) => (
+              <li key={link.href}>
+                <Link
+                  href={link.href}
+                  className="tv-navlink tv-focus"
+                  aria-current={isActive(link.href) ? 'page' : undefined}
+                >
+                  {link.label}
+                </Link>
+              </li>
             ))}
-          </div>
+          </ul>
 
-          {/* Right Side - Buttons */}
-          <div className="hidden lg:flex items-center gap-4">
-            {/* WhatsApp enquiry. Tertiary tier: no arrow - that glyph is reserved for the primary "Get your card" action. */}
+          {/* Actions. Two tiers only: the outline enquiry and the one primary
+              action. The arrow glyph belongs to the primary tier alone. */}
+          <div className="hidden lg:flex items-center gap-3">
             <a
               href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
               className="tv-btn tv-btn-secondary"
             >
-              <span>Talk to our team</span>
+              Talk to our team
+              <span className="sr-only"> (opens WhatsApp in a new tab)</span>
             </a>
+            <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-primary">
+              Get your card
+              <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
+            </Link>
           </div>
 
-          {/* Mobile Menu Toggle */}
+          {/* Mobile toggle */}
           <button
-            onClick={() => setIsOpen(!isOpen)}
-            className="tv-focus lg:hidden flex h-11 w-11 items-center justify-center text-[#F1F3F1] rounded-xl bg-[#F1F3F1]/10 hover:bg-[#F1F3F1]/20 transition-colors border border-[#F1F3F1]/15"
-            aria-label="Toggle menu"
+            type="button"
+            onClick={() => setIsOpen((open) => !open)}
+            className="tv-nav-toggle tv-focus lg:hidden"
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
-            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isOpen ? (
+              <X className="w-5 h-5" aria-hidden="true" />
+            ) : (
+              <Menu className="w-5 h-5" aria-hidden="true" />
+            )}
           </button>
         </div>
+      </div>
 
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isOpen && (
+      {/* Mobile panel. A numbered index rather than a stack of tinted rows -
+          the same shape as the numbered lists used elsewhere on the site. */}
+      <AnimatePresence>
+        {isOpen && (
+          <>
             <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
+              key="scrim"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden absolute top-full left-0 right-0 bg-[#151C1A]/97 backdrop-blur-xl border-t border-[#F1F3F1]/10"
+              className="tv-nav-scrim lg:hidden"
+              onClick={() => setIsOpen(false)}
+              aria-hidden="true"
+            />
+            <motion.div
+              key="panel"
+              id="mobile-menu"
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="tv-nav-panel lg:hidden"
             >
-              <div className="container mx-auto max-w-7xl px-4 py-6 space-y-2">
-                {navLinks.map((link) => (
+              <div className="site-container py-6">
+                <ul>
+                  {NAV_LINKS.map((link, index) => (
+                    <li key={link.href}>
+                      <Link
+                        href={link.href}
+                        className="tv-nav-mobile-link tv-focus"
+                        aria-current={isActive(link.href) ? 'page' : undefined}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        <span className="tv-nav-mobile-num" aria-hidden="true">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-6 space-y-3">
                   <Link
-                    key={link.href}
-                    href={link.href}
-                    className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
-                      isActive(link.href)
-                        ? 'text-[#4CAE89] bg-[#4CAE89]/10 border-l-2 border-[#4CAE89]'
-                        : 'text-[#A9B5B0] hover:text-[#F1F3F1] hover:bg-[#F1F3F1]/10'
-                    }`}
+                    href={ROUTES.CREATE_CARD}
                     onClick={() => setIsOpen(false)}
+                    className="tv-btn tv-btn-primary w-full"
                   >
-                    {link.label}
+                    Get your card
+                    <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
                   </Link>
-                ))}
-                <div className="pt-4 space-y-3 border-t border-[#F1F3F1]/10 mt-4">
                   <a
                     href={whatsappLink()}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="tv-btn tv-btn-secondary tv-btn-block w-full"
+                    className="tv-btn tv-btn-secondary w-full"
                   >
-                    <span>Talk to our team</span>
+                    Talk to our team
+                    <span className="sr-only"> (opens WhatsApp in a new tab)</span>
                   </a>
                 </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
+          </>
+        )}
+      </AnimatePresence>
     </nav>
   );
 }

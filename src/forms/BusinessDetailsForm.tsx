@@ -13,9 +13,21 @@ export default function BusinessDetailsForm() {
 
   return (
     <div className="space-y-6">
+      <header>
+        <span className="tv-eyebrow">Step 02</span>
+        <h2 className="tv-h3 mt-3">Your business</h2>
+        <p className="tv-small mt-2 tv-measure-body">
+          Everything here appears on your digital profile page, not on the physical card.
+        </p>
+      </header>
+
+      <hr className="tv-rule" />
+
       <Input
-        label="Address *"
+        label="Address"
+        required
         placeholder="123 Street, City, Country"
+        autoComplete="street-address"
         {...register('businessDetails.address', {
           required: 'Address is required',
         })}
@@ -26,6 +38,8 @@ export default function BusinessDetailsForm() {
         label="Website URL"
         placeholder="https://yourwebsite.com"
         type="url"
+        inputMode="url"
+        hint="Optional"
         {...register('businessDetails.website', validation.url)}
         error={errors.businessDetails && 'website' in errors.businessDetails ? (errors.businessDetails?.website?.message as string) : ''}
       />
@@ -47,9 +61,11 @@ export default function BusinessDetailsForm() {
       />
 
       <Input
-        label="Google Location Link (Optional)"
+        label="Google Location Link"
         placeholder="https://maps.google.com/..."
         type="url"
+        inputMode="url"
+        hint="Optional — adds a Get directions button to your profile."
         {...register('businessDetails.googleLocation', validation.url)}
         error={errors.businessDetails && 'googleLocation' in errors.businessDetails ? (errors.businessDetails?.googleLocation?.message as string) : ''}
       />

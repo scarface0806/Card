@@ -45,6 +45,11 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
+                <Link href={ROUTES.HOW_TO_USE} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
+                  How It Works
+                </Link>
+              </li>
+              <li>
                 <Link href={ROUTES.ORDER} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   Get Started
                 </Link>
@@ -56,6 +61,11 @@ export default function Footer() {
           <div>
             <h2 className="tv-eyebrow mb-5">Support</h2>
             <ul className="space-y-1">
+              <li>
+                <Link href={ROUTES.ABOUT} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
+                  About Us
+                </Link>
+              </li>
               <li>
                 <Link href={ROUTES.CONTACT} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   Contact Us

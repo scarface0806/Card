@@ -2482,3 +2482,445 @@ body {
 .tv-prose a:hover { color: #6FC4A5; }
 
 .tv-prose strong { color: var(--tv-text); font-weight: 600; }
+
+/* ----------------------------------------------------------------------------
+   ORDER FLOW  (/create-card)
+   The checkout is the one place on the site where a customer has to work
+   through five screens in order, so the shared marketing components are not
+   enough on their own. Everything below is the vocabulary that flow needs:
+   a progress rail, a drop target, an order summary and inline notices - all
+   drawn with the same hairlines, mono labels and brass/patina accents as the
+   rest of the system rather than as a second, bluer visual language.
+   ---------------------------------------------------------------------------- */
+
+/* --- Progress rail. Reads as a printed sequence, not a set of chunky pills. -- */
+.tv-stepper {
+  display: flex;
+  align-items: flex-start;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tv-stepper-item { flex: 1 1 0; min-width: 0; }
+/* The last step has no outgoing connector, so it only needs its own width;
+   letting it flex would stretch the rail past the final marker. */
+.tv-stepper-item:last-child { flex: 0 0 auto; }
+
+.tv-stepper-head { display: flex; align-items: center; }
+
+.tv-stepper-marker {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  border: 1px solid rgba(241, 243, 241, 0.18);
+  background: var(--tv-ink);
+  color: var(--tv-text-muted);
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  transition:
+    background-color var(--duration-standard) var(--tv-ease),
+    border-color var(--duration-standard) var(--tv-ease),
+    color var(--duration-standard) var(--tv-ease),
+    box-shadow var(--duration-standard) var(--tv-ease);
+}
+
+.tv-stepper-line {
+  flex: 1 1 auto;
+  min-width: 0.75rem;
+  height: 1px;
+  margin: 0 0.625rem;
+  background: rgba(241, 243, 241, 0.14);
+  transition: background-color var(--duration-slow) var(--tv-ease);
+}
+
+.tv-stepper-label {
+  display: block;
+  margin-top: 0.625rem;
+  padding-right: 0.75rem;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transition: color var(--duration-standard) var(--tv-ease);
+}
+
+.tv-stepper-item[data-state="done"] .tv-stepper-marker {
+  background: var(--tv-patina);
+  border-color: var(--tv-patina);
+  color: var(--tv-ink);
+}
+.tv-stepper-item[data-state="done"] .tv-stepper-line { background: rgba(76, 174, 137, 0.55); }
+
+.tv-stepper-item[data-state="current"] .tv-stepper-marker {
+  border-color: var(--tv-brass);
+  color: var(--tv-brass);
+  box-shadow: 0 0 0 4px rgba(201, 169, 97, 0.14);
+}
+.tv-stepper-item[data-state="current"] .tv-stepper-label {
+  color: var(--tv-text);
+  font-weight: 700;
+}
+
+/* Below 640px five labels cannot sit side by side without truncating to two
+   characters each. The rail keeps the markers and the current step is named
+   once, in full, underneath it. */
+@media (max-width: 639px) {
+  .tv-stepper-label { display: none; }
+  .tv-stepper-marker { width: 2rem; height: 2rem; font-size: 0.6875rem; }
+}
+
+/* --- Upload drop target ------------------------------------------------- */
+.tv-dropzone {
+  display: block;
+  width: 100%;
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem);
+  border: 1px dashed rgba(241, 243, 241, 0.22);
+  border-radius: 12px;
+  background: rgba(241, 243, 241, 0.02);
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color var(--duration-fast) var(--tv-ease),
+    background-color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-dropzone:hover {
+  border-color: var(--tv-patina);
+  background: rgba(76, 174, 137, 0.06);
+}
+
+/* The file input is visually hidden but still focusable, so the drop target
+   has to show that focus itself - a `display: none` input is unreachable by
+   keyboard and the control had no focus state at all. */
+.tv-dropzone-input:focus-visible + .tv-dropzone {
+  outline: 2px solid var(--tv-patina);
+  outline-offset: 3px;
+  border-color: var(--tv-patina);
+}
+
+/* --- Order summary ------------------------------------------------------ */
+.tv-summary { display: flex; flex-direction: column; }
+
+.tv-summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6875rem 0;
+  border-bottom: 1px solid var(--tv-rule);
+}
+
+.tv-summary-row:last-child { border-bottom: 0; }
+
+.tv-summary-key {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  color: var(--tv-text-muted);
+}
+
+.tv-summary-val {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--tv-text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.tv-summary-val-patina { color: var(--tv-patina); }
+
+/* The total is separated by a brass rule rather than a heavier grey one, so
+   the eye lands on the amount without another box around it. */
+.tv-summary-total {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+  padding-top: 1.125rem;
+  border-top: 1px solid rgba(201, 169, 97, 0.38);
+}
+
+.tv-summary-total-key {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tv-text);
+}
+
+.tv-summary-total-val {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: clamp(1.5rem, 1.3rem + 0.8vw, 1.875rem);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--tv-brass);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Inline notice ------------------------------------------------------ */
+.tv-notice {
+  display: flex;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  border: 1px solid var(--tv-rule);
+  background: rgba(241, 243, 241, 0.03);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--tv-text-muted);
+}
+
+.tv-notice-icon { flex: 0 0 auto; margin-top: 0.125rem; color: var(--tv-brass); }
+
+.tv-notice-title {
+  display: block;
+  margin-bottom: 0.1875rem;
+  font-weight: 600;
+  color: var(--tv-text);
+}
+
+.tv-notice-patina { border-color: rgba(76, 174, 137, 0.32); background: rgba(76, 174, 137, 0.08); }
+.tv-notice-patina .tv-notice-icon { color: var(--tv-patina); }
+
+.tv-notice-warn { border-color: rgba(201, 169, 97, 0.40); background: rgba(201, 169, 97, 0.10); }
+
+.tv-notice-error { border-color: rgba(255, 138, 128, 0.36); background: rgba(255, 138, 128, 0.09); }
+.tv-notice-error .tv-notice-icon,
+.tv-notice-error .tv-notice-title { color: #FF8A80; }
+
+/* --- Small mono tag  (template tier, card facts) ------------------------ */
+.tv-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--tv-rule);
+  border-radius: 4px;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.tv-tag-brass  { color: var(--tv-brass);  border-color: rgba(201, 169, 97, 0.42); }
+.tv-tag-patina { color: var(--tv-patina); border-color: rgba(76, 174, 137, 0.42); }
+
+/* --- Checkbox row ------------------------------------------------------- */
+.tv-check {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  cursor: pointer;
+}
+
+.tv-check-box {
+  flex: 0 0 auto;
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-top: 0.1875rem;
+  border-radius: 4px;
+  accent-color: var(--tv-patina);
+  cursor: pointer;
+}
+
+/* --- Required-field marker --------------------------------------------- */
+.tv-label-req {
+  margin-left: 0.25rem;
+  color: var(--tv-brass);
+}
+.tv-surface-bone .tv-label-req { color: var(--tv-brass-deep); }
+
+/* ----------------------------------------------------------------------------
+   NAVIGATION
+   The header sits on every public page, so it is the one component that has to
+   agree with the whole system at once. It follows the same rule as the rest of
+   it: hairlines and mono small-caps instead of rounded chips. A nav item is
+   marked by a drawn rule underneath it, not by a pill of background colour -
+   the pill read as a fourth button tier and competed with the real CTA.
+   ---------------------------------------------------------------------------- */
+.tv-nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  transition:
+    background-color var(--duration-slow) var(--tv-ease),
+    border-color var(--duration-slow) var(--tv-ease);
+}
+
+.tv-nav-rest {
+  background: rgba(7, 10, 9, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid transparent;
+}
+
+.tv-nav-scrolled {
+  background: rgba(7, 10, 9, 0.94);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border-bottom: 1px solid var(--tv-rule);
+}
+
+.tv-nav-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 5rem; /* 80px - matches the scroll-padding-top set at the top of this file */
+}
+
+/* --- Desktop item ------------------------------------------------------- */
+.tv-navlink {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 0.875rem;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-navlink:hover { color: var(--tv-text); }
+
+/* The marker. Grows from the left on hover, sits brass on the current page. */
+.tv-navlink::after {
+  content: "";
+  position: absolute;
+  left: 0.875rem;
+  right: 0.875rem;
+  bottom: 0.5rem;
+  height: 1px;
+  background: var(--tv-patina);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--duration-standard) var(--tv-ease);
+}
+
+.tv-navlink:hover::after { transform: scaleX(1); }
+
+.tv-navlink[aria-current="page"] { color: var(--tv-text); }
+.tv-navlink[aria-current="page"]::after {
+  transform: scaleX(1);
+  background: var(--tv-brass);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-navlink::after { transition: none; }
+}
+
+/* --- Mobile toggle ------------------------------------------------------ */
+.tv-nav-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 10px;
+  border: 1px solid rgba(241, 243, 241, 0.16);
+  background: rgba(241, 243, 241, 0.05);
+  color: var(--tv-text);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--tv-ease),
+    border-color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-nav-toggle:hover {
+  background: rgba(241, 243, 241, 0.10);
+  border-color: rgba(241, 243, 241, 0.32);
+}
+
+/* --- Mobile panel ------------------------------------------------------- */
+.tv-nav-panel {
+  background: var(--tv-graphite);
+  border-top: 1px solid var(--tv-rule);
+  /* The panel can be taller than the viewport on small phones once the CTAs
+     are in it, so it scrolls itself rather than trapping the last item
+     off-screen. 5rem is the header height. */
+  max-height: calc(100dvh - 5rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tv-nav-mobile-link {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+  min-height: 56px;
+  border-bottom: 1px solid var(--tv-rule);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--tv-text-muted);
+  text-decoration: none;
+  transition: color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-nav-mobile-link:hover,
+.tv-nav-mobile-link[aria-current="page"] { color: var(--tv-text); }
+
+.tv-nav-mobile-num {
+  flex: 0 0 1.75rem;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--tv-text-muted);
+  font-variant-numeric: tabular-nums;
+  transition: color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-nav-mobile-link[aria-current="page"] .tv-nav-mobile-num { color: var(--tv-brass); }
+
+/* Scrim behind the open panel so the page underneath recedes instead of
+   showing through the blur as noise. */
+.tv-nav-scrim {
+  position: fixed;
+  inset: 5rem 0 0;
+  z-index: -1;
+  background: rgba(7, 10, 9, 0.6);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+}
+
+/* --- Dashboard header --------------------------------------------------- */
+/* The signed-in header is a different job from the marketing nav - it is a
+   working toolbar, not a conversion surface - but it should still be built out
+   of the same materials. */
+.tv-appbar {
+  position: sticky;
+  top: 0;
+  z-index: 40;
+  background: rgba(7, 10, 9, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid var(--tv-rule);
+}
