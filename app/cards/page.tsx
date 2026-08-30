@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import CardPreviewModal from '@/components/CardPreviewModal';
+import CardFace from '@/components/CardFace';
 import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
@@ -166,14 +167,25 @@ export default function CardsPage() {
                   >
                     {/* Card Preview */}
                     <div className="relative aspect-[1.6/1] overflow-hidden bg-[#E8E3D8]">
-                      <img
-                        src={card.images?.[0] || '/placeholder.svg'}
-                        alt={`${card.name} NFC card`}
-                        width={480}
-                        height={300}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
+                      {/* A photograph if the design has one; otherwise the
+                          finish is drawn. Every design carries a gradient, so
+                          nothing needs to fall back to a grey placeholder. */}
+                      {card.images?.[0] ? (
+                        <img
+                          src={card.images[0]}
+                          alt={`${card.name} NFC card`}
+                          width={480}
+                          height={300}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <CardFace
+                          name={card.name}
+                          color={card.color}
+                          label={card.material || undefined}
+                        />
+                      )}
 
                       {/* Quick view. Revealed on focus-within as well as hover,
                           so the button is reachable from the keyboard. */}

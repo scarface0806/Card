@@ -36,7 +36,6 @@ interface FormState {
   address: string;
   mapEmbedUrl: string;
   imageUrl: string;
-  logo: File | null;
   profileImage: File | null;
   gallerySlots: GallerySlot[];
   enableGallery: boolean;
@@ -78,7 +77,6 @@ export default function CreateCustomerPage() {
     address: '',
     mapEmbedUrl: '',
     imageUrl: '',
-    logo: null,
     profileImage: null,
     gallerySlots: defaultGallerySlots(),
     enableGallery: true,
@@ -87,7 +85,6 @@ export default function CreateCustomerPage() {
   const [toast, setToast] = useState<ToastState | null>(null);
   const [created, setCreated] = useState<CreatedState | null>(null);
 
-  const logoPreview = useMemo(() => (form.logo ? URL.createObjectURL(form.logo) : null), [form.logo]);
   const profilePreview = useMemo(() => (form.profileImage ? URL.createObjectURL(form.profileImage) : null), [form.profileImage]);
   const galleryPreviews = useMemo(
     () => form.gallerySlots.map((slot) => (slot.file ? URL.createObjectURL(slot.file) : null)),
@@ -119,7 +116,7 @@ export default function CreateCustomerPage() {
     const { name, files } = event.target;
     if (!files) return;
 
-    if (name === 'logo' || name === 'profileImage') {
+    if (name === 'profileImage') {
       setForm((current) => ({ ...current, [name]: files[0] || null }));
       return;
     }
@@ -185,7 +182,6 @@ export default function CreateCustomerPage() {
       body.append('isActive', 'true');
       body.append('enableGallery', String(form.enableGallery));
 
-      if (form.logo) body.append('logo', form.logo);
       if (form.profileImage) body.append('profileImage', form.profileImage);
 
       if (form.enableGallery) {
@@ -264,7 +260,6 @@ export default function CreateCustomerPage() {
         address: '',
         mapEmbedUrl: '',
         imageUrl: '',
-        logo: null,
         profileImage: null,
         gallerySlots: defaultGallerySlots(),
         enableGallery: true,
@@ -370,12 +365,10 @@ export default function CreateCustomerPage() {
             />
           </div>
 
-          <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
-            <span className="mb-3 flex items-center gap-2 text-primary"><UploadCloud className="h-4 w-4" /> Logo Upload</span>
-            <input type="file" name="logo" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/100" />
-            {logoPreview ? <Image src={logoPreview} alt="Logo preview" width={200} height={120} className="mt-4 h-24 w-auto rounded-xl bg-white object-contain p-2" /> : null}
-          </label>
-
+          {/* Logo Upload removed. A customer profile no longer draws a logo -
+              the uploads were small, low-resolution marks that sat badly above
+              the display name - so a field that collected an image nothing
+              renders was only a way to waste an admin's time. */}
           <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
             <span className="mb-3 flex items-center gap-2 text-primary"><UploadCloud className="h-4 w-4" /> Profile Photo</span>
             <input type="file" name="profileImage" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/100" />

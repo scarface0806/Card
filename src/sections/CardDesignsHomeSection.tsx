@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, ArrowUpRight, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
+import CardFace from '@/components/CardFace';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
 import { ContactSource } from '@/components/ContactModal';
@@ -100,14 +101,24 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                 >
                   {/* Card Preview */}
                   <div className="relative aspect-[1.6/1] overflow-hidden bg-[#151C1A]">
-                    <img
-                      src={card.images?.[0] || '/placeholder.svg'}
-                      alt={`${card.name} NFC card`}
-                      width={480}
-                      height={300}
-                      loading="lazy"
-                      className="h-full w-full object-cover"
-                    />
+                    {/* Photograph where there is one, the drawn finish
+                        otherwise — same rule as the /cards catalogue. */}
+                    {card.images?.[0] ? (
+                      <img
+                        src={card.images[0]}
+                        alt={`${card.name} NFC card`}
+                        width={480}
+                        height={300}
+                        loading="lazy"
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      <CardFace
+                        name={card.name}
+                        color={card.color}
+                        label={card.material || undefined}
+                      />
+                    )}
 
                     {/* Quick view overlay. Also reachable on keyboard: the
                         button stays focusable and the overlay reveals on

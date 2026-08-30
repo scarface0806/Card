@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Wifi } from 'lucide-react';
+import CardFace from './CardFace';
 
 interface CardPreviewModalProps {
   isOpen: boolean;
@@ -72,19 +73,28 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                     boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
                   }}
                 >
-                  <img
-                    src={card.images?.[0] || card.image || '/placeholder.svg'}
-                    alt={`${card.name} NFC card`}
-                    width={480}
-                    height={300}
-                    className="h-full w-full object-cover"
-                  />
+                  {/* The photograph, or the finish drawn from the design's own
+                      gradient. CardFace brings its own NFC mark and name
+                      plate, so the overlay below is only for the photo case. */}
+                  {card.images?.[0] || card.image ? (
+                    <>
+                      <img
+                        src={card.images?.[0] || card.image}
+                        alt={`${card.name} NFC card`}
+                        width={480}
+                        height={300}
+                        className="h-full w-full object-cover"
+                      />
 
-                  <div className="absolute right-4 top-4">
-                    <div className="w-9 h-9 rounded-full bg-[#070A09]/45 flex items-center justify-center">
-                      <Wifi className="w-4 h-4 text-white rotate-45" aria-hidden="true" />
-                    </div>
-                  </div>
+                      <div className="absolute right-4 top-4">
+                        <div className="w-9 h-9 rounded-full bg-[#070A09]/45 flex items-center justify-center">
+                          <Wifi className="w-4 h-4 text-white rotate-45" aria-hidden="true" />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <CardFace name={card.name} color={card.color} />
+                  )}
 
                   {/* Shine sweep */}
                   <motion.div

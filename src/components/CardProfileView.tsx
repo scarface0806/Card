@@ -188,9 +188,8 @@ END:VCARD`;
       <div className="tv-profilebar">
         <div className="site-container">
           <div className="tv-profilebar-bar">
-            {/* Our mark, not the card owner's: a visitor who tapped a card
-                needs to know whose platform this is. The owner's logo sits
-                with their name in the hero. */}
+            {/* Our mark, and the only logo on the page: a visitor who tapped a
+                card needs to know whose platform this is. */}
             <div className="flex items-center gap-3 min-w-0">
               <Link
                 href={ROUTES.HOME}
@@ -254,17 +253,8 @@ END:VCARD`;
                 transition={{ duration: 0.6, delay: 0.12 }}
                 className="lg:col-span-7"
               >
-                {/* The card owner's own logo, beside their identity. */}
-                {details.logo ? (
-                  <img
-                    src={details.logo}
-                    alt={details.company || fullName}
-                    width={240}
-                    height={80}
-                    className="mb-7 h-10 w-auto object-contain object-left"
-                  />
-                ) : null}
-
+                {/* No owner logo here — see the note in CustomerProfileView.
+                    A profile leads with the name and the portrait. */}
                 <p className="tv-eyebrow mb-6">Digital profile</p>
                 <h1 className="tv-display mb-4">{fullName}</h1>
                 <p className="tv-lead mb-9 tv-measure-lead">

@@ -315,8 +315,8 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
       {/* PROFILE BAR — our mark on the left, so a visitor who arrived by
           tapping a card knows whose platform they are on and has a way to
           reach us; the one action they want before reading anything (call the
-          owner) on the right. The owner's own logo is not here - it sits with
-          their name in the hero, where it belongs. */}
+          owner) on the right. The only logo on the page is ours - see the
+          note in the hero. */}
       <div className="tv-profilebar">
         <div className="site-container">
           <div className="tv-profilebar-bar">
@@ -375,18 +375,11 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                 transition={{ duration: 0.6, delay: 0.12 }}
                 className="lg:col-span-7"
               >
-                {/* The owner's own logo, where a visitor reads their identity
-                    rather than competing with ours in the bar. */}
-                {customer.logo ? (
-                  <img
-                    src={customer.logo}
-                    alt={shopName || customer.name}
-                    width={240}
-                    height={80}
-                    className="mb-7 h-10 w-auto object-contain object-left"
-                  />
-                ) : null}
-
+                {/* No customer logo here by design. The uploads were small,
+                    low-resolution marks that sat badly above the display name
+                    and competed with the portrait; the profile leads with the
+                    name and the photograph instead. `customer.logo` is still
+                    in the record - it is simply not drawn. */}
                 <p className="tv-eyebrow mb-6">Digital profile</p>
                 <h1 className="tv-display mb-4">{customer.name}</h1>
                 <p className="tv-lead mb-9 tv-measure-lead">
