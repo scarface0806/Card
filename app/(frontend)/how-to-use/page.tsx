@@ -3,7 +3,7 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { User, Globe, Wifi, ArrowRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { User, Globe, Wifi, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/utils/constants';
 
@@ -11,29 +11,32 @@ export default function HowToUsePage() {
   const steps = [
     {
       number: '01',
-      title: 'Submit Your Details',
+      title: 'Send us your details',
       description:
-        "Share your name, bio, social links, contact details, and business information with us. We'll create your personalized digital profile.",
+        'Your name, bio, social links, contact details and business information. That is everything we need to build your profile.',
       icon: User,
-      highlight: null,
+      note: null,
     },
     {
       number: '02',
-      title: 'We Create Your Lifetime Digital Website',
+      title: 'We build your profile site',
       description:
-        'We build a fully responsive digital profile website for you — completely free and valid for lifetime. Your profile can showcase your bio, services, social links, and more.',
+        'A fully responsive profile page showing your bio, services, social links and more — completely free and valid for lifetime.',
       icon: Globe,
-      highlight: 'Free Lifetime Website Included',
+      // The one place this page makes the lifetime-website claim.
+      note: 'free-website' as const,
     },
     {
       number: '03',
-      title: 'We Program Your NFC Card',
+      title: 'We program your card',
       description:
-        'We securely encode your personal website link into your NFC card. When someone taps your card on their phone, your digital profile opens instantly.',
+        'We securely encode your profile link into the NFC chip. Someone taps the card on their phone and your profile opens instantly.',
       icon: Wifi,
-      highlight: 'No app required. Just tap and share.',
+      note: 'No app required. Just tap and share.',
     },
   ];
+
+  const audience = ['Entrepreneurs', 'Executives', 'Creators', 'Business Leaders'];
 
   const fadeInUp = {
     initial: { opacity: 0, y: 30 },
@@ -45,205 +48,171 @@ export default function HowToUsePage() {
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#111827] min-h-screen">
-        {/* Hero Section */}
-        <section className="relative pt-32 pb-16 md:pt-44 md:pb-24 overflow-hidden">
-          {/* Background decorations */}
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 right-10 w-96 h-96 bg-primary/15 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
-          </div>
-
-          <div className="site-container text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="mb-6"
-            >
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
-                <Sparkles className="w-4 h-4" />
-                How It Works
-              </span>
-            </motion.div>
-
-            <motion.h1
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl font-extrabold mb-6 text-white font-space-grotesk leading-tight tracking-tight"
-            >
-              Your NFC Digital Card in{' '}
-              <span className="text-primary">
-                3 Simple Steps
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed"
-            >
-              A modern way to share your professional identity instantly.
-            </motion.p>
-          </div>
-        </section>
-
-        {/* Steps Section */}
-        <section className="py-16 md:py-24">
+      <main>
+        {/* HERO — left-aligned on ink. The old centred badge / two-tone
+            heading / grey subtitle stack is gone. */}
+        <section className="tv-hero pt-32 pb-16 md:pt-44 md:pb-24">
           <div className="site-container">
-            <div className="space-y-8">
-              {steps.map((step, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.6, delay: index * 0.15 }}
-                  className="relative card rounded-3xl p-8 md:p-12 hover:shadow-xl transition-shadow duration-300"
-                >
-                  <div className="flex flex-col md:flex-row items-start gap-6 md:gap-10">
-                    {/* Icon */}
-                    <div className="shrink-0">
-                      <div className="w-16 h-16 md:w-20 md:h-20 rounded-2xl bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/10 flex items-center justify-center shadow-sm">
-                        <step.icon className="w-8 h-8 md:w-10 md:h-10 text-primary" />
-                      </div>
-                    </div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-7"
+              >
+                <p className="tv-eyebrow mb-7">How it works</p>
+                <h1 className="tv-display mb-6" style={{ maxWidth: '18ch' }}>
+                  You send three things. We do the rest.
+                </h1>
+              </motion.div>
 
-                    {/* Content */}
-                    <div className="flex-1">
-                      {/* Step number */}
-                      <span className="inline-block text-sm font-bold text-primary uppercase tracking-wider mb-2">
-                        Step {step.number}
-                      </span>
-
-                      <h2 className="text-2xl md:text-3xl font-bold text-white font-space-grotesk mb-4">
-                        {step.title}
-                      </h2>
-
-                      <p className="text-base md:text-lg text-gray-400 leading-relaxed mb-4 max-w-2xl">
-                        {step.description}
-                      </p>
-
-                      {step.highlight && (
-                        <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-full">
-                          <CheckCircle2 className="w-4 h-4 text-primary" />
-                          <span className="text-sm font-semibold text-primary">
-                            {step.highlight === 'Free Lifetime Website Included' ? (
-                              <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="hover:text-white">Free Lifetime Website</a>
-                            ) : step.highlight}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Connecting line (except for last item) */}
-                  {index < steps.length - 1 && (
-                    <div className="hidden md:block absolute -bottom-8 left-[2.5rem] md:left-[3.25rem] w-0.5 h-8 bg-gradient-to-b from-teal-200 to-transparent" />
-                  )}
-                </motion.div>
-              ))}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="lg:col-span-5 lg:pb-3"
+              >
+                <p className="tv-lead">
+                  A modern way to share your professional identity instantly — and a
+                  profile you can edit long after the card is printed.
+                </p>
+              </motion.div>
             </div>
           </div>
         </section>
 
-        {/* Benefits Section */}
-        <section className="py-16 md:py-24">
+        {/* STEPS — the spine of the page, set on paper as a drawn timeline.
+            This is the page's one light section. */}
+        <section className="tv-surface-bone tv-section">
           <div className="site-container">
-            <motion.div
-              {...fadeInUp}
-              className="text-center mb-12"
-            >
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
-                Designed for Modern Professionals
-              </h2>
-              <p className="text-base md:text-lg text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                Perfect for entrepreneurs, executives, creators, and business leaders.
-                Share your bio, services, and contact details effortlessly in one tap.
-              </p>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: 0.2 }}
-              className="grid grid-cols-2 md:grid-cols-4 gap-6"
-            >
-              {[
-                { label: 'Entrepreneurs', icon: '🚀' },
-                { label: 'Executives', icon: '💼' },
-                { label: 'Creators', icon: '🎨' },
-                { label: 'Business Leaders', icon: '📈' },
-              ].map((item, index) => (
-                <div
-                  key={index}
-                  className="bg-gradient-to-r from-primary/10 to-secondary/10 border border-primary/20 rounded-2xl p-6 text-center hover:shadow-md transition-shadow duration-300"
-                >
-                  <span className="text-3xl mb-3 block">{item.icon}</span>
-                  <span className="text-sm font-semibold text-white">{item.label}</span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              <motion.div {...fadeInUp} className="lg:col-span-4">
+                <div className="lg:sticky lg:top-32">
+                  <p className="tv-eyebrow mb-6">The process</p>
+                  <h2 className="tv-h2 mb-4">From your details to a card in hand.</h2>
+                  <p className="tv-body tv-measure-body">
+                    You only do step one. Steps two and three are ours.
+                  </p>
                 </div>
-              ))}
-            </motion.div>
-          </div>
-        </section>
+              </motion.div>
 
-        {/* Customization CTA Section */}
-        <section className="py-16 md:py-24">
-          <div className="site-container">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="relative bg-gradient-to-br from-primary-dark to-[#1a6b1a] rounded-3xl p-10 md:p-16 text-center overflow-hidden"
-            >
-              {/* Background decoration */}
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full blur-3xl translate-y-1/2 -translate-x-1/2" />
+              <div className="lg:col-span-8">
+                <ol className="tv-flow">
+                  {steps.map((step, index) => {
+                    const Icon = step.icon;
+                    return (
+                      <motion.li
+                        key={step.number}
+                        initial={{ opacity: 0, y: 24 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true, margin: '-80px' }}
+                        transition={{ duration: 0.55, delay: index * 0.1 }}
+                        className="tv-flow-item"
+                      >
+                        <span className="tv-flow-marker" aria-hidden="true">
+                          {step.number}
+                        </span>
 
-              <div className="relative z-10">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
-                  Need Customization?
-                </h2>
-                <p className="text-base md:text-lg text-teal-100 max-w-xl mx-auto mb-8 leading-relaxed">
-                  You can upgrade or customize your digital profile anytime.
-                  Contact our team to modify design, add features, or personalize your NFC experience.
-                </p>
-                <Link href={ROUTES.CONTACT} className="btn btn-lg btn-primary">
-                    <span>Contact Us</span>
-                    <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
-                  </Link>
+                        <div className="pt-1 md:pt-4">
+                          <Icon
+                            className="w-5 h-5 mb-4 text-[#6E5518]"
+                            strokeWidth={1.6}
+                            aria-hidden="true"
+                          />
+                          <h3 className="tv-h3 mb-3">{step.title}</h3>
+                          <p className="tv-body tv-measure-body">{step.description}</p>
+
+                          {step.note === 'free-website' ? (
+                            <span className="tv-flow-note">
+                              <a
+                                href="/preview-website"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="tv-btn-tertiary !min-h-0"
+                              >
+                                Free Lifetime Website
+                              </a>{' '}
+                              included
+                            </span>
+                          ) : step.note ? (
+                            <span className="tv-flow-note">{step.note}</span>
+                          ) : null}
+                        </div>
+                      </motion.li>
+                    );
+                  })}
+                </ol>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
-        {/* Final CTA */}
-        <section className="py-16 md:py-24">
-          <div className="site-container text-center">
-            <motion.div
+        {/* WHO IT IS FOR — a quiet spec row. The four emoji tiles are gone. */}
+        <section className="tv-surface-graphite tv-section-tight">
+          <div className="site-container">
+            <motion.div {...fadeInUp} className="max-w-2xl mb-10 md:mb-12">
+              <h2 className="tv-h2 mb-4">Built for people who hand out their name.</h2>
+              <p className="tv-lead tv-measure-body">
+                Share your bio, services and contact details in one tap.
+              </p>
+            </motion.div>
+
+            <motion.ul
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
+              transition={{ duration: 0.6, delay: 0.15 }}
+              className="tv-tag-row"
             >
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
-                Ready to Get Started?
-              </h2>
-              <p className="text-base md:text-lg text-gray-400 mb-8 max-w-xl mx-auto">
-                Order your premium NFC digital business card today and start networking smarter.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <Link href={ROUTES.CREATE_CARD} className="btn btn-lg btn-primary">
-                    <span>Create Your Card</span>
-                    <ArrowRight className="w-5 h-5 transform group-hover:translate-x-1 transition-transform duration-300" />
+              {audience.map((label) => (
+                <li key={label}>{label}</li>
+              ))}
+            </motion.ul>
+          </div>
+        </section>
+
+        {/* CLOSE — the two stacked CTA sections are merged into one.
+            All three original destinations are preserved, one per tier. */}
+        <section className="tv-surface-ink tv-section">
+          <div className="site-container">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6 }}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end border-t border-[#C9A961]/25 pt-12 md:pt-16"
+            >
+              <div className="lg:col-span-7">
+                <h2 className="tv-h2 mb-4">Ready when you are.</h2>
+                <p className="tv-body tv-measure-body">
+                  Order your NFC card today. You can upgrade or customise your digital
+                  profile at any time afterwards.
+                </p>
+              </div>
+
+              <div className="lg:col-span-5">
+                <div className="flex flex-col sm:flex-row lg:justify-end gap-3">
+                  <Link
+                    href={ROUTES.CREATE_CARD}
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  >
+                    Get your card
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                   </Link>
-                <Link href={ROUTES.CARDS} className="btn btn-lg btn-secondary">
-                    View Card Designs
+                  <Link
+                    href={ROUTES.CARDS}
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  >
+                    View card designs
                   </Link>
+                </div>
+
+                <p className="tv-small mt-5 lg:text-right">
+                  Need something customised?{' '}
+                  <Link href={ROUTES.CONTACT} className="tv-btn-tertiary !min-h-0">
+                    Talk to our team
+                  </Link>
+                </p>
               </div>
             </motion.div>
           </div>
@@ -253,4 +222,3 @@ export default function HowToUsePage() {
     </>
   );
 }
-
