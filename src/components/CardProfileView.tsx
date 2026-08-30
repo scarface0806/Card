@@ -40,6 +40,9 @@ import {
   ArrowUpRight,
 } from 'lucide-react';
 import CardContactForm from './CardContactForm';
+import BrandLogo from './common/BrandLogo';
+import { BRAND } from '@/lib/brand';
+import { ROUTES } from '@/utils/constants';
 
 // Card detail types matching Prisma schema
 interface SocialLinks {
@@ -185,16 +188,19 @@ END:VCARD`;
       <div className="tv-profilebar">
         <div className="site-container">
           <div className="tv-profilebar-bar">
+            {/* Our mark, not the card owner's: a visitor who tapped a card
+                needs to know whose platform this is. The owner's logo sits
+                with their name in the hero. */}
             <div className="flex items-center gap-3 min-w-0">
-              {details.logo ? (
-                <img
-                  src={details.logo}
-                  alt={details.company || fullName}
-                  width={200}
-                  height={60}
-                  className="h-8 w-auto object-contain"
-                />
-              ) : null}
+              <Link
+                href={ROUTES.HOME}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tv-focus flex min-h-[44px] shrink-0 items-center"
+                aria-label={`${BRAND.name} - NFC digital business cards (opens in a new tab)`}
+              >
+                <BrandLogo size="small" variant="light" />
+              </Link>
               <span className="tv-mono truncate">{details.company || fullName}</span>
             </div>
 
@@ -248,6 +254,17 @@ END:VCARD`;
                 transition={{ duration: 0.6, delay: 0.12 }}
                 className="lg:col-span-7"
               >
+                {/* The card owner's own logo, beside their identity. */}
+                {details.logo ? (
+                  <img
+                    src={details.logo}
+                    alt={details.company || fullName}
+                    width={240}
+                    height={80}
+                    className="mb-7 h-10 w-auto object-contain object-left"
+                  />
+                ) : null}
+
                 <p className="tv-eyebrow mb-6">Digital profile</p>
                 <h1 className="tv-display mb-4">{fullName}</h1>
                 <p className="tv-lead mb-9 tv-measure-lead">
@@ -473,6 +490,54 @@ END:VCARD`;
                 </div>
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* OUR CLOSE — the one place on someone else's profile that sells ours.
+            Both links open in a new tab so the visitor does not lose the
+            profile they came to read. */}
+        <section className="tv-surface-graphite tv-section-tight">
+          <div className="site-container">
+            <motion.div
+              {...fadeInUp}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end border-t border-[#C9A961]/25 pt-12"
+            >
+              <div className="lg:col-span-7">
+                <p className="tv-eyebrow mb-6">Powered by {BRAND.name}</p>
+                <h2 className="tv-h2 mb-4">Want a profile like this one?</h2>
+                <p className="tv-body tv-measure-body">
+                  This page came free with a {BRAND.name} NFC card. Set up yours in under
+                  two minutes — one tap shares your details, and you can edit them
+                  whenever they change.
+                </p>
+              </div>
+
+              <div className="lg:col-span-5 lg:justify-self-end">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <Link
+                    href={ROUTES.CREATE_CARD}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  >
+                    Create your card
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </Link>
+                  <Link
+                    href={ROUTES.CARDS}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  >
+                    View card designs
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </Link>
+                </div>
+
+                <p className="tv-mono mt-5 lg:text-right">Takes under 2 minutes</p>
+              </div>
+            </motion.div>
           </div>
         </section>
       </main>

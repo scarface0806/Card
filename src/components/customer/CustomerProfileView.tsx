@@ -30,6 +30,8 @@ import {
   Phone,
 } from 'lucide-react';
 import { BRAND } from '@/lib/brand';
+import BrandLogo from '@/components/common/BrandLogo';
+import { ROUTES } from '@/utils/constants';
 import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
 type GalleryItem = {
@@ -84,6 +86,46 @@ const DEFAULT_ABOUT =
   "We are here to help you grow with an NFC-powered digital profile. Reach out through the contact form and we will respond shortly.";
 
 type MailDeliveryMode = 'internal' | 'endpoint' | 'web3forms';
+
+/**
+ * wa.me needs a full international number with no '+', spaces or dashes.
+ * Numbers are entered in this system without a country code (the live records
+ * hold 10 digits), so a 10-digit number gets 91 - every address, price and
+ * phone number in the product is Indian. Anything longer is assumed to already
+ * carry its country code.
+ */
+function toWhatsappNumber(value?: string | null) {
+  const digits = (value || '').replace(/\D/g, '');
+  if (!digits) return null;
+  return digits.length === 10 ? `91${digits}` : digits;
+}
+
+/**
+ * The chat target for the profile's WhatsApp button.
+ *
+ * An owner who filled in the WhatsApp field chose that number deliberately and
+ * usually wrote a prefilled message with it, so that link wins. Otherwise the
+ * profile's own phone number is used.
+ */
+function whatsappHref(customer: CustomerProfile) {
+  const configured = customer.whatsapp?.trim();
+
+  if (customer.whatsappEnabled && configured) {
+    // A wa.me / whatsapp.com link is used as entered. A bare number in that
+    // field is NOT a URL - normalizeUrl would turn "918681031124" into
+    // "https://918681031124" - so it goes through the number path instead.
+    if (/^https?:\/\/|^wa\.me|whatsapp\.com/i.test(configured)) {
+      const normalized = normalizeUrl(configured);
+      if (normalized && /wa\.me|whatsapp\.com/i.test(normalized)) return normalized;
+    } else {
+      const number = toWhatsappNumber(configured);
+      if (number) return `https://wa.me/${number}`;
+    }
+  }
+
+  const fromPhone = toWhatsappNumber(customer.phone);
+  return fromPhone ? `https://wa.me/${fromPhone}` : null;
+}
 
 function normalizeUrl(url?: string | null) {
   if (!url) return null;
@@ -179,6 +221,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
   const mapEmbedSrc = useMemo(() => normalizeMapEmbedSrc(customer.mapEmbedUrl), [customer.mapEmbedUrl]);
   const shopName = customer.company?.trim() || '';
+  const chatHref = useMemo(() => whatsappHref(customer), [customer]);
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -269,19 +312,24 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
   return (
     <div className="min-h-screen bg-[#070A09]">
-      {/* PROFILE BAR — the owner's mark on the left, and the one action a
-          visitor wants before they have read anything: call. */}
+      {/* PROFILE BAR — our mark on the left, so a visitor who arrived by
+          tapping a card knows whose platform they are on and has a way to
+          reach us; the one action they want before reading anything (call the
+          owner) on the right. The owner's own logo is not here - it sits with
+          their name in the hero, where it belongs. */}
       <div className="tv-profilebar">
         <div className="site-container">
           <div className="tv-profilebar-bar">
             <div className="flex items-center gap-3 min-w-0">
-              <img
-                src={customer.logo || BRAND.logo}
-                alt={shopName || customer.name}
-                width={200}
-                height={60}
-                className="h-8 w-auto object-contain"
-              />
+              <a
+                href={ROUTES.HOME}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tv-focus flex min-h-[44px] shrink-0 items-center"
+                aria-label={`${BRAND.name} - NFC digital business cards (opens in a new tab)`}
+              >
+                <BrandLogo size="small" variant="light" />
+              </a>
               {shopName ? (
                 <span className="tv-mono truncate hidden sm:block">{shopName}</span>
               ) : null}
@@ -327,6 +375,18 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                 transition={{ duration: 0.6, delay: 0.12 }}
                 className="lg:col-span-7"
               >
+                {/* The owner's own logo, where a visitor reads their identity
+                    rather than competing with ours in the bar. */}
+                {customer.logo ? (
+                  <img
+                    src={customer.logo}
+                    alt={shopName || customer.name}
+                    width={240}
+                    height={80}
+                    className="mb-7 h-10 w-auto object-contain object-left"
+                  />
+                ) : null}
+
                 <p className="tv-eyebrow mb-6">Digital profile</p>
                 <h1 className="tv-display mb-4">{customer.name}</h1>
                 <p className="tv-lead mb-9 tv-measure-lead">
@@ -339,12 +399,17 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                     Get in touch
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                   </a>
-                  <a
-                    href={`mailto:${customer.email}`}
-                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
-                  >
-                    Email
-                  </a>
+                  {chatHref ? (
+                    <a
+                      href={chatHref}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                    >
+                      <MessageCircle className="w-[18px] h-[18px]" aria-hidden="true" />
+                      WhatsApp
+                    </a>
+                  ) : null}
                 </div>
 
                 {socialLinks.length > 0 ? (
@@ -641,6 +706,55 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                 </div>
               </motion.div>
             </div>
+          </div>
+        </section>
+
+        {/* OUR CLOSE — the visitor came here to see someone else's profile, so
+            this is the one place on the page that sells ours. It sits after
+            everything they came for, and both links open in a new tab: losing
+            the profile they were reading would be a poor trade for a click. */}
+        <section className="tv-surface-graphite tv-section-tight">
+          <div className="site-container">
+            <motion.div
+              {...fadeInUp}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end border-t border-[#C9A961]/25 pt-12"
+            >
+              <div className="lg:col-span-7">
+                <p className="tv-eyebrow mb-6">Powered by {BRAND.name}</p>
+                <h2 className="tv-h2 mb-4">Want a profile like this one?</h2>
+                <p className="tv-body tv-measure-body">
+                  This page came free with a {BRAND.name} NFC card. Set up yours in under
+                  two minutes — one tap shares your details, and you can edit them
+                  whenever they change.
+                </p>
+              </div>
+
+              <div className="lg:col-span-5 lg:justify-self-end">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href={ROUTES.CREATE_CARD}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  >
+                    Create your card
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                  <a
+                    href={ROUTES.CARDS}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  >
+                    View card designs
+                    <span className="sr-only"> (opens in a new tab)</span>
+                  </a>
+                </div>
+
+                <p className="tv-mono mt-5 lg:text-right">Takes under 2 minutes</p>
+              </div>
+            </motion.div>
           </div>
         </section>
       </main>
