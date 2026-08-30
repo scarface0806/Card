@@ -43,18 +43,18 @@ export default function PrivacyPolicyPage() {
   return (
     <>
       <Navbar />
-      <main className="pt-32 pb-20 min-h-screen bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff]">
+      <main className="tv-surface-bone tv-page-head pb-20 min-h-screen">
         <div className="site-container">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="mb-12"
+            className="mb-10"
           >
-            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-[#0f2e25] mb-4 font-space-grotesk tracking-tight">
+            <h1 className="tv-h2 mb-3">
               Privacy Policy
             </h1>
-            <p className="text-sm md:text-base text-slate-500">
+            <p className="tv-mono">
               Last updated: {new Date().toLocaleDateString('en-US', {
                 year: 'numeric',
                 month: 'long',
@@ -63,19 +63,19 @@ export default function PrivacyPolicyPage() {
             </p>
           </motion.div>
 
-          <div className="space-y-6">
+          <div className="tv-prose">
             {sections.map((section, index) => (
               <motion.div
                 key={index}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-white rounded-2xl p-8 border border-gray-200/60 shadow-sm hover:shadow-md transition-shadow duration-300"
+                className="py-7 border-b border-[#12100C]/12 last:border-b-0"
               >
-                <h2 className="text-xl md:text-2xl font-bold text-[#0f2e25] mb-4 font-space-grotesk">
+                <h2 className="tv-h3 mb-3">
                   {section.title}
                 </h2>
-                <p className="text-sm md:text-base text-slate-500 leading-relaxed">
+                <p className="tv-body">
                   {section.content}
                 </p>
               </motion.div>

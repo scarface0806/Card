@@ -3,7 +3,7 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { Check, Zap, Palette, Shield, ArrowRight, Sparkles, Loader2 } from 'lucide-react';
+import { Check, Zap, Palette, Shield, ArrowUpRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import MotionLink from '@/components/MotionLink';
 import { useRouter } from 'next/navigation';
@@ -202,9 +202,9 @@ export default function ProductsPage() {
   return (
     <div className="frontend-dark">
       <Navbar />
-        <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
+        <main>
         {/* Hero */}
-        <section className="relative pt-32 pb-20 md:pt-44 md:pb-28 overflow-hidden">
+        <section className="tv-hero tv-page-head pb-16 md:pb-20 overflow-hidden">
           <div className="absolute inset-0 -z-10">
             <div className="absolute top-20 right-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
             <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/15 rounded-full blur-3xl" />
@@ -217,29 +217,23 @@ export default function ProductsPage() {
               transition={{ duration: 0.8 }}
               className="mb-8"
             >
-              <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
-                <Sparkles className="w-4 h-4" />
-                Simple & Transparent Pricing
-              </span>
+              <span className="tv-eyebrow tv-eyebrow--center">Pricing</span>
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.1 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-white font-space-grotesk tracking-tight"
+              className="tv-display mx-auto mb-6"
             >
-              Choose Your{' '}
-              <span className="text-primary">
-                Plan
-              </span>
+              Simple, one-time pricing.
             </motion.h1>
 
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-base md:text-lg text-slate-500 max-w-3xl mx-auto leading-relaxed"
+              className="tv-lead max-w-2xl mx-auto"
             >
               Find the perfect plan for your professional needs. No hidden fees, cancel anytime.
             </motion.p>
@@ -247,16 +241,16 @@ export default function ProductsPage() {
         </section>
 
         {/* Pricing Cards */}
-        <section className="py-20 md:py-28 bg-gradient-to-b from-[#0f172a] to-[#020617]">
+        <section className="tv-surface-bone tv-section">
           <div className="site-container">
             {loading ? (
               <div className="flex items-center justify-center py-20">
                 <Loader2 className="w-8 h-8 text-primary animate-spin" />
               </div>
             ) : products.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-primary/20 bg-primary/10/40 p-12 text-center">
-                <h2 className="text-2xl font-bold text-white font-space-grotesk">No products available</h2>
-                <p className="text-gray-400 mt-2">Admin can add products from the dashboard to display them here.</p>
+              <div className="tv-panel tv-panel-pad py-16 text-center">
+                <h2 className="tv-h3">No products available</h2>
+                <p className="tv-body mt-2">Admin can add products from the dashboard to display them here.</p>
               </div>
             ) : (
             <div className="grid md:grid-cols-3 gap-8">
@@ -279,13 +273,13 @@ export default function ProductsPage() {
                     }`}
                   >
                     {isPopular && (
-                      <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-black text-center py-2 text-sm font-semibold">
+                      <div className="bg-[#4CAE89] text-[#070A09] text-center py-2 text-xs font-semibold uppercase tracking-[0.12em]" style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}>
                         Most Popular
                       </div>
                     )}
 
                     <div className="p-6">
-                      <div className="h-44 w-full overflow-hidden rounded-xl bg-primary/10 mb-6 border border-primary/10">
+                      <div className="h-44 w-full overflow-hidden rounded-xl bg-[#E8E3D8] mb-6 border border-[#12100C]/10">
                         <img
                           src={product.images?.[0] || product.image || "/placeholder.svg"}
                           alt={product.name}
@@ -293,12 +287,12 @@ export default function ProductsPage() {
                         />
                       </div>
 
-                      <h2 className="text-2xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{product.name}</h2>
-                      <p className="text-[#6b7f78] text-sm mb-6">{product.description}</p>
+                      <h2 className="tv-h3 mb-2">{product.name}</h2>
+                      <p className="tv-small mb-6">{product.description}</p>
 
                       <div className="mb-8">
-                        <div className="text-4xl font-bold text-[#0f2e25] mb-2">₹{product.price.toLocaleString()}</div>
-                        <p className="text-[#6b7f78] text-sm">One-time</p>
+                        <div className="text-4xl font-semibold text-[#12100C] mb-1" style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}>₹{product.price.toLocaleString()}</div>
+                        <p className="tv-mono">One-time</p>
                       </div>
 
                       <motion.button
@@ -319,24 +313,24 @@ export default function ProductsPage() {
                           </>
                         ) : (
                           <>
-                            Buy Now
-                            <ArrowRight className="w-4 h-4" />
+                            Get your card
+                            <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                           </>
                         )}
                       </motion.button>
 
                       <div className="mt-8 space-y-4">
                         <div className="flex items-center gap-3">
-                          <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                          <span className="text-[#4b635d] text-sm">Premium NFC chip</span>
+                          <Check className="w-4 h-4 text-[#6E5518] flex-shrink-0" aria-hidden="true" />
+                          <span className="tv-small">Premium NFC chip</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                          <span className="text-[#4b635d] text-sm">Free lifetime website</span>
+                          <Check className="w-4 h-4 text-[#6E5518] flex-shrink-0" aria-hidden="true" />
+                          <span className="tv-small">Free lifetime website</span>
                         </div>
                         <div className="flex items-center gap-3">
-                          <Check className="w-5 h-5 text-primary flex-shrink-0" />
-                          <span className="text-[#4b635d] text-sm">Instant profile sharing</span>
+                          <Check className="w-4 h-4 text-[#6E5518] flex-shrink-0" aria-hidden="true" />
+                          <span className="tv-small">Instant profile sharing</span>
                         </div>
                       </div>
                     </div>
@@ -349,11 +343,11 @@ export default function ProductsPage() {
         </section>
 
         {/* Features Showcase */}
-        <section className="py-20 md:py-32">
+        <section className="tv-surface-graphite tv-section">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-white font-space-grotesk tracking-tight">Why Choose Tapvyo?</h2>
-              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
+              <h2 className="tv-h2 mb-5">Why Choose Tapvyo?</h2>
+              <p className="tv-lead max-w-2xl mx-auto">
                 The most advanced NFC digital business card platform on the market
               </p>
             </motion.div>
@@ -369,13 +363,13 @@ export default function ProductsPage() {
                     viewport={{ once: true }}
                     transition={{ delay: index * 0.15 }}
                     whileHover={{ y: -6 }}
-                    className="p-8 rounded-2xl border border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-md hover:shadow-[0_0_30px_rgba(74,222,128,0.1)] transition-all"
+                    className="tv-panel tv-panel-pad"
                   >
                     <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
                       <Icon className="w-6 h-6 text-primary" />
                     </div>
-                    <h3 className="text-xl font-bold mb-3 text-white font-space-grotesk">{feature.title}</h3>
-                    <p className="text-sm md:text-base text-slate-500">{feature.description}</p>
+                    <h3 className="tv-h4 mb-2">{feature.title}</h3>
+                    <p className="tv-small">{feature.description}</p>
                   </motion.div>
                 );
               })}
@@ -384,20 +378,20 @@ export default function ProductsPage() {
         </section>
 
         {/* Comparison Table */}
-        <section className="py-16 md:py-24 section-alt">
+        <section className="tv-surface-ink tv-section">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-white font-space-grotesk tracking-tight">Detailed Comparison</h2>
+              <h2 className="tv-h2 mb-5">Detailed Comparison</h2>
             </motion.div>
 
-            <div className="overflow-x-auto rounded-2xl border border-white/10 shadow-md bg-gradient-to-b from-[#0f172a] to-[#020617]">
+            <div className="overflow-x-auto rounded-[14px] border border-[#F1F3F1]/10 bg-[#232E2A]">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-primary/10 bg-primary/10">
                     <th className="px-6 py-4 text-left text-white font-semibold">Feature</th>
                     <th className="px-6 py-4 text-center text-white font-semibold">Starter</th>
-                    <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Professional</th>
-                    <th className="px-6 py-4 text-center text-[#0f2e25] font-semibold">Enterprise</th>
+                    <th className="px-6 py-4 text-center tv-h4">Professional</th>
+                    <th className="px-6 py-4 text-center tv-h4">Enterprise</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -417,7 +411,7 @@ export default function ProductsPage() {
                       transition={{ delay: idx * 0.05 }}
                       className={`border-b border-white/10 ${idx % 2 === 0 ? 'bg-[#0f172a]' : 'bg-[#020617]'}`}
                     >
-                      <td className="px-6 py-4 text-[#0f2e25] font-medium">{row.feature}</td>
+                      <td className="px-6 py-4 tv-small !text-[#F1F3F1]">{row.feature}</td>
                       <td className="px-6 py-4 text-center text-[#4b635d]">{row.starter}</td>
                       <td className="px-6 py-4 text-center text-[#4b635d]">{row.pro}</td>
                       <td className="px-6 py-4 text-center text-[#4b635d]">{row.enterprise}</td>
@@ -430,10 +424,10 @@ export default function ProductsPage() {
         </section>
 
         {/* FAQ */}
-        <section className="py-20 md:py-32">
+        <section className="tv-surface-graphite tv-section">
           <div className="site-container">
             <motion.div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Common Questions</h2>
+              <h2 className="tv-h2 mb-5">Common Questions</h2>
             </motion.div>
 
             <div className="space-y-4">
@@ -463,7 +457,7 @@ export default function ProductsPage() {
                   transition={{ delay: index * 0.1 }}
                   className="p-6 rounded-xl border border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-sm hover:border-white/20 hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] transition-all"
                 >
-                  <h3 className="font-semibold text-lg text-[#0f2e25] mb-2">{faq.q}</h3>
+                  <h3 className="tv-h4 mb-2">{faq.q}</h3>
                   <p className="text-[#4b635d]">{faq.a}</p>
                 </motion.div>
               ))}
@@ -472,17 +466,17 @@ export default function ProductsPage() {
         </section>
 
         {/* CTA */}
-        <section className="py-16 md:py-24 bg-gradient-to-b from-[#020617] via-[#0f172a] to-[#020617]">
+        <section className="tv-surface-ink tv-section">
           <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              className="text-center relative p-12 md:p-20 rounded-3xl border border-green-500/20 bg-gradient-to-r from-green-500/5 to-emerald-500/5 overflow-hidden"
+              className="text-center relative border-t border-[#C9A961]/25 pt-12 md:pt-16"
             >
               <div className="absolute top-0 right-0 w-96 h-96 bg-primary/20 rounded-full blur-3xl -z-10" />
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight relative z-10">Ready to Stand Out?</h2>
-              <p className="text-base md:text-lg text-slate-500 mb-8 max-w-2xl mx-auto relative z-10">
+              <h2 className="tv-h2 mb-5 relative z-10">Ready to Stand Out?</h2>
+              <p className="tv-lead mb-9 max-w-2xl mx-auto relative z-10">
                 Choose your plan and start sharing professionally today
               </p>
               <MotionLink href={ROUTES.CREATE_CARD}
@@ -491,7 +485,7 @@ export default function ProductsPage() {
                   className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-green-400 to-emerald-500 text-black rounded-xl font-semibold hover:shadow-[0_0_25px_rgba(74,222,128,0.4)] transition-all duration-300 shadow-md"
                 >
                   Get Your Card Now
-                  <ArrowRight className="w-5 h-5" />
+                  <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                 </MotionLink>
             </motion.div>
           </div>

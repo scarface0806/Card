@@ -35,7 +35,7 @@ function OrderSuccessContent() {
   };
 
   return (
-    <main className="pt-32 pb-20 min-h-screen flex items-center bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#111827]">
+    <main className="tv-hero pt-32 pb-20 min-h-screen flex items-center">
       <div className="site-container w-full">
         <motion.div
           variants={containerVariants}
@@ -60,30 +60,30 @@ function OrderSuccessContent() {
           </motion.div>
 
           <motion.div variants={itemVariants}>
-            <h1 className="text-4xl md:text-5xl font-bold text-white font-space-grotesk mb-4">
+            <h1 className="tv-h2 mb-4">
               Thank You!
             </h1>
-            <p className="text-xl text-gray-400">
+            <p className="tv-lead">
               Your digital business card has been successfully ordered
             </p>
           </motion.div>
 
           <motion.div
             variants={itemVariants}
-            className="bg-primary/10 border-2 border-primary/20 rounded-2xl p-8"
+            className="tv-panel tv-panel-pad"
           >
-            <p className="text-gray-300 text-sm mb-2">Your Order ID</p>
+            <p className="tv-mono mb-2">Your order ID</p>
             <p className="text-3xl font-bold text-white font-mono">{orderId}</p>
-            <p className="text-gray-300 text-sm mt-4">
+            <p className="tv-small mt-4">
               Save this ID for your records
             </p>
           </motion.div>
 
           <motion.div
             variants={itemVariants}
-            className="card rounded-2xl p-8 space-y-6 text-left"
+            className="tv-panel tv-panel-pad space-y-6 text-left"
           >
-            <h3 className="font-bold text-white font-space-grotesk text-lg">What's Next?</h3>
+            <h3 className="tv-h4">What's Next?</h3>
 
             <div className="flex gap-4">
               <div className="flex-shrink-0">
@@ -95,7 +95,7 @@ function OrderSuccessContent() {
                 <h4 className="font-semibold text-white mb-1">
                   Confirmation Email
                 </h4>
-                <p className="text-gray-400 text-sm">
+                <p className="tv-small">
                   Check your email for order confirmation and tracking details
                 </p>
               </div>
@@ -111,7 +111,7 @@ function OrderSuccessContent() {
                 <h4 className="font-semibold text-white mb-1">
                   Card Production
                 </h4>
-                <p className="text-gray-400 text-sm">
+                <p className="tv-small">
                   We're preparing your cards with high-quality printing
                 </p>
               </div>
@@ -127,7 +127,7 @@ function OrderSuccessContent() {
                 <h4 className="font-semibold text-white mb-1">
                   Shipping
                 </h4>
-                <p className="text-gray-400 text-sm">
+                <p className="tv-small">
                   Your cards will be shipped within 7-10 business days
                 </p>
               </div>
@@ -136,7 +136,7 @@ function OrderSuccessContent() {
 
           <motion.div
             variants={itemVariants}
-            className="bg-amber-500/10 border-2 border-amber-300/30 rounded-2xl p-6 space-y-3"
+            className="border-l-2 border-[#C9A961] pl-5 py-1 space-y-3 text-left"
           >
             <h4 className="font-semibold text-white">Need Help?</h4>
             <div className="flex flex-col sm:flex-row gap-4 justify-center text-sm">
@@ -165,7 +165,7 @@ function OrderSuccessContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="btn btn-lg btn-secondary w-full sm:w-auto"
+                className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
               >
                 <Home className="w-4 h-4" />
                 Back to Home
@@ -174,7 +174,7 @@ function OrderSuccessContent() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 1 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="btn btn-lg btn-primary w-full sm:w-auto"
+                className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
               >
                 <Layout className="w-4 h-4" />
                 Browse More Templates
@@ -191,7 +191,7 @@ export default function OrderSuccessPage() {
     <>
       <Navbar />
       <Suspense fallback={
-        <div className="pt-32 pb-20 min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#111827]">
+        <div className="tv-hero pt-32 pb-20 min-h-screen flex items-center justify-center">
           <div className="h-8 w-8 animate-spin rounded-full border-3 border-primary border-t-transparent" />
         </div>
       }>

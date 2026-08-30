@@ -22,19 +22,19 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="frontend-dark flex min-h-screen flex-col items-center justify-center bg-[#020617] px-6 py-24 text-center text-slate-50">
-      <p className="font-space-grotesk text-7xl font-extrabold text-primary md:text-8xl">500</p>
+    <div className="frontend-dark tv-hero flex min-h-screen flex-col items-center justify-center px-6 py-24 text-center">
+      <p className="tv-eyebrow tv-eyebrow--center mb-8">Error 500</p>
 
-      <h1 className="mt-6 font-space-grotesk text-3xl font-bold text-white md:text-4xl">
+      <h1 className="tv-h2">
         Something went wrong
       </h1>
 
-      <p className="mt-4 max-w-md text-base leading-relaxed text-slate-400">
+      <p className="tv-lead mt-5 max-w-md">
         This one is on us, not on you. Try again &mdash; if it keeps happening,
         email us at{' '}
         <a
           href={`mailto:${SUPPORT_EMAIL}`}
-          className="font-semibold text-primary underline underline-offset-4"
+          className="tv-btn-tertiary !min-h-0"
         >
           {SUPPORT_EMAIL}
         </a>
@@ -42,7 +42,7 @@ export default function Error({
       </p>
 
       {error.digest && (
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="tv-mono mt-4">
           Reference: <code className="font-mono">{error.digest}</code>
         </p>
       )}
@@ -51,13 +51,13 @@ export default function Error({
         <button
           type="button"
           onClick={reset}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl bg-primary px-8 py-3 font-semibold text-[#04160f] transition-colors hover:bg-primary/90"
+          className="tv-btn tv-btn-lg tv-btn-primary"
         >
           Try again
         </button>
         <Link
           href={ROUTES.HOME}
-          className="inline-flex min-h-[44px] items-center justify-center rounded-xl border border-white/20 px-8 py-3 font-semibold text-white transition-colors hover:border-primary/60 hover:bg-white/5"
+          className="tv-btn tv-btn-lg tv-btn-secondary"
         >
           Back to home
         </Link>

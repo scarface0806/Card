@@ -78,20 +78,20 @@ export default function SignupPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] py-12 px-4">
+    <main className="tv-hero min-h-screen flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
         {/* Card */}
-        <div className="bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-3xl border border-white/10 shadow-xl p-10">
+        <div className="tv-modal-panel !bg-[#151C1A] p-8 md:p-10">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-white mb-2">Create Your Account</h1>
-            <p className="text-gray-400">Join Tapvyo and start with your NFC business card</p>
+            <h1 className="tv-h3 mb-2">Create Your Account</h1>
+            <p className="tv-small">Join Tapvyo and start with your NFC business card</p>
           </div>
 
           {/* Server Error Alert */}
           {serverError && (
-            <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-xl">
-              <p className="text-sm text-red-700">{serverError}</p>
+            <div className="mb-6" role="alert">
+              <p className="tv-form-error">{serverError}</p>
             </div>
           )}
 
@@ -99,11 +99,11 @@ export default function SignupPage() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
             {/* Full Name Field */}
             <div>
-              <label htmlFor="fullName" className="block text-sm font-semibold text-gray-300 mb-2">
+              <label htmlFor="fullName" className="tv-label">
                 Full Name
               </label>
               <div className="relative">
-                <User className="absolute left-4 top-3.5 w-5 h-5 text-primary pointer-events-none" />
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none" />
                 <input
                   {...register('fullName', {
                     required: 'Full name is required',
@@ -115,23 +115,21 @@ export default function SignupPage() {
                   id="fullName"
                   type="text"
                   placeholder="John Doe"
-                  className={`w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
-                    errors.fullName ? 'border-red-500 focus:ring-red-400' : ''
-                  }`}
+                  className={`tv-input !pl-10 ${errors.fullName ? '!border-[#FF8A80]' : ''}`}
                 />
               </div>
               {errors.fullName && (
-                <p className="text-sm text-red-500 mt-2">{errors.fullName.message}</p>
+                <p className="tv-form-error mt-2">{errors.fullName.message}</p>
               )}
             </div>
 
             {/* Email Field */}
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-300 mb-2">
+              <label htmlFor="email" className="tv-label">
                 Email Address
               </label>
               <div className="relative">
-                <Mail className="absolute left-4 top-3.5 w-5 h-5 text-primary pointer-events-none" />
+                <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none" />
                 <input
                   {...register('email', {
                     required: 'Email is required',
@@ -143,23 +141,21 @@ export default function SignupPage() {
                   id="email"
                   type="email"
                   placeholder="you@example.com"
-                  className={`w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
-                    errors.email ? 'border-red-500 focus:ring-red-400' : ''
-                  }`}
+                  className={`tv-input !pl-10 ${errors.email ? '!border-[#FF8A80]' : ''}`}
                 />
               </div>
               {errors.email && (
-                <p className="text-sm text-red-500 mt-2">{errors.email.message}</p>
+                <p className="tv-form-error mt-2">{errors.email.message}</p>
               )}
             </div>
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-sm font-semibold text-gray-300 mb-2">
+              <label htmlFor="password" className="tv-label">
                 Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-primary pointer-events-none" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none" />
                 <input
                   {...register('password', {
                     required: 'Password is required',
@@ -171,30 +167,28 @@ export default function SignupPage() {
                   id="password"
                   type={showPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className={`w-full pl-12 pr-12 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
-                    errors.password ? 'border-red-500 focus:ring-red-400' : ''
-                  }`}
+                  className={`tv-input !pl-10 !pr-11 ${errors.password ? '!border-[#FF8A80]' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-gray-400 hover:text-primary transition-colors"
+                  className="tv-focus absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[#A9B5B0] hover:text-[#F1F3F1] transition-colors"
                 >
                   {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
                 </button>
               </div>
               {errors.password && (
-                <p className="text-sm text-red-500 mt-2">{errors.password.message}</p>
+                <p className="tv-form-error mt-2">{errors.password.message}</p>
               )}
             </div>
 
             {/* Confirm Password Field */}
             <div>
-              <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-300 mb-2">
+              <label htmlFor="confirmPassword" className="tv-label">
                 Confirm Password
               </label>
               <div className="relative">
-                <Lock className="absolute left-4 top-3.5 w-5 h-5 text-primary pointer-events-none" />
+                <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none" />
                 <input
                   {...register('confirmPassword', {
                     required: 'Please confirm your password',
@@ -203,14 +197,12 @@ export default function SignupPage() {
                   id="confirmPassword"
                   type={showConfirmPassword ? 'text' : 'password'}
                   placeholder="••••••••"
-                  className={`w-full pl-12 pr-12 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${
-                    errors.confirmPassword ? 'border-red-500 focus:ring-red-400' : ''
-                  }`}
+                  className={`tv-input !pl-10 !pr-11 ${errors.confirmPassword ? '!border-[#FF8A80]' : ''}`}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-3.5 text-gray-400 hover:text-primary transition-colors"
+                  className="tv-focus absolute right-3 top-1/2 -translate-y-1/2 p-2 text-[#A9B5B0] hover:text-[#F1F3F1] transition-colors"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="w-5 h-5" />
@@ -220,7 +212,7 @@ export default function SignupPage() {
                 </button>
               </div>
               {errors.confirmPassword && (
-                <p className="text-sm text-red-500 mt-2">{errors.confirmPassword.message}</p>
+                <p className="tv-form-error mt-2">{errors.confirmPassword.message}</p>
               )}
             </div>
 
@@ -232,24 +224,24 @@ export default function SignupPage() {
                 })}
                 id="agreeToTerms"
                 type="checkbox"
-                className="w-5 h-5 border border-primary/30 rounded text-primary focus:ring-2 focus:ring-primary/50 mt-0.5 cursor-pointer"
+                className="tv-focus w-4 h-4 mt-1 rounded accent-[#4CAE89] cursor-pointer"
               />
-              <label htmlFor="agreeToTerms" className="text-sm text-gray-300 cursor-pointer flex-1">
+              <label htmlFor="agreeToTerms" className="tv-small cursor-pointer flex-1">
                 I agree to the{' '}
-                <Link href={ROUTES.TERMS} className="text-primary font-medium hover:text-primary-dark">
+                <Link href={ROUTES.TERMS} className="tv-btn-tertiary !min-h-0 !text-sm">
                   Terms & Conditions
                 </Link>
               </label>
             </div>
             {errors.agreeToTerms && (
-              <p className="text-sm text-red-500 -mt-2">{errors.agreeToTerms.message}</p>
+              <p className="tv-form-error -mt-2">{errors.agreeToTerms.message}</p>
             )}
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-gradient-to-r from-green-400 to-emerald-500 text-black font-semibold py-3 rounded-xl hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98] transition-all duration-300 flex items-center justify-center gap-2 shadow-md"
+              className="tv-btn tv-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isLoading ? (
                 <>
@@ -264,10 +256,10 @@ export default function SignupPage() {
             {/* Divider */}
             <div className="relative my-6">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300"></div>
+                <div className="w-full border-t border-[#F1F3F1]/12"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-4 bg-[#0f172a] text-gray-400">Or continue with</span>
+                <span className="tv-mono px-4 bg-[#151C1A]">Or continue with</span>
               </div>
             </div>
 
@@ -276,11 +268,11 @@ export default function SignupPage() {
           </form>
 
           {/* Login Link */}
-          <p className="text-center text-gray-600 text-sm mt-8">
+          <p className="tv-small text-center mt-8">
             Already have an account?{' '}
             <Link
               href={ROUTES.LOGIN}
-              className="text-primary font-semibold hover:text-primary-dark transition-colors"
+              className="tv-btn-tertiary !min-h-0 !text-sm"
             >
               Login
             </Link>

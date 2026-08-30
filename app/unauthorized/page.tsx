@@ -4,11 +4,11 @@ import Link from "next/link";
 
 export default function UnauthorizedPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[#020617] via-[#0f172a] to-[#020617] px-4">
+    <div className="frontend-dark tv-hero min-h-screen flex items-center justify-center px-4">
       <div className="text-center max-w-md">
-        <div className="mb-6">
+        <div className="mb-7">
           <svg
-            className="mx-auto h-24 w-24 text-red-500"
+            className="mx-auto h-14 w-14 text-[#C9A961]"
             fill="none"
             viewBox="0 0 24 24"
             stroke="currentColor"
@@ -21,21 +21,21 @@ export default function UnauthorizedPage() {
             />
           </svg>
         </div>
-        <h1 className="text-3xl font-bold text-white mb-2">Access Denied</h1>
-        <p className="text-gray-400 mb-8">
+        <h1 className="tv-h2 mb-4">Access denied</h1>
+        <p className="tv-lead mb-9">
           You don&apos;t have permission to access this page. This area is
           restricted to administrators only.
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <Link
             href="/"
-            className="inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-black bg-gradient-to-r from-green-400 to-emerald-500 hover:shadow-[0_0_20px_rgba(74,222,128,0.4)] transition-all"
+            className="tv-btn tv-btn-lg tv-btn-primary"
           >
             Go to Home
           </Link>
           <Link
             href="/dashboard"
-            className="inline-flex items-center justify-center px-6 py-3 border border-white/20 text-base font-medium rounded-md text-white bg-white/5 hover:bg-white/10 transition-colors"
+            className="tv-btn tv-btn-lg tv-btn-secondary"
           >
             Go to Dashboard
           </Link>
