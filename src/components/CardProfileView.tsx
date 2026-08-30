@@ -1,7 +1,25 @@
 'use client';
 
+/**
+ * CARD PROFILE — what a visitor sees when they tap a card created through the
+ * order flow (/create-card), as opposed to an admin-created customer profile.
+ *
+ * Presentation only: rebuilt on the Tapvyo design system (.tv-* in globals.css)
+ * so this view, CustomerProfileView and /preview-website are visibly one
+ * product. The vCard export, the Web Share fallback and the lead form behind
+ * CardContactForm are unchanged.
+ *
+ * Two things the old markup did that this one deliberately does not:
+ *   - it painted the whole page with `details.backgroundColor` and every accent
+ *     with `details.primaryColor`, so each card was a different-looking site.
+ *     Both fields are still read from the card, but a profile is now drawn in
+ *     the one system: ink ground, patina action, brass label;
+ *   - it nested the "View location" anchor INSIDE the Share <button>, which is
+ *     invalid HTML - the anchor was unreachable and the button had no visible
+ *     label after it. Location is its own action now.
+ */
+
 import { motion } from 'framer-motion';
-import Image from 'next/image';
 import Link from 'next/link';
 import {
   Phone,
@@ -19,6 +37,7 @@ import {
   Download,
   Share2,
   ExternalLink,
+  ArrowUpRight,
 } from 'lucide-react';
 import CardContactForm from './CardContactForm';
 
@@ -89,32 +108,34 @@ const socialIcons: Record<string, React.ElementType> = {
   telegram: Send,
 };
 
-// Social link colors
-const socialColors: Record<string, string> = {
-  linkedin: 'hover:bg-[#0077B5] hover:border-[#0077B5]',
-  twitter: 'hover:bg-[#1DA1F2] hover:border-[#1DA1F2]',
-  facebook: 'hover:bg-[#1877F2] hover:border-[#1877F2]',
-  instagram: 'hover:bg-gradient-to-br hover:from-[#833AB4] hover:via-[#FD1D1D] hover:to-[#F77737]',
-  youtube: 'hover:bg-[#FF0000] hover:border-[#FF0000]',
-  github: 'hover:bg-[#333] hover:border-[#333]',
-  whatsapp: 'hover:bg-[#25D366] hover:border-[#25D366]',
-  telegram: 'hover:bg-[#0088CC] hover:border-[#0088CC]',
+const fadeInUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.6 },
 };
 
 export default function CardProfileView({ card }: CardProfileViewProps) {
   const details = card.details;
-  
+
   if (!details) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <p className="text-white/60">Card details not available</p>
+      <div className="min-h-screen bg-[#070A09] flex items-center justify-center p-6">
+        <p className="tv-body">Card details not available</p>
       </div>
     );
   }
 
   const fullName = [details.firstName, details.lastName].filter(Boolean).join(' ') || 'Unknown';
-  const primaryColor = details.primaryColor || '#06b6d4';
-  const backgroundColor = details.backgroundColor || '#0f172a';
+  const websiteHref = details.website
+    ? details.website.startsWith('http')
+      ? details.website
+      : `https://${details.website}`
+    : null;
+
+  const socialEntries = Object.entries(details.socialLinks || {}).filter(
+    ([, url]) => Boolean(url)
+  ) as [string, string][];
 
   // Generate vCard for download
   const generateVCard = () => {
@@ -159,299 +180,313 @@ END:VCARD`;
   };
 
   return (
-    <div 
-      className="min-h-screen"
-      style={{ backgroundColor }}
-    >
-      {/* Cover Image / Header */}
-      <div className="relative h-48 md:h-64">
-        {details.coverImage ? (
-          <Image
-            src={details.coverImage}
-            alt="Cover"
-            fill
-            className="object-cover"
-            priority
-          />
-        ) : (
-          <div 
-            className="absolute inset-0"
-            style={{ 
-              background: `linear-gradient(135deg, ${primaryColor}40 0%, ${primaryColor}20 100%)` 
-            }}
-          />
-        )}
-        {/* Gradient overlay */}
-        <div 
-          className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"
-          style={{ backgroundColor: `${backgroundColor}80` }}
-        />
-      </div>
-
-      {/* Profile Section */}
-      <div className="relative px-4 pb-8 -mt-20 max-w-lg mx-auto">
-        {/* Profile Image */}
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.5 }}
-          className="flex justify-center mb-4"
-        >
-          <div 
-            className="relative w-32 h-32 md:w-40 md:h-40 rounded-full border-4 overflow-hidden shadow-2xl"
-            style={{ borderColor: primaryColor }}
-          >
-            {details.profileImage ? (
-              <Image
-                src={details.profileImage}
-                alt={fullName}
-                fill
-                className="object-cover"
-                priority
-              />
-            ) : (
-              <div 
-                className="w-full h-full flex items-center justify-center text-4xl font-bold text-white"
-                style={{ backgroundColor: primaryColor }}
-              >
-                {fullName.charAt(0).toUpperCase()}
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Name & Title */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-center mb-6"
-        >
-          <h1 className="text-2xl md:text-3xl font-bold text-white mb-1">
-            {fullName}
-          </h1>
-          {details.title && (
-            <p className="text-white/70 text-lg">{details.title}</p>
-          )}
-          {details.company && (
-            <p className="text-white/50 text-sm mt-1 flex items-center justify-center gap-1">
-              <MapPin className="w-3 h-3" />
-              {details.company}
-            </p>
-          )}
-        </motion.div>
-
-        {/* Company Logo */}
-        {details.logo && (
-          <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.15 }}
-            className="flex justify-center mb-6"
-          >
-            <Image
-              src={details.logo}
-              alt="Company Logo"
-              width={120}
-              height={40}
-              className="object-contain opacity-80"
-            />
-          </motion.div>
-        )}
-
-        {/* Bio */}
-        {details.bio && (
-          <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-white/60 text-center text-sm mb-8 px-4"
-          >
-            {details.bio}
-          </motion.p>
-        )}
-
-        {/* Action Buttons */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.25 }}
-          className="flex justify-center gap-3 mb-8"
-        >
-          <button
-            onClick={generateVCard}
-            className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium transition-all duration-300 hover:scale-105"
-            style={{ backgroundColor: primaryColor }}
-          >
-            <Download className="w-4 h-4" />
-            Save Contact
-          </button>
-          <button
-            onClick={handleShare}
-            className="flex items-center gap-2 px-4 py-3 rounded-full border border-white/20 text-white/80 hover:bg-white/10 transition-all duration-300"
-          >
-            <Share2 className="w-4 h-4" />
-                    {details.googleLocation && (
-                      <a
-                        href={details.googleLocation}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex items-center gap-2 px-6 py-3 rounded-full text-white font-medium transition-all duration-300 hover:scale-105 bg-red-600 hover:bg-red-700"
-                      >
-                        📍 View Location
-                      </a>
-                    )}
-          </button>
-        </motion.div>
-
-        {/* Contact Form */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.28 }}
-          className="mb-8"
-        >
-          <CardContactForm cardSlug={card.slug} primaryColor={primaryColor} />
-        </motion.div>
-
-        {/* Contact Links */}
-        <motion.div
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.3 }}
-          className="space-y-3 mb-8"
-        >
-          {details.phone && (
-            <Link
-              href={`tel:${details.phone}`}
-              className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
-            >
-              <div 
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${primaryColor}20` }}
-              >
-                <Phone className="w-5 h-5" style={{ color: primaryColor }} />
-              </div>
-              <div className="flex-1">
-                <p className="text-white/50 text-xs uppercase tracking-wide">Phone</p>
-                <p className="text-white font-medium">{details.phone}</p>
-              </div>
-              <ExternalLink className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors" />
-            </Link>
-          )}
-
-          {details.email && (
-            <Link
-              href={`mailto:${details.email}`}
-              className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
-            >
-              <div 
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${primaryColor}20` }}
-              >
-                <Mail className="w-5 h-5" style={{ color: primaryColor }} />
-              </div>
-              <div className="flex-1">
-                <p className="text-white/50 text-xs uppercase tracking-wide">Email</p>
-                <p className="text-white font-medium break-all">{details.email}</p>
-              </div>
-              <ExternalLink className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors" />
-            </Link>
-          )}
-
-          {details.website && (
-            <Link
-              href={details.website.startsWith('http') ? details.website : `https://${details.website}`}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
-            >
-              <div 
-                className="w-10 h-10 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: `${primaryColor}20` }}
-              >
-                <Globe className="w-5 h-5" style={{ color: primaryColor }} />
-              </div>
-              <div className="flex-1">
-                <p className="text-white/50 text-xs uppercase tracking-wide">Website</p>
-                <p className="text-white font-medium">{details.website.replace(/^https?:\/\//, '')}</p>
-              </div>
-              <ExternalLink className="w-4 h-4 text-white/30 group-hover:text-white/60 transition-colors" />
-            </Link>
-          )}
-        </motion.div>
-
-        {/* Social Links */}
-        {details.socialLinks && Object.entries(details.socialLinks).some(([, value]) => value) && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.35 }}
-            className="mb-8"
-          >
-            <h3 className="text-white/50 text-xs uppercase tracking-wide text-center mb-4">
-              Connect
-            </h3>
-            <div className="flex flex-wrap justify-center gap-3">
-              {Object.entries(details.socialLinks).map(([platform, url]) => {
-                if (!url) return null;
-                const Icon = socialIcons[platform] || ExternalLink;
-                const colorClass = socialColors[platform] || 'hover:bg-white/20';
-                
-                return (
-                  <Link
-                    key={platform}
-                    href={url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`w-12 h-12 rounded-full border border-white/20 flex items-center justify-center text-white/70 hover:text-white transition-all duration-300 ${colorClass}`}
-                    title={platform.charAt(0).toUpperCase() + platform.slice(1)}
-                  >
-                    <Icon className="w-5 h-5" />
-                  </Link>
-                );
-              })}
+    <div className="min-h-screen bg-[#070A09]">
+      {/* PROFILE BAR */}
+      <div className="tv-profilebar">
+        <div className="site-container">
+          <div className="tv-profilebar-bar">
+            <div className="flex items-center gap-3 min-w-0">
+              {details.logo ? (
+                <img
+                  src={details.logo}
+                  alt={details.company || fullName}
+                  width={200}
+                  height={60}
+                  className="h-8 w-auto object-contain"
+                />
+              ) : null}
+              <span className="tv-mono truncate">{details.company || fullName}</span>
             </div>
-          </motion.div>
-        )}
 
-        {/* Custom Fields */}
-        {details.customFields && details.customFields.length > 0 && (
-          <motion.div
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-            className="space-y-3 mb-8"
-          >
-            {details.customFields.map((field, index) => (
-              <div
-                key={index}
-                className="p-4 rounded-xl bg-white/5 border border-white/10"
-              >
-                <p className="text-white/50 text-xs uppercase tracking-wide mb-1">
-                  {field.label}
-                </p>
-                <p className="text-white font-medium">{field.value}</p>
-              </div>
-            ))}
-          </motion.div>
-        )}
-
-        {/* Powered by */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.5, delay: 0.5 }}
-          className="text-center pt-8 border-t border-white/10"
-        >
-          <Link
-            href="/"
-            className="text-white/30 text-xs hover:text-white/50 transition-colors"
-          >
-            Powered by <span className="font-semibold">Tapvyo</span>
-          </Link>
-        </motion.div>
+            <button onClick={generateVCard} className="tv-btn tv-btn-primary shrink-0">
+              <Download className="w-[18px] h-[18px]" aria-hidden="true" />
+              Save contact
+            </button>
+          </div>
+        </div>
       </div>
+
+      <main>
+        {/* IDENTITY */}
+        <section className="tv-hero pt-28 pb-16 md:pt-36 md:pb-24" id="about">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-5"
+              >
+                <div className="tv-portrait max-w-[22rem] lg:max-w-none">
+                  {details.profileImage ? (
+                    <img
+                      src={details.profileImage}
+                      alt={fullName}
+                      width={800}
+                      height={1000}
+                      decoding="async"
+                    />
+                  ) : (
+                    /* No upload: the initial, set in the display face, rather
+                       than a coloured circle with a letter in it. */
+                    <div className="flex h-full w-full items-center justify-center bg-[#151C1A]">
+                      <span
+                        className="tv-display"
+                        style={{ fontSize: 'clamp(4rem, 12vw, 8rem)' }}
+                        aria-hidden="true"
+                      >
+                        {fullName.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.12 }}
+                className="lg:col-span-7"
+              >
+                <p className="tv-eyebrow mb-6">Digital profile</p>
+                <h1 className="tv-display mb-4">{fullName}</h1>
+                <p className="tv-lead mb-9 tv-measure-lead">
+                  {[details.title, details.company].filter(Boolean).join(' · ') ||
+                    'NFC Digital Card'}
+                </p>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                  <button
+                    onClick={generateVCard}
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  >
+                    Save contact
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </button>
+                  <button
+                    onClick={handleShare}
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  >
+                    <Share2 className="w-[18px] h-[18px]" aria-hidden="true" />
+                    Share
+                  </button>
+                </div>
+
+                {details.googleLocation ? (
+                  <p className="tv-small mb-9">
+                    <a
+                      href={details.googleLocation}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tv-btn-tertiary !min-h-0"
+                    >
+                      View location
+                    </a>
+                  </p>
+                ) : null}
+
+                {socialEntries.length > 0 ? (
+                  <ul className="flex flex-wrap gap-3">
+                    {socialEntries.map(([platform, url]) => {
+                      const Icon = socialIcons[platform] || ExternalLink;
+                      const label = platform.charAt(0).toUpperCase() + platform.slice(1);
+                      return (
+                        <li key={platform}>
+                          <Link
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="tv-iconlink tv-focus"
+                            aria-label={`${label} (opens in a new tab)`}
+                          >
+                            <Icon
+                              className="w-[18px] h-[18px]"
+                              strokeWidth={1.7}
+                              aria-hidden="true"
+                            />
+                          </Link>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* BIO */}
+        {details.bio ? (
+          <section className="tv-surface-graphite tv-section-tight">
+            <div className="site-container">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+                <motion.div {...fadeInUp} className="lg:col-span-4">
+                  <div className="lg:sticky lg:top-28">
+                    <p className="tv-eyebrow mb-6">About</p>
+                    <h2 className="tv-h2">{details.company || 'Background.'}</h2>
+                  </div>
+                </motion.div>
+
+                <motion.div
+                  {...fadeInUp}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  className="lg:col-span-8"
+                >
+                  <p className="tv-lead tv-measure-body whitespace-pre-line">{details.bio}</p>
+                </motion.div>
+              </div>
+            </div>
+          </section>
+        ) : null}
+
+        {/* COVER — the card's one image beyond the portrait. It used to be a
+            192px band cropped behind a gradient; framed here it is actually
+            visible. Sits where a customer profile shows its gallery. */}
+        {details.coverImage ? (
+          <section className="tv-surface-ink tv-section-tight">
+            <div className="site-container">
+              <motion.figure {...fadeInUp} className="tv-figure">
+                <div className="tv-figure-media" style={{ aspectRatio: '16 / 7' }}>
+                  <img
+                    src={details.coverImage}
+                    alt={`${fullName} cover image`}
+                    width={1600}
+                    height={700}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </motion.figure>
+            </div>
+          </section>
+        ) : null}
+
+        {/* CONTACT — details, custom fields and the enquiry form, on bone, as
+            on every other profile surface. */}
+        <section className="tv-surface-bone tv-section" id="contact">
+          <div className="site-container">
+            <motion.div {...fadeInUp} className="max-w-2xl mb-12 md:mb-16">
+              <p className="tv-eyebrow mb-6">Contact</p>
+              <h2 className="tv-h2 mb-4">Get in touch.</h2>
+              <p className="tv-lead tv-measure-body">
+                Save the contact card, reach out directly, or send a message.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              <motion.div {...fadeInUp} className="lg:col-span-5">
+                <ul>
+                  {details.phone ? (
+                    <li className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <Phone className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="tv-detail-val">
+                        <span className="tv-mono block mb-1">Phone</span>
+                        <a href={`tel:${details.phone}`} className="tv-btn-tertiary !min-h-0">
+                          {details.phone}
+                        </a>
+                      </span>
+                    </li>
+                  ) : null}
+
+                  {details.email ? (
+                    <li className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <Mail className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="tv-detail-val">
+                        <span className="tv-mono block mb-1">Email</span>
+                        <a href={`mailto:${details.email}`} className="tv-btn-tertiary !min-h-0">
+                          {details.email}
+                        </a>
+                      </span>
+                    </li>
+                  ) : null}
+
+                  {websiteHref ? (
+                    <li className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <Globe className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="tv-detail-val">
+                        <span className="tv-mono block mb-1">Website</span>
+                        <a
+                          href={websiteHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="tv-btn-tertiary !min-h-0"
+                        >
+                          {details.website?.replace(/^https?:\/\//, '')}
+                        </a>
+                      </span>
+                    </li>
+                  ) : null}
+
+                  {details.googleLocation ? (
+                    <li className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <MapPin className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="tv-detail-val">
+                        <span className="tv-mono block mb-1">Location</span>
+                        <a
+                          href={details.googleLocation}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="tv-btn-tertiary !min-h-0"
+                        >
+                          Open in Maps
+                        </a>
+                      </span>
+                    </li>
+                  ) : null}
+
+                  {/* Custom fields are the same labelled-value row, so they no
+                      longer read as a different kind of information. */}
+                  {(details.customFields || []).map((field, index) => (
+                    <li key={`${field.label}-${index}`} className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <ExternalLink className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="tv-detail-val">
+                        <span className="tv-mono block mb-1">{field.label}</span>
+                        <span className="tv-body">{field.value}</span>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+
+              <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-7"
+              >
+                <div className="tv-panel tv-panel-pad">
+                  <h3 className="tv-h3 mb-2">Send a message</h3>
+                  <p className="tv-body mb-6">
+                    Your details go straight to {fullName.split(' ')[0]} — nobody else sees
+                    them.
+                  </p>
+                  <CardContactForm cardSlug={card.slug} />
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="tv-surface-graphite border-t border-[#F1F3F1]/10">
+        <div className="site-container py-8">
+          <p className="tv-small">
+            Powered by{' '}
+            <Link href="/" className="tv-btn-tertiary !min-h-0">
+              Tapvyo
+            </Link>
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

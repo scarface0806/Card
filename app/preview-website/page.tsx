@@ -184,9 +184,9 @@ export default function PreviewWebsitePage() {
     <div className="min-h-screen bg-[#070A09]">
       {/* DEMO FRAME — says what the page is before the stock photography can
           imply otherwise, and gives the one route out of the demo. */}
-      <div className="tv-demobar">
+      <div className="tv-profilebar tv-profilebar--demo">
         <div className="site-container">
-          <div className="tv-demobar-bar">
+          <div className="tv-profilebar-bar">
             {/* At 320px the logo, the notice and the CTA cannot all fit on one
                 line, and the notice is the part that has to survive: it is the
                 only thing telling the visitor this is not a real profile. */}
@@ -393,17 +393,11 @@ export default function PreviewWebsitePage() {
               <motion.div {...fadeInUp} className="lg:col-span-5">
                 <ul className="mb-10">
                   {CONTACT_ROWS.map(({ icon: Icon, label, value, href, external }) => (
-                    <li
-                      key={label}
-                      className="flex items-start gap-4 py-4 border-b border-black/10"
-                    >
-                      <span
-                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#6E5518]/10"
-                        aria-hidden="true"
-                      >
-                        <Icon className="h-4 w-4 text-[#6E5518]" strokeWidth={1.8} />
+                    <li key={label} className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <Icon className="h-4 w-4" strokeWidth={1.8} />
                       </span>
-                      <span className="min-w-0">
+                      <span className="tv-detail-val">
                         <span className="tv-mono block mb-1">{label}</span>
                         <a
                           href={href}

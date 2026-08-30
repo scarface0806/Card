@@ -1,6 +1,34 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+/**
+ * CUSTOMER PROFILE — what a visitor sees when they tap an admin-created card.
+ *
+ * Presentation only: rebuilt on the Tapvyo design system (.tv-* in
+ * globals.css) so this page, /preview-website and CardProfileView are visibly
+ * one product. Nothing about how a profile is created, stored or delivered was
+ * touched - lead submission, the three mail delivery modes, URL and map-embed
+ * normalisation and the gallery slot logic below are unchanged.
+ *
+ * Gone with the old markup: ~610 lines of component-local CSS carrying a third
+ * palette (#14B8A6 teal), the Font Awesome CDN stylesheet, and the light/dark
+ * switch - which toggled a `dark` class on <body> that only that CSS read, so
+ * once the CSS went there was nothing for it to switch.
+ */
+
+import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  ArrowUpRight,
+  Facebook,
+  Globe,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Palette,
+  Phone,
+} from 'lucide-react';
 import { BRAND } from '@/lib/brand';
 import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
@@ -104,22 +132,17 @@ function getMailDeliveryMode(value?: string | null): MailDeliveryMode {
   return 'internal';
 }
 
+const fadeInUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.6 },
+};
+
 export default function CustomerProfileView({ customer }: CustomerProfileViewProps) {
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   const [form, setForm] = useState<ContactFormState>({ name: '', phone: '', email: '', subject: '', message: '' });
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  const toggleTheme = () => {
-    setTheme((current) => (current === 'light' ? 'dark' : 'light'));
-  };
-
-  useEffect(() => {
-    document.body.classList.toggle('dark', theme === 'dark');
-    return () => {
-      document.body.classList.remove('dark');
-    };
-  }, [theme]);
 
   const gallerySlots = useMemo(() => {
     const ordered = [...customer.galleries].sort((a, b) => a.slot - b.slot).slice(0, 3);
@@ -140,12 +163,16 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
   const socialLinks = useMemo(
     () => [
-      { key: 'whatsapp', enabled: customer.whatsappEnabled, url: normalizeUrl(customer.whatsapp), title: 'WhatsApp', icon: 'fab fa-whatsapp' },
-      { key: 'instagram', enabled: customer.instagramEnabled, url: normalizeUrl(customer.instagram), title: 'Instagram', icon: 'fab fa-instagram' },
-      { key: 'facebook', enabled: customer.facebookEnabled, url: normalizeUrl(customer.facebook), title: 'Facebook', icon: 'fab fa-facebook-f' },
-      { key: 'linkedin', enabled: customer.linkedinEnabled, url: normalizeUrl(customer.linkedin), title: 'LinkedIn', icon: 'fab fa-linkedin-in' },
-      { key: 'behance', enabled: customer.behanceEnabled, url: normalizeUrl(customer.behance), title: 'Behance', icon: 'fab fa-behance' },
-      { key: 'website', enabled: customer.websiteEnabled, url: normalizeUrl(customer.website), title: 'Website', icon: 'fas fa-globe' },
+      // Same channels, same enable flags, same order. Only the icon changed:
+      // a lucide component instead of a Font Awesome class name, so the page
+      // no longer pulls a CDN stylesheet to draw six glyphs. Behance has no
+      // lucide glyph, so it takes the portfolio icon.
+      { key: 'whatsapp', enabled: customer.whatsappEnabled, url: normalizeUrl(customer.whatsapp), title: 'WhatsApp', icon: MessageCircle },
+      { key: 'instagram', enabled: customer.instagramEnabled, url: normalizeUrl(customer.instagram), title: 'Instagram', icon: Instagram },
+      { key: 'facebook', enabled: customer.facebookEnabled, url: normalizeUrl(customer.facebook), title: 'Facebook', icon: Facebook },
+      { key: 'linkedin', enabled: customer.linkedinEnabled, url: normalizeUrl(customer.linkedin), title: 'LinkedIn', icon: Linkedin },
+      { key: 'behance', enabled: customer.behanceEnabled, url: normalizeUrl(customer.behance), title: 'Behance', icon: Palette },
+      { key: 'website', enabled: customer.websiteEnabled, url: normalizeUrl(customer.website), title: 'Website', icon: Globe },
     ].filter((item) => item.enabled && item.url),
     [customer]
   );
@@ -241,799 +268,399 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
   };
 
   return (
-    <>
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
-      <style jsx global>{`
-        /* =============================================
-           PREMIUM DESIGN SYSTEM — CSS Variables
-           ============================================= */
-        :root {
-          --digi-bg: #F8FAFC;
-          --digi-card: #FFFFFF;
-          --digi-text-primary: #0F172A;
-          --digi-text-secondary: #475569;
-          --digi-text-muted: #94A3B8;
-          --digi-border: #E2E8F0;
-          --digi-accent: #14B8A6;
-          --digi-accent-hover: #0D9488;
-          --digi-accent-soft: rgba(20, 184, 166, 0.08);
-          --digi-accent-border: rgba(20, 184, 166, 0.2);
-          --digi-input-bg: #FFFFFF;
-          --digi-input-border: #E2E8F0;
-          --digi-input-focus: #14B8A6;
-          --digi-surface: #F1F5F9;
-          --digi-overlay: rgba(15, 23, 42, 0.7);
-          --digi-radius: 16px;
-          --digi-radius-sm: 12px;
-          --digi-radius-xs: 10px;
-          --digi-transition: 200ms cubic-bezier(0.25, 0.1, 0.25, 1);
-          --digi-font: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-        }
-
-        body.dark {
-          --digi-bg: #0B1120;
-          --digi-card: #111827;
-          --digi-text-primary: #F1F5F9;
-          --digi-text-secondary: #94A3B8;
-          --digi-text-muted: #64748B;
-          --digi-border: #1F2937;
-          --digi-accent: #2DD4BF;
-          --digi-accent-hover: #5EEAD4;
-          --digi-accent-soft: rgba(45, 212, 191, 0.08);
-          --digi-accent-border: rgba(45, 212, 191, 0.16);
-          --digi-input-bg: #0F172A;
-          --digi-input-border: #1E293B;
-          --digi-input-focus: #2DD4BF;
-          --digi-surface: #0F172A;
-          --digi-overlay: rgba(0, 0, 0, 0.8);
-        }
-
-        * { box-sizing: border-box; }
-        body { background: var(--digi-bg); }
-
-        /* =============================================
-           PAGE SHELL
-           ============================================= */
-        .digi-page-shell {
-          min-height: 100vh;
-          width: 100%;
-          background: var(--digi-bg);
-          padding: 24px 16px 40px;
-          font-family: var(--digi-font);
-        }
-
-        .digi-card-container {
-          max-width: 1140px;
-          margin: 0 auto;
-          background: var(--digi-card);
-          border-radius: var(--digi-radius);
-          overflow: hidden;
-          border: 1px solid var(--digi-border);
-        }
-
-        /* =============================================
-           NAVBAR — Clean, minimal
-           ============================================= */
-        .digi-navbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 32px;
-          border-bottom: 1px solid var(--digi-border);
-          background: var(--digi-card);
-        }
-
-        .digi-logo {
-          display: inline-flex;
-          align-items: center;
-          gap: 12px;
-          text-decoration: none;
-        }
-
-        .digi-nav-logo-img {
-          max-height: 40px;
-          width: auto;
-          object-fit: contain;
-        }
-
-        .digi-shop-name {
-          color: var(--digi-text-primary);
-          font-size: 0.938rem;
-          font-weight: 600;
-          letter-spacing: -0.01em;
-        }
-
-        .digi-nav-right {
-          display: flex;
-          align-items: center;
-          gap: 16px;
-        }
-
-        /* =============================================
-           THEME TOGGLE — Sun/Moon icon button
-           ============================================= */
-        .digi-theme-toggle { position: relative; }
-        .digi-theme-switch { display: none; }
-        .digi-toggle-label { cursor: pointer; display: block; }
-
-        .digi-toggle-btn {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: var(--digi-surface);
-          border: 1px solid var(--digi-border);
-          transition: all var(--digi-transition);
-        }
-
-        .digi-toggle-btn:hover {
-          border-color: var(--digi-accent);
-        }
-
-        .digi-toggle-btn svg {
-          width: 20px;
-          height: 20px;
-          transition: all 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
-
-        .digi-sun-icon {
-          color: #F59E0B;
-          display: block;
-        }
-
-        .digi-moon-icon {
-          color: var(--digi-accent);
-          display: none;
-        }
-
-        body.dark .digi-sun-icon {
-          display: none;
-        }
-
-        body.dark .digi-moon-icon {
-          display: block;
-        }
-
-        body.dark .digi-toggle-btn {
-          background: rgba(45, 212, 191, 0.08);
-          border-color: rgba(45, 212, 191, 0.2);
-        }
-
-        /* =============================================
-           PROFILE SECTION — Modern split layout
-           ============================================= */
-        .digi-main-content { padding: 0; }
-
-        .digi-profile-section {
-          display: grid;
-          grid-template-columns: 1fr 1.2fr;
-          gap: 48px;
-          padding: 64px 48px;
-          align-items: start;
-          background: var(--digi-card);
-        }
-
-        .digi-profile-image img {
-          width: 100%;
-          border-radius: var(--digi-radius);
-          object-fit: cover;
-          aspect-ratio: 1/1;
-          border: 1px solid var(--digi-border);
-        }
-
-        .digi-name {
-          font-family: var(--digi-font);
-          font-size: 2.25rem;
-          font-weight: 700;
-          letter-spacing: -0.025em;
-          line-height: 1.15;
-          margin: 0 0 8px;
-          color: var(--digi-text-primary);
-        }
-
-        .digi-company {
-          margin: 0 0 28px;
-          font-size: 1.0625rem;
-          font-weight: 400;
-          color: var(--digi-text-secondary);
-          letter-spacing: -0.005em;
-        }
-
-        .digi-about-title {
-          font-size: 0.75rem;
-          font-weight: 600;
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          color: var(--digi-accent);
-          margin: 0 0 10px;
-        }
-
-        .digi-about-text {
-          margin: 0;
-          color: var(--digi-text-secondary);
-          font-size: 0.9375rem;
-          line-height: 1.75;
-          letter-spacing: 0.005em;
-        }
-
-        /* =============================================
-           SOCIAL ICONS
-           ============================================= */
-        .digi-social-icons {
-          margin-top: 28px;
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-
-        .digi-social-icon {
-          width: 42px;
-          height: 42px;
-          border-radius: 50%;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          text-decoration: none;
-          font-size: 1rem;
-          color: var(--digi-accent);
-          background: var(--digi-accent-soft);
-          border: 1px solid var(--digi-accent-border);
-          transition: all var(--digi-transition);
-        }
-
-        .digi-social-icon:hover {
-          background: var(--digi-accent);
-          color: #fff;
-          border-color: var(--digi-accent);
-          transform: translateY(-2px);
-        }
-
-        /* =============================================
-           GALLERY — Clean responsive grid
-           ============================================= */
-        .digi-works-section {
-          padding: 80px 48px;
-          background: var(--digi-surface);
-          border-top: 1px solid var(--digi-border);
-          border-bottom: 1px solid var(--digi-border);
-        }
-
-        .digi-works-header {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-
-        .digi-works-title {
-          margin: 0;
-          font-size: 1.75rem;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-          color: var(--digi-text-primary);
-        }
-
-        .digi-works-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 20px;
-        }
-
-        .digi-work-item {
-          position: relative;
-          border-radius: var(--digi-radius-sm);
-          overflow: hidden;
-          border: 1px solid var(--digi-border);
-          transition: transform var(--digi-transition), border-color var(--digi-transition);
-        }
-
-        .digi-work-item:hover {
-          transform: scale(1.02);
-          border-color: var(--digi-accent);
-        }
-
-        .digi-work-item img {
-          width: 100%;
-          height: 240px;
-          object-fit: cover;
-          display: block;
-          transition: transform 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
-
-        .digi-work-item:hover img {
-          transform: scale(1.04);
-        }
-
-        .digi-work-overlay {
-          position: absolute;
-          inset: auto 0 0 0;
-          background: linear-gradient(to top, var(--digi-overlay), transparent);
-          color: white;
-          padding: 20px 16px;
-          transform: translateY(100%);
-          transition: transform 0.3s cubic-bezier(0.25, 0.1, 0.25, 1);
-        }
-
-        .digi-work-item:hover .digi-work-overlay {
-          transform: translateY(0);
-        }
-
-        .digi-work-overlay p {
-          margin: 0;
-          font-size: 0.875rem;
-          font-weight: 500;
-          letter-spacing: 0.005em;
-        }
-
-        /* =============================================
-           CONTACT/FORM SECTION — Split layout
-           ============================================= */
-        .digi-form-section {
-          padding: 80px 48px;
-          background: var(--digi-card);
-        }
-
-        .digi-form-header {
-          text-align: center;
-          margin-bottom: 48px;
-        }
-
-        .digi-form-main-title {
-          margin: 0 0 12px;
-          font-size: 1.75rem;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-          color: var(--digi-text-primary);
-        }
-
-        .digi-form-subtitle {
-          margin: 0;
-          color: var(--digi-text-muted);
-          font-size: 0.9375rem;
-          line-height: 1.6;
-          max-width: 480px;
-          margin-left: auto;
-          margin-right: auto;
-        }
-
-        .digi-form-content {
-          display: grid;
-          grid-template-columns: 1fr 1.2fr;
-          gap: 48px;
-          align-items: start;
-        }
-
-        /* Contact details */
-        .digi-talk-title {
-          margin: 0 0 8px;
-          font-size: 1.25rem;
-          font-weight: 600;
-          letter-spacing: -0.01em;
-          color: var(--digi-text-primary);
-        }
-
-        .digi-talk-text {
-          margin: 0 0 28px;
-          color: var(--digi-text-secondary);
-          font-size: 0.875rem;
-          line-height: 1.6;
-        }
-
-        .digi-contact-details {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .digi-contact-detail-item {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 14px 16px;
-          border-radius: var(--digi-radius-xs);
-          background: var(--digi-surface);
-          border: 1px solid var(--digi-border);
-          transition: border-color var(--digi-transition);
-        }
-
-        .digi-contact-detail-item:hover {
-          border-color: var(--digi-accent);
-        }
-
-        .digi-detail-icon {
-          width: 36px;
-          height: 36px;
-          border-radius: 10px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          font-size: 0.8rem;
-          flex-shrink: 0;
-        }
-
-        .digi-detail-icon.phone { background: var(--digi-accent); }
-        .digi-detail-icon.email { background: var(--digi-accent); }
-        .digi-detail-icon.location { background: var(--digi-accent); }
-
-        .digi-contact-link {
-          color: var(--digi-text-primary);
-          text-decoration: none;
-          font-size: 0.875rem;
-          font-weight: 500;
-          line-height: 1.5;
-          word-break: break-word;
-          transition: color var(--digi-transition);
-        }
-
-        .digi-contact-link:hover {
-          color: var(--digi-accent);
-        }
-
-        .digi-phone-numbers {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-        }
-
-        /* =============================================
-           FORM — Modern inputs
-           ============================================= */
-        .digi-contact-form {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-
-        .digi-form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 14px;
-        }
-
-        .digi-form-group input,
-        .digi-form-group textarea {
-          width: 100%;
-          border: 1px solid var(--digi-input-border);
-          border-radius: var(--digi-radius-xs);
-          padding: 13px 16px;
-          font-family: var(--digi-font);
-          font-size: 0.875rem;
-          background: var(--digi-input-bg);
-          color: var(--digi-text-primary);
-          outline: none;
-          transition: border-color var(--digi-transition), box-shadow var(--digi-transition);
-        }
-
-        .digi-form-group input::placeholder,
-        .digi-form-group textarea::placeholder {
-          color: var(--digi-text-muted);
-        }
-
-        .digi-form-group input:focus,
-        .digi-form-group textarea:focus {
-          border-color: var(--digi-input-focus);
-          box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
-        }
-
-        .digi-submit-btn {
-          border: 0;
-          border-radius: var(--digi-radius-xs);
-          background: var(--digi-accent);
-          color: #fff;
-          padding: 13px 24px;
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          font-family: var(--digi-font);
-          font-size: 0.875rem;
-          font-weight: 600;
-          letter-spacing: 0.01em;
-          cursor: pointer;
-          transition: background var(--digi-transition), transform var(--digi-transition);
-        }
-
-        .digi-submit-btn:hover {
-          background: var(--digi-accent-hover);
-          transform: translateY(-1px);
-        }
-
-        .digi-submit-btn:active {
-          transform: translateY(0);
-        }
-
-        .digi-submit-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-          transform: none;
-        }
-
-        /* =============================================
-           MAP
-           ============================================= */
-        .digi-map-section {
-          padding: 0 48px 48px;
-          background: var(--digi-card);
-        }
-
-        .digi-map-section iframe {
-          border-radius: var(--digi-radius-sm);
-          border: 1px solid var(--digi-border);
-        }
-
-        /* =============================================
-           FOOTER — Minimal
-           ============================================= */
-        .digi-footer {
-          background: var(--digi-surface);
-          color: var(--digi-text-muted);
-          text-align: center;
-          padding: 20px 24px;
-          font-size: 0.8125rem;
-          border-top: 1px solid var(--digi-border);
-          letter-spacing: 0.005em;
-        }
-
-        .digi-brand-name {
-          color: var(--digi-accent);
-          text-decoration: none;
-          font-weight: 600;
-          transition: color var(--digi-transition);
-        }
-
-        .digi-brand-name:hover {
-          color: var(--digi-accent-hover);
-        }
-
-        /* =============================================
-           FEEDBACK MESSAGES
-           ============================================= */
-        .digi-message {
-          border-radius: var(--digi-radius-xs);
-          padding: 12px 16px;
-          font-size: 0.8125rem;
-          font-weight: 500;
-          line-height: 1.5;
-        }
-
-        .digi-message.success {
-          background: rgba(20, 184, 166, 0.08);
-          color: #0D9488;
-          border: 1px solid rgba(20, 184, 166, 0.15);
-        }
-
-        .digi-message.error {
-          background: rgba(239, 68, 68, 0.08);
-          color: #DC2626;
-          border: 1px solid rgba(239, 68, 68, 0.15);
-        }
-
-        /* =============================================
-           RESPONSIVE — Tablet
-           ============================================= */
-        @media (max-width: 900px) {
-          .digi-page-shell { padding: 16px 12px 24px; }
-
-          .digi-profile-section {
-            grid-template-columns: 1fr;
-            gap: 32px;
-            padding: 48px 28px;
-            text-align: center;
-          }
-
-          .digi-profile-image img {
-            max-width: 280px;
-            margin: 0 auto;
-          }
-
-          .digi-social-icons { justify-content: center; }
-
-          .digi-form-content { grid-template-columns: 1fr; gap: 40px; }
-          .digi-form-row { grid-template-columns: 1fr 1fr; }
-
-          .digi-works-grid { grid-template-columns: repeat(2, 1fr); }
-
-          .digi-works-section,
-          .digi-form-section { padding-left: 28px; padding-right: 28px; }
-
-          .digi-map-section { padding-left: 28px; padding-right: 28px; }
-
-          .digi-navbar { padding: 14px 20px; }
-        }
-
-        /* =============================================
-           RESPONSIVE — Mobile
-           ============================================= */
-        @media (max-width: 540px) {
-          .digi-page-shell { padding: 12px 8px 20px; }
-
-          .digi-profile-section { padding: 36px 20px; gap: 24px; }
-
-          .digi-name { font-size: 1.75rem; }
-
-          .digi-works-section { padding: 48px 20px; }
-          .digi-works-grid { grid-template-columns: 1fr; }
-
-          .digi-form-section { padding: 48px 20px; }
-          .digi-form-row { grid-template-columns: 1fr; }
-
-          .digi-map-section { padding: 0 20px 32px; }
-        }
-      `}</style>
-
-      <div className="digi-page-shell">
-      <div className="digi-card-container">
-        <nav className="digi-navbar">
-          <a href="#" className="digi-logo">
-            <img src={BRAND.logo} alt={BRAND.name} className="digi-nav-logo-img" />
-            {shopName ? <span className="digi-shop-name">{shopName}</span> : null}
-          </a>
-          <div className="digi-nav-right">
-            <div className="digi-theme-toggle">
-              <input
-                type="checkbox"
-                id="theme-switch"
-                className="digi-theme-switch"
-                checked={theme === 'dark'}
-                onChange={toggleTheme}
+    <div className="min-h-screen bg-[#070A09]">
+      {/* PROFILE BAR — the owner's mark on the left, and the one action a
+          visitor wants before they have read anything: call. */}
+      <div className="tv-profilebar">
+        <div className="site-container">
+          <div className="tv-profilebar-bar">
+            <div className="flex items-center gap-3 min-w-0">
+              <img
+                src={customer.logo || BRAND.logo}
+                alt={shopName || customer.name}
+                width={200}
+                height={60}
+                className="h-8 w-auto object-contain"
               />
-              <label htmlFor="theme-switch" className="digi-toggle-label" aria-label="Toggle theme">
-                <div className="digi-toggle-btn">
-                  <svg className="digi-sun-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <circle cx="12" cy="12" r="5"></circle>
-                    <line x1="12" y1="1" x2="12" y2="3"></line>
-                    <line x1="12" y1="21" x2="12" y2="23"></line>
-                    <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-                    <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-                    <line x1="1" y1="12" x2="3" y2="12"></line>
-                    <line x1="21" y1="12" x2="23" y2="12"></line>
-                    <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-                    <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-                  </svg>
-                  <svg className="digi-moon-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-                  </svg>
-                </div>
-              </label>
-            </div>
-          </div>
-        </nav>
-
-        <main className="digi-main-content">
-          <section className="digi-profile-section" id="about">
-            <div className="digi-profile-image">
-              <img src={customer.profileImage || '/no-image-placeholder.svg'} alt={customer.name} />
-            </div>
-            <div className="digi-profile-info">
-              <h1 className="digi-name">{customer.name}</h1>
-              <p className="digi-company">{[customer.designation, customer.company].filter(Boolean).join(' · ') || 'NFC Digital Profile'}</p>
-
-              <div className="digi-about-section">
-                <h2 className="digi-about-title">About</h2>
-                <p className="digi-about-text">{customer.about || DEFAULT_ABOUT}</p>
-              </div>
-
-              {socialLinks.length > 0 ? (
-                <div className="digi-social-icons">
-                  {socialLinks.map((social) => (
-                    <a key={social.key} href={social.url || '#'} className="digi-social-icon" target="_blank" rel="noopener noreferrer" title={social.title}>
-                      <i className={social.icon}></i>
-                    </a>
-                  ))}
-                </div>
+              {shopName ? (
+                <span className="tv-mono truncate hidden sm:block">{shopName}</span>
               ) : null}
             </div>
-          </section>
 
-          {gallerySlots.length > 0 ? (
-            <section className="digi-works-section" id="works">
-              <div className="digi-works-header">
-                <h2 className="digi-works-title">Gallery</h2>
-              </div>
-              <div className="digi-works-grid">
-                {gallerySlots.map((gallery, index) => (
-                  <div key={gallery.id} className="digi-work-item">
-                    <img src={gallery.image || '/no-image-placeholder.svg'} alt={`Gallery ${index + 1}`} />
-                    <div className="digi-work-overlay">
-                      <p>{gallery.hoverText || 'No Image'}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
+            <a href={`tel:${customer.phone}`} className="tv-btn tv-btn-primary shrink-0">
+              <Phone className="w-[18px] h-[18px]" aria-hidden="true" />
+              Call
+            </a>
+          </div>
+        </div>
+      </div>
 
-          <section className="digi-form-section" id="contact">
-            <div className="digi-form-header">
-              <h2 className="digi-form-main-title">Get in Touch</h2>
-              <p className="digi-form-subtitle">Have a question or want to work together? Send us a message and we&apos;ll get back to you shortly.</p>
-            </div>
-
-            <div className="digi-form-content">
-              <div className="digi-form-left">
-                <h3 className="digi-talk-title">Contact Details</h3>
-                <p className="digi-talk-text">Reach out directly or fill in the form — we&apos;d love to hear from you.</p>
-
-                <div className="digi-contact-details">
-                  <div className="digi-contact-detail-item">
-                    <div className="digi-detail-icon phone"><i className="fas fa-phone-alt"></i></div>
-                    <div className="digi-phone-numbers">
-                      <a href={`tel:${customer.phone}`} className="digi-contact-link">{customer.phone}</a>
-                    </div>
-                  </div>
-                  <div className="digi-contact-detail-item">
-                    <div className="digi-detail-icon email"><i className="fas fa-envelope"></i></div>
-                    <a href={`mailto:${customer.email}`} className="digi-contact-link">{customer.email}</a>
-                  </div>
-                  {customer.address ? (
-                    <div className="digi-contact-detail-item">
-                      <div className="digi-detail-icon location"><i className="fas fa-map-marker-alt"></i></div>
-                      <span className="digi-contact-link">{customer.address}</span>
-                    </div>
-                  ) : null}
+      <main>
+        {/* IDENTITY — same portrait plate, eyebrow, display name and channel
+            row as /preview-website. */}
+        <section className="tv-hero pt-28 pb-16 md:pt-36 md:pb-24" id="about">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-5"
+              >
+                <div className="tv-portrait max-w-[22rem] lg:max-w-none">
+                  <img
+                    src={customer.profileImage || '/no-image-placeholder.svg'}
+                    alt={customer.name}
+                    width={800}
+                    height={1000}
+                    decoding="async"
+                  />
                 </div>
-              </div>
+                {customer.address ? (
+                  <p className="tv-mono mt-4">{customer.address}</p>
+                ) : null}
+              </motion.div>
 
-              <div className="digi-form-right">
-                <form className="digi-contact-form" onSubmit={handleSubmit}>
-                  <div className="digi-form-row">
-                    <div className="digi-form-group">
-                      <input type="text" value={form.name} onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))} placeholder="Your Name" required />
-                    </div>
-                    <div className="digi-form-group">
-                      <input type="tel" value={form.phone} onChange={(e) => setForm((c) => ({ ...c, phone: e.target.value }))} placeholder="Phone Number" required />
-                    </div>
-                  </div>
-                  <div className="digi-form-row">
-                    <div className="digi-form-group">
-                      <input type="email" value={form.email} onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))} placeholder="Your Email" required />
-                    </div>
-                    <div className="digi-form-group">
-                      <input type="text" value={form.subject} onChange={(e) => setForm((c) => ({ ...c, subject: e.target.value }))} placeholder="Subject" />
-                    </div>
-                  </div>
-                  <div className="digi-form-group">
-                    <textarea value={form.message} onChange={(e) => setForm((c) => ({ ...c, message: e.target.value }))} placeholder="Your Message" rows={5} required></textarea>
-                  </div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.12 }}
+                className="lg:col-span-7"
+              >
+                <p className="tv-eyebrow mb-6">Digital profile</p>
+                <h1 className="tv-display mb-4">{customer.name}</h1>
+                <p className="tv-lead mb-9 tv-measure-lead">
+                  {[customer.designation, customer.company].filter(Boolean).join(' · ') ||
+                    'NFC Digital Profile'}
+                </p>
 
-                  {feedback ? <div className={`digi-message ${feedback.type}`}>{feedback.text}</div> : null}
+                <div className="flex flex-col sm:flex-row gap-3 mb-9">
+                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block">
+                    Get in touch
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </a>
+                  <a
+                    href={`mailto:${customer.email}`}
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  >
+                    Email
+                  </a>
+                </div>
 
-                  <button type="submit" className="digi-submit-btn" disabled={submitting}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="18" height="18">
-                      <path fill="none" d="M0 0h24v24H0z"></path>
-                      <path fill="currentColor" d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"></path>
-                    </svg>
-                    <span>{submitting ? 'Sending...' : 'Send Message'}</span>
-                  </button>
-                </form>
-              </div>
+                {socialLinks.length > 0 ? (
+                  <ul className="flex flex-wrap gap-3">
+                    {socialLinks.map((social) => {
+                      const Icon = social.icon;
+                      return (
+                        <li key={social.key}>
+                          <a
+                            href={social.url || '#'}
+                            className="tv-iconlink tv-focus"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            aria-label={`${social.title} (opens in a new tab)`}
+                          >
+                            <Icon
+                              className="w-[18px] h-[18px]"
+                              strokeWidth={1.7}
+                              aria-hidden="true"
+                            />
+                          </a>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                ) : null}
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ABOUT */}
+        <section className="tv-surface-graphite tv-section-tight">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              <motion.div {...fadeInUp} className="lg:col-span-4">
+                <div className="lg:sticky lg:top-28">
+                  <p className="tv-eyebrow mb-6">About</p>
+                  {/* The company name where there is one, a neutral title
+                      otherwise. Falling back to the person's name repeated the
+                      h1 verbatim two sections apart. */}
+                  <h2 className="tv-h2">{shopName || 'Background.'}</h2>
+                </div>
+              </motion.div>
+
+              <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-8"
+              >
+                {/* Admin enters this as free text; a blank line in it was being
+                    collapsed to a single paragraph before. */}
+                <p className="tv-lead tv-measure-body whitespace-pre-line">
+                  {customer.about || DEFAULT_ABOUT}
+                </p>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* GALLERY — the same figure and caption-on-a-hairline as the demo, so
+            a three-image gallery and the demo's six-image grid read as one
+            component at two lengths. */}
+        {gallerySlots.length > 0 ? (
+          <section className="tv-surface-ink tv-section" id="works">
+            <div className="site-container">
+              <motion.div {...fadeInUp} className="max-w-2xl mb-12 md:mb-16">
+                <p className="tv-eyebrow mb-6">Portfolio</p>
+                <h2 className="tv-h2">Gallery.</h2>
+              </motion.div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+                {gallerySlots.map((gallery, index) => (
+                  <motion.li
+                    key={gallery.id}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.55, delay: (index % 3) * 0.08 }}
+                  >
+                    <figure className="tv-figure">
+                      <div className="tv-figure-media">
+                        <img
+                          src={gallery.image || '/no-image-placeholder.svg'}
+                          alt={gallery.hoverText || `Gallery image ${index + 1}`}
+                          width={800}
+                          height={600}
+                          loading="lazy"
+                          decoding="async"
+                        />
+                      </div>
+                      <figcaption className="tv-figure-cap">
+                        <h3 className="tv-h4">{gallery.hoverText || 'No Image'}</h3>
+                        <span className="tv-mono shrink-0" aria-hidden="true">
+                          {String(index + 1).padStart(2, '0')}
+                        </span>
+                      </figcaption>
+                    </figure>
+                  </motion.li>
+                ))}
+              </ul>
             </div>
           </section>
+        ) : null}
 
-          {mapEmbedSrc ? (
-            <section className="digi-map-section">
-              <iframe
-                src={mapEmbedSrc}
-                width="100%"
-                height="350"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              ></iframe>
-            </section>
-          ) : null}
-        </main>
+        {/* CONTACT — on bone, exactly as on /preview-website and /contact-us. */}
+        <section className="tv-surface-bone tv-section" id="contact">
+          <div className="site-container">
+            <motion.div {...fadeInUp} className="max-w-2xl mb-12 md:mb-16">
+              <p className="tv-eyebrow mb-6">Contact</p>
+              <h2 className="tv-h2 mb-4">Get in touch.</h2>
+              <p className="tv-lead tv-measure-body">
+                Have a question or want to work together? Send a message and we&apos;ll
+                get back to you shortly.
+              </p>
+            </motion.div>
 
-        <footer className="digi-footer">
-          <p className="digi-footer-copyright">
-            &copy; {new Date().getFullYear()} All Rights Reserved. Designed &amp; Developed by{' '}
-            <a href="https://tapvyo.com" target="_blank" rel="noopener noreferrer" className="digi-brand-name">Tapvyo.</a>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              {/* Details + map */}
+              <motion.div {...fadeInUp} className="lg:col-span-5">
+                <ul className="mb-10">
+                  <li className="tv-detail-row">
+                    <span className="tv-detail-ico" aria-hidden="true">
+                      <Phone className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span className="tv-detail-val">
+                      <span className="tv-mono block mb-1">Phone</span>
+                      <a href={`tel:${customer.phone}`} className="tv-btn-tertiary !min-h-0">
+                        {customer.phone}
+                      </a>
+                    </span>
+                  </li>
+
+                  <li className="tv-detail-row">
+                    <span className="tv-detail-ico" aria-hidden="true">
+                      <Mail className="h-4 w-4" strokeWidth={1.8} />
+                    </span>
+                    <span className="tv-detail-val">
+                      <span className="tv-mono block mb-1">Email</span>
+                      <a href={`mailto:${customer.email}`} className="tv-btn-tertiary !min-h-0">
+                        {customer.email}
+                      </a>
+                    </span>
+                  </li>
+
+                  {customer.address ? (
+                    <li className="tv-detail-row">
+                      <span className="tv-detail-ico" aria-hidden="true">
+                        <MapPin className="h-4 w-4" strokeWidth={1.8} />
+                      </span>
+                      <span className="tv-detail-val">
+                        <span className="tv-mono block mb-1">Address</span>
+                        <span className="tv-body">{customer.address}</span>
+                      </span>
+                    </li>
+                  ) : null}
+                </ul>
+
+                {mapEmbedSrc ? (
+                  <div className="tv-embed">
+                    <iframe
+                      src={mapEmbedSrc}
+                      height={300}
+                      allowFullScreen
+                      loading="lazy"
+                      referrerPolicy="no-referrer-when-downgrade"
+                      title={`Map showing ${customer.name}`}
+                    />
+                  </div>
+                ) : null}
+              </motion.div>
+
+              {/* Form. Every field gets a real label — the placeholders were
+                  doing that job and vanished the moment anyone typed. */}
+              <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-7"
+              >
+                <div className="tv-panel tv-panel-pad">
+                  <form onSubmit={handleSubmit}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
+                      <div className="tv-field">
+                        <label htmlFor="cp-name" className="tv-label">
+                          Your name<span className="tv-label-req">*</span>
+                        </label>
+                        <input
+                          id="cp-name"
+                          type="text"
+                          value={form.name}
+                          onChange={(e) => setForm((c) => ({ ...c, name: e.target.value }))}
+                          placeholder="Priya Raman"
+                          autoComplete="name"
+                          required
+                          className="tv-input"
+                        />
+                      </div>
+
+                      <div className="tv-field">
+                        <label htmlFor="cp-phone" className="tv-label">
+                          Phone<span className="tv-label-req">*</span>
+                        </label>
+                        <input
+                          id="cp-phone"
+                          type="tel"
+                          value={form.phone}
+                          onChange={(e) => setForm((c) => ({ ...c, phone: e.target.value }))}
+                          placeholder="9876543210"
+                          inputMode="tel"
+                          autoComplete="tel"
+                          required
+                          className="tv-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
+                      <div className="tv-field">
+                        <label htmlFor="cp-email" className="tv-label">
+                          Email<span className="tv-label-req">*</span>
+                        </label>
+                        <input
+                          id="cp-email"
+                          type="email"
+                          value={form.email}
+                          onChange={(e) => setForm((c) => ({ ...c, email: e.target.value }))}
+                          placeholder="your@email.com"
+                          inputMode="email"
+                          autoComplete="email"
+                          required
+                          className="tv-input"
+                        />
+                      </div>
+
+                      <div className="tv-field">
+                        <label htmlFor="cp-subject" className="tv-label">
+                          Subject
+                        </label>
+                        <input
+                          id="cp-subject"
+                          type="text"
+                          value={form.subject}
+                          onChange={(e) => setForm((c) => ({ ...c, subject: e.target.value }))}
+                          placeholder="Enquiry"
+                          className="tv-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="tv-field">
+                      <label htmlFor="cp-message" className="tv-label">
+                        Message<span className="tv-label-req">*</span>
+                      </label>
+                      <textarea
+                        id="cp-message"
+                        value={form.message}
+                        onChange={(e) => setForm((c) => ({ ...c, message: e.target.value }))}
+                        placeholder="Tell us what you need…"
+                        rows={5}
+                        required
+                        className="tv-textarea"
+                      />
+                    </div>
+
+                    <div className="mt-7">
+                      <button
+                        type="submit"
+                        disabled={submitting}
+                        className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {submitting ? 'Sending…' : 'Send message'}
+                        {!submitting && (
+                          <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                        )}
+                      </button>
+
+                      {/* Outcome is both visible and announced. */}
+                      <div aria-live="polite">
+                        {feedback ? (
+                          <p
+                            className={
+                              feedback.type === 'success'
+                                ? 'tv-form-success mt-4'
+                                : 'tv-form-error mt-4'
+                            }
+                            {...(feedback.type === 'error' ? { role: 'alert' } : {})}
+                          >
+                            {feedback.text}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <footer className="tv-surface-graphite border-t border-[#F1F3F1]/10">
+        <div className="site-container py-8">
+          <p className="tv-small">
+            © {new Date().getFullYear()} All rights reserved. Designed &amp; developed by{' '}
+            <a
+              href="https://tapvyo.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tv-btn-tertiary !min-h-0"
+            >
+              Tapvyo
+            </a>
+            .
           </p>
-        </footer>
-      </div>
-      </div>
-    </>
+        </div>
+      </footer>
+    </div>
   );
 }

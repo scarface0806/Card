@@ -1,11 +1,22 @@
 'use client';
 
+/**
+ * CARD ENQUIRY FORM — the "Send a message" control on a card profile.
+ *
+ * Presentation only: the trigger and the modal are drawn with the shared
+ * .tv-modal-*, .tv-field and .tv-btn vocabulary, so this dialog matches the
+ * enquiry modal on the marketing pages. Validation, the honeypot, the POST to
+ * /api/cards/[slug]/leads and the auto-close on success are unchanged.
+ */
+
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Send, Check, AlertCircle, Loader2, X, MessageSquare } from 'lucide-react';
+import { Check, AlertCircle, Loader2, X, MessageSquare, ArrowUpRight } from 'lucide-react';
 
 interface CardContactFormProps {
   cardSlug: string;
+  /** Retained for compatibility. A profile is drawn in the shared system now,
+      so the per-card accent colour is no longer applied here. */
   primaryColor?: string;
   onSuccess?: () => void;
 }
@@ -28,11 +39,7 @@ interface FormErrors {
 
 type FormStatus = 'idle' | 'submitting' | 'success' | 'error';
 
-export default function CardContactForm({
-  cardSlug,
-  primaryColor = '#06b6d4',
-  onSuccess,
-}: CardContactFormProps) {
+export default function CardContactForm({ cardSlug, onSuccess }: CardContactFormProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -86,7 +93,7 @@ export default function CardContactForm({
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-    
+
     // Clear error when user starts typing
     if (errors[name as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [name]: undefined }));
@@ -159,259 +166,217 @@ export default function CardContactForm({
     setErrorMessage('');
   };
 
+  const isSubmitting = status === 'submitting';
+
   return (
     <>
-      {/* Contact Button */}
-      <motion.button
+      {/* Trigger */}
+      <button
         onClick={() => setIsOpen(true)}
-        whileHover={{ scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
-        className="w-full flex items-center justify-center gap-2 px-6 py-4 rounded-xl border border-white/20 text-white font-medium hover:bg-white/10 transition-all duration-300"
+        className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
       >
-        <MessageSquare className="w-5 h-5" />
-        Send Message
-      </motion.button>
+        <MessageSquare className="w-[18px] h-[18px]" aria-hidden="true" />
+        Send message
+      </button>
 
-      {/* Modal Overlay */}
+      {/* Modal */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
-            onClick={handleClose}
+          <div
+            className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="card-enquiry-title"
           >
-            {/* Modal Content */}
             <motion.div
-              initial={{ opacity: 0, y: 100, scale: 0.95 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="tv-modal-backdrop"
+              onClick={handleClose}
+            />
+
+            <motion.div
+              initial={{ opacity: 0, y: 40, scale: 0.98 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 100, scale: 0.95 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-md bg-gray-900 rounded-t-2xl sm:rounded-2xl border border-white/10 shadow-2xl overflow-hidden max-h-[90vh] overflow-y-auto"
+              exit={{ opacity: 0, y: 40, scale: 0.98 }}
+              transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="tv-modal-panel max-w-lg !rounded-b-none sm:!rounded-2xl"
             >
-              {/* Header */}
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-                <h2 className="text-lg font-semibold text-white">
-                  Send a Message
+              <div className="tv-modal-head pr-14">
+                <h2 id="card-enquiry-title" className="tv-h3">
+                  Send a message
                 </h2>
-                <button
-                  onClick={handleClose}
-                  className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-                >
-                  <X className="w-5 h-5 text-white/60" />
-                </button>
               </div>
 
-              {/* Success State */}
+              <button onClick={handleClose} className="tv-modal-close" aria-label="Close">
+                <X className="w-[18px] h-[18px]" aria-hidden="true" />
+              </button>
+
               {status === 'success' ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  className="px-6 py-12 text-center"
-                >
-                  <div
-                    className="w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center"
-                    style={{ backgroundColor: `${primaryColor}20` }}
+                <div className="tv-modal-body text-center py-12">
+                  <span
+                    className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full"
+                    style={{ background: 'rgba(76, 174, 137, 0.14)' }}
+                    aria-hidden="true"
                   >
-                    <Check className="w-8 h-8" style={{ color: primaryColor }} />
-                  </div>
-                  <h3 className="text-xl font-semibold text-white mb-2">
-                    Message Sent!
-                  </h3>
-                  <p className="text-white/60">
+                    <Check className="h-7 w-7" style={{ color: '#4CAE89' }} />
+                  </span>
+                  <h3 className="tv-h3 mb-2">Message sent</h3>
+                  <p className="tv-body" role="status">
                     Thank you for reaching out. You&apos;ll hear back soon.
                   </p>
-                </motion.div>
+                </div>
               ) : (
-                /* Form */
-                <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-                  {/* Error Alert */}
-                  {status === 'error' && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      className="flex items-center gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/30"
-                    >
-                      <AlertCircle className="w-5 h-5 text-red-400 flex-shrink-0" />
-                      <p className="text-sm text-red-300">{errorMessage}</p>
-                    </motion.div>
-                  )}
+                <form onSubmit={handleSubmit}>
+                  <div className="tv-modal-body">
+                    {status === 'error' && (
+                      <div className="tv-notice tv-notice-error mb-5" role="alert">
+                        <AlertCircle className="tv-notice-icon h-4 w-4" aria-hidden="true" />
+                        <span>{errorMessage}</span>
+                      </div>
+                    )}
 
-                  {/* Name Field */}
-                  <div>
-                    <label
-                      htmlFor="name"
-                      className="block text-sm font-medium text-white/70 mb-1.5"
-                    >
-                      Name <span className="text-red-400">*</span>
-                    </label>
+                    <div className="tv-field">
+                      <label htmlFor="name" className="tv-label">
+                        Name<span className="tv-label-req">*</span>
+                      </label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        placeholder="Your name"
+                        autoComplete="name"
+                        className="tv-input"
+                        disabled={isSubmitting}
+                        aria-invalid={errors.name ? true : undefined}
+                      />
+                      {errors.name && <p className="tv-form-error">{errors.name}</p>}
+                    </div>
+
+                    <div className="tv-field">
+                      <label htmlFor="email" className="tv-label">
+                        Email<span className="tv-label-req">*</span>
+                      </label>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        placeholder="your@email.com"
+                        inputMode="email"
+                        autoComplete="email"
+                        className="tv-input"
+                        disabled={isSubmitting}
+                        aria-invalid={errors.email ? true : undefined}
+                      />
+                      {errors.email && <p className="tv-form-error">{errors.email}</p>}
+                    </div>
+
+                    <div className="tv-field">
+                      <label htmlFor="phone" className="tv-label">
+                        Phone
+                      </label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        placeholder="+91 98765 43210"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        className="tv-input"
+                        disabled={isSubmitting}
+                        aria-invalid={errors.phone ? true : undefined}
+                      />
+                      {errors.phone && <p className="tv-form-error">{errors.phone}</p>}
+                    </div>
+
+                    <div className="tv-field">
+                      <label htmlFor="company" className="tv-label">
+                        Company
+                      </label>
+                      <input
+                        type="text"
+                        id="company"
+                        name="company"
+                        value={formData.company}
+                        onChange={handleChange}
+                        placeholder="Your company"
+                        autoComplete="organization"
+                        className="tv-input"
+                        disabled={isSubmitting}
+                      />
+                    </div>
+
+                    <div className="tv-field">
+                      <label htmlFor="message" className="tv-label">
+                        Message
+                      </label>
+                      <textarea
+                        id="message"
+                        name="message"
+                        value={formData.message}
+                        onChange={handleChange}
+                        placeholder="How can I help you?"
+                        rows={4}
+                        className="tv-textarea"
+                        disabled={isSubmitting}
+                        aria-invalid={errors.message ? true : undefined}
+                      />
+                      {errors.message && <p className="tv-form-error">{errors.message}</p>}
+                      <p className="tv-mono mt-2 text-right">
+                        {formData.message.length}/2000
+                      </p>
+                    </div>
+
+                    {/* Honeypot field - hidden from users */}
                     <input
                       type="text"
-                      id="name"
-                      name="name"
-                      value={formData.name}
+                      name="website"
+                      value={formData.website}
                       onChange={handleChange}
-                      placeholder="Your name"
-                      className={`w-full px-4 py-3 rounded-lg bg-white/5 border ${
-                        errors.name
-                          ? 'border-red-500/50 focus:border-red-500'
-                          : 'border-white/10 focus:border-cyan-500/50'
-                      } text-white placeholder-white/40 outline-none transition-colors`}
-                      disabled={status === 'submitting'}
-                    />
-                    {errors.name && (
-                      <p className="mt-1 text-sm text-red-400">{errors.name}</p>
-                    )}
-                  </div>
-
-                  {/* Email Field */}
-                  <div>
-                    <label
-                      htmlFor="email"
-                      className="block text-sm font-medium text-white/70 mb-1.5"
-                    >
-                      Email <span className="text-red-400">*</span>
-                    </label>
-                    <input
-                      type="email"
-                      id="email"
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                      placeholder="your@email.com"
-                      className={`w-full px-4 py-3 rounded-lg bg-white/5 border ${
-                        errors.email
-                          ? 'border-red-500/50 focus:border-red-500'
-                          : 'border-white/10 focus:border-cyan-500/50'
-                      } text-white placeholder-white/40 outline-none transition-colors`}
-                      disabled={status === 'submitting'}
-                    />
-                    {errors.email && (
-                      <p className="mt-1 text-sm text-red-400">{errors.email}</p>
-                    )}
-                  </div>
-
-                  {/* Phone Field */}
-                  <div>
-                    <label
-                      htmlFor="phone"
-                      className="block text-sm font-medium text-white/70 mb-1.5"
-                    >
-                      Phone
-                    </label>
-                    <input
-                      type="tel"
-                      id="phone"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                      placeholder="+1 234 567 890"
-                      className={`w-full px-4 py-3 rounded-lg bg-white/5 border ${
-                        errors.phone
-                          ? 'border-red-500/50 focus:border-red-500'
-                          : 'border-white/10 focus:border-cyan-500/50'
-                      } text-white placeholder-white/40 outline-none transition-colors`}
-                      disabled={status === 'submitting'}
-                    />
-                    {errors.phone && (
-                      <p className="mt-1 text-sm text-red-400">{errors.phone}</p>
-                    )}
-                  </div>
-
-                  {/* Company Field */}
-                  <div>
-                    <label
-                      htmlFor="company"
-                      className="block text-sm font-medium text-white/70 mb-1.5"
-                    >
-                      Company
-                    </label>
-                    <input
-                      type="text"
-                      id="company"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleChange}
-                      placeholder="Your company"
-                      className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 focus:border-cyan-500/50 text-white placeholder-white/40 outline-none transition-colors"
-                      disabled={status === 'submitting'}
+                      style={{
+                        position: 'absolute',
+                        left: '-9999px',
+                        top: '-9999px',
+                      }}
+                      tabIndex={-1}
+                      autoComplete="off"
                     />
                   </div>
 
-                  {/* Message Field */}
-                  <div>
-                    <label
-                      htmlFor="message"
-                      className="block text-sm font-medium text-white/70 mb-1.5"
+                  <div className="tv-modal-foot">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Message
-                    </label>
-                    <textarea
-                      id="message"
-                      name="message"
-                      value={formData.message}
-                      onChange={handleChange}
-                      placeholder="How can I help you?"
-                      rows={4}
-                      className={`w-full px-4 py-3 rounded-lg bg-white/5 border ${
-                        errors.message
-                          ? 'border-red-500/50 focus:border-red-500'
-                          : 'border-white/10 focus:border-cyan-500/50'
-                      } text-white placeholder-white/40 outline-none transition-colors resize-none`}
-                      disabled={status === 'submitting'}
-                    />
-                    {errors.message && (
-                      <p className="mt-1 text-sm text-red-400">{errors.message}</p>
-                    )}
-                    <p className="mt-1 text-xs text-white/40 text-right">
-                      {formData.message.length}/2000
+                      {isSubmitting ? (
+                        <>
+                          <Loader2 className="w-[18px] h-[18px] animate-spin" aria-hidden="true" />
+                          Sending…
+                        </>
+                      ) : (
+                        <>
+                          Send message
+                          <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                        </>
+                      )}
+                    </button>
+
+                    <p className="tv-small mt-4 text-center">
+                      Your information will only be shared with the card owner.
                     </p>
                   </div>
-
-                  {/* Honeypot field - hidden from users */}
-                  <input
-                    type="text"
-                    name="website"
-                    value={formData.website}
-                    onChange={handleChange}
-                    style={{
-                      position: 'absolute',
-                      left: '-9999px',
-                      top: '-9999px',
-                    }}
-                    tabIndex={-1}
-                    autoComplete="off"
-                  />
-
-                  {/* Submit Button */}
-                  <button
-                    type="submit"
-                    disabled={status === 'submitting'}
-                    className="w-full flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg text-white font-medium transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed hover:opacity-90"
-                    style={{ backgroundColor: primaryColor }}
-                  >
-                    {status === 'submitting' ? (
-                      <>
-                        <Loader2 className="w-5 h-5 animate-spin" />
-                        Sending...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="w-5 h-5" />
-                        Send Message
-                      </>
-                    )}
-                  </button>
-
-                  <p className="text-xs text-white/40 text-center">
-                    Your information will only be shared with the card owner.
-                  </p>
                 </form>
               )}
             </motion.div>
-          </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </>

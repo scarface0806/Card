@@ -2937,11 +2937,21 @@ body {
    does need is its own small vocabulary: a bar that admits it is a demo, a
    portrait plate, a social row and a work grid - all drawn with the same
    hairlines, mono small-caps and brass/patina accents as everything above.
+
+   Everything in this block is shared by the three surfaces that have to look
+   like one product:
+     /preview-website                     - the demo profile
+     /card/[slug] -> CustomerProfileView  - an admin-created customer profile
+     /card/[slug] -> CardProfileView      - a profile from the order flow
+   A visitor who sees the demo and then taps a real card must not be able to
+   tell that two different people built them.
    ---------------------------------------------------------------------------- */
 
-/* --- Demo frame bar. Brass hairline, because it is a notice about the page
-       rather than part of the profile it is framing. --------------------- */
-.tv-demobar {
+/* --- Profile bar. The profile's own header: owner mark on the left, one
+       action on the right. `--demo` swaps the hairline to brass, because on
+       the demo the bar is a notice about the page rather than part of the
+       profile it is framing. ----------------------------------------------- */
+.tv-profilebar {
   position: fixed;
   top: 0;
   left: 0;
@@ -2950,15 +2960,56 @@ body {
   background: rgba(7, 10, 9, 0.94);
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
-  border-bottom: 1px solid rgba(201, 169, 97, 0.32);
+  border-bottom: 1px solid var(--tv-rule);
 }
 
-.tv-demobar-bar {
+.tv-profilebar--demo { border-bottom-color: rgba(201, 169, 97, 0.32); }
+
+.tv-profilebar-bar {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
   min-height: 4rem;
+}
+
+/* --- Detail row  (phone / email / address / custom field) ---------------- */
+/* One row shape for every labelled value on a profile, so the demo's contact
+   block and a real card's contact block are the same object. */
+.tv-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--tv-rule);
+}
+
+.tv-detail-row:last-child { border-bottom: 0; }
+
+.tv-surface-bone .tv-detail-row { border-bottom-color: var(--tv-rule-bone); }
+
+.tv-detail-ico {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  margin-top: 0.125rem;
+  border-radius: 10px;
+  background: rgba(201, 169, 97, 0.14);
+  color: var(--tv-brass);
+}
+
+.tv-surface-bone .tv-detail-ico {
+  background: rgba(110, 85, 24, 0.12);
+  color: var(--tv-brass-deep);
+}
+
+/* The value line. Breaks long emails and URLs instead of widening the column. */
+.tv-detail-val {
+  min-width: 0;
+  word-break: break-word;
 }
 
 /* --- Portrait plate ----------------------------------------------------- */
