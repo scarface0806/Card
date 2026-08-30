@@ -109,155 +109,208 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
+            className="tv-modal-backdrop z-50"
           />
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            exit={{ opacity: 0, scale: 0.96, y: 16 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="relative bg-white rounded-3xl shadow-lg max-w-md w-full p-10 pointer-events-auto">
+            {/* role/aria-modal/aria-labelledby are markup only - they tell
+                assistive tech what this already is. No behaviour added. */}
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="contact-modal-title"
+              className="tv-modal-panel max-w-lg pointer-events-auto"
+            >
               {/* Close Button */}
               <button
+                type="button"
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                aria-label="Close"
+                className="tv-modal-close z-10"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
 
               {/* Header */}
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk">
+              <div className="tv-modal-head pr-14">
+                <h2 id="contact-modal-title" className="tv-h3 mb-1">
                   {config.title}
-                </h3>
-                <p className="text-[#4b635d] mt-2">
-                  {config.subtitle}
-                </p>
+                </h2>
+                <p className="tv-small">{config.subtitle}</p>
               </div>
 
-              {/* Form */}
-              <form onSubmit={handleSubmit} className="space-y-5">
-                {/* Full Name */}
-                <div className="relative">
-                  <User className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
-                  <input
-                    type="text"
-                    name="fullName"
-                    value={formData.fullName}
-                    onChange={handleChange}
-                    placeholder="Full Name *"
-                    required
-                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
-                  />
-                </div>
-
-                {/* Company/School Name */}
-                <div className="relative">
-                  <Building2 className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
-                  <input
-                    type="text"
-                    name="companyName"
-                    value={formData.companyName}
-                    onChange={handleChange}
-                    placeholder="Company or School Name *"
-                    required
-                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
-                  />
-                </div>
-
-                {/* Contact Number */}
-                <div className="relative">
-                  <Phone className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
-                  <input
-                    type="tel"
-                    name="contactNumber"
-                    value={formData.contactNumber}
-                    onChange={handleChange}
-                    placeholder="Contact Number *"
-                    required
-                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
-                  />
-                </div>
-
-                <div className="relative">
-                  <input
-                    type="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    placeholder="Email Address *"
-                    required
-                    className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78]"
-                  />
-                </div>
-
-                {/* Design Option - Only for Custom Card */}
-                {source === 'custom' && (
-                  <div className="relative">
-                    <Palette className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary" />
-                    <select
-                      name="hasOwnDesign"
-                      aria-label="Do you have your own design?"
-                      value={formData.hasOwnDesign}
-                      onChange={handleChange}
-                      required
-                      className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] appearance-none bg-white cursor-pointer"
-                    >
-                      <option value="" disabled>Do you have your own design? *</option>
-                      <option value="yes">Yes, I have my own design</option>
-                      <option value="no">No, I need design support</option>
-                    </select>
-                    <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
-                      <svg className="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                      </svg>
+              {/* Form. Every field now has a real <label> tied to it by id -
+                  these inputs previously relied on the placeholder alone,
+                  which vanishes as soon as anyone types. The `name`
+                  attributes are untouched. */}
+              <form onSubmit={handleSubmit}>
+                <div className="tv-modal-body">
+                  <div className="tv-field">
+                    <label htmlFor="cm-fullName" className="tv-label">
+                      Full name
+                    </label>
+                    <div className="relative">
+                      <User
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type="text"
+                        id="cm-fullName"
+                        name="fullName"
+                        autoComplete="name"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        placeholder="Your name"
+                        required
+                        className="tv-input !pl-10"
+                      />
                     </div>
                   </div>
-                )}
 
-                {/* Message */}
-                <div className="relative">
-                  <MessageSquare className="absolute left-4 top-4 w-5 h-5 text-primary" />
-                  <textarea
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    placeholder="Tell us about your requirements *"
-                    required
-                    rows={4}
-                    className="w-full pl-12 pr-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all duration-200 text-[#0f2e25] placeholder:text-[#6b7f78] resize-none"
-                  />
+                  <div className="tv-field">
+                    <label htmlFor="cm-companyName" className="tv-label">
+                      Company or school
+                    </label>
+                    <div className="relative">
+                      <Building2
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type="text"
+                        id="cm-companyName"
+                        name="companyName"
+                        autoComplete="organization"
+                        value={formData.companyName}
+                        onChange={handleChange}
+                        placeholder="Organisation name"
+                        required
+                        className="tv-input !pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="tv-field">
+                    <label htmlFor="cm-contactNumber" className="tv-label">
+                      Contact number
+                    </label>
+                    <div className="relative">
+                      <Phone
+                        className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type="tel"
+                        id="cm-contactNumber"
+                        name="contactNumber"
+                        inputMode="tel"
+                        autoComplete="tel"
+                        value={formData.contactNumber}
+                        onChange={handleChange}
+                        placeholder="9876543210"
+                        required
+                        className="tv-input !pl-10"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="tv-field">
+                    <label htmlFor="cm-email" className="tv-label">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="cm-email"
+                      name="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="your@email.com"
+                      required
+                      className="tv-input"
+                    />
+                  </div>
+
+                  {/* Design Option - Only for Custom Card */}
+                  {source === 'custom' && (
+                    <div className="tv-field">
+                      <label htmlFor="cm-hasOwnDesign" className="tv-label">
+                        Do you have your own design?
+                      </label>
+                      <div className="relative">
+                        <Palette
+                          className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none z-10"
+                          aria-hidden="true"
+                        />
+                        <select
+                          id="cm-hasOwnDesign"
+                          name="hasOwnDesign"
+                          aria-label="Do you have your own design?"
+                          value={formData.hasOwnDesign}
+                          onChange={handleChange}
+                          required
+                          className="tv-select !pl-10"
+                        >
+                          <option value="" disabled>
+                            Select an option
+                          </option>
+                          <option value="yes">Yes, I have my own design</option>
+                          <option value="no">No, I need design support</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="tv-field">
+                    <label htmlFor="cm-message" className="tv-label">
+                      Requirements
+                    </label>
+                    <textarea
+                      id="cm-message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Tell us about your requirements"
+                      required
+                      rows={4}
+                      className="tv-textarea"
+                    />
+                  </div>
+
+                  {submitError ? (
+                    <p className="tv-form-error mt-1" role="alert">
+                      {submitError}
+                    </p>
+                  ) : null}
                 </div>
 
-                {/* Submit Button */}
-                <motion.button
-                  type="submit"
-                  disabled={isSubmitting}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="w-full bg-primary-dark text-white font-semibold py-3 rounded-xl hover:bg-primary-dark transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                >
-                  {isSubmitting ? (
-                    <div className="h-5 w-5 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                  ) : (
-                    'Submit Inquiry'
-                  )}
-                </motion.button>
+                <div className="tv-modal-foot">
+                  <motion.button
+                    type="submit"
+                    disabled={isSubmitting}
+                    whileHover={{ y: -2 }}
+                    whileTap={{ y: 0 }}
+                    className="tv-btn tv-btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isSubmitting ? 'Sending…' : 'Send enquiry'}
+                  </motion.button>
 
-                {submitError ? (
-                  <p className="text-sm text-red-600 text-center">{submitError}</p>
-                ) : null}
+                  <p className="tv-small text-center mt-3">
+                    We&apos;ll get back to you within 24 hours
+                  </p>
+                </div>
               </form>
-
-              <p className="text-xs text-[#6b7f78] text-center mt-6">
-                We'll get back to you within 24 hours
-              </p>
             </div>
           </motion.div>
         </>

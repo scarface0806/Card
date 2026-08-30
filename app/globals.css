@@ -2220,3 +2220,265 @@ body {
 @media (min-width: 768px) {
   .tv-tag-row > * + * { padding-left: 1.5rem; }
 }
+
+/* ----------------------------------------------------------------------------
+   FORM CONTROLS
+   Shared by the contact page, the enquiry modal and the auth screens, so a
+   field looks the same wherever it appears. Works on ink, graphite and bone.
+   ---------------------------------------------------------------------------- */
+.tv-field { display: block; margin-bottom: 1.25rem; }
+.tv-field:last-child { margin-bottom: 0; }
+
+.tv-label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+}
+
+.tv-surface-bone .tv-label { color: var(--tv-ink-muted); }
+
+.tv-input,
+.tv-select,
+.tv-textarea {
+  width: 100%;
+  padding: 0.75rem 0.9375rem;
+  border-radius: 10px;
+  /* background-color, NOT the `background` shorthand: the shorthand resets
+     background-repeat/position/size, which tiled the select's arrow. */
+  background-color: var(--tv-ink);
+  border: 1px solid rgba(241, 243, 241, 0.16);
+  color: var(--tv-text);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  transition:
+    border-color var(--duration-fast) var(--tv-ease),
+    box-shadow var(--duration-fast) var(--tv-ease);
+}
+
+/* 44px minimum target on the controls that are a single row. */
+.tv-input,
+.tv-select { min-height: 46px; }
+
+.tv-textarea {
+  min-height: 128px;
+  resize: vertical;
+}
+
+.tv-input::placeholder,
+.tv-textarea::placeholder {
+  /* #7E8A85 on --tv-ink is 4.9:1, so placeholder text clears AA rather than
+     the 3:1 the old gray-500 managed. */
+  color: #7E8A85;
+}
+
+.tv-input:focus,
+.tv-select:focus,
+.tv-textarea:focus {
+  outline: none;
+  border-color: var(--tv-patina);
+  box-shadow: 0 0 0 3px rgba(76, 174, 137, 0.22);
+}
+
+.tv-input:disabled,
+.tv-select:disabled,
+.tv-textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* Native select arrow, drawn so it is visible on the dark field. */
+.tv-select {
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A9B5B0' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.875rem center;
+  background-size: 1.125rem;
+  padding-right: 2.75rem;
+}
+
+/* On bone the fields invert so they read as printed boxes on paper. */
+.tv-surface-bone .tv-input,
+.tv-surface-bone .tv-select,
+.tv-surface-bone .tv-textarea {
+  background-color: #FBFAF7;
+  border-color: rgba(18, 16, 12, 0.20);
+  color: var(--tv-ink-text);
+}
+
+.tv-surface-bone .tv-input::placeholder,
+.tv-surface-bone .tv-textarea::placeholder {
+  color: #6B726E;
+}
+
+.tv-surface-bone .tv-input:focus,
+.tv-surface-bone .tv-select:focus,
+.tv-surface-bone .tv-textarea:focus {
+  border-color: var(--tv-patina-deep);
+  box-shadow: 0 0 0 3px rgba(20, 98, 74, 0.18);
+}
+
+.tv-surface-bone .tv-select {
+  background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%234C534F' stroke-width='2' stroke-linecap='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Inline form messages. */
+.tv-form-error {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  /* 5.9:1 on ink - the old red-500/80 sat near 3:1. */
+  color: #FF8A80;
+}
+
+.tv-surface-bone .tv-form-error { color: #A4231B; }
+
+.tv-form-success {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--tv-patina);
+}
+
+.tv-surface-bone .tv-form-success { color: var(--tv-patina-deep); }
+
+/* ----------------------------------------------------------------------------
+   MODAL / POPUP
+   ---------------------------------------------------------------------------- */
+.tv-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(7, 10, 9, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.tv-modal-panel {
+  position: relative;
+  width: 100%;
+  background: var(--tv-graphite);
+  border: 1px solid rgba(241, 243, 241, 0.12);
+  border-radius: 16px;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.62);
+  overflow: hidden;
+}
+
+/* The header keeps its own rule so a scrolling body does not run into it. */
+.tv-modal-head {
+  padding: 1.5rem clamp(1.25rem, 1rem + 1vw, 2rem);
+  border-bottom: 1px solid var(--tv-rule);
+}
+
+.tv-modal-body {
+  padding: clamp(1.25rem, 1rem + 1vw, 2rem);
+  max-height: min(64vh, 34rem);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.tv-modal-foot {
+  padding: 1.25rem clamp(1.25rem, 1rem + 1vw, 2rem);
+  border-top: 1px solid var(--tv-rule);
+}
+
+.tv-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 999px;
+  border: 1px solid rgba(241, 243, 241, 0.16);
+  background: rgba(241, 243, 241, 0.06);
+  color: var(--tv-text-muted);
+  cursor: pointer;
+  transition:
+    color var(--duration-fast) var(--tv-ease),
+    background-color var(--duration-fast) var(--tv-ease),
+    border-color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-modal-close:hover {
+  color: var(--tv-text);
+  background: rgba(241, 243, 241, 0.12);
+  border-color: rgba(241, 243, 241, 0.3);
+}
+
+.tv-modal-close:focus-visible {
+  outline: 2px solid var(--tv-patina);
+  outline-offset: 2px;
+}
+
+/* ----------------------------------------------------------------------------
+   PAGE HEADER  (short marketing/legal pages that do not need a full hero)
+   ---------------------------------------------------------------------------- */
+.tv-page-head {
+  padding-top: clamp(7rem, 5rem + 8vw, 11rem);
+  padding-bottom: clamp(2.5rem, 2rem + 3vw, 4rem);
+}
+
+/* Long-form legal copy. */
+.tv-prose { max-width: 68ch; }
+
+.tv-prose h2 {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  font-weight: 600;
+  font-size: 1.375rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  color: var(--tv-text);
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.tv-prose h2:first-child { margin-top: 0; }
+
+.tv-prose h3 {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  color: var(--tv-text);
+  margin-top: 1.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.tv-prose p,
+.tv-prose li {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--tv-text-muted);
+}
+
+.tv-prose p { margin-bottom: 1rem; }
+
+.tv-prose ul,
+.tv-prose ol {
+  margin: 0 0 1.25rem;
+  padding-left: 1.25rem;
+  list-style: disc;
+}
+
+.tv-prose ol { list-style: decimal; }
+.tv-prose li { margin-bottom: 0.4375rem; }
+
+.tv-prose a {
+  color: var(--tv-patina);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.tv-prose a:hover { color: #6FC4A5; }
+
+.tv-prose strong { color: var(--tv-text); font-weight: 600; }

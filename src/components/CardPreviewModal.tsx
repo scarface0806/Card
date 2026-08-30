@@ -29,87 +29,103 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.25 }}
             onClick={onClose}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+            className="tv-modal-backdrop z-50"
           />
 
           {/* Modal */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.96, y: 16 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            transition={{ duration: 0.3, ease: 'easeOut' }}
+            exit={{ opacity: 0, scale: 0.96, y: 16 }}
+            transition={{ duration: 0.28, ease: 'easeOut' }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none"
           >
-            <div className="relative bg-white rounded-3xl shadow-lg max-w-lg w-full p-8 pointer-events-auto">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="card-preview-title"
+              className="tv-modal-panel max-w-lg pointer-events-auto"
+            >
               {/* Close Button */}
               <button
+                type="button"
                 onClick={onClose}
-                className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-full transition-all duration-200"
+                aria-label="Close preview"
+                className="tv-modal-close z-10"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
 
-              {/* Card Preview */}
-              <div className="mb-6">
+              <div className="tv-modal-body">
+                {/* Card Preview */}
                 <motion.div
-                  initial={{ rotateY: -15, rotateX: 5 }}
+                  initial={{ rotateY: -12, rotateX: 4 }}
                   animate={{ rotateY: 0, rotateX: 0 }}
                   transition={{ duration: 0.6, ease: 'easeOut' }}
-                  className="relative aspect-[1.6/1] rounded-2xl overflow-hidden shadow-xl mx-auto max-w-sm"
+                  className="relative aspect-[1.6/1] rounded-2xl overflow-hidden mx-auto max-w-sm mb-7"
                   style={{
                     background: card.color,
                     transformStyle: 'preserve-3d',
                     perspective: '1000px',
+                    boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
                   }}
                 >
                   <img
-                    src={card.images?.[0] || card.image || "/placeholder.svg"}
-                    alt={card.name}
+                    src={card.images?.[0] || card.image || '/placeholder.svg'}
+                    alt={`${card.name} NFC card`}
+                    width={480}
+                    height={300}
                     className="h-full w-full object-cover"
                   />
 
                   <div className="absolute right-4 top-4">
-                    <div className="w-10 h-10 rounded-full bg-black/30 flex items-center justify-center">
-                      <Wifi className="w-5 h-5 text-white rotate-45" />
+                    <div className="w-9 h-9 rounded-full bg-[#070A09]/45 flex items-center justify-center">
+                      <Wifi className="w-4 h-4 text-white rotate-45" aria-hidden="true" />
                     </div>
                   </div>
 
-                  {/* Shine effect */}
+                  {/* Shine sweep */}
                   <motion.div
                     initial={{ x: '-100%' }}
                     animate={{ x: '200%' }}
-                    transition={{ duration: 1.5, delay: 0.5, ease: 'easeInOut' }}
-                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
+                    transition={{ duration: 1.5, delay: 0.4, ease: 'easeInOut' }}
+                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 motion-reduce:hidden"
                   />
                 </motion.div>
-              </div>
 
-              {/* Card Details */}
-              <div className="text-center">
-                <h3 className="text-2xl font-bold text-[#0f2e25] font-space-grotesk mb-2">
-                  {card.name}
-                </h3>
-                <div className="flex items-center justify-center gap-2 mb-3">
-                  <span
-                    className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      card.type === 'premium'
-                        ? 'bg-amber-100 text-amber-700'
-                        : card.type === 'custom'
-                        ? 'bg-purple-100 text-purple-700'
-                        : 'bg-primary/20 text-primary'
-                    }`}
-                  >
+                {/* Card Details */}
+                <div className="text-center">
+                  <p className="tv-mono mb-2">
                     {card.type === 'custom' ? 'Custom' : card.type === 'premium' ? 'Premium' : 'Basic'}
-                  </span>
+                  </p>
+
+                  <h2 id="card-preview-title" className="tv-h3 mb-3">
+                    {card.name}
+                  </h2>
+
+                  {card.type !== 'custom' && (
+                    <p
+                      className="text-2xl font-semibold text-[#F1F3F1] mb-3"
+                      style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
+                    >
+                      {card.price}
+                    </p>
+                  )}
+
+                  <p className="tv-small">
+                    <a
+                      href="/preview-website"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="tv-btn-tertiary !min-h-0 !text-sm relative z-10 cursor-pointer"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      Free Lifetime Website
+                    </a>
+                  </p>
                 </div>
-                {card.type !== 'custom' && (
-                  <p className="text-2xl font-bold text-primary mb-2">{card.price}</p>
-                )}
-                <p className="text-sm text-[#4b635d]">
-                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary relative z-10 cursor-pointer" onClick={(e) => e.stopPropagation()}>Free Lifetime Website</a>
-                </p>
               </div>
             </div>
           </motion.div>
@@ -118,4 +134,3 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
     </AnimatePresence>
   );
 }
-

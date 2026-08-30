@@ -5,7 +5,7 @@ import { ADDRESS, PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-co
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { Mail, Phone, MapPin, Send, Clock, MessageSquare, ArrowRight } from 'lucide-react';
+import { Mail, Phone, MapPin, Clock, MessageSquare, ArrowUpRight } from 'lucide-react';
 import { useState } from 'react';
 
 export default function ContactUsPage() {
@@ -65,6 +65,8 @@ export default function ContactUsPage() {
     }
   };
 
+  // The `color` field is gone: three unrelated swatches (primary, secondary,
+  // cyan-700) on three otherwise identical tiles read as decoration.
   const contactMethods = [
     {
       icon: Mail,
@@ -72,7 +74,6 @@ export default function ContactUsPage() {
       description: 'We reply within 24 hours',
       value: SUPPORT_EMAIL,
       href: `mailto:${SUPPORT_EMAIL}`,
-      color: 'bg-primary',
     },
     {
       icon: Phone,
@@ -80,7 +81,6 @@ export default function ContactUsPage() {
       description: 'Available 24/7',
       value: PHONE_DISPLAY,
       href: `tel:${PHONE_E164}`,
-      color: 'bg-secondary',
     },
     {
       icon: MapPin,
@@ -88,135 +88,134 @@ export default function ContactUsPage() {
       description: 'Visit us anytime',
       value: ADDRESS.full,
       href: `https://maps.google.com/?q=${encodeURIComponent(ADDRESS.full)}`,
-      color: 'bg-cyan-700',
     },
   ];
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-      },
+  const reasons = [
+    {
+      icon: Clock,
+      title: 'Quick response',
+      description: 'We aim to respond to all inquiries within 24 hours',
     },
-  };
+    {
+      icon: MessageSquare,
+      title: 'Expert support',
+      description: 'Our team has deep expertise in NFC technology and digital cards',
+    },
+    {
+      icon: Mail,
+      title: 'Multiple channels',
+      description: 'Reach us via email, phone, or visit our office in person',
+    },
+  ];
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { duration: 0.8 },
+  const faqs = [
+    {
+      q: 'What is the typical response time?',
+      a: 'We respond to all inquiries within 24 hours during business days. Urgent support requests get priority.',
     },
-  };
+    {
+      q: 'Do you provide customer support outside business hours?',
+      a: 'Yes, our Enterprise plan includes 24/7 dedicated support. Basic plans have support available Monday-Friday.',
+    },
+    {
+      q: 'How can I report a bug or issue?',
+      a: 'You can report issues directly through our support form above, or email support@tapvyo.com with detailed information.',
+    },
+    {
+      q: 'Do you offer custom enterprise solutions?',
+      a: 'Absolutely! Contact our team to discuss white-label, API, or custom integration requirements.',
+    },
+  ];
 
   return (
     <>
       <Navbar />
-      <main className="bg-gradient-to-br from-[#f8fafb] via-[#eef5f3] to-[#ffffff] min-h-screen">
-        {/* Hero */}
-        <section className="relative pt-32 pb-20 md:pt-48 md:pb-32 overflow-hidden">
-          <div className="absolute inset-0 -z-10">
-            <div className="absolute top-20 right-10 w-96 h-96 bg-primary/20 rounded-full blur-3xl" />
-            <div className="absolute bottom-10 left-10 w-72 h-72 bg-secondary/15 rounded-full blur-3xl" />
-          </div>
-
+      <main>
+        {/* HERO + contact channels on ink. */}
+        <section className="tv-hero tv-page-head">
           <div className="site-container">
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              animate="visible"
-              className="text-center mb-12"
-            >
-              <motion.div variants={itemVariants} className="mb-8">
-                <span className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full text-sm font-semibold text-primary">
-                  We're Here to Help
-                </span>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end mb-14 md:mb-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-7"
+              >
+                <p className="tv-eyebrow mb-7">Contact</p>
+                <h1 className="tv-display" style={{ maxWidth: '13ch' }}>
+                  Talk to a person, not a form.
+                </h1>
               </motion.div>
 
-              <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">
-                Get in{' '}
-                <span className="text-primary">
-                  Touch
-                </span>
-              </motion.h1>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="lg:col-span-5 lg:pb-3"
+              >
+                <p className="tv-lead">
+                  Have questions? Our team is always ready to help. Reach out anytime.
+                </p>
+              </motion.div>
+            </div>
 
-              <motion.p variants={itemVariants} className="text-base md:text-lg text-slate-500 max-w-3xl mx-auto leading-relaxed">
-                Have questions? Our friendly team is always ready to help. Reach out to us anytime.
-              </motion.p>
-            </motion.div>
-
-            {/* Contact Methods */}
-            <motion.div
+            {/* Contact channels. Each value stays a real mailto:/tel:/maps link. */}
+            <motion.ul
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4, duration: 0.8 }}
-              className="grid md:grid-cols-3 gap-8"
+              transition={{ delay: 0.3, duration: 0.6 }}
+              className="grid grid-cols-1 md:grid-cols-3 gap-5 md:gap-6"
             >
-              {contactMethods.map((method, index) => {
+              {contactMethods.map((method) => {
                 const Icon = method.icon;
                 return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5 + index * 0.1, duration: 0.6 }}
-                    whileHover={{ y: -4, scale: 1.02 }}
-                    className="p-8 rounded-2xl border border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-md hover:shadow-[0_0_30px_rgba(74,222,128,0.1)] transition-all text-center group"
-                  >
-                    <div className={`w-16 h-16 mx-auto rounded-xl ${method.color} mb-6 flex items-center justify-center transition-transform duration-220`}>
-                      <Icon className="w-8 h-8 text-white" />
-                    </div>
-                    <h2 className="text-xl font-bold mb-2 text-[#0f2e25] font-space-grotesk">{method.title}</h2>
-                    <p className="text-sm text-[#6b7f78] mb-4">{method.description}</p>
-                    {/* Email / phone / address are actionable, not just text. */}
+                  <li key={method.title} className="tv-panel tv-panel-pad">
+                    <Icon
+                      className="w-5 h-5 mb-5 text-[#C9A961]"
+                      strokeWidth={1.6}
+                      aria-hidden="true"
+                    />
+                    <h2 className="tv-mono mb-2">{method.title}</h2>
                     <a
                       href={method.href}
                       {...(method.href.startsWith('http')
                         ? { target: '_blank', rel: 'noopener noreferrer' }
                         : {})}
-                      className="inline-flex min-h-[44px] items-center justify-center text-lg font-semibold text-primary underline-offset-4 hover:underline focus-visible:underline"
+                      className="tv-h4 tv-focus inline-flex min-h-[44px] items-center hover:text-[#4CAE89] transition-colors"
                     >
                       {method.value}
                     </a>
-                  </motion.div>
+                    <p className="tv-small mt-1">{method.description}</p>
+                  </li>
                 );
               })}
-            </motion.div>
+            </motion.ul>
           </div>
         </section>
 
-        {/* Contact Form & Info */}
-        <section className="relative py-24 md:py-32 bg-gradient-to-b from-[#0b1220] via-[#0f1528] to-[#0a0e1a] overflow-hidden">
-          {/* Radial Glow Effect */}
-          <div 
-            className="absolute top-1/3 left-1/3 transform -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-3xl opacity-30 pointer-events-none"
-            style={{
-              background: 'radial-gradient(circle, rgba(34,197,94,0.15) 0%, rgba(34,197,94,0.05) 40%, transparent 70%)'
-            }}
-          />
-          <div className="site-container relative z-10">
-            <div className="grid md:grid-cols-2 gap-12 lg:gap-16">
+        {/* FORM on paper — the page's primary task gets the light surface. */}
+        <section className="tv-surface-bone tv-section">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
               {/* Form */}
               <motion.div
-                initial={{ opacity: 0, x: -20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 shadow-[0_0_40px_rgba(34,197,94,0.08)] hover:border-white/20 hover:shadow-[0_0_50px_rgba(34,197,94,0.12)] transition-all duration-300"
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-7"
               >
-                {/* Background gradient on hover */}
-                <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-green-500/5 via-transparent to-transparent pointer-events-none" />
-                <div className="relative z-10">
-                  <h2 className="text-2xl md:text-3xl font-extrabold mb-8 text-white font-space-grotesk tracking-tight">Send us a Message</h2>
+                <p className="tv-eyebrow mb-6">Send a message</p>
+                <h2 className="tv-h2 mb-8">Tell us what you need.</h2>
 
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    <div>
-                      <label htmlFor="contact-name" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Name</label>
-                      <motion.input
-                        whileFocus={{ scale: 1.01 }}
+                <form onSubmit={handleSubmit}>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
+                    <div className="tv-field">
+                      <label htmlFor="contact-name" className="tv-label">
+                        Name
+                      </label>
+                      <input
                         type="text"
                         id="contact-name"
                         name="name"
@@ -225,14 +224,15 @@ export default function ContactUsPage() {
                         onChange={handleChange}
                         placeholder="Your name"
                         required
-                        className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40 transition-all"
+                        className="tv-input"
                       />
                     </div>
 
-                    <div>
-                      <label htmlFor="contact-phone" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Phone</label>
-                      <motion.input
-                        whileFocus={{ scale: 1.01 }}
+                    <div className="tv-field">
+                      <label htmlFor="contact-phone" className="tv-label">
+                        Phone
+                      </label>
+                      <input
                         type="tel"
                         id="contact-phone"
                         name="phone"
@@ -242,202 +242,174 @@ export default function ContactUsPage() {
                         onChange={handleChange}
                         placeholder="9876543210"
                         required
-                        className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40 transition-all"
+                        className="tv-input"
                       />
                     </div>
+                  </div>
 
-                    <div>
-                      <label htmlFor="contact-email" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Email</label>
-                      <motion.input
-                        whileFocus={{ scale: 1.01 }}
-                        type="email"
-                        id="contact-email"
-                        name="email"
-                        inputMode="email"
-                        autoComplete="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="your@email.com"
-                        required
-                        className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40 transition-all"
-                      />
-                    </div>
+                  <div className="tv-field">
+                    <label htmlFor="contact-email" className="tv-label">
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      id="contact-email"
+                      name="email"
+                      inputMode="email"
+                      autoComplete="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="your@email.com"
+                      required
+                      className="tv-input"
+                    />
+                  </div>
 
-                    <div>
-                      <label htmlFor="contact-subject" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Subject</label>
-                      <motion.select
-                        whileFocus={{ scale: 1.01 }}
-                        id="contact-subject"
-                        name="subject"
-                        value={formData.subject}
-                        onChange={handleChange}
-                        required
-                        className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-white focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40 transition-all"
-                      >
-                        <option value="" className="bg-[#020617] text-white">Select a subject</option>
-                        <option value="product" className="bg-[#020617] text-white">Product Inquiry</option>
-                        <option value="support" className="bg-[#020617] text-white">Technical Support</option>
-                        <option value="billing" className="bg-[#020617] text-white">Billing Question</option>
-                        <option value="partnership" className="bg-[#020617] text-white">Partnership</option>
-                        <option value="other" className="bg-[#020617] text-white">Other</option>
-                      </motion.select>
-                    </div>
+                  <div className="tv-field">
+                    <label htmlFor="contact-subject" className="tv-label">
+                      Subject
+                    </label>
+                    <select
+                      id="contact-subject"
+                      name="subject"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      required
+                      className="tv-select"
+                    >
+                      <option value="">Select a subject</option>
+                      <option value="product">Product Inquiry</option>
+                      <option value="support">Technical Support</option>
+                      <option value="billing">Billing Question</option>
+                      <option value="partnership">Partnership</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
 
-                    <div>
-                      <label htmlFor="contact-message" className="block text-xs font-semibold text-gray-400 mb-2 uppercase tracking-wide">Message</label>
-                      <motion.textarea
-                        whileFocus={{ scale: 1.01 }}
-                        id="contact-message"
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        placeholder="Tell us how we can help..."
-                        rows={5}
-                        required
-                        className="w-full px-4 py-3 rounded-lg bg-[#020617] border border-white/10 text-white placeholder-gray-500 focus:outline-none focus:border-green-400 focus:ring-1 focus:ring-green-400/40 transition-all resize-none min-h-[120px]"
-                      />
-                    </div>
+                  <div className="tv-field">
+                    <label htmlFor="contact-message" className="tv-label">
+                      Message
+                    </label>
+                    <textarea
+                      id="contact-message"
+                      name="message"
+                      value={formData.message}
+                      onChange={handleChange}
+                      placeholder="Tell us how we can help..."
+                      rows={5}
+                      required
+                      className="tv-textarea"
+                    />
+                  </div>
 
+                  <div className="mt-7">
                     <motion.button
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.95 }}
+                      whileHover={{ y: -2 }}
+                      whileTap={{ y: 0 }}
                       disabled={isLoading}
                       type="submit"
-                      className="w-full py-3 px-6 rounded-xl font-semibold text-black bg-gradient-to-r from-green-400 to-emerald-500 hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all duration-300 group flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none"
+                      className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      {!submitted && (
-                        <>
-                          <Send className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                          {isLoading ? 'Sending...' : 'Send Message'}
-                        </>
-                      )}
-                      {submitted && (
-                        <motion.span
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="flex items-center gap-2"
-                        >
-                          ✓ Message Sent!
-                        </motion.span>
+                      {submitted ? 'Message sent' : isLoading ? 'Sending…' : 'Send message'}
+                      {!submitted && !isLoading && (
+                        <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                       )}
                     </motion.button>
 
+                    {/* Status is announced, not just coloured. */}
+                    <p className="sr-only" role="status" aria-live="polite">
+                      {submitted ? 'Your message has been sent.' : isLoading ? 'Sending your message.' : ''}
+                    </p>
+
                     {submitError ? (
-                      <p className="text-sm text-red-500/80">{submitError}</p>
+                      <p className="tv-form-error mt-3" role="alert">
+                        {submitError}
+                      </p>
                     ) : null}
-                  </form>
-                </div>
+                  </div>
+                </form>
               </motion.div>
 
-              {/* Info */}
+              {/* Why contact us */}
               <motion.div
-                initial={{ opacity: 0, x: 20 }}
-                whileInView={{ opacity: 1, x: 0 }}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.8 }}
-                className="flex flex-col justify-center"
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-5"
               >
-                <h2 className="text-2xl md:text-3xl font-extrabold mb-10 text-white font-space-grotesk tracking-tight">Why Contact Us?</h2>
+                <div className="lg:sticky lg:top-32">
+                  <h2 className="tv-h3 mb-7">What to expect</h2>
 
-                <div className="space-y-6">
-                  {[
-                    {
-                      icon: Clock,
-                      title: 'Quick Response',
-                      description: 'We aim to respond to all inquiries within 24 hours',
-                    },
-                    {
-                      icon: MessageSquare,
-                      title: 'Expert Support',
-                      description: 'Our team has deep expertise in NFC technology and digital cards',
-                    },
-                    {
-                      icon: Mail,
-                      title: 'Multiple Channels',
-                      description: 'Reach us via email, phone, or visit our office in person',
-                    },
-                  ].map((item, index) => {
-                    const Icon = item.icon;
-                    return (
-                      <motion.div
-                        key={index}
-                        initial={{ opacity: 0, y: 10 }}
-                        whileInView={{ opacity: 1, y: 0 }}
-                        viewport={{ once: true }}
-                        transition={{ delay: index * 0.1 }}
-                        className="flex gap-4 items-start group"
-                      >
-                        <div className="flex-shrink-0">
-                          <div className="w-10 h-10 rounded-full bg-green-500/10 flex items-center justify-center group-hover:bg-green-500/20 transition-colors duration-300">
-                            <Icon className="w-5 h-5 text-green-400" />
+                  <ul className="mb-10">
+                    {reasons.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <li
+                          key={item.title}
+                          className="flex gap-4 items-start py-4 border-b border-[#12100C]/12 last:border-b-0"
+                        >
+                          <Icon
+                            className="w-5 h-5 mt-0.5 shrink-0 text-[#6E5518]"
+                            strokeWidth={1.6}
+                            aria-hidden="true"
+                          />
+                          <div>
+                            <h3 className="tv-h4 mb-1">{item.title}</h3>
+                            <p className="tv-small">{item.description}</p>
                           </div>
-                        </div>
-                        <div>
-                          <h3 className="font-semibold text-white mb-1">{item.title}</h3>
-                          <p className="text-gray-400 text-sm">{item.description}</p>
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
+                        </li>
+                      );
+                    })}
+                  </ul>
 
-                {/* Stats */}
-                <motion.div 
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: 0.3 }}
-                  className="mt-12 p-8 rounded-xl border border-white/10 bg-white/5 backdrop-blur-xl shadow-[0_0_30px_rgba(34,197,94,0.1)] hover:border-white/20 transition-all duration-300"
-                >
-                  <div className="text-center">
-                    <p className="text-5xl font-extrabold text-green-400 mb-2">98%</p>
-                    <p className="text-sm text-gray-400">Customer Satisfaction Rate</p>
+                  <div className="border-t border-[#6E5518]/35 pt-6">
+                    <p
+                      className="text-4xl font-semibold text-[#12100C]"
+                      style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
+                    >
+                      98%
+                    </p>
+                    <p className="tv-small mt-1">Customer Satisfaction Rate</p>
                   </div>
-                </motion.div>
+                </div>
               </motion.div>
             </div>
           </div>
         </section>
 
         {/* FAQ */}
-        <section className="py-16 md:py-24">
+        <section className="tv-surface-graphite tv-section">
           <div className="site-container">
-            <motion.div className="text-center mb-16">
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold mb-6 text-[#0f2e25] font-space-grotesk tracking-tight">Frequently Asked Questions</h2>
-              <p className="text-base md:text-lg text-slate-500">Find answers to common questions</p>
-            </motion.div>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-4"
+              >
+                <p className="tv-eyebrow mb-6">Questions</p>
+                <h2 className="tv-h2">Common questions.</h2>
+              </motion.div>
 
-            <div className="space-y-4">
-              {[
-                {
-                  q: 'What is the typical response time?',
-                  a: 'We respond to all inquiries within 24 hours during business days. Urgent support requests get priority.',
-                },
-                {
-                  q: 'Do you provide customer support outside business hours?',
-                  a: 'Yes, our Enterprise plan includes 24/7 dedicated support. Basic plans have support available Monday-Friday.',
-                },
-                {
-                  q: 'How can I report a bug or issue?',
-                  a: 'You can report issues directly through our support form above, or email support@tapvyo.com with detailed information.',
-                },
-                {
-                  q: 'Do you offer custom enterprise solutions?',
-                  a: 'Absolutely! Contact our team to discuss white-label, API, or custom integration requirements.',
-                },
-              ].map((faq, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 10 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: index * 0.1 }}
-                  className="p-6 rounded-2xl border border-white/10 bg-gradient-to-b from-[#0f172a] to-[#020617] shadow-sm hover:border-white/20 hover:shadow-[0_0_20px_rgba(74,222,128,0.1)] transition-all"
-                >
-                  <h3 className="font-semibold text-lg text-[#0f2e25] mb-2">{faq.q}</h3>
-                  <p className="text-sm md:text-base text-slate-500">{faq.a}</p>
-                </motion.div>
-              ))}
+              <div className="lg:col-span-8">
+                {faqs.map((faq, index) => (
+                  <motion.div
+                    key={faq.q}
+                    initial={{ opacity: 0, y: 12 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.5, delay: index * 0.06 }}
+                    className="py-6 border-b border-[#F1F3F1]/10 first:pt-0"
+                  >
+                    <h3 className="tv-h4 mb-2">{faq.q}</h3>
+                    <p className="tv-body" style={{ maxWidth: '68ch' }}>
+                      {faq.a}
+                    </p>
+                  </motion.div>
+                ))}
+              </div>
             </div>
           </div>
         </section>

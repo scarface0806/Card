@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowRight } from 'lucide-react';
+import { X, ArrowUpRight } from 'lucide-react';
 import { loginUser, registerUser, setAuthToken } from '@/services/auth';
 import { useRouter } from 'next/navigation';
 
@@ -74,7 +74,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
             exit={{ opacity: 0 }}
             transition={{ duration: 0.15, ease: 'linear' }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/40 backdrop-blur-[2px] z-50"
+            className="tv-modal-backdrop z-50"
           />
 
           {/* Modal - scale from 0.96, no bounce */}
@@ -83,40 +83,47 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.96, y: 8 }}
             transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-            className="fixed inset-0 z-50 flex items-center justify-center px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center px-4 pointer-events-none"
           >
-            <div className="w-full max-w-md rounded-3xl shadow-2xl p-6 md:p-8 bg-white relative max-h-[90vh] overflow-y-auto">
+            <div
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="auth-modal-title"
+              className="tv-modal-panel max-w-md pointer-events-auto max-h-[90vh] overflow-y-auto"
+            >
               {/* Close Button */}
               <button
+                type="button"
                 onClick={onClose}
-                className="absolute top-6 right-6 p-2 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Close"
+                className="tv-modal-close z-10"
               >
-                <X className="w-5 h-5 text-gray-500" />
+                <X className="w-5 h-5" aria-hidden="true" />
               </button>
 
               {/* Header */}
-              <div className="mb-8">
-                <h2 className="text-3xl font-bold text-[#0f2e25] font-space-grotesk mb-2">
+              <div className="tv-modal-head pr-14">
+                <h2 id="auth-modal-title" className="tv-h3 mb-1">
                   {mode === 'login' ? 'Welcome Back' : 'Create Account'}
                 </h2>
-                <p className="text-gray-600 text-sm">
+                <p className="tv-small">
                   {mode === 'login'
                     ? 'Sign in to your Tapvyo account'
                     : 'Join us and get your NFC digital business card'}
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4 mb-6">
+              <form onSubmit={handleSubmit} className="tv-modal-body">
                 {error && (
-                  <div className="p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm">
+                  <p className="tv-form-error mb-4" role="alert">
                     {error}
-                  </div>
+                  </p>
                 )}
 
                 {/* Name Field (Signup only) */}
                 {mode === 'signup' && (
                   <div>
-                    <label className="block text-sm font-medium text-[#0f2e25] mb-2">
+                    <label className="tv-label">
                       Full Name
                     </label>
                     <input
@@ -124,7 +131,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Doe"
-                      className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-teal-100 transition-all"
+                      className="tv-input"
                       required
                     />
                   </div>
@@ -132,7 +139,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
 
                 {/* Email Field */}
                 <div>
-                  <label className="block text-sm font-medium text-[#0f2e25] mb-2">
+                  <label className="tv-label">
                     Email Address
                   </label>
                   <input
@@ -140,14 +147,14 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="you@example.com"
-                    className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-teal-100 transition-all"
+                    className="tv-input"
                     required
                   />
                 </div>
 
                 {/* Password Field */}
                 <div>
-                  <label className="block text-sm font-medium text-[#0f2e25] mb-2">
+                  <label className="tv-label">
                     Password
                   </label>
                   <input
@@ -155,7 +162,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="••••••••"
-                    className="w-full px-4 py-3 border border-primary/20 rounded-xl focus:outline-none focus:border-primary focus:ring-2 focus:ring-teal-100 transition-all"
+                    className="tv-input"
                     required
                   />
                 </div>
@@ -164,7 +171,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold rounded-full hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg transition-all duration-300 disabled:opacity-70 disabled:cursor-not-allowed mt-6"
+                  className="tv-btn tv-btn-primary w-full mt-6 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   <span>
                     {loading
@@ -173,17 +180,18 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                         ? 'Login'
                         : 'Create Account'}
                   </span>
-                  {!loading && <ArrowRight className="w-4 h-4" />}
+                  {!loading && <ArrowUpRight className="w-4 h-4" aria-hidden="true" />}
                 </button>
               </form>
 
+              <div className="px-[clamp(1.25rem,1rem+1vw,2rem)] pb-2">
               {/* Divider */}
               <div className="relative mb-6">
                 <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-gray-300" />
+                  <div className="w-full border-t border-[#F1F3F1]/12" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  <span className="tv-mono px-3 bg-[#151C1A]">Or continue with</span>
                 </div>
               </div>
 
@@ -191,7 +199,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
               <button
                 onClick={handleGoogleAuth}
                 type="button"
-                className="w-full flex items-center justify-center gap-3 px-6 py-3 border border-gray-300 bg-white text-gray-700 font-medium rounded-full hover:bg-gray-50 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-md"
+                className="tv-btn tv-btn-secondary w-full"
               >
                 <svg
                   className="w-5 h-5"
@@ -218,17 +226,18 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                 </svg>
                 <span>Google</span>
               </button>
+              </div>
 
               {/* Switch Mode Link */}
-              <div className="mt-6 text-center text-sm">
-                <span className="text-gray-600">
+              <div className="tv-modal-foot text-center">
+                <span className="tv-small">
                   {mode === 'login'
                     ? "Don't have an account? "
                     : 'Already have an account? '}
                 </span>
                 <button
                   onClick={() => onModeChange(mode === 'login' ? 'signup' : 'login')}
-                  className="text-primary font-semibold hover:text-primary transition-colors"
+                  className="tv-btn-tertiary !min-h-0 !text-sm"
                 >
                   {mode === 'login' ? 'Sign Up' : 'Login'}
                 </button>
