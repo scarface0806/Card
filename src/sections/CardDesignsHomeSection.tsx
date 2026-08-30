@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { Eye, ArrowRight, Sparkles, Check, MessageSquare, Loader2 } from 'lucide-react';
+import { Eye, ArrowUpRight, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
@@ -18,7 +18,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
   const router = useRouter();
   const [selectedCard, setSelectedCard] = useState<CardDesign | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  
+
   const { cardDesigns, loading } = useCardDesigns();
 
   const handlePreview = (card: CardDesign) => {
@@ -53,7 +53,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
 
   return (
     <>
-      <section className="section bg-[#020617]">
+      <section className="tv-surface-graphite tv-section">
         <div className="site-container">
           {/* Header */}
           <motion.div
@@ -61,173 +61,181 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="section-header"
+            className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6 mb-12 md:mb-16"
           >
-            <div className="section-badge">
-              <Sparkles className="w-4 h-4" />
-              <span>Premium NFC Cards</span>
+            <div className="max-w-xl">
+              <p className="tv-eyebrow mb-6">The cards</p>
+              <h2 className="tv-h2 mb-4">Choose your card.</h2>
+              <p className="tv-lead">
+                Every card carries the same chip and the same profile. Pick the one you
+                want to hand over.
+              </p>
             </div>
 
-            <h2 className="heading-1 section-title font-space-grotesk">
-              Our NFC{' '}
-              <span className="text-gradient">
-                Card Designs
-              </span>
-            </h2>
-            <p className="text-sm md:text-base text-slate-500 section-subtitle">
-              Choose your style. <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>.
-            </p>
-
-            {/* Subtle urgency signal */}
-            <div className="flex flex-wrap items-center justify-center gap-4 mt-6">
-              <span className="inline-flex items-center gap-2 text-sm text-gray-300 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
-                <Check className="w-4 h-4 text-primary" />
-                No Hidden Charges
-              </span>
-              <span className="inline-flex items-center gap-2 text-sm text-gray-300 bg-white/5 border border-white/10 px-4 py-2 rounded-full">
-                <Check className="w-4 h-4 text-primary" />
-                No Renewal Fees
-              </span>
-              <span className="inline-flex items-center gap-2 text-sm text-amber-300 bg-amber-500/10 border border-amber-300/30 px-4 py-2 rounded-full font-medium">
-                <Sparkles className="w-4 h-4" />
-                Limited Custom Designs Available
-              </span>
-            </div>
+            <ul className="flex flex-wrap gap-x-6 gap-y-2 lg:justify-end shrink-0">
+              <li className="tv-mono">No hidden charges</li>
+              <li className="tv-mono">No renewal fees</li>
+            </ul>
           </motion.div>
 
           {/* Card Grid */}
           {loading ? (
             <div className="flex items-center justify-center py-20">
-              <Loader2 className="w-8 h-8 text-primary animate-spin" />
+              <Loader2 className="w-8 h-8 text-[#4CAE89] animate-spin" aria-hidden="true" />
+              <span className="sr-only">Loading card designs</span>
             </div>
           ) : (
-          <motion.div
-            variants={containerVariants}
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-20 items-stretch"
-          >
-            {cardDesigns.map((card) => (
-              <motion.div
-                key={card.id}
-                variants={itemVariants}
-                className="group flex flex-col h-full card overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-xl"
-              >
-                {/* Card Preview */}
-                <div className="relative aspect-[1.6/1] overflow-hidden">
-                  <img src={card.images?.[0] || "/placeholder.svg"} alt={card.name} className="h-full w-full object-cover" />
+            <motion.div
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true }}
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6 mb-16 md:mb-20 items-stretch"
+            >
+              {cardDesigns.map((card) => (
+                <motion.article
+                  key={card.id}
+                  variants={itemVariants}
+                  className="group tv-panel flex flex-col h-full overflow-hidden"
+                >
+                  {/* Card Preview */}
+                  <div className="relative aspect-[1.6/1] overflow-hidden bg-[#151C1A]">
+                    <img
+                      src={card.images?.[0] || '/placeholder.svg'}
+                      alt={`${card.name} NFC card`}
+                      width={480}
+                      height={300}
+                      loading="lazy"
+                      className="h-full w-full object-cover"
+                    />
 
-                  {/* Quick View Overlay */}
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                    <button
-                      onClick={() => handlePreview(card)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white/95 text-slate-700 border border-slate-200 font-medium rounded-full shadow-[0_2px_10px_rgba(15,23,42,0.12)] hover:-translate-y-0.5 hover:bg-white hover:text-slate-900 hover:border-slate-300 active:translate-y-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/30 focus-visible:ring-offset-2 focus-visible:ring-offset-white transition-all duration-300"
-                    >
-                      <Eye className="w-4 h-4" />
-                      Quick View
-                    </button>
+                    {/* Quick view overlay. Also reachable on keyboard: the
+                        button stays focusable and the overlay reveals on
+                        focus-within, not hover alone. */}
+                    <div className="absolute inset-0 flex items-center justify-center bg-[#070A09]/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+                      <button
+                        onClick={() => handlePreview(card)}
+                        className="tv-btn tv-btn-secondary !text-[#F1F3F1] !border-[#F1F3F1]/40 !bg-[#070A09]/70"
+                      >
+                        <Eye className="w-4 h-4" aria-hidden="true" />
+                        Quick view
+                        <span className="sr-only"> of {card.name}</span>
+                      </button>
+                    </div>
                   </div>
-                </div>
 
-                {/* Card Details */}
-                <div className="flex flex-col grow card-padding">
-                  <div className="mb-3">
-                    <h3 className="heading-3 section-title font-space-grotesk">
-                      {card.name}
-                    </h3>
-                  </div>
+                  {/* Card Details */}
+                  <div className="flex flex-col grow tv-panel-pad">
+                    <h3 className="tv-h4 mb-3">{card.name}</h3>
 
-                  {/* Price Section */}
-                  <div className="mb-3">
-                    <div className="flex items-baseline gap-2">
-                      <p className="heading-3 text-primary">
-                        {card.price}
-                      </p>
-                      {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
-                        <p className="text-sm text-gray-400 line-through">
-                          {card.salePrice}
+                    {/* Price */}
+                    <div className="mb-4">
+                      <div className="flex items-baseline gap-2.5">
+                        <p
+                          className="text-2xl font-semibold text-[#F1F3F1]"
+                          style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
+                        >
+                          {card.price}
                         </p>
+                        {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
+                          <p
+                            className="text-sm line-through text-[#A9B5B0]"
+                            style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
+                          >
+                            {card.salePrice}
+                          </p>
+                        )}
+                      </div>
+                      {/* The lifetime-website claim deliberately does NOT
+                          appear here: this line renders once per card, so
+                          putting it here reprinted it five times. It now
+                          appears once, in the band below the grid. */}
+                      <p className="tv-small mt-1">
+                        {card.type === 'custom'
+                          ? 'Base NFC card price'
+                          : 'Includes your digital profile'}
+                      </p>
+                    </div>
+
+                    {/* Spec */}
+                    <div className="min-h-[76px] mb-6">
+                      {card.type === 'custom' ? (
+                        <div className="tv-spec">
+                          <p className="tv-spec-row">
+                            Free if you provide your own design
+                          </p>
+                          <p className="tv-spec-row">
+                            Design service available at additional cost
+                          </p>
+                        </div>
+                      ) : (
+                        <div className="tv-spec">
+                          <p className="tv-spec-row">
+                            Contact form included in your digital profile
+                          </p>
+                        </div>
                       )}
                     </div>
-                    <p className="body-base text-gray-400">
-                      {card.type === 'custom' ? 'Base NFC Card Price' : <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>}
-                    </p>
-                  </div>
 
-                  {/* Feature Info Section */}
-                  <div className="min-h-[72px] mb-4">
-                    {card.type === 'custom' ? (
-                      <div className="bg-primary/10 border border-primary/20 rounded-xl p-3">
-                        <p className="text-xs text-primary font-medium mb-1">Design Charges</p>
-                        <p className="text-xs text-gray-400">
-                          <span className="text-primary font-semibold">Free</span> if you provide your own design.
-                          Design service available at additional cost.
-                        </p>
-                      </div>
-                    ) : (
-                      <p className="text-xs text-gray-400 flex items-center gap-1">
-                        <Check className="w-3 h-3 text-primary" />
-                        Contact form included in your digital profile
-                      </p>
-                    )}
+                    {/* Action. Custom designs open the enquiry modal, so they
+                        take the tertiary contact label, not the buy label. */}
+                    <div className="mt-auto">
+                      <button
+                        onClick={() => handleBuyNow(card)}
+                        className={`tv-btn w-full ${
+                          card.type === 'custom' ? 'tv-btn-secondary' : 'tv-btn-primary'
+                        }`}
+                      >
+                        {card.type === 'custom' ? (
+                          <span>Talk to our team</span>
+                        ) : (
+                          <>
+                            <span>Get your card</span>
+                            <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                          </>
+                        )}
+                      </button>
+                    </div>
                   </div>
-
-                  {/* Button */}
-                  <div className="mt-auto">
-                    <button
-                      onClick={() => handleBuyNow(card)}
-                      className={`btn w-full group/btn ${
-                        card.type === 'custom'
-                          ? 'btn-secondary'
-                          : 'btn-primary'
-                      }`}
-                    >
-                      {card.type === 'custom' ? (
-                        <>
-                          <MessageSquare className="w-4 h-4" />
-                          <span>Get Started</span>
-                        </>
-                      ) : (
-                        <>
-                          <span>Buy Now</span>
-                          <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
-                        </>
-                      )}
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </motion.div>
+                </motion.article>
+              ))}
+            </motion.div>
           )}
 
-          {/* CTA: Lifetime Website Benefit */}
+          {/* Lifetime website band — one of only two places this claim now
+              appears on the homepage (the other is the price line above). */}
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="bg-gradient-to-r from-primary/10 to-secondary/10 rounded-3xl p-10 md:p-14 border border-primary/20"
+            className="border-t border-b border-[#C9A961]/25 py-12 md:py-16"
           >
-            <div className="max-w-3xl mx-auto text-center">
-              <h3 className="heading-1 text-white font-space-grotesk mb-3">
-                Every NFC Card Includes a <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
-              </h3>
-              <p className="body-lg text-gray-400 mb-8">
-                No hidden charges. No renewal fees.
-              </p>
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+              <div className="lg:col-span-7">
+                <p className="tv-eyebrow mb-5">Included with every card</p>
+                <h3 className="tv-h2 mb-3">
+                  A{' '}
+                  <a
+                    href="/preview-website"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="underline decoration-[#C9A961]/50 underline-offset-[6px] hover:decoration-[#C9A961]"
+                  >
+                    free lifetime website
+                  </a>
+                  , not just a card.
+                </h3>
+                <p className="tv-body tv-measure-body">No hidden charges. No renewal fees.</p>
+              </div>
 
-              <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Link href={ROUTES.CREATE_CARD} className="btn btn-lg btn-primary group">
-                    <span>Get Your NFC Card</span>
-                    <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                  </Link>
-                <button
-                  onClick={() => onContactClick('general')}
-                  className="btn btn-lg btn-secondary"
-                >
-                  <span>Learn More</span>
+              <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end items-start sm:items-center gap-x-6 gap-y-4">
+                <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block">
+                  <span>Get your card</span>
+                  <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                </Link>
+                <button onClick={() => onContactClick('general')} className="tv-btn-tertiary">
+                  Talk to our team
                 </button>
               </div>
             </div>
@@ -244,4 +252,3 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
     </>
   );
 }
-

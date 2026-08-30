@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter, Plus_Jakarta_Sans, Fraunces, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site-config';
@@ -14,6 +14,36 @@ const plusJakarta = Plus_Jakarta_Sans({
     variable: '--font-space-grotesk',
     subsets: ['latin'],
     weight: ['400', '500', '600', '700', '800'],
+    display: 'swap',
+});
+
+/* ---------------------------------------------------------------------------
+   Tapvyo display/body/utility faces.
+   Inter and Plus Jakarta above are still loaded: the admin panel and the other
+   frontend pages reference --font-inter and --font-space-grotesk, so removing
+   them would restyle surfaces outside this redesign's scope.
+   --------------------------------------------------------------------------- */
+
+// Display. Optical-sized, high-contrast serif; used for headings only.
+// SOFT/WONK are pinned to 0 so it reads sharp and editorial rather than folksy.
+const fraunces = Fraunces({
+    variable: '--font-display',
+    subsets: ['latin'],
+    display: 'swap',
+    axes: ['SOFT', 'WONK', 'opsz'],
+});
+
+// Body.
+const manrope = Manrope({
+    variable: '--font-body',
+    subsets: ['latin'],
+    display: 'swap',
+});
+
+// Utility: step numbers, specs, prices, the card face data.
+const jetbrainsMono = JetBrains_Mono({
+    variable: '--font-mono',
+    subsets: ['latin'],
     display: 'swap',
 });
 
@@ -80,7 +110,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.variable} ${plusJakarta.variable} antialiased`} suppressHydrationWarning>
+            <body className={`${inter.variable} ${plusJakarta.variable} ${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
                 {children}
                 <JsonLd />
             </body>

@@ -21,10 +21,15 @@ export default function BrandLogo({
 }: BrandLogoProps) {
   const src = variant === 'light' ? BRAND.logoLight : BRAND.logo;
 
+  // Both logo assets are 200x60. Stating the intrinsic size lets the browser
+  // reserve the box before the image decodes - without it the nav and footer
+  // reflowed on every cold load.
   return (
     <img
       src={src}
       alt={BRAND.name}
+      width={200}
+      height={60}
       className={`${heightClass[size]} w-auto object-contain ${className}`}
     />
   );

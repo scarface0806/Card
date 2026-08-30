@@ -9,76 +9,96 @@ const Card360Viewer = dynamic(() => import('@/components/Card360Viewer'), {
   loading: () => <div className="w-full aspect-square" />,
 });
 
+/**
+ * The picker now shows the colour instead of naming it.
+ *
+ * `chip` mirrors the `face` gradient of the matching entry in Card360Viewer's
+ * `cardDesigns`, which this list selects into by index — so these four must
+ * stay in the same order as the first four there.
+ */
 const cardVariants = [
-  { id: 1, name: 'Obsidian Dark' },
-  { id: 2, name: 'Ocean Depth' },
-  { id: 3, name: 'Emerald Luxe' },
-  { id: 4, name: 'Rose Gold' },
+  {
+    id: 1,
+    name: 'Obsidian Dark',
+    chip: 'linear-gradient(145deg, #2C3134 0%, #171B1D 45%, #0A0C0D 100%)',
+  },
+  {
+    id: 2,
+    name: 'Ocean Depth',
+    chip: 'linear-gradient(145deg, #1E5567 0%, #123B4B 45%, #071E29 100%)',
+  },
+  {
+    id: 3,
+    name: 'Emerald Luxe',
+    chip: 'linear-gradient(145deg, #328565 0%, #1B5A44 45%, #0B3125 100%)',
+  },
+  {
+    id: 4,
+    name: 'Rose Gold',
+    chip: 'linear-gradient(145deg, #E8B49C 0%, #BE7C61 32%, #8A5240 68%, #5A2F24 100%)',
+  },
 ];
 
 export default function InteractiveCardShowcaseSection() {
   const [selectedCard, setSelectedCard] = useState(0);
 
   return (
-    <section className="relative w-full section-spacing overflow-hidden bg-white">
+    <section className="tv-surface-bone tv-section relative w-full overflow-hidden">
       <div className="site-container relative z-10">
-        {/* Section Header */}
         <motion.div
-          initial={{ opacity: 0, y: -20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="section-header"
+          className="max-w-2xl mx-auto text-center mb-12 md:mb-14"
         >
-          <h2 className="heading-1 section-title font-space-grotesk">
-            Your Card.{' '}
-            <span className="text-gradient">
-              In Motion.
-            </span>
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 section-subtitle">
-            See your NFC card come to life. Interact, rotate, and transform.
+          <p className="tv-eyebrow tv-eyebrow--center mb-6">Finishes</p>
+          <h2 className="tv-h2 mb-4">Pick a finish. Watch it change.</h2>
+          <p className="tv-lead mx-auto">
+            Drag the card to turn it. Tap a colour to swap the finish.
           </p>
         </motion.div>
 
-        {/* Card Showcase */}
+        {/* The object, lit against paper. */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
+          initial={{ opacity: 0, scale: 0.96 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
-          className="flex items-center justify-center mb-8"
+          className="flex items-center justify-center mb-12 md:mb-14"
         >
           <Card360Viewer selectedCardIndex={selectedCard} />
         </motion.div>
 
-        {/* Card Selector */}
+        {/* Colourway picker. Each control renders the actual finish rather
+            than the name of it — Rose Gold now looks like rose gold. */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: 'easeOut', delay: 0.2 }}
-          className="flex flex-wrap items-center justify-center gap-3 md:gap-4"
         >
-          {cardVariants.map((variant, idx) => (
-            <motion.button
-              key={variant.id}
-              onClick={() => setSelectedCard(idx)}
-              whileHover={{ y: -2 }}
-              whileTap={{ y: 1 }}
-              transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-              className={`px-6 md:px-7 py-3 min-h-[44px] rounded-lg font-semibold text-sm md:text-base whitespace-nowrap border transition-all duration-300 ease-out active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/35 focus-visible:ring-offset-2 focus-visible:ring-offset-white ${
-                selectedCard === idx
-                  ? 'text-white border-transparent bg-gradient-to-r from-[#0A1631] via-[#122B54] to-[#1A3D76] shadow-[0_10px_24px_rgba(10,22,49,0.28),inset_0_1px_0_rgba(255,255,255,0.16)] hover:from-[#0D1D3E] hover:via-[#163462] hover:to-[#214B8A]'
-                  : 'bg-white text-slate-600 border-slate-200 shadow-[0_1px_2px_rgba(15,23,42,0.06)] hover:bg-slate-50 hover:text-slate-800 hover:border-slate-300 hover:shadow-[0_6px_16px_rgba(15,23,42,0.08)]'
-              }`}
-            >
-              {variant.name}
-            </motion.button>
-          ))}
+          <h3 className="sr-only">Choose a card finish</h3>
+          <div className="flex flex-wrap items-start justify-center gap-5 sm:gap-8">
+            {cardVariants.map((variant, idx) => (
+              <button
+                key={variant.id}
+                type="button"
+                onClick={() => setSelectedCard(idx)}
+                aria-pressed={selectedCard === idx}
+                className="tv-swatch tv-focus"
+              >
+                <span
+                  className="tv-swatch-chip"
+                  style={{ background: variant.chip }}
+                  aria-hidden="true"
+                />
+                <span className="tv-swatch-label">{variant.name}</span>
+              </button>
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
   );
 }
-

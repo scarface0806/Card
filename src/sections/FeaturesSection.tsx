@@ -2,39 +2,49 @@
 
 import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
-import { Smartphone, Zap, Shield, Globe, BarChart3, Lock, ArrowRight } from 'lucide-react';
+import { Smartphone, Zap, Shield, Globe, BarChart3, Lock, ArrowUpRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
+// `span` drives the bento layout: the first tile is wide, the rest sit in a
+// tighter rhythm beside it, so this reads as a composed block rather than
+// another uniform three-across grid.
 const features = [
   {
-    icon: Smartphone,
-    title: 'Mobile First',
-    description: 'Fully responsive design that works perfectly on all devices',
-  },
-  {
     icon: Zap,
-    title: 'Lightning Fast',
-    description: 'Instant loading with optimized performance and zero lag',
+    title: 'Opens instantly',
+    description:
+      'A tap loads your profile in about a second. Nothing to download, nothing to scan.',
+    span: 'md:col-span-2',
   },
   {
-    icon: Shield,
-    title: 'Secure',
-    description: 'Bank-level encryption protects your personal information',
+    icon: Smartphone,
+    title: 'Works on any phone',
+    description: 'Built for every screen size, from an old handset to the newest flagship.',
+    span: '',
   },
   {
     icon: Globe,
-    title: 'Global Reach',
-    description: 'Connect with anyone, anywhere in the world instantly',
+    title: 'Share anywhere',
+    description: 'One link that works worldwide, whoever you hand the card to.',
+    span: '',
   },
   {
     icon: BarChart3,
-    title: 'Analytics',
-    description: 'Track interactions and get insights about your network',
+    title: 'See who tapped',
+    description: 'Track opens and follow up on the connections that matter.',
+    span: '',
+  },
+  {
+    icon: Shield,
+    title: 'Encrypted',
+    description: 'Bank-level encryption protects your personal information.',
+    span: '',
   },
   {
     icon: Lock,
-    title: 'Privacy First',
-    description: 'You control who sees what on your digital card',
+    title: 'You choose what shows',
+    description: 'Every field is yours to publish or keep private, and you can change it anytime.',
+    span: 'md:col-span-2',
   },
 ];
 
@@ -42,9 +52,7 @@ const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    },
+    transition: { staggerChildren: 0.08 },
   },
 };
 
@@ -59,73 +67,68 @@ const itemVariants = {
 
 export default function FeaturesSection() {
   return (
-    <section id="features" className="section section-warm">
+    <section id="features" className="tv-surface-ink tv-section">
       <div className="site-container">
-        {/* Section Header */}
+        {/* Heading sits left, not centred — the centred-header shape is used
+            once on this page now, in the finishes section. */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="section-header"
+          className="max-w-2xl mb-12 md:mb-16"
         >
-          <div className="section-badge">
-            <span>Why Choose Us</span>
-          </div>
-          
-          <h2 className="heading-1 section-title font-space-grotesk">
-            Powerful{' '}
-            <span className="text-gradient">Features</span>
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 section-subtitle">
-            Everything you need to make a lasting impression
+          <p className="tv-eyebrow mb-6">What you get</p>
+          <h2 className="tv-h2 mb-4">Everything the paper card never did.</h2>
+          <p className="tv-lead tv-measure-body">
+            One card, one profile, and full control over what it shows.
           </p>
         </motion.div>
 
-        {/* Features Grid - 3 columns */}
         <motion.div
           variants={containerVariants}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
+          className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-5"
         >
-          {features.map((feature, index) => {
+          {features.map((feature) => {
             const Icon = feature.icon;
             return (
               <motion.div
-                key={index}
+                key={feature.title}
                 variants={itemVariants}
-                whileHover={{ y: -4, scale: 1.02 }}
-                className="card card-padding"
+                className={`tv-panel tv-panel-pad flex flex-col ${feature.span}`}
               >
-                <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary/10 flex items-center justify-center mb-5 md:mb-6">
-                  <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
-                </div>
-                <h3 className="heading-3 text-white font-space-grotesk mb-2 md:mb-3">{feature.title}</h3>
-                <p className="body-base text-gray-400">{feature.description}</p>
+                <Icon
+                  className="w-5 h-5 mb-5 text-[#C9A961]"
+                  strokeWidth={1.6}
+                  aria-hidden="true"
+                />
+                <h3 className="tv-h4 mb-2">{feature.title}</h3>
+                <p className="tv-small">{feature.description}</p>
               </motion.div>
             );
           })}
         </motion.div>
 
-        {/* CTA */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-center mt-12 md:mt-16"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="mt-12 md:mt-14 flex flex-col sm:flex-row sm:items-center gap-x-6 gap-y-4"
         >
-          <MotionLink href={ROUTES.CREATE_CARD}
-              whileHover={{ y: -3 }}
-              whileTap={{ y: 1 }}
-              className="btn btn-lg btn-primary"
-            >
-              Get Your Card Now
-              <ArrowRight className="w-5 h-5" />
-            </MotionLink>
-          <p className="body-base text-gray-500 mt-3"><a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a></p>
+          <MotionLink
+            href={ROUTES.CREATE_CARD}
+            whileHover={{ y: -2 }}
+            whileTap={{ y: 0 }}
+            className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+          >
+            Get your card
+            <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+          </MotionLink>
+          <p className="tv-small">No hidden charges. No renewal fees.</p>
         </motion.div>
       </div>
     </section>

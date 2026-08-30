@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowRight, X } from 'lucide-react';
+import { ArrowUpRight, X } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
 /**
@@ -41,31 +41,27 @@ export default function StickyMobileCTA() {
           transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
           className="fixed bottom-0 left-0 right-0 z-50 lg:hidden"
         >
-          <div className="bg-white/95 backdrop-blur-md border-t border-gray-200 px-4 py-3 shadow-lg">
+          <div className="bg-[#151C1A]/97 backdrop-blur-md border-t border-[#F1F3F1]/12 px-4 py-3">
             <div className="flex items-center justify-between gap-3 max-w-lg mx-auto">
               {/* Value prop */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-semibold text-gray-900 truncate">
-                  Get Your NFC Card
-                </p>
-                <p className="text-xs text-gray-500 truncate">
-                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary">Free Lifetime Website</a>
-                </p>
+                <p className="tv-h4 truncate">Ready when you are</p>
+                <p className="tv-small truncate">No renewal fees</p>
               </div>
 
-              {/* CTA Button */}
-              <Link href={ROUTES.CREATE_CARD} className="shrink-0 inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold text-sm rounded-full shadow-md hover:shadow-lg hover:from-[#28A428] hover:to-[#e6e600] transition-all duration-220">
-                  Create Your Card
-                  <ArrowRight className="w-4 h-4" />
-                </Link>
+              {/* Primary tier, same label as every other primary action. */}
+              <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-primary shrink-0">
+                Get your card
+                <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
+              </Link>
 
               {/* Dismiss button */}
               <button
                 onClick={handleDismiss}
-                className="shrink-0 p-1.5 text-gray-400 hover:text-gray-600 transition-colors"
+                className="tv-focus shrink-0 p-2 text-[#A9B5B0] hover:text-[#F1F3F1] transition-colors"
                 aria-label="Dismiss"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4" aria-hidden="true" />
               </button>
             </div>
           </div>

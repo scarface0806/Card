@@ -2,26 +2,26 @@
 
 import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
-import { UserPlus, Cpu, Share2, ArrowRight } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
 const steps = [
   {
-    icon: UserPlus,
-    title: 'Create Your Profile',
-    description: 'Fill in your details and customize your NFC card in minutes.',
+    title: 'Build your profile',
+    description:
+      'Add your details, links and photo. It takes a few minutes, and you can change any of it later.',
     number: '01',
   },
   {
-    icon: Cpu,
-    title: 'We Program Your Card',
-    description: 'We securely encode your live profile into the NFC chip.',
+    title: 'We program the chip',
+    description:
+      'Your card is encoded with your live profile and printed in the finish you picked.',
     number: '02',
   },
   {
-    icon: Share2,
-    title: 'Tap & Share Instantly',
-    description: 'Anyone can tap your card and access your profile immediately.',
+    title: 'Tap to share',
+    description:
+      'Hold the card to any phone. Your profile opens straight away — no app on either side.',
     number: '03',
   },
 ];
@@ -32,7 +32,7 @@ const containerVariants = {
     opacity: 1,
     transition: {
       staggerChildren: 0.12,
-      delayChildren: 0.2,
+      delayChildren: 0.1,
     },
   },
 };
@@ -48,92 +48,74 @@ const itemVariants = {
 
 export default function HowItWorksSection() {
   return (
-    <section className="relative section section-alt overflow-hidden">
-      {/* Subtle background gradient */}
-      <div className="absolute inset-0 bg-gradient-to-b from-[#020617]/40 via-[#0f172a]/30 to-[#020617]/40 pointer-events-none" />
+    <section className="tv-surface-graphite tv-section">
+      <div className="site-container">
+        {/* Asymmetric split: the heading stays left and sticks while the
+            numbered rows scroll past it. Deliberately not the centred
+            badge / two-tone heading / 3-card grid shape. */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-100px' }}
+            transition={{ duration: 0.6 }}
+            className="lg:col-span-4"
+          >
+            <div className="lg:sticky lg:top-32">
+              <p className="tv-eyebrow mb-6">How it works</p>
+              <h2 className="tv-h2 mb-5">Three steps, then you stop typing your details.</h2>
+              <p className="tv-body tv-measure-body">
+                Set it up once. The card does the rest for as long as you carry it.
+              </p>
 
-      <div className="relative site-container">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-100px' }}
-          transition={{ duration: 0.6 }}
-          className="section-header"
-        >
-          <div className="section-badge">
-            <span>How It Works</span>
-          </div>
+              <div className="mt-8 hidden lg:block">
+                <MotionLink
+                  href={ROUTES.CREATE_CARD}
+                  whileHover={{ y: -2 }}
+                  whileTap={{ y: 0 }}
+                  className="tv-btn tv-btn-primary"
+                >
+                  Get your card
+                  <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                </MotionLink>
+                <p className="tv-small mt-3">Takes less than 5 minutes.</p>
+              </div>
+            </div>
+          </motion.div>
 
-          <h2 className="heading-1 section-title font-space-grotesk">
-            NFC Sharing in{' '}
-            <span className="text-gradient">3 Simple Steps</span>
-          </h2>
+          <motion.ol
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+            className="tv-steps lg:col-span-8"
+          >
+            {steps.map((step) => (
+              <motion.li key={step.number} variants={itemVariants} className="tv-step">
+                <span className="tv-step-num" aria-hidden="true">
+                  {step.number}
+                </span>
+                <h3 className="tv-h3">{step.title}</h3>
+                <p className="tv-body">{step.description}</p>
+              </motion.li>
+            ))}
+          </motion.ol>
 
-          <p className="text-sm md:text-base text-slate-500 section-subtitle">
-            Set up your digital profile and start sharing instantly.
-          </p>
-        </motion.div>
-
-        {/* Steps Grid - 3 columns */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8"
-        >
-          {steps.map((step, index) => {
-            const Icon = step.icon;
-            
-            return (
-              <motion.div
-                key={index}
-                variants={itemVariants}
-                whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                className="group relative"
-              >
-                <div className="h-full card card-padding hover:shadow-xl transition-all duration-300">
-                  {/* Icon */}
-                  <div className="flex items-center justify-center mb-6">
-                    <div className="w-14 h-14 md:w-16 md:h-16 rounded-2xl bg-primary/10 flex items-center justify-center">
-                      <Icon className="w-6 h-6 md:w-7 md:h-7 text-primary" />
-                    </div>
-                  </div>
-
-                  <h3 className="heading-3 text-white mb-2 md:mb-3 text-center">
-                    {step.title}
-                  </h3>
-
-                  <p className="body-base text-gray-400 text-center">
-                    {step.description}
-                  </p>
-                </div>
-              </motion.div>
-            );
-          })}
-        </motion.div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="text-center mt-12 md:mt-16"
-        >
-          <MotionLink href={ROUTES.CREATE_CARD}
-              whileHover={{ y: -3 }}
-              whileTap={{ y: 1 }}
-              className="btn btn-lg btn-primary"
+          {/* Same CTA, shown below the list on narrow screens. */}
+          <div className="lg:hidden">
+            <MotionLink
+              href={ROUTES.CREATE_CARD}
+              whileHover={{ y: -2 }}
+              whileTap={{ y: 0 }}
+              className="tv-btn tv-btn-primary tv-btn-block"
             >
-              Start Creating Now
-              <ArrowRight className="w-5 h-5" />
+              Get your card
+              <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
             </MotionLink>
-          <p className="body-base text-gray-400 mt-3">Takes less than 5 minutes</p>
-        </motion.div>
+            <p className="tv-small mt-3">Takes less than 5 minutes.</p>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
-

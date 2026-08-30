@@ -53,104 +53,80 @@ export default function FAQSection() {
   };
 
   return (
-    <section className="relative w-full section-spacing overflow-hidden section-alt">
-      {/* Content Container */}
+    <section className="tv-surface-bone tv-section relative w-full overflow-hidden">
       <div className="site-container relative z-10">
-        {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="section-header"
-        >
-          <h2 className="heading-1 section-title font-space-grotesk">
-            Frequently Asked{' '}
-            <span className="text-gradient">
-              Questions
-            </span>
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 section-subtitle">
-            Everything you need to know about Tapvyo NFC cards
-          </p>
-        </motion.div>
+        {/* Editorial split: heading left, answers right. The accordion is set
+            on paper as flat rules rather than a stack of floating pills. */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="lg:col-span-4"
+          >
+            <div className="lg:sticky lg:top-32">
+              <p className="tv-eyebrow mb-6">Questions</p>
+              <h2 className="tv-h2 mb-4">Before you order.</h2>
+              <p className="tv-body mb-8">
+                Still stuck? We answer within one working day.
+              </p>
+              <Link href={ROUTES.CONTACT} className="tv-btn-tertiary">
+                Talk to our team
+              </Link>
+            </div>
+          </motion.div>
 
-        {/* FAQ Accordion */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.15 }}
-          className="space-y-3 md:space-y-4"
-        >
-          {faqItems.map((item, idx) => (
-            <motion.div
-              key={item.id}
-              initial={{ opacity: 0, y: 10 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.5, delay: idx * 0.08 }}
-              className="group"
-            >
-              <button
-                onClick={() => toggleItem(item.id)}
-                className="w-full flex items-center justify-between px-6 md:px-8 py-5 md:py-6 text-left
-                  bg-white hover:bg-gray-50/80 border border-gray-200/80 hover:border-gray-300
-                  rounded-2xl transition-all duration-300
-                  hover:shadow-md"
-              >
-                {/* Question Text */}
-                <span className="body-lg font-semibold text-gray-900 pr-4 leading-relaxed hover:text-primary transition-colors duration-300">
-                  {item.title}
-                </span>
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="lg:col-span-8"
+          >
+            {faqItems.map((item) => {
+              const isOpen = openId === item.id;
+              return (
+                <div key={item.id} className="tv-accordion-item">
+                  <h3>
+                    <button
+                      type="button"
+                      onClick={() => toggleItem(item.id)}
+                      aria-expanded={isOpen}
+                      aria-controls={`faq-panel-${item.id}`}
+                      id={`faq-trigger-${item.id}`}
+                      className="tv-accordion-trigger tv-focus"
+                    >
+                      {item.title}
+                      <span className="tv-accordion-icon" aria-hidden="true">
+                        <ChevronDown className="w-4 h-4" strokeWidth={2} />
+                      </span>
+                    </button>
+                  </h3>
 
-                {/* Chevron Icon */}
-                <motion.div
-                  animate={{ rotate: openId === item.id ? 180 : 0 }}
-                  transition={{ duration: 0.3, type: 'spring', stiffness: 300, damping: 30 }}
-                  className="shrink-0 w-6 h-6 flex items-center justify-center rounded-full bg-gray-100 hover:bg-primary/20 transition-all duration-300"
-                >
-                  <ChevronDown className="w-5 h-5 text-primary" />
-                </motion.div>
-              </button>
-
-              {/* Answer Content */}
-              <AnimatePresence>
-                {openId === item.id && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
-                    className="overflow-hidden"
-                  >
-                    <div className="px-6 md:px-7 py-5 md:py-6 body-base text-gray-700 leading-relaxed
-                      border-t border-gray-200 mt-0.5 ml-0 mr-0
-                      bg-gray-50 rounded-b-xl md:rounded-b-2xl">
-                      {item.content}
-                    </div>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </motion.div>
-          ))}
-        </motion.div>
-
-        {/* Footer CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          className="mt-14 md:mt-16 text-center"
-        >
-          <p className="body-base text-gray-600 mb-4">Still have questions?</p>
-          <Link href={ROUTES.CONTACT} className="btn btn-primary">
-            Get in Touch
-          </Link>
-        </motion.div>
+                  <AnimatePresence initial={false}>
+                    {isOpen && (
+                      <motion.div
+                        key="panel"
+                        id={`faq-panel-${item.id}`}
+                        role="region"
+                        aria-labelledby={`faq-trigger-${item.id}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: 'auto', opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+                        className="overflow-hidden"
+                      >
+                        <p className="tv-accordion-panel">{item.content}</p>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
+          </motion.div>
+        </div>
       </div>
     </section>
   );
 }
-

@@ -17,7 +17,7 @@ export default function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-[#0B1220] border-t border-[#1F2937]">
+    <footer className="tv-surface-graphite border-t border-[#F1F3F1]/10">
       <div className="site-container section-spacing-sm">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12 mb-16">
           {/* Brand */}
@@ -25,27 +25,27 @@ export default function Footer() {
             <Link href={ROUTES.HOME} className="flex min-h-[44px] w-fit items-center gap-3 mb-4">
               <BrandLogo size="medium" variant="light" />
             </Link>
-            <p className="text-sm text-slate-400 leading-relaxed">
+            <p className="tv-small tv-measure-body">
               Modern NFC Digital Business Card Platform. Share your professional presence with a single tap.
             </p>
           </div>
 
           {/* Services */}
           <div>
-            <h2 className="font-semibold text-white mb-4 font-space-grotesk">Services</h2>
-            <ul className="space-y-3 text-slate-300">
+            <h2 className="tv-eyebrow mb-5">Services</h2>
+            <ul className="space-y-1">
               <li>
-                <Link href="/services" className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <Link href="/services" className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   All Services
                 </Link>
               </li>
               <li>
-                <Link href={ROUTES.CARDS} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <Link href={ROUTES.CARDS} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   NFC Cards
                 </Link>
               </li>
               <li>
-                <Link href={ROUTES.ORDER} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <Link href={ROUTES.ORDER} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   Get Started
                 </Link>
               </li>
@@ -54,20 +54,20 @@ export default function Footer() {
 
           {/* Support */}
           <div>
-            <h2 className="font-semibold text-white mb-4 font-space-grotesk">Support</h2>
-            <ul className="space-y-3 text-slate-300">
+            <h2 className="tv-eyebrow mb-5">Support</h2>
+            <ul className="space-y-1">
               <li>
-                <Link href={ROUTES.CONTACT} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <Link href={ROUTES.CONTACT} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   Contact Us
                 </Link>
               </li>
               <li>
-                <Link href={ROUTES.PRIVACY} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <Link href={ROUTES.PRIVACY} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   Privacy Policy
                 </Link>
               </li>
               <li>
-                <Link href={ROUTES.TERMS} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <Link href={ROUTES.TERMS} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   Terms & Conditions
                 </Link>
               </li>
@@ -76,36 +76,36 @@ export default function Footer() {
 
           {/* Contact */}
           <div>
-            <h2 className="font-semibold text-white mb-4 font-space-grotesk">Contact</h2>
-            <ul className="space-y-3 text-slate-300">
+            <h2 className="tv-eyebrow mb-5">Contact</h2>
+            <ul className="space-y-1">
               <li className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                  <Mail className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#C9A961]/15 flex items-center justify-center shrink-0">
+                  <Mail className="w-4 h-4 text-[#C9A961]" />
                 </div>
-                <a href={`mailto:${SUPPORT_EMAIL}`} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <a href={`mailto:${SUPPORT_EMAIL}`} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   {SUPPORT_EMAIL}
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                  <Phone className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#C9A961]/15 flex items-center justify-center shrink-0">
+                  <Phone className="w-4 h-4 text-[#C9A961]" />
                 </div>
-                <a href={`tel:${PHONE_E164}`} className="inline-flex min-h-[44px] items-center hover:text-primary focus-visible:text-primary transition-colors">
+                <a href={`tel:${PHONE_E164}`} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   {PHONE_DISPLAY}
                 </a>
               </li>
               <li className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center shrink-0">
-                  <MapPin className="w-4 h-4 text-primary" />
+                <div className="w-8 h-8 rounded-lg bg-[#C9A961]/15 flex items-center justify-center shrink-0">
+                  <MapPin className="w-4 h-4 text-[#C9A961]" />
                 </div>
-                <span>{ADDRESS.full}</span>
+                <span className="tv-small">{ADDRESS.full}</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-[#1F2937] pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-slate-400 text-sm">
+        <div className="border-t border-[#F1F3F1]/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+          <p className="tv-small">
             &copy; {currentYear} {SITE_NAME}. All rights reserved.
           </p>
           {/* Only profiles with a confirmed URL are rendered - see
@@ -119,7 +119,7 @@ export default function Footer() {
                     href={social.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center min-h-[44px] text-slate-400 hover:text-primary focus-visible:text-primary transition-colors text-sm"
+                    className="tv-small tv-focus inline-flex items-center min-h-[44px] hover:text-[#F1F3F1] transition-colors"
                   >
                     {social.name}
                     <span className="sr-only"> (opens in a new tab)</span>

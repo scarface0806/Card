@@ -1508,3 +1508,610 @@ body {
 .admin-mb-4 { margin-bottom: 16px; }
 .admin-mb-5 { margin-bottom: 20px; }
 .admin-mb-6 { margin-bottom: 24px; }
+
+/* ============================================================================
+   TAPVYO DESIGN SYSTEM  (namespaced .tv-*)
+   ----------------------------------------------------------------------------
+   Additive layer for the marketing homepage. Nothing above this comment is
+   modified, so .btn/.card/.section-* keep behaving exactly as they did for the
+   admin panel and the other frontend pages.
+
+   These classes deliberately avoid the Tailwind utilities that the
+   `.frontend-dark` override block (above) force-darkens - bg-white,
+   text-gray-*, border-gray-*, bg-gray-50. That is why the bone sections can be
+   genuinely light without touching that block or affecting any other page.
+
+   Every foreground/background pair below is measured >= 4.5:1.
+   ============================================================================ */
+
+:root {
+  /* --- Surfaces. Three real steps, not two near-identical navies. --- */
+  --tv-ink:      #070A09;   /* base                                 */
+  --tv-graphite: #151C1A;   /* section surface   (1.148 vs ink)     */
+  --tv-slate:    #232E2A;   /* card / elevated   (1.233 vs graphite)*/
+  --tv-bone:     #F2EFE8;   /* warm paper, the light sections       */
+  --tv-bone-sunk:#E8E3D8;   /* recessed panel on bone               */
+
+  /* --- Accents --- */
+  --tv-patina:      #4CAE89; /* mineral green. 7.31/6.37/5.16 on the darks */
+  --tv-patina-deep: #14624A; /* same hue, for use on bone (6.36)           */
+  --tv-brass:       #C9A961; /* material accent, sparing (8.83/7.69/6.24)  */
+  --tv-brass-deep:  #6E5518; /* brass on bone (6.15)                       */
+
+  /* --- Foregrounds on dark --- */
+  --tv-text:       #F1F3F1;  /* 17.83 / 15.53 / 12.59 */
+  --tv-text-muted: #A9B5B0;  /*  9.39 /  8.18 /  6.63 */
+
+  /* --- Foregrounds on bone --- */
+  --tv-ink-text:  #12100C;   /* 16.55 */
+  --tv-ink-muted: #4C534F;   /*  6.88 */
+
+  /* --- Hairlines --- */
+  --tv-rule:       rgba(241, 243, 241, 0.10);
+  --tv-rule-bone:  rgba(18, 16, 12, 0.12);
+
+  /* --- Motion --- */
+  --tv-ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Type stacks are declared on `body`, NOT on `:root`.
+   next/font puts --font-display / --font-body / --font-mono on the <body>
+   element. A custom property is substituted at the element that declares it,
+   so defining these on :root produced an invalid value (the next/font vars are
+   not visible there) and every heading silently fell back to the body font. */
+body {
+  --tv-font-display: var(--font-display), ui-serif, Georgia, serif;
+  --tv-font-body:    var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --tv-font-mono:    var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+}
+
+/* ----------------------------------------------------------------------------
+   TYPE SCALE
+   Display face is used with restraint: headings only, never body.
+   ---------------------------------------------------------------------------- */
+.tv-display {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  font-weight: 600;
+  letter-spacing: -0.025em;
+  line-height: 1.02;
+  font-size: clamp(2.5rem, 1.6rem + 4.4vw, 5rem);
+  color: var(--tv-text);
+  text-wrap: balance;
+}
+
+.tv-h2 {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  font-size: clamp(2rem, 1.4rem + 2.6vw, 3.25rem);
+  color: var(--tv-text);
+  text-wrap: balance;
+}
+
+.tv-h3 {
+  font-family: var(--font-display), ui-serif, Georgia, serif;
+  font-optical-sizing: auto;
+  font-variation-settings: "SOFT" 0, "WONK" 0;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  font-size: clamp(1.25rem, 1.1rem + 0.7vw, 1.6rem);
+  color: var(--tv-text);
+}
+
+.tv-h4 {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+  font-size: 1.0625rem;
+  color: var(--tv-text);
+}
+
+.tv-lead {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: clamp(1.0625rem, 1rem + 0.35vw, 1.25rem);
+  line-height: 1.55;
+  color: var(--tv-text-muted);
+  text-wrap: pretty;
+}
+
+.tv-body {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 1rem;
+  line-height: 1.65;
+  color: var(--tv-text-muted);
+  text-wrap: pretty;
+}
+
+.tv-small {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 400;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: var(--tv-text-muted);
+}
+
+/* Utility face - step numbers, specs, prices, card-face data. */
+.tv-mono {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--tv-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* The eyebrow replaces the old badge pill. A brass rule + small caps reads as
+   a printed spec label rather than another rounded chip. */
+.tv-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-weight: 600;
+  font-size: 0.6875rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--tv-brass);
+}
+
+.tv-eyebrow::before {
+  content: "";
+  width: 1.75rem;
+  height: 1px;
+  background: currentColor;
+  opacity: 0.65;
+}
+
+.tv-eyebrow--center { justify-content: center; }
+
+/* ----------------------------------------------------------------------------
+   SURFACES
+   ---------------------------------------------------------------------------- */
+.tv-surface-ink      { background: var(--tv-ink); }
+.tv-surface-graphite { background: var(--tv-graphite); }
+
+/* The light sections. `color-scheme: light` keeps form controls and scrollbars
+   from inheriting the dark shell. */
+.tv-surface-bone {
+  background: var(--tv-bone);
+  color: var(--tv-ink-text);
+  color-scheme: light;
+}
+
+/* Inside a bone section every .tv-* type class flips to the ink foregrounds. */
+.tv-surface-bone .tv-display,
+.tv-surface-bone .tv-h2,
+.tv-surface-bone .tv-h3,
+.tv-surface-bone .tv-h4  { color: var(--tv-ink-text); }
+
+.tv-surface-bone .tv-lead,
+.tv-surface-bone .tv-body,
+.tv-surface-bone .tv-small,
+.tv-surface-bone .tv-mono { color: var(--tv-ink-muted); }
+
+.tv-surface-bone .tv-eyebrow { color: var(--tv-brass-deep); }
+
+.tv-section {
+  padding-top: clamp(4rem, 2.5rem + 6vw, 8.5rem);
+  padding-bottom: clamp(4rem, 2.5rem + 6vw, 8.5rem);
+}
+
+.tv-section-tight {
+  padding-top: clamp(3rem, 2rem + 4vw, 5.5rem);
+  padding-bottom: clamp(3rem, 2rem + 4vw, 5.5rem);
+}
+
+/* Hairline used to open and close sections instead of a colour band. */
+.tv-rule {
+  height: 1px;
+  background: var(--tv-rule);
+  border: 0;
+}
+.tv-surface-bone .tv-rule { background: var(--tv-rule-bone); }
+
+/* ----------------------------------------------------------------------------
+   CARD / PANEL
+   ---------------------------------------------------------------------------- */
+.tv-panel {
+  background: var(--tv-slate);
+  border: 1px solid var(--tv-rule);
+  border-radius: 14px;
+  transition:
+    transform var(--duration-standard) var(--tv-ease),
+    border-color var(--duration-standard) var(--tv-ease),
+    box-shadow var(--duration-standard) var(--tv-ease);
+}
+
+.tv-panel:hover {
+  transform: translateY(-3px);
+  border-color: rgba(76, 174, 137, 0.34);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+}
+
+.tv-surface-bone .tv-panel {
+  background: var(--tv-bone-sunk);
+  border-color: var(--tv-rule-bone);
+}
+
+.tv-surface-bone .tv-panel:hover {
+  border-color: rgba(20, 98, 74, 0.35);
+  box-shadow: 0 18px 44px rgba(18, 16, 12, 0.10);
+}
+
+.tv-panel-pad { padding: clamp(1.25rem, 1rem + 1vw, 2rem); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-panel:hover { transform: none; }
+}
+
+/* ----------------------------------------------------------------------------
+   BUTTON TIERS - exactly three.
+   The arrow glyph is reserved for .tv-btn-primary and must not appear on the
+   other two tiers; that is what gives it meaning again.
+   ---------------------------------------------------------------------------- */
+.tv-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  line-height: 1;
+  min-height: 48px;
+  padding: 0 1.5rem;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  text-decoration: none;
+  transition:
+    transform var(--duration-fast) var(--tv-ease),
+    background-color var(--duration-standard) var(--tv-ease),
+    border-color var(--duration-standard) var(--tv-ease),
+    color var(--duration-standard) var(--tv-ease),
+    box-shadow var(--duration-standard) var(--tv-ease);
+}
+
+.tv-btn-lg { min-height: 54px; padding: 0 1.875rem; font-size: 1rem; }
+
+/* Tier 1 - solid patina, ink text (7.31:1). One label sitewide. */
+.tv-btn-primary {
+  background: var(--tv-patina);
+  color: var(--tv-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.tv-btn-primary:hover {
+  background: #5CBD97;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(76, 174, 137, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+.tv-btn-primary:active { transform: translateY(0); background: #429A78; }
+
+/* Tier 2 - outline. */
+.tv-btn-secondary {
+  background: transparent;
+  color: var(--tv-text);
+  border-color: rgba(241, 243, 241, 0.26);
+}
+.tv-btn-secondary:hover {
+  border-color: var(--tv-patina);
+  color: var(--tv-patina);
+  transform: translateY(-2px);
+}
+.tv-btn-secondary:active { transform: translateY(0); }
+
+.tv-surface-bone .tv-btn-secondary {
+  color: var(--tv-ink-text);
+  border-color: rgba(18, 16, 12, 0.24);
+}
+.tv-surface-bone .tv-btn-secondary:hover {
+  border-color: var(--tv-patina-deep);
+  color: var(--tv-patina-deep);
+}
+
+/* Tier 3 - text link. No box, no arrow. */
+.tv-btn-tertiary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--tv-patina);
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(76, 174, 137, 0.4);
+  border-radius: 0;
+  transition:
+    color var(--duration-fast) var(--tv-ease),
+    border-color var(--duration-fast) var(--tv-ease);
+}
+.tv-btn-tertiary:hover {
+  color: #6FC4A5;
+  border-bottom-color: #6FC4A5;
+}
+
+.tv-surface-bone .tv-btn-tertiary {
+  color: var(--tv-patina-deep);
+  border-bottom-color: rgba(20, 98, 74, 0.4);
+}
+.tv-surface-bone .tv-btn-tertiary:hover {
+  color: #0E4735;
+  border-bottom-color: #0E4735;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-btn:hover { transform: none; }
+}
+
+/* Focus. Visible on ink, graphite, slate and bone. */
+.tv-btn:focus-visible,
+.tv-btn-tertiary:focus-visible,
+.tv-focus:focus-visible {
+  outline: 2px solid var(--tv-patina);
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+.tv-surface-bone .tv-btn:focus-visible,
+.tv-surface-bone .tv-btn-tertiary:focus-visible,
+.tv-surface-bone .tv-focus:focus-visible {
+  outline-color: var(--tv-patina-deep);
+}
+
+@media (max-width: 639px) {
+  .tv-btn-block { width: 100%; }
+}
+
+/* ----------------------------------------------------------------------------
+   HERO GROUND
+   A centred elliptical pool of light behind the card, plus a low brass wash.
+   Replaces the top-left-corner-only bleed, which read as a misplaced gradient.
+   ---------------------------------------------------------------------------- */
+.tv-hero {
+  position: relative;
+  background: var(--tv-ink);
+  isolation: isolate;
+}
+
+.tv-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background:
+    radial-gradient(62% 52% at 68% 44%, rgba(76, 174, 137, 0.20) 0%, transparent 68%),
+    radial-gradient(46% 40% at 70% 78%, rgba(201, 169, 97, 0.10) 0%, transparent 70%),
+    radial-gradient(90% 70% at 50% 0%,  rgba(35, 46, 42, 0.85) 0%, transparent 60%);
+  pointer-events: none;
+}
+
+/* Hairline grid, very low contrast - gives the dark ground a material texture
+   rather than a flat void. */
+.tv-hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(to right,  var(--tv-rule) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--tv-rule) 1px, transparent 1px);
+  background-size: 88px 88px;
+  -webkit-mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 78%);
+  mask-image: radial-gradient(70% 60% at 50% 40%, #000 0%, transparent 78%);
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* Constrain the headline measure so it breaks in two clean lines, never four
+   with one word stranded. */
+.tv-measure-display { max-width: 15ch; }
+.tv-measure-lead    { max-width: 46ch; }
+.tv-measure-body    { max-width: 62ch; }
+
+/* ----------------------------------------------------------------------------
+   COLOURWAY SWATCHES
+   The picker shows the actual colour. Chips are real gradients, the selected
+   one gets a ring plus a brass outline.
+   ---------------------------------------------------------------------------- */
+.tv-swatch {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.625rem;
+  background: none;
+  border: 0;
+  padding: 0.5rem 0.25rem;
+  cursor: pointer;
+  border-radius: 12px;
+}
+
+.tv-swatch-chip {
+  position: relative;
+  width: 3.25rem;
+  height: 3.25rem;
+  border-radius: 999px;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.30),
+    0 4px 12px rgba(18, 16, 12, 0.20);
+  transition:
+    transform var(--duration-standard) var(--tv-ease),
+    box-shadow var(--duration-standard) var(--tv-ease);
+}
+
+.tv-swatch:hover .tv-swatch-chip { transform: translateY(-3px); }
+
+/* Selection ring drawn outside the chip so it never covers the colour. */
+.tv-swatch[aria-pressed="true"] .tv-swatch-chip {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -8px 14px rgba(0, 0, 0, 0.30),
+    0 0 0 2px var(--tv-bone),
+    0 0 0 4px var(--tv-brass-deep);
+}
+
+.tv-swatch-label {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.6875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--tv-ink-muted);
+  transition: color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-swatch[aria-pressed="true"] .tv-swatch-label {
+  color: var(--tv-ink-text);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-swatch:hover .tv-swatch-chip { transform: none; }
+}
+
+/* ----------------------------------------------------------------------------
+   NUMBERED EDITORIAL LIST  (How it works - breaks the 3-card-grid rhythm)
+   ---------------------------------------------------------------------------- */
+.tv-steps { border-top: 1px solid var(--tv-rule); }
+
+.tv-step {
+  display: grid;
+  grid-template-columns: 3.5rem 1fr;
+  gap: 0.5rem 1.25rem;
+  align-items: start;
+  padding: clamp(1.5rem, 1rem + 2vw, 2.5rem) 0;
+  border-bottom: 1px solid var(--tv-rule);
+}
+
+/* Three children in a two-column grid: without explicit placement the
+   description auto-flows into the narrow number column and wraps to one word
+   per line at 360px. The number occupies column 1; everything else stacks in
+   column 2. */
+.tv-step > *              { grid-column: 2; min-width: 0; }
+.tv-step > .tv-step-num   { grid-column: 1; grid-row: 1 / span 2; }
+
+@media (min-width: 768px) {
+  .tv-step { grid-template-columns: 5rem minmax(0, 1fr) minmax(0, 1fr); gap: 2.5rem; }
+  .tv-step > .tv-step-num { grid-row: 1; }
+  .tv-step > h3           { grid-column: 2; }
+  .tv-step > p            { grid-column: 3; }
+}
+
+.tv-step-num {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, monospace;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: var(--tv-brass);
+  padding-top: 0.35rem;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ----------------------------------------------------------------------------
+   SPEC LIST  (bulk solutions / card facts - reads as a printed spec sheet)
+   ---------------------------------------------------------------------------- */
+.tv-spec { display: flex; flex-direction: column; }
+
+.tv-spec-row {
+  display: flex;
+  gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.6875rem 0;
+  border-bottom: 1px solid var(--tv-rule);
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: var(--tv-text-muted);
+}
+
+.tv-spec-row:last-child { border-bottom: 0; }
+
+.tv-spec-row::before {
+  content: "";
+  flex: 0 0 auto;
+  width: 5px;
+  height: 5px;
+  margin-top: 0.45rem;
+  border-radius: 999px;
+  background: var(--tv-brass);
+}
+
+.tv-surface-bone .tv-spec-row { color: var(--tv-ink-muted); }
+.tv-surface-bone .tv-spec-row::before { background: var(--tv-brass-deep); }
+
+/* ----------------------------------------------------------------------------
+   ACCORDION  (FAQ - on bone, with a chevron that is actually visible)
+   ---------------------------------------------------------------------------- */
+.tv-accordion-item { border-bottom: 1px solid var(--tv-rule-bone); }
+
+.tv-accordion-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 1.375rem 0;
+  background: none;
+  border: 0;
+  text-align: left;
+  cursor: pointer;
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 1.0625rem;
+  line-height: 1.4;
+  color: var(--tv-ink-text);
+  transition: color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-accordion-trigger:hover { color: var(--tv-patina-deep); }
+
+/* 16.55:1 against bone - the old chevron was 1.58:1 on bg-gray-100. */
+.tv-accordion-icon {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  border: 1px solid rgba(18, 16, 12, 0.22);
+  color: var(--tv-ink-text);
+  transition:
+    transform var(--duration-standard) var(--tv-ease),
+    background-color var(--duration-fast) var(--tv-ease),
+    border-color var(--duration-fast) var(--tv-ease);
+}
+
+.tv-accordion-trigger:hover .tv-accordion-icon {
+  background: rgba(20, 98, 74, 0.10);
+  border-color: var(--tv-patina-deep);
+  color: var(--tv-patina-deep);
+}
+
+.tv-accordion-trigger[aria-expanded="true"] .tv-accordion-icon { transform: rotate(180deg); }
+
+.tv-accordion-panel {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--tv-ink-muted);   /* 6.88:1 on bone - was 2.45:1 */
+  padding-bottom: 1.5rem;
+  max-width: 68ch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-accordion-trigger[aria-expanded="true"] .tv-accordion-icon { transition: none; }
+}

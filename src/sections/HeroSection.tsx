@@ -2,7 +2,7 @@
 
 import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, ArrowRight, Check, Star } from 'lucide-react';
+import { ArrowUpRight, Star } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 import dynamic from 'next/dynamic';
 
@@ -31,90 +31,99 @@ const itemVariants = {
   },
 };
 
+// Spec rows sit under the card so the right column carries weight instead of
+// leaving a single small object floating in empty space.
+// Every value here restates a claim that already exists elsewhere in the
+// codebase (FAQ answers / the "No Renewal Fees" chip). Nothing new is asserted.
+const cardSpecs = [
+  { label: 'Works with', value: 'iPhone & Android' },
+  { label: 'Profile', value: 'Edit anytime' },
+  { label: 'Renewal fees', value: 'None' },
+];
+
 export default function HeroSection() {
   return (
-    <section className="relative w-full min-h-screen flex items-center hero-mesh overflow-visible">
-      <div className="site-container py-24 lg:py-0 overflow-visible">
-        {/* 12-column grid: 5 columns left, 7 columns right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10 items-center">
+    <section className="tv-hero relative w-full min-h-screen flex items-center overflow-visible">
+      <div className="site-container py-24 lg:py-28 overflow-visible">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
           {/* LEFT - Content */}
           <motion.div
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="lg:col-span-5 space-y-5 md:space-y-6"
+            className="lg:col-span-5 lg:pr-4"
           >
-            {/* Social Proof Badge */}
-            <motion.div variants={itemVariants} className="flex items-center gap-3">
-              <div className="flex gap-0.5">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-amber-400 text-amber-400" />
-                ))}
-              </div>
-              <span className="text-sm font-semibold text-gray-200">4.9/5</span>
-              <span className="text-sm text-gray-400">• Trusted by 10,000+ professionals</span>
-            </motion.div>
-
-            {/* Headline - Value-focused */}
-            <motion.div variants={itemVariants}>
-              <h1 className="text-4xl sm:text-5xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-white leading-[1.08]">
-                Share Your Contact{' '}
-                <span className="text-gradient">Instantly</span>
-                <br />
-                With One Tap
-              </h1>
-            </motion.div>
-
-            {/* Subtext - Outcome focused */}
-            <motion.p variants={itemVariants} className="text-base md:text-lg text-gray-400 max-w-md leading-relaxed">
-              Turn every handshake into a lasting connection. Your NFC card shares your complete profile in seconds — no apps needed.
+            <motion.p variants={itemVariants} className="tv-eyebrow mb-7">
+              NFC Business Cards
             </motion.p>
 
-            {/* CTA Buttons */}
-            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 pt-2">
-              <MotionLink href={ROUTES.CREATE_CARD}
-                  whileHover={{ y: -3 }}
-                  whileTap={{ y: 1 }}
-                  className="btn btn-lg btn-primary w-full sm:w-auto"
-                >
-                  Get Your NFC Card
-                  <ArrowUpRight className="w-5 h-5" />
-                </MotionLink>
+            {/* Measure is capped at 15ch so this always breaks into two clean
+                lines instead of four with a single word stranded. */}
+            <motion.h1 variants={itemVariants} className="tv-display tv-measure-display mb-6">
+              One tap. Your entire profile.
+            </motion.h1>
 
-              <MotionLink href={ROUTES.HOW_TO_USE}
-                  whileHover={{ y: -2 }}
-                  whileTap={{ y: 0 }}
-                  className="btn btn-lg btn-secondary w-full sm:w-auto"
-                >
-                  See How It Works
-                  <ArrowRight className="w-5 h-5" />
-                </MotionLink>
+            <motion.p variants={itemVariants} className="tv-lead tv-measure-lead mb-8">
+              Turn every handshake into a connection. Your NFC card opens your full
+              profile in seconds — no apps, no typing, nothing to install.
+            </motion.p>
+
+            <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-3 mb-10">
+              <MotionLink
+                href={ROUTES.CREATE_CARD}
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 0 }}
+                className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+              >
+                Get your card
+                <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+              </MotionLink>
+
+              {/* Secondary tier carries no arrow - the glyph is reserved for
+                  the primary action so it means something again. */}
+              <MotionLink
+                href={ROUTES.HOW_TO_USE}
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 0 }}
+                className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+              >
+                See how it works
+              </MotionLink>
             </motion.div>
 
-            {/* Trust Signals */}
-            {false && (
-              <motion.div variants={itemVariants} className="flex flex-wrap gap-x-6 gap-y-3 pt-4">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Check className="w-4 h-4 text-primary" />
-                  <a href="/preview-website" target="_blank" rel="noopener noreferrer" className="text-primary hover:text-primary">Free Lifetime Website</a>
-                </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Check className="w-4 h-4 text-primary" />
-                  <span>No Renewal Fees</span>
-                </div>
-              </motion.div>
-            )}
+            {/* Social proof. Figures are unchanged. */}
+            <motion.div variants={itemVariants} className="flex flex-wrap items-center gap-x-3 gap-y-2">
+              <span className="flex gap-0.5" aria-hidden="true">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-[#C9A961] text-[#C9A961]" />
+                ))}
+              </span>
+              <span className="tv-mono !text-[#F1F3F1] !tracking-[0.08em]">4.9/5</span>
+              <span className="tv-small">Trusted by 10,000+ professionals</span>
+            </motion.div>
           </motion.div>
 
-          {/* RIGHT - Card Showcase */}
+          {/* RIGHT - The object itself */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.94 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.23, 1, 0.320, 1] }}
-            className="lg:col-span-7 flex items-center justify-center overflow-visible"
+            className="lg:col-span-7 overflow-visible"
           >
             <div className="w-full overflow-visible">
               <Card360Viewer />
+            </div>
+
+            <div className="mt-10 lg:mt-12 mx-auto max-w-[420px] lg:max-w-none lg:px-10">
+              <hr className="tv-rule mb-5" />
+              <dl className="grid grid-cols-3 gap-4">
+                {cardSpecs.map((spec) => (
+                  <div key={spec.label}>
+                    <dt className="tv-mono mb-1.5">{spec.label}</dt>
+                    <dd className="tv-small !text-[#F1F3F1] font-medium">{spec.value}</dd>
+                  </div>
+                ))}
+              </dl>
             </div>
           </motion.div>
         </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Menu, X, ArrowRight } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
 import { whatsappLink } from '@/lib/site-config';
@@ -40,8 +40,8 @@ export default function Navbar() {
     <nav
       className={`fixed top-0 w-full z-50 transition-all duration-500 ${
         scrolled
-          ? 'bg-[#020617]/90 backdrop-blur-2xl shadow-lg shadow-black/30 border-b border-[#1f2937]'
-          : 'bg-[#020617]/65 backdrop-blur-xl border-b border-transparent'
+          ? 'bg-[#070A09]/92 backdrop-blur-2xl border-b border-[#F1F3F1]/10'
+          : 'bg-[#070A09]/60 backdrop-blur-xl border-b border-transparent'
       }`}
     >
       <div className="site-container">
@@ -59,8 +59,8 @@ export default function Navbar() {
                 href={link.href}
                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${
                   isActive(link.href)
-                      ? 'text-green-400 bg-green-500/10 border border-green-500/30'
-                      : 'text-slate-300 hover:text-green-400 hover:bg-green-500/10 border border-transparent'
+                      ? 'text-[#4CAE89] bg-[#4CAE89]/10 border border-[#4CAE89]/30'
+                      : 'text-[#A9B5B0] hover:text-[#F1F3F1] hover:bg-[#F1F3F1]/10 border border-transparent'
                 }`}
               >
                 {link.label}
@@ -70,22 +70,21 @@ export default function Navbar() {
 
           {/* Right Side - Buttons */}
           <div className="hidden lg:flex items-center gap-4">
-            {/* Contact Now - WhatsApp CTA Button */}
+            {/* WhatsApp enquiry. Tertiary tier: no arrow - that glyph is reserved for the primary "Get your card" action. */}
             <a
               href={whatsappLink()}
               target="_blank"
               rel="noopener noreferrer"
-              className="btn btn-secondary btn-sm"
+              className="tv-btn tv-btn-secondary"
             >
-              <span>Contact Now</span>
-              <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
+              <span>Talk to our team</span>
             </a>
           </div>
 
           {/* Mobile Menu Toggle */}
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="lg:hidden flex h-11 w-11 items-center justify-center text-slate-100 rounded-xl bg-primary/10 hover:bg-primary/20 transition-colors border border-primary/20"
+            className="tv-focus lg:hidden flex h-11 w-11 items-center justify-center text-[#F1F3F1] rounded-xl bg-[#F1F3F1]/10 hover:bg-[#F1F3F1]/20 transition-colors border border-[#F1F3F1]/15"
             aria-label="Toggle menu"
             aria-expanded={isOpen}
           >
@@ -101,7 +100,7 @@ export default function Navbar() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.2 }}
-              className="lg:hidden absolute top-full left-0 right-0 bg-[#0b1220]/95 backdrop-blur-xl border-t border-primary/20 shadow-lg"
+              className="lg:hidden absolute top-full left-0 right-0 bg-[#151C1A]/97 backdrop-blur-xl border-t border-[#F1F3F1]/10"
             >
               <div className="container mx-auto max-w-7xl px-4 py-6 space-y-2">
                 {navLinks.map((link) => (
@@ -110,24 +109,23 @@ export default function Navbar() {
                     href={link.href}
                     className={`block px-4 py-3 rounded-xl transition-all duration-200 font-medium ${
                       isActive(link.href)
-                        ? 'text-green-400 bg-green-500/10 border-l-2 border-green-400'
-                        : 'text-slate-200 hover:text-green-400 hover:bg-green-500/10'
+                        ? 'text-[#4CAE89] bg-[#4CAE89]/10 border-l-2 border-[#4CAE89]'
+                        : 'text-[#A9B5B0] hover:text-[#F1F3F1] hover:bg-[#F1F3F1]/10'
                     }`}
                     onClick={() => setIsOpen(false)}
                   >
                     {link.label}
                   </Link>
                 ))}
-                <div className="pt-4 space-y-3 border-t border-primary/10 mt-4">
+                <div className="pt-4 space-y-3 border-t border-[#F1F3F1]/10 mt-4">
                   <a
                     href={whatsappLink()}
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => setIsOpen(false)}
-                    className="btn btn-secondary btn-mobile-full"
+                    className="tv-btn tv-btn-secondary tv-btn-block w-full"
                   >
-                    <span>Contact Now</span>
-                    <ArrowRight className="w-4 h-4 transform group-hover:translate-x-1 transition-transform duration-200" />
+                    <span>Talk to our team</span>
                   </a>
                 </div>
               </div>

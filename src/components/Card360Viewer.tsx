@@ -4,54 +4,66 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
+/**
+ * Colourways.
+ *
+ * `face` and `back` are real CSS gradients rather than Tailwind palette
+ * classes so each finish can be mixed as a material - three or four stops with
+ * a light top edge and a shadowed lower body - instead of being limited to the
+ * two-stop utility ramps. Rose Gold in particular could not be expressed as a
+ * `from-rose-800 via-pink-900` ramp; it read as maroon.
+ *
+ * NOTE: InteractiveCardShowcaseSection selects into this list by index. Its
+ * first four entries must stay in this order.
+ */
 const cardDesigns = [
   {
     id: 1,
     name: 'Obsidian Dark',
-    gradient: 'from-slate-900 via-gray-800 to-black',
-    accent: 'from-green-400 to-emerald-500',
+    face: 'linear-gradient(145deg, #2C3134 0%, #171B1D 45%, #0A0C0D 100%)',
+    back: 'linear-gradient(145deg, #3A4145 0%, #14181A 100%)',
     icon: '🌙',
-    description: 'Premium dark with blue accent',
+    description: 'Brushed graphite, matte finish',
   },
   {
     id: 2,
     name: 'Ocean Depth',
-    gradient: 'from-green-700 via-emerald-800 to-teal-900',
-    accent: 'from-emerald-300 to-green-200',
+    face: 'linear-gradient(145deg, #1E5567 0%, #123B4B 45%, #071E29 100%)',
+    back: 'linear-gradient(145deg, #2A7288 0%, #0A2431 100%)',
     icon: '🌊',
-    description: 'Deep ocean with cyan highlights',
+    description: 'Deep teal with a cold sheen',
   },
   {
     id: 3,
     name: 'Emerald Luxe',
-    gradient: 'from-secondary via-primary to-primary-dark',
-    accent: 'from-secondary to-primary',
+    face: 'linear-gradient(145deg, #328565 0%, #1B5A44 45%, #0B3125 100%)',
+    back: 'linear-gradient(145deg, #46A783 0%, #0E3A2B 100%)',
     icon: '💎',
-    description: 'Elegant emerald premium',
+    description: 'Mineral green, polished edge',
   },
   {
     id: 4,
     name: 'Rose Gold',
-    gradient: 'from-rose-800 via-pink-900 to-amber-900',
-    accent: 'from-rose-300 to-amber-200',
+    face: 'linear-gradient(145deg, #E8B49C 0%, #BE7C61 32%, #8A5240 68%, #5A2F24 100%)',
+    back: 'linear-gradient(145deg, #F3CDBC 0%, #8E5142 100%)',
     icon: '✨',
-    description: 'Warm rose gold elegance',
+    description: 'Warm copper-rose plating',
   },
   {
     id: 5,
     name: 'Midnight Purple',
-    gradient: 'from-purple-900 via-purple-800 to-indigo-900',
-    accent: 'from-purple-300 to-pink-200',
+    face: 'linear-gradient(145deg, #524075 0%, #362B57 45%, #181231 100%)',
+    back: 'linear-gradient(145deg, #6B549A 0%, #1D1638 100%)',
     icon: '🌌',
-    description: 'Deep purple with magic',
+    description: 'Deep violet, soft lustre',
   },
   {
     id: 6,
     name: 'Forest Green',
-    gradient: 'from-green-800 via-emerald-900 to-teal-900',
-    accent: 'from-green-300 to-emerald-200',
+    face: 'linear-gradient(145deg, #356246 0%, #1E4030 45%, #0C2117 100%)',
+    back: 'linear-gradient(145deg, #427B58 0%, #10281B 100%)',
     icon: '🌲',
-    description: 'Natural forest sophistication',
+    description: 'Dark forest, low sheen',
   },
 ];
 
@@ -146,11 +158,12 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
           >
             {/* Front of Card */}
             <motion.div
-              className={`absolute w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] h-[175px] sm:h-[200px] md:h-[240px] lg:h-[260px] rounded-2xl overflow-hidden bg-gradient-to-br ${card.gradient} border border-white/15`}
+              className="absolute w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] h-[175px] sm:h-[200px] md:h-[240px] lg:h-[260px] rounded-2xl overflow-hidden border border-white/15"
               style={{
+                background: card.face,
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
-                boxShadow: '0 40px 80px rgba(0, 0, 0, 0.2), 0 15px 40px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 48px 96px rgba(0, 0, 0, 0.55), 0 18px 44px rgba(0, 0, 0, 0.38)',
                 transformOrigin: 'center center',
               } as React.CSSProperties}
             >
@@ -166,35 +179,80 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
                 }}
               />
 
-              {/* Card Content */}
+              {/* Text scrim. The lighter finishes (Rose Gold especially) put
+                  white type on a pale ground - white on the old #D2937D stop
+                  measured 2.56:1. This darkens the lower third so the name,
+                  role and URL stay legible on every colourway. */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    'linear-gradient(to top, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.28) 34%, rgba(0,0,0,0) 62%)',
+                }}
+              />
+
+              {/* Card Content - a contact card, not a payment card.
+                  The card number, "Valid" and the expiry date are gone: this
+                  product shares contact details, and an expiry signalled the
+                  opposite of "your profile stays live". */}
               <div className="relative h-full flex flex-col justify-between p-4 md:p-5 lg:p-6 text-white">
-                {/* Top: Brand/Label */}
-                <div>
-                  <p className="text-xs md:text-xs lg:text-sm font-semibold tracking-widest text-white/60 uppercase">
-                    NFC Card
+                {/* Top: NFC mark + colourway name */}
+                <div className="flex items-start justify-between">
+                  <p
+                    className="text-[10px] lg:text-[11px] font-semibold uppercase text-white/65"
+                    style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', letterSpacing: '0.16em' }}
+                  >
+                    {card.name}
                   </p>
-                  <p className="text-xs md:text-xs lg:text-sm text-white/50 mt-0.5">{card.name}</p>
+                  {/* NFC wave mark */}
+                  <svg
+                    viewBox="0 0 24 24"
+                    className="w-5 h-5 lg:w-6 lg:h-6 text-white/55 shrink-0"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M8.5 5.5a9 9 0 0 1 0 13" />
+                    <path d="M12.5 3a13 13 0 0 1 0 18" />
+                    <path d="M4.5 8.5a5 5 0 0 1 0 7" />
+                  </svg>
                 </div>
 
-                {/* Bottom: Details */}
-                <div className="space-y-2">
-                  <div>
-                    <p className="text-xs md:text-xs lg:text-sm text-white/70 mb-0.5">Cardholder</p>
-                    <p className="text-lg md:text-xl lg:text-2xl font-bold">John Doe</p>
-                    <p className="text-xs md:text-xs lg:text-sm text-white/70 mt-0.5">Product Designer</p>
-                  </div>
-                  <div className="flex justify-between pt-2 border-t border-white/10">
-                    <div>
-                      <p className="text-xs text-white/50 uppercase tracking-wider">ID</p>
-                      <p className="text-xs md:text-xs lg:text-sm font-mono tracking-wider mt-0.5">1234...9010</p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-xs text-white/50 uppercase tracking-wider">Valid</p>
-                      <p className="text-xs md:text-xs lg:text-sm font-mono mt-0.5">09/25</p>
-                    </div>
+                {/* Bottom: the person */}
+                <div>
+                  <p className="text-lg md:text-xl lg:text-2xl font-bold leading-tight">Ananya Rao</p>
+                  <p className="text-xs md:text-xs lg:text-sm text-white/70 mt-0.5">
+                    Design Lead
+                  </p>
+
+                  <div className="flex items-center justify-between gap-3 mt-3 lg:mt-4 pt-3 border-t border-white/15">
+                    <p
+                      className="text-[10px] lg:text-[11px] text-white/70 truncate"
+                      style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', letterSpacing: '0.08em' }}
+                    >
+                      tapvyo.com/ananya
+                    </p>
+                    <p
+                      className="text-[10px] lg:text-[11px] uppercase text-white/55 shrink-0"
+                      style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace', letterSpacing: '0.14em' }}
+                    >
+                      Tap to open
+                    </p>
                   </div>
                 </div>
               </div>
+
+              {/* Specular rake - a hard light edge travelling across the face,
+                  so the card reads as a physical object catching light. */}
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{
+                  background:
+                    'linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.16) 46%, rgba(255,255,255,0.30) 50%, rgba(255,255,255,0.12) 54%, transparent 70%)',
+                }}
+              />
 
               {/* Subtle shine - static gradient */}
               <div
@@ -204,17 +262,16 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
 
             {/* Back of Card (Rotated 180 degrees) */}
             <motion.div
-              className={`absolute w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] h-[175px] sm:h-[200px] md:h-[240px] lg:h-[260px] rounded-2xl overflow-hidden bg-gradient-to-br ${card.gradient} border border-white/15`}
+              className="absolute w-[280px] sm:w-[320px] md:w-[380px] lg:w-[420px] h-[175px] sm:h-[200px] md:h-[240px] lg:h-[260px] rounded-2xl overflow-hidden border border-white/15"
               style={{
+                background: card.back,
                 rotateY: 180,
                 backfaceVisibility: 'hidden',
                 WebkitBackfaceVisibility: 'hidden',
-                boxShadow: '0 40px 80px rgba(0, 0, 0, 0.2), 0 15px 40px rgba(0, 0, 0, 0.1)',
+                boxShadow: '0 48px 96px rgba(0, 0, 0, 0.55), 0 18px 44px rgba(0, 0, 0, 0.38)',
                 transformOrigin: 'center center',
               } as React.CSSProperties}
             >
-              {/* Gradient overlay */}
-              <div className={`absolute inset-0 bg-gradient-to-br ${card.accent} opacity-40`} />
 
               {/* Inner shadow depth */}
               <div
@@ -311,8 +368,7 @@ export default function Card360Viewer({ selectedCardIndex }: Card360ViewerProps)
             }`}
           >
             {/* Gradient preview */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${design.gradient}`} />
-            <div className={`absolute inset-0 bg-gradient-to-br ${design.accent} opacity-30`} />
+            <div className="absolute inset-0" style={{ background: design.face }} />
 
             {/* Top-left glow */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/20 via-transparent to-transparent" />

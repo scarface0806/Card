@@ -1,10 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import MotionLink from '@/components/MotionLink';
 import { motion, useReducedMotion } from 'framer-motion';
-import { Star, Quote, ArrowRight } from 'lucide-react';
-import { ROUTES } from '@/utils/constants';
+import { Star } from 'lucide-react';
 
 interface Testimonial {
   id: number;
@@ -61,102 +59,58 @@ export default function TestimonialsSection() {
   const current = testimonials[currentIndex];
 
   return (
-    <section className="section section-teal-soft">
+    <section className="tv-surface-ink tv-section-tight">
       <div className="site-container">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="section-header"
-        >
-          {/* Small Label */}
-          <div className="section-badge">
-            <span>Testimonials</span>
-          </div>
-          
-          <h2 className="heading-1 section-title font-space-grotesk">
-            What Customers{' '}
-            <span className="text-gradient">
-              Say
-            </span>
-          </h2>
-          <p className="text-sm md:text-base text-slate-500 section-subtitle">
-            Join thousands of satisfied users
-          </p>
-        </motion.div>
+        {/* No panel, no quote badge, no centred badge pill. The quote is set
+            large in the display face and carries the section on its own. */}
+        <div className="max-w-4xl mx-auto text-center">
+          <p className="tv-eyebrow tv-eyebrow--center mb-10">Customers</p>
 
-        <motion.div
-          key={current.id}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="card card-padding md:p-12 lg:p-16 text-center relative max-w-3xl mx-auto"
-        >
-          {/* Quote Icon */}
-          <div className="absolute -top-6 left-1/2 -translate-x-1/2 w-12 h-12 md:w-14 md:h-14 bg-primary rounded-full flex items-center justify-center">
-            <Quote className="w-5 h-5 md:w-6 md:h-6 text-white" />
-          </div>
+          <motion.blockquote
+            key={current.id}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+          >
+            <p className="tv-h2 mb-8">&ldquo;{current.text}&rdquo;</p>
 
-          <div className="flex justify-center gap-1 mb-6 mt-4">
-            {[...Array(current.rating)].map((_, i) => (
-              <Star key={i} className="w-5 h-5 fill-amber-400 text-amber-400" />
+            <footer className="flex flex-col items-center gap-2">
+              <span className="flex gap-0.5" aria-label={`Rated ${current.rating} out of 5`}>
+                {[...Array(current.rating)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-[#C9A961] text-[#C9A961]" aria-hidden="true" />
+                ))}
+              </span>
+              <p className="tv-h4">{current.name}</p>
+              <p className="tv-mono">
+                {current.role} at {current.company}
+              </p>
+            </footer>
+          </motion.blockquote>
+
+          {/* Dots */}
+          <div className="flex justify-center gap-2 mt-10">
+            {testimonials.map((_, index) => (
+              <button
+                key={index}
+                type="button"
+                onClick={() => setCurrentIndex(index)}
+                aria-label={`Show testimonial ${index + 1} of ${testimonials.length}`}
+                aria-current={index === currentIndex}
+                // The dot itself stays 8px tall; the button around it is a full
+                // 44px tap target with the padding clipped out of the layout.
+                className="group tv-focus -my-5 flex min-w-[24px] justify-center py-5"
+              >
+                <span
+                  className={`block h-1.5 rounded-full transition-all duration-300 ${
+                    index === currentIndex
+                      ? 'bg-[#C9A961] w-8'
+                      : 'bg-[#F1F3F1]/25 w-1.5 group-hover:bg-[#F1F3F1]/60'
+                  }`}
+                />
+              </button>
             ))}
           </div>
-
-          <blockquote className="heading-3 text-white mb-6 leading-relaxed font-space-grotesk">
-            &ldquo;{current.text}&rdquo;
-          </blockquote>
-
-          <div>
-            <p className="font-bold text-white text-lg">{current.name}</p>
-            <p className="body-base text-gray-400">
-              {current.role} at {current.company}
-            </p>
-          </div>
-        </motion.div>
-
-        {/* Dots */}
-        <div className="flex justify-center gap-2 mt-8">
-          {testimonials.map((_, index) => (
-            <button
-              key={index}
-              type="button"
-              onClick={() => setCurrentIndex(index)}
-              aria-label={`Show testimonial ${index + 1} of ${testimonials.length}`}
-              aria-current={index === currentIndex}
-              // The dot itself stays 8px tall; the button around it is a full
-              // 44px tap target with the padding clipped out of the layout.
-              className="group -my-5 flex min-w-[24px] justify-center py-5"
-            >
-              <span
-                className={`block h-2 rounded-full transition-all duration-300 ${
-                  index === currentIndex
-                    ? 'bg-primary w-8'
-                    : 'bg-primary/15 w-2 group-hover:bg-primary/90'
-                }`}
-              />
-            </button>
-          ))}
         </div>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-center mt-12"
-        >
-          <MotionLink href={ROUTES.CREATE_CARD}
-              whileHover={{ y: -3 }}
-              whileTap={{ y: 1 }}
-              className="btn btn-lg btn-primary"
-            >
-              Join Thousands of Happy Users
-              <ArrowRight className="w-5 h-5" />
-            </MotionLink>
-        </motion.div>
       </div>
     </section>
   );
