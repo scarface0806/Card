@@ -15,15 +15,22 @@ import {
   Smartphone,
   Megaphone,
   Palette,
-  Check,
-  ArrowRight,
-  Sparkles,
-  MessageSquare,
+  ArrowUpRight,
   Code,
   Video,
 } from 'lucide-react';
 
-// NFC Solutions data
+/**
+ * The per-item `gradient` / `bgGradient` / `accentColor` / `glowColor` fields
+ * are gone. Between them the two lists carried nine unrelated ramps - violet,
+ * pink, orange, cyan, two greys and three greens - which read as a stock icon
+ * set rather than one brand. Every card now sits on the same panel with a
+ * brass icon, and the lists are told apart by their section, not by hue.
+ *
+ * The per-item `cta` strings are gone too: all six digital services fired the
+ * same openContactModal('general') call behind six different labels
+ * ("Request Quote", "Grow With Us", "Create Viral Content", ...).
+ */
 const nfcSolutions = [
   {
     id: 'school' as ContactSource,
@@ -36,8 +43,6 @@ const nfcSolutions = [
       'Student information webpage',
       '3 free website updates',
     ],
-    gradient: 'from-green-400 to-emerald-500',
-    bgGradient: 'bg-gradient-to-br from-green-900/35 to-emerald-900/30',
   },
   {
     id: 'business' as ContactSource,
@@ -50,8 +55,6 @@ const nfcSolutions = [
       'Digital profile with contact form',
       '3 free website updates',
     ],
-    gradient: 'from-gray-700 to-gray-900',
-    bgGradient: 'bg-gradient-to-br from-gray-50 to-slate-100',
   },
   {
     id: 'corporate' as ContactSource,
@@ -64,12 +67,9 @@ const nfcSolutions = [
       'Employee information webpage',
       '3 free website updates',
     ],
-    gradient: 'from-[#33CC33] to-[#28A428]',
-    bgGradient: 'bg-gradient-to-br from-primary/10 to-primary/5',
   },
 ];
 
-// Digital Solutions data - Modern 2026 design
 const digitalSolutions = [
   {
     id: 'website',
@@ -84,9 +84,6 @@ const digitalSolutions = [
       'SEO optimized structure',
       'No-Code Website Development',
     ],
-    cta: 'Request Quote',
-    accentColor: 'from-violet-500 to-purple-600',
-    glowColor: 'from-violet-200/50 to-purple-200/40',
   },
   {
     id: 'mobile',
@@ -100,9 +97,6 @@ const digitalSolutions = [
       'Business management apps',
       'Custom enterprise apps',
     ],
-    cta: 'Start Your Project',
-    accentColor: 'from-pink-500 to-rose-600',
-    glowColor: 'from-pink-200/50 to-rose-200/40',
   },
   {
     id: 'marketing',
@@ -118,9 +112,6 @@ const digitalSolutions = [
       'Lead Generation',
       'Performance Marketing',
     ],
-    cta: 'Grow With Us',
-    accentColor: 'from-orange-500 to-amber-500',
-    glowColor: 'from-orange-200/50 to-amber-200/40',
   },
   {
     id: 'reels',
@@ -135,9 +126,6 @@ const digitalSolutions = [
       'Subtitle & Caption Design',
       'Trend-based Editing Styles',
     ],
-    cta: 'Create Viral Content',
-    accentColor: 'from-pink-600 to-purple-600',
-    glowColor: 'from-pink-200/40 to-purple-200/30',
   },
   {
     id: 'branding',
@@ -151,9 +139,6 @@ const digitalSolutions = [
       'Corporate Branding',
       'Rebranding Solutions',
     ],
-    cta: 'Build Your Brand',
-    accentColor: 'from-cyan-500 to-teal-600',
-    glowColor: 'from-cyan-200/50 to-teal-200/40',
   },
   {
     id: 'software',
@@ -167,9 +152,6 @@ const digitalSolutions = [
       'Internal Business Tools',
       'Automation Systems',
     ],
-    cta: 'Discuss Your Project',
-    accentColor: 'from-green-400 to-emerald-500',
-    glowColor: 'from-primary/20 to-green-200/40',
   },
 ];
 
@@ -186,357 +168,223 @@ export default function ServicesPage() {
     setIsContactModalOpen(false);
   };
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.1 },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { opacity: 0, y: 20 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
-  };
+  // Per-item mount animation rather than parent-orchestrated variants, so a
+  // card cannot get stranded at opacity 0 if its list ever re-renders.
+  const reveal = (index: number) => ({
+    initial: { opacity: 0, y: 20 },
+    whileInView: { opacity: 1, y: 0 },
+    viewport: { once: true, margin: '-60px' },
+    transition: { duration: 0.5, delay: Math.min(index, 6) * 0.06 },
+  });
 
   return (
     <div className="frontend-dark">
       <Navbar />
 
-      {/* Hero Banner - Premium Compact Design */}
-      <section className="relative w-full pt-32 pb-16 md:pt-40 md:pb-20 lg:pt-44 lg:pb-24 overflow-hidden bg-gradient-to-b from-[#020617] via-[#0f172a] to-[#020617]">
-        <div className="absolute inset-0 -z-10">
-          <div className="absolute top-20 right-10 w-72 h-72 bg-primary/15 rounded-full blur-3xl" />
-          <div className="absolute bottom-10 left-10 w-64 h-64 bg-primary/15 rounded-full blur-3xl" />
-        </div>
-        
+      {/* HERO — left-aligned on ink. */}
+      <section className="tv-hero pt-32 pb-14 md:pt-44 md:pb-20">
         <div className="site-container">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end">
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{
-                staggerChildren: 0.12,
-                delayChildren: 0.2,
-              }}
-              className="w-full text-center space-y-6 md:space-y-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1] }}
+              className="lg:col-span-7"
             >
-              {/* Badge */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1] }}
-              >
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-full hover:border-white/40 transition-colors duration-300">
-                  <Sparkles className="w-4 h-4 text-green-400" />
-                  <span className="text-xs font-semibold text-gray-300 uppercase tracking-wide">
-                    What We Offer
-                  </span>
-                </div>
-              </motion.div>
+              <p className="tv-eyebrow mb-7">What we offer</p>
+              <h1 className="tv-display" style={{ maxWidth: '15ch' }}>
+                Cards, and everything around them.
+              </h1>
+            </motion.div>
 
-              {/* Headline - Single Line */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.1 }}
-              >
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-extrabold leading-tight text-white tracking-tight">
-                  Our{' '}
-                  <span className="text-primary">
-                    Services
-                  </span>
-                </h1>
-              </motion.div>
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.15 }}
+              className="lg:col-span-5 lg:pb-3"
+            >
+              <p className="tv-lead mb-7">
+                Comprehensive digital solutions to grow your brand and connect with
+                your audience.
+              </p>
 
-              {/* Subtext */}
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.2 }}
-                className="text-base sm:text-lg md:text-xl text-gray-400 leading-relaxed max-w-2xl mx-auto px-4"
+              {/* NOTE: this button has never had an onClick or an href - it is
+                  inert, and was inert before this redesign. Adding a handler
+                  would be a behaviour change, so it is left exactly as it was
+                  and reported instead. */}
+              <motion.button
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 0 }}
+                transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
+                className="tv-btn tv-btn-lg tv-btn-primary"
               >
-                Comprehensive digital solutions to grow your brand and connect with your audience.
-              </motion.p>
-
-              {/* CTA Button */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, ease: [0.23, 1, 0.320, 1], delay: 0.3 }}
-                className="flex justify-center pt-4"
-              >
-                <motion.button
-                  whileHover={{ y: -3 }}
-                  whileTap={{ y: 1 }}
-                  transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="btn btn-lg btn-primary group"
-                >
-                  Get Started Now
-                  <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300" />
-                </motion.button>
-              </motion.div>
+                Get started
+                <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+              </motion.button>
             </motion.div>
           </div>
+        </div>
       </section>
 
-      <main className="min-h-screen bg-gradient-to-b from-[#0f172a] via-[#020617] to-[#020617]">
-        <div className="site-container py-16 md:py-20 lg:py-24">
-
-          {/* Section 1: NFC Card Solutions */}
-          <section className="mb-24">
+      <main>
+        {/* NFC CARD SOLUTIONS — spec panels on graphite. */}
+        <section className="tv-surface-graphite tv-section">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-12"
+              className="max-w-2xl mb-12 md:mb-16"
             >
-              <h2 className="text-2xl md:text-3xl lg:text-4xl font-extrabold text-white font-space-grotesk mb-4 tracking-tight">
-                NFC Card Solutions
-              </h2>
-              <p className="text-sm md:text-base text-slate-500 max-w-2xl mx-auto">
-                Bulk and enterprise NFC solutions for institutions and businesses.
+              <p className="tv-eyebrow mb-6">NFC cards</p>
+              <h2 className="tv-h2 mb-4">Cards in bulk, for institutions and teams.</h2>
+              <p className="tv-lead tv-measure-body">
+                Every programme is custom designed, and every card carries its own
+                webpage.
               </p>
             </motion.div>
 
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
-            >
-              {nfcSolutions.map((solution) => (
-                <motion.div
-                  key={solution.id}
-                  variants={itemVariants}
-                  className="group flex flex-col h-full bg-gradient-to-b from-[#0f172a] to-[#020617] rounded-3xl shadow-lg border border-white/10 overflow-hidden hover:-translate-y-2 transition-all duration-300 hover:shadow-[0_0_40px_rgba(74,222,128,0.2)]"
-                >
-                  {/* Card Header */}
-                  <div className={`${solution.bgGradient} p-6`}>
-                    <div
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${solution.gradient} flex items-center justify-center shadow-lg mb-4`}
-                    >
-                      <solution.icon className="w-7 h-7 text-white" />
-                    </div>
-                    <h3 className="text-xl font-bold text-white font-space-grotesk mb-2">
-                      {solution.title}
-                    </h3>
-                    <p className="text-sm text-gray-400">{solution.description}</p>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+              {nfcSolutions.map((solution, index) => {
+                const Icon = solution.icon;
+                return (
+                  <motion.article
+                    key={solution.id}
+                    {...reveal(index)}
+                    className="tv-panel tv-panel-pad flex flex-col h-full"
+                  >
+                    <Icon
+                      className="w-5 h-5 mb-5 text-[#C9A961]"
+                      strokeWidth={1.6}
+                      aria-hidden="true"
+                    />
+                    <h3 className="tv-h4 mb-2">{solution.title}</h3>
+                    <p className="tv-small mb-6">{solution.description}</p>
 
-                  {/* Card Content */}
-                  <div className="flex flex-col flex-grow p-6">
-                    <ul className="space-y-3 mb-6 flex-grow">
-                      {solution.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start gap-2 text-sm text-gray-400">
-                          <Check className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-                          <span>{feature}</span>
+                    <ul className="tv-spec grow mb-7">
+                      {solution.features.map((feature) => (
+                        <li key={feature} className="tv-spec-row">
+                          {feature}
                         </li>
                       ))}
                     </ul>
 
-                    <div className="mt-auto">
-                      <button
-                        onClick={() => openContactModal(solution.id)}
-                        className="btn btn-primary w-full"
-                      >
-                        <MessageSquare className="w-4 h-4" />
-                        <span>Contact Us</span>
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </section>
+                    <button
+                      onClick={() => openContactModal(solution.id)}
+                      className="tv-btn tv-btn-secondary w-full mt-auto"
+                    >
+                      Talk to our team
+                    </button>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
 
-          {/* Section 2: Digital Solutions - Modern Bento Grid */}
-          <section className="relative overflow-hidden">
-            {/* Background Gradient Blob */}
-            <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-gradient-to-r from-green-400/20 to-emerald-500/20 rounded-full blur-3xl opacity-60 pointer-events-none" />
-            
+        {/* DIGITAL SOLUTIONS — the page's light section. */}
+        <section className="tv-surface-bone tv-section">
+          <div className="site-container">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 0.5 }}
-              className="text-center mb-16 relative z-10"
+              className="max-w-2xl mb-12 md:mb-16"
             >
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-white font-space-grotesk tracking-tight mb-4">
-                Digital Solutions for{' '}
-                <span className="text-primary">
-                  Modern Businesses
-                </span>
-              </h2>
-              <p className="text-base md:text-lg text-slate-500 max-w-2xl mx-auto">
+              <p className="tv-eyebrow mb-6">Digital work</p>
+              <h2 className="tv-h2 mb-4">The rest of what we build.</h2>
+              <p className="tv-lead tv-measure-body">
                 End-to-end technology services built for growth.
               </p>
             </motion.div>
 
-            <motion.div
-              variants={containerVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              className="grid grid-cols-1 md:grid-cols-2 gap-10 relative z-10 items-stretch"
-            >
-              {digitalSolutions.map((service, index) => (
-                <motion.div
-                  key={service.id}
-                  variants={itemVariants}
-                  className={`group relative ${
-                    index === digitalSolutions.length - 1 && digitalSolutions.length % 2 !== 0
-                      ? 'md:col-span-2 md:max-w-2xl md:mx-auto'
-                      : ''
-                  }`}
-                >
-                  {/* Gradient Glow Background */}
-                  <div
-                    className={`absolute inset-0 bg-gradient-to-br ${service.glowColor} rounded-3xl blur-2xl opacity-0 group-hover:opacity-60 transition-opacity duration-500 -z-10`}
-                  />
-                  
-                  {/* Card */}
-                  <div className="relative flex flex-col h-full backdrop-blur-md bg-[#111827]/90 rounded-3xl shadow-xl border border-[#1F2937] p-10 hover:-translate-y-2 transition-all duration-300 hover:shadow-2xl">
-                    {/* Top Content */}
-                    <div className="flex flex-col">
-                      {/* Icon */}
-                      <div
-                        className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${service.accentColor} flex items-center justify-center shadow-lg mb-6`}
-                      >
-                        <service.icon className="w-7 h-7 text-white" />
-                      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 md:gap-6 items-stretch">
+              {digitalSolutions.map((service, index) => {
+                const Icon = service.icon;
+                return (
+                  <motion.article
+                    key={service.id}
+                    {...reveal(index)}
+                    className="tv-panel tv-panel-pad flex flex-col h-full"
+                  >
+                    <Icon
+                      className="w-5 h-5 mb-5 text-[#6E5518]"
+                      strokeWidth={1.6}
+                      aria-hidden="true"
+                    />
+                    <h3 className="tv-h3 mb-2">{service.title}</h3>
+                    <p className="tv-body mb-6">{service.description}</p>
 
-                      {/* Title & Description */}
-                      <h3 className="text-2xl font-bold text-white font-space-grotesk mb-3">
-                        {service.title}
-                      </h3>
-                      <p className="text-gray-400 mb-6">
-                        {service.description}
-                      </p>
-                    </div>
-
-                    {/* Features List */}
-                    <ul
-                      className="flex-grow space-y-3"
-                    >
-                      {service.features.map((feature, idx) => (
-                        <li
-                          key={idx}
-                          className="flex items-center gap-3 text-gray-400"
-                        >
-                          <div
-                            className={`rounded-full bg-gradient-to-br ${service.accentColor} flex items-center justify-center flex-shrink-0 w-5 h-5`}
-                          >
-                            <Check
-                              className="w-3 h-3 text-white"
-                            />
-                          </div>
-                          <span>{feature}</span>
+                    <ul className="tv-spec grow mb-7">
+                      {service.features.map((feature) => (
+                        <li key={feature} className="tv-spec-row">
+                          {feature}
                         </li>
                       ))}
                     </ul>
 
-                    {/* CTA Button */}
-                    <div className="mt-8">
-                      <button
-                        onClick={() => openContactModal('general')}
-                        className="btn btn-primary group/btn"
-                      >
-                        <span>{service.cta}</span>
-                        <ArrowRight className="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform duration-300" />
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </motion.div>
-          </section>
-        </div>
+                    <button
+                      onClick={() => openContactModal('general')}
+                      className="tv-btn tv-btn-secondary w-full mt-auto"
+                    >
+                      Talk to our team
+                    </button>
+                  </motion.article>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       </main>
 
       {/* Tech Stack Section */}
       <TechStackSection />
 
-      {/* Modern CTA Section - Premium SaaS */}
-      <section className="relative overflow-hidden py-24 md:py-32 bg-gradient-to-br from-[#020617] via-[#0b1220] to-[#020617]">
-        {/* Radial Glow Effect */}
-        <div 
-          className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full blur-3xl opacity-40 pointer-events-none"
-          style={{
-            background: 'radial-gradient(circle, rgba(34,197,94,0.2) 0%, rgba(34,197,94,0.05) 40%, transparent 70%)'
-          }}
-        />
-        
-        {/* Animated Accent Blobs */}
-        <div className="absolute top-10 right-1/3 w-64 h-64 bg-green-500/10 rounded-full blur-3xl animate-pulse opacity-30" />
-        <div className="absolute bottom-20 left-1/4 w-72 h-72 bg-primary/10 rounded-full blur-3xl animate-pulse opacity-25" />
-
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7 }}
-          whileHover={{ scale: 1.01 }}
-          className="relative z-10 max-w-5xl mx-auto px-6"
-        >
-          {/* Glass Card Container */}
-          <div className="group relative bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-12 md:p-16 shadow-2xl hover:shadow-2xl hover:border-white/20 transition-all duration-300">
-            {/* Gradient overlay on hover */}
-            <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-br from-green-500/5 via-transparent to-transparent pointer-events-none" />
-
-            <div className="relative z-10 text-center">
-              {/* Headline with Hierarchy */}
-              <div className="mb-6">
-                <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white font-space-grotesk tracking-tight leading-tight">
-                  Let&apos;s Build Something{' '}
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-500">
-                    Powerful
-                  </span>
-                  <br />
-                  Together.
-                </h2>
-              </div>
-
-              {/* Subtext */}
-              <p className="text-base md:text-lg text-gray-400 mb-12 max-w-3xl mx-auto leading-relaxed">
-                From NFC cards to full-scale digital solutions — we help brands grow faster and smarter.
+      {/* CLOSE */}
+      <section className="tv-surface-ink tv-section">
+        <div className="site-container">
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end border-t border-[#C9A961]/25 pt-12 md:pt-16"
+          >
+            <div className="lg:col-span-7">
+              <h2 className="tv-h2 mb-4">Let&apos;s build something together.</h2>
+              <p className="tv-body tv-measure-body">
+                From NFC cards to full-scale digital solutions — we help brands grow
+                faster and smarter.
               </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                <motion.button
-                  onClick={() => openContactModal('general')}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-gradient-to-r from-green-400 to-emerald-500 hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] text-black font-semibold rounded-xl transition-all duration-300 group"
-                >
-                  <span>Talk to Our Team</span>
-                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </motion.button>
-                <motion.a
-                  href={ROUTES.CARDS}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="inline-flex items-center gap-2 px-8 py-3 border border-white/20 hover:border-white/40 text-white font-semibold rounded-xl hover:bg-white/5 transition-all duration-300 group"
-                >
-                  <span>View Our Cards</span>
-                </motion.a>
-              </div>
-
-              {/* Trust Element */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                whileInView={{ opacity: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                className="text-center text-sm text-gray-500"
-              >
-                <p>✓ Trusted by 10,000+ professionals worldwide</p>
-              </motion.div>
+              <p className="tv-mono mt-5">Trusted by 10,000+ professionals worldwide</p>
             </div>
-          </div>
-        </motion.div>
+
+            <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end gap-3">
+              {/* On this page the enquiry is the terminal action, so it takes
+                  the primary tier and the reserved arrow. */}
+              <motion.button
+                onClick={() => openContactModal('general')}
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 0 }}
+                className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+              >
+                Talk to our team
+                <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+              </motion.button>
+
+              <motion.a
+                href={ROUTES.CARDS}
+                whileHover={{ y: -2 }}
+                whileTap={{ y: 0 }}
+                className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+              >
+                View our cards
+              </motion.a>
+            </div>
+          </motion.div>
+        </div>
       </section>
 
       <Footer />
