@@ -2928,3 +2928,173 @@ body {
   -webkit-backdrop-filter: blur(18px);
   border-bottom: 1px solid var(--tv-rule);
 }
+
+/* ----------------------------------------------------------------------------
+   DEMO PROFILE  (/preview-website)
+   The sample of the free profile site that ships with every card. It is NOT a
+   marketing page, so it carries neither the site nav nor the site footer - the
+   whole point is that it reads as the customer's own one-page site. What it
+   does need is its own small vocabulary: a bar that admits it is a demo, a
+   portrait plate, a social row and a work grid - all drawn with the same
+   hairlines, mono small-caps and brass/patina accents as everything above.
+   ---------------------------------------------------------------------------- */
+
+/* --- Demo frame bar. Brass hairline, because it is a notice about the page
+       rather than part of the profile it is framing. --------------------- */
+.tv-demobar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  background: rgba(7, 10, 9, 0.94);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(201, 169, 97, 0.32);
+}
+
+.tv-demobar-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  min-height: 4rem;
+}
+
+/* --- Portrait plate ----------------------------------------------------- */
+/* A fixed 4:5 aperture, so a square, portrait or landscape upload all crop to
+   the same shape instead of shoving the identity column down the page. */
+.tv-portrait {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: 16px;
+  border: 1px solid var(--tv-rule);
+  background: var(--tv-graphite);
+}
+
+.tv-portrait img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* The brass rule is drawn inside the aperture rather than around it, so the
+   plate keeps one silhouette and nothing shifts on hover. */
+.tv-portrait::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(201, 169, 97, 0.22);
+  pointer-events: none;
+}
+
+/* --- Social / channel row ---------------------------------------------- */
+/* 44px is the minimum comfortable tap target, and these are the controls a
+   phone user actually reaches for after a tap. */
+.tv-iconlink {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.75rem;
+  height: 2.75rem;
+  border-radius: 999px;
+  border: 1px solid rgba(241, 243, 241, 0.16);
+  background: rgba(241, 243, 241, 0.04);
+  color: var(--tv-text-muted);
+  transition:
+    color var(--duration-fast) var(--tv-ease),
+    background-color var(--duration-fast) var(--tv-ease),
+    border-color var(--duration-fast) var(--tv-ease),
+    transform var(--duration-fast) var(--tv-ease);
+}
+
+.tv-iconlink:hover {
+  color: var(--tv-patina);
+  border-color: rgba(76, 174, 137, 0.45);
+  background: rgba(76, 174, 137, 0.09);
+  transform: translateY(-2px);
+}
+
+.tv-surface-bone .tv-iconlink {
+  border-color: rgba(18, 16, 12, 0.18);
+  background: rgba(18, 16, 12, 0.03);
+  color: var(--tv-ink-muted);
+}
+
+.tv-surface-bone .tv-iconlink:hover {
+  color: var(--tv-patina-deep);
+  border-color: rgba(20, 98, 74, 0.45);
+  background: rgba(20, 98, 74, 0.07);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-iconlink:hover { transform: none; }
+}
+
+/* --- Work grid --------------------------------------------------------- */
+/* The caption sits under the image on a hairline instead of inside a gradient
+   overlay: an overlay hid half of every photograph and put 12px white text on
+   an unpredictable background. */
+.tv-figure { display: block; }
+
+.tv-figure-media {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  border-radius: 12px;
+  border: 1px solid var(--tv-rule);
+  background: var(--tv-slate);
+}
+
+.tv-figure-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--duration-slow) var(--tv-ease);
+}
+
+.tv-figure:hover .tv-figure-media img { transform: scale(1.04); }
+
+.tv-surface-bone .tv-figure-media {
+  border-color: var(--tv-rule-bone);
+  background: var(--tv-bone-sunk);
+}
+
+.tv-figure-cap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.875rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--tv-rule);
+}
+
+.tv-surface-bone .tv-figure-cap { border-top-color: var(--tv-rule-bone); }
+
+@media (prefers-reduced-motion: reduce) {
+  .tv-figure:hover .tv-figure-media img { transform: none; }
+}
+
+/* --- Framed embed  (the map) ------------------------------------------- */
+.tv-embed {
+  overflow: hidden;
+  border-radius: 14px;
+  border: 1px solid var(--tv-rule);
+  background: var(--tv-graphite);
+}
+
+.tv-surface-bone .tv-embed {
+  border-color: var(--tv-rule-bone);
+  background: var(--tv-bone-sunk);
+}
+
+.tv-embed iframe {
+  display: block;
+  width: 100%;
+  border: 0;
+}

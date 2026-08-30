@@ -1,15 +1,136 @@
 'use client';
 
-import { ADDRESS, PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL, whatsappLink } from '@/lib/site-config';
+/**
+ * DEMO PROFILE — the sample of the free profile site included with every card.
+ *
+ * Rebuilt on the Tapvyo design system (.tv-* in globals.css), so it now shares
+ * one type scale, one button hierarchy, one form vocabulary and one set of
+ * surfaces with the rest of the frontend.
+ *
+ * Three things are deliberately gone:
+ *   - ~900 lines of page-local CSS that duplicated the system with a second
+ *     palette (#33cc33 green, #FFD700 gold) and a second type scale;
+ *   - the light/dark switch, which wrote `data-theme` onto <html> and a
+ *     `preview-theme` key into localStorage. The system has one ground with
+ *     bone sections cut into it, so there was nothing left for it to toggle;
+ *   - the full-viewport particle canvas that spawned confetti on every mouse
+ *     move — an animation loop running forever behind a page whose job is to
+ *     show a customer what their profile looks like.
+ *
+ * The Font Awesome CDN import went with them; icons come from lucide-react,
+ * which the rest of the site already uses.
+ */
 
-import { useEffect, useState } from 'react';
-import { BRAND } from '@/lib/brand';
+import {
+  ADDRESS,
+  PHONE_DISPLAY,
+  PHONE_E164,
+  SUPPORT_EMAIL,
+  SITE_URL,
+  whatsappLink,
+} from '@/lib/site-config';
+
+import { useState } from 'react';
+import { motion } from 'framer-motion';
+import {
+  ArrowUpRight,
+  Facebook,
+  Globe,
+  Instagram,
+  Linkedin,
+  Mail,
+  MapPin,
+  MessageCircle,
+  Phone,
+} from 'lucide-react';
+import BrandLogo from '@/components/common/BrandLogo';
 
 type SubmitState =
   | { status: 'idle' }
   | { status: 'submitting' }
   | { status: 'success' }
   | { status: 'error'; message: string };
+
+/* Channels the demo profile exposes. Instagram, Facebook and LinkedIn are the
+   confirmed profiles from site-config; WhatsApp and the website round out the
+   row a real profile would show. */
+const CHANNELS = [
+  { name: 'WhatsApp', href: whatsappLink(), icon: MessageCircle },
+  { name: 'Instagram', href: 'https://www.instagram.com/tapvyo', icon: Instagram },
+  { name: 'Facebook', href: 'https://www.facebook.com/tapvyo', icon: Facebook },
+  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/tapvyo', icon: Linkedin },
+  { name: 'Website', href: SITE_URL, icon: Globe },
+];
+
+const WORKS = [
+  {
+    title: 'Premium NFC Card',
+    detail: 'Matte black edition',
+    src: 'https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=800&h=600&fit=crop',
+    alt: 'A matte black NFC business card resting on a dark surface',
+  },
+  {
+    title: 'Analytics Dashboard',
+    detail: 'Real-time insights',
+    src: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&h=600&fit=crop',
+    alt: 'A laptop screen showing charts and usage statistics',
+  },
+  {
+    title: 'Digital Profile',
+    detail: 'Custom website',
+    src: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&h=600&fit=crop',
+    alt: 'A tablet and laptop displaying a digital profile layout',
+  },
+  {
+    title: 'Corporate Solution',
+    detail: 'Enterprise NFC',
+    src: 'https://images.unsplash.com/photo-1553877522-43269d4ea984?w=800&h=600&fit=crop',
+    alt: 'Colleagues reviewing printed material across a meeting table',
+  },
+  {
+    title: 'Event Networking',
+    detail: 'Conference cards',
+    src: 'https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=800&h=600&fit=crop',
+    alt: 'Two people shaking hands at a networking event',
+  },
+  {
+    title: 'Brand Identity',
+    detail: 'Custom designs',
+    src: 'https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=800&h=600&fit=crop',
+    alt: 'A set of branded stationery laid out on a desk',
+  },
+];
+
+const CONTACT_ROWS = [
+  {
+    icon: Phone,
+    label: 'Phone',
+    value: PHONE_DISPLAY,
+    href: `tel:${PHONE_E164}`,
+    external: false,
+  },
+  {
+    icon: Mail,
+    label: 'Email',
+    value: SUPPORT_EMAIL,
+    href: `mailto:${SUPPORT_EMAIL}`,
+    external: false,
+  },
+  {
+    icon: MapPin,
+    label: 'Location',
+    value: ADDRESS.full,
+    href: `https://maps.google.com/?q=${encodeURIComponent(ADDRESS.full)}`,
+    external: true,
+  },
+];
+
+const fadeInUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-80px' },
+  transition: { duration: 0.6 },
+};
 
 export default function PreviewWebsitePage() {
   // The Send Message form used to have no onSubmit at all - it looked
@@ -35,9 +156,13 @@ export default function PreviewWebsitePage() {
         }),
       });
 
+      // The API returns the reason under `error` and mirrors it under
+      // `message`; reading only `message` lost the validation detail.
       const payload = await response.json().catch(() => null);
       if (!response.ok) {
-        throw new Error(payload?.message || 'Could not send your message. Please try again.');
+        throw new Error(
+          payload?.error || payload?.message || 'Could not send your message. Please try again.'
+        );
       }
 
       form.reset();
@@ -45,1397 +170,439 @@ export default function PreviewWebsitePage() {
     } catch (error) {
       setSubmitState({
         status: 'error',
-        message: error instanceof Error ? error.message : 'Could not send your message. Please try again.',
+        message:
+          error instanceof Error
+            ? error.message
+            : 'Could not send your message. Please try again.',
       });
     }
   };
 
-  useEffect(() => {
-    // Theme Toggle
-    const themeSwitch = document.getElementById('theme-switch') as HTMLInputElement;
-    const htmlElement = document.documentElement;
-
-    const savedTheme = localStorage.getItem('preview-theme') || 'dark';
-    if (savedTheme === 'dark') {
-      htmlElement.setAttribute('data-theme', 'dark');
-      if (themeSwitch) themeSwitch.checked = true;
-    }
-
-    const handleThemeChange = () => {
-      if (themeSwitch?.checked) {
-        htmlElement.setAttribute('data-theme', 'dark');
-        localStorage.setItem('preview-theme', 'dark');
-      } else {
-        htmlElement.setAttribute('data-theme', 'light');
-        localStorage.setItem('preview-theme', 'light');
-      }
-    };
-
-    themeSwitch?.addEventListener('change', handleThemeChange);
-
-    // Particle Canvas
-    const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
-    if (canvas) {
-      const ctx = canvas.getContext('2d');
-      const particles: Array<{
-        x: number;
-        y: number;
-        size: number;
-        speedX: number;
-        speedY: number;
-        color: string;
-        life: number;
-        decay: number;
-        rotation: number;
-        rotationSpeed: number;
-      }> = [];
-
-      const colors = ['#FFD700', '#FFA500', '#FF6347', '#DC143C', '#9370DB', '#8A2BE2', '#4169E1', '#1E90FF', '#00CED1'];
-
-      const resizeCanvas = () => {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-      };
-      resizeCanvas();
-      window.addEventListener('resize', resizeCanvas);
-
-      const createParticles = (x: number, y: number, count = 2) => {
-        for (let i = 0; i < count; i++) {
-          particles.push({
-            x,
-            y,
-            size: Math.random() * 4 + 2,
-            speedX: (Math.random() - 0.5) * 3,
-            speedY: (Math.random() - 0.5) * 3,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            life: 1,
-            decay: Math.random() * 0.02 + 0.005,
-            rotation: Math.random() * 360,
-            rotationSpeed: (Math.random() - 0.5) * 10,
-          });
-        }
-      };
-
-      const animate = () => {
-        if (ctx) {
-          ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-          for (let i = particles.length - 1; i >= 0; i--) {
-            const p = particles[i];
-            p.x += p.speedX;
-            p.y += p.speedY;
-            p.life -= p.decay;
-            p.rotation += p.rotationSpeed;
-            p.speedY += 0.02;
-
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.rotate((p.rotation * Math.PI) / 180);
-            ctx.globalAlpha = p.life;
-            ctx.fillStyle = p.color;
-            ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
-            ctx.restore();
-
-            if (p.life <= 0) {
-              particles.splice(i, 1);
-            }
-          }
-
-          if (particles.length > 200) {
-            particles.splice(0, particles.length - 200);
-          }
-        }
-        requestAnimationFrame(animate);
-      };
-      animate();
-
-      const handleMouseMove = (e: MouseEvent) => {
-        const cardContainer = document.querySelector('.digi-card-container');
-        if (cardContainer) {
-          const rect = cardContainer.getBoundingClientRect();
-          if (e.clientX < rect.left || e.clientX > rect.right || e.clientY < rect.top || e.clientY > rect.bottom) {
-            createParticles(e.clientX, e.clientY);
-          }
-        }
-      };
-
-      document.addEventListener('mousemove', handleMouseMove);
-
-      return () => {
-        window.removeEventListener('resize', resizeCanvas);
-        document.removeEventListener('mousemove', handleMouseMove);
-        themeSwitch?.removeEventListener('change', handleThemeChange);
-      };
-    }
-  }, []);
+  const isSubmitting = submitState.status === 'submitting';
 
   return (
-    <>
-      <style jsx global>{`
-        /* ===== Font Awesome via @import (reliable in JSX style blocks) ===== */
-        @import url('https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css');
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-
-        /* ===== CSS Variables — Light Theme ===== */
-        :root {
-          --accent: #33cc33;
-          --accent-light: #ffff00;
-          --accent-glow: rgba(51, 204, 51, 0.2);
-          --accent-subtle: rgba(51, 204, 51, 0.1);
-          --danger: #ff6b6b;
-          --info: #4dabf7;
-          --surface: #ffffff;
-          --surface-elevated: #ffffff;
-          --surface-subtle: #f8f9fc;
-          --surface-muted: #f1f3f8;
-          --bg-page: #eef1f6;
-          --text-primary: #1a1d26;
-          --text-secondary: #5c6370;
-          --text-muted: #9ca3af;
-          --border: rgba(0, 0, 0, 0.06);
-          --border-strong: rgba(0, 0, 0, 0.1);
-          --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.04);
-          --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.06);
-          --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.08);
-          --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.1);
-          --radius-sm: 10px;
-          --radius-md: 14px;
-          --radius-lg: 20px;
-          --radius-xl: 24px;
-        }
-
-        /* ===== Dark Theme ===== */
-        [data-theme="dark"] {
-          --surface: #13131f;
-          --surface-elevated: #1a1a2e;
-          --surface-subtle: #16162a;
-          --surface-muted: #1e1e36;
-          --bg-page: #0a0a14;
-          --text-primary: #f0f1f5;
-          --text-secondary: #8b8da3;
-          --text-muted: #5c5e72;
-          --border: rgba(255, 255, 255, 0.06);
-          --border-strong: rgba(255, 255, 255, 0.1);
-          --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
-          --shadow-md: 0 4px 20px rgba(0, 0, 0, 0.3);
-          --shadow-lg: 0 12px 40px rgba(0, 0, 0, 0.4);
-          --shadow-xl: 0 24px 60px rgba(0, 0, 0, 0.5);
-        }
-
-        /* ===== Global Reset ===== */
-        *, *::before, *::after {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        html {
-          scroll-behavior: smooth;
-        }
-
-        body {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-          min-height: 100vh;
-          overflow-x: hidden;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* ===== Scoped Preview Background ===== */
-        .digi-preview-wrapper {
-          background: var(--bg-page);
-          padding: 24px;
-          min-height: 100vh;
-          transition: background 0.4s ease;
-        }
-
-        #particle-canvas {
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          pointer-events: none;
-          z-index: 0;
-        }
-
-        /* ===== Card Container ===== */
-        .digi-card-container {
-          max-width: 960px;
-          margin: 0 auto;
-          background: var(--surface);
-          border-radius: var(--radius-xl);
-          overflow: hidden;
-          box-shadow: var(--shadow-xl);
-          border: 1px solid var(--border);
-          position: relative;
-          z-index: 1;
-          transition: background 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
-        }
-
-        [data-theme="dark"] .digi-card-container {
-          box-shadow: 0 24px 80px rgba(0, 184, 148, 0.06), var(--shadow-xl);
-        }
-
-        /* ===== Navbar ===== */
-        .digi-navbar {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 16px 32px;
-          background: var(--surface);
-          border-bottom: 1px solid var(--border);
-          transition: background 0.4s ease, border-color 0.4s ease;
-        }
-
-        [data-theme="dark"] .digi-navbar {
-          background: rgba(19, 19, 31, 0.85);
-          backdrop-filter: blur(16px);
-          -webkit-backdrop-filter: blur(16px);
-        }
-
-        .digi-logo {
-          display: flex;
-          align-items: center;
-          text-decoration: none;
-        }
-
-        .digi-nav-logo-img {
-          max-height: 40px;
-          width: auto;
-          object-fit: contain;
-        }
-
-        .digi-nav-right {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-
-        /* ===== Theme Toggle ===== */
-        .digi-theme-toggle { position: relative; }
-        .digi-theme-switch { display: none; }
-        .digi-toggle-label { cursor: pointer; display: block; }
-
-        .digi-toggle-bg {
-          width: 72px;
-          height: 36px;
-          background: linear-gradient(180deg, #f9d976 0%, #f39f86 50%, #e8b574 100%);
-          border-radius: 36px;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.5s ease;
-          box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .digi-sun {
-          position: absolute;
-          width: 16px;
-          height: 16px;
-          background: #fff5c0;
-          border-radius: 50%;
-          top: 10px;
-          left: 10px;
-          box-shadow: 0 0 16px 6px rgba(255, 245, 192, 0.6);
-          transition: all 0.5s ease;
-          z-index: 1;
-        }
-
-        .digi-moon {
-          position: absolute;
-          width: 16px;
-          height: 16px;
-          background: transparent;
-          border-radius: 50%;
-          top: 10px;
-          right: 10px;
-          box-shadow: inset -5px -3px 0 0 #e8e8e8;
-          opacity: 0;
-          transition: all 0.5s ease;
-          z-index: 1;
-        }
-
-        .digi-stars {
-          position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-          opacity: 0; transition: all 0.5s ease;
-        }
-        .digi-stars span {
-          position: absolute; width: 3px; height: 3px; background: #fff;
-          border-radius: 50%; box-shadow: 0 0 3px 1px rgba(255,255,255,0.5);
-        }
-        .digi-stars span:nth-child(1) { top: 7px; right: 18px; width: 2px; height: 2px; }
-        .digi-stars span:nth-child(2) { top: 14px; right: 32px; width: 3px; height: 3px; }
-        .digi-stars span:nth-child(3) { top: 5px; right: 42px; width: 2px; height: 2px; }
-
-        .digi-mountains { position: absolute; bottom: 0; left: 0; right: 0; height: 18px; }
-        .digi-mountain { position: absolute; bottom: 0; width: 0; height: 0; border-style: solid; transition: all 0.5s ease; }
-        .digi-mountain-1 { left: 6px; border-width: 0 10px 12px 10px; border-color: transparent transparent #d4915c transparent; }
-        .digi-mountain-2 { left: 24px; border-width: 0 13px 16px 13px; border-color: transparent transparent #c47f4a transparent; }
-        .digi-mountain-3 { left: 44px; border-width: 0 10px 10px 10px; border-color: transparent transparent #d4915c transparent; }
-
-        .digi-toggle-circle {
-          position: absolute; width: 28px; height: 28px; background: #ffffff;
-          border-radius: 50%; top: 4px; right: 4px;
-          transition: all 0.5s ease; box-shadow: 0 3px 12px rgba(0,0,0,0.2); z-index: 10;
-        }
-
-        .digi-theme-switch:checked + .digi-toggle-label .digi-toggle-bg { background: linear-gradient(180deg, #1e3a5f 0%, #2c3e50 50%, #1a252f 100%); }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-sun { opacity: 0; transform: translateX(-10px) scale(0); }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-moon { opacity: 1; }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-stars { opacity: 1; }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-mountain-1 { border-color: transparent transparent #4a6b8a transparent; }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-mountain-2 { border-color: transparent transparent #3d5a73 transparent; }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-mountain-3 { border-color: transparent transparent #4a6b8a transparent; }
-        .digi-theme-switch:checked + .digi-toggle-label .digi-toggle-circle { right: 40px; }
-
-        /* ===== Main Content ===== */
-        .digi-main-content { padding: 0; }
-
-        /* ===== Profile Section ===== */
-        .digi-profile-section {
-          position: relative;
-          display: grid;
-          grid-template-columns: 280px 1fr;
-          gap: 40px;
-          padding: 48px 44px;
-          animation: digiSlideUp 0.6s ease-out;
-          overflow: hidden;
-        }
-
-        .digi-profile-section::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 200px;
-          background: linear-gradient(135deg, var(--accent-subtle), transparent 60%);
-          pointer-events: none;
-        }
-
-        .digi-profile-image {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 1;
-          border-radius: var(--radius-lg);
-          overflow: hidden;
-          box-shadow: var(--shadow-lg);
-          border: 3px solid var(--border);
-          transition: border-color 0.4s ease;
-          z-index: 1;
-        }
-
-        [data-theme="dark"] .digi-profile-image {
-          border-color: rgba(0, 184, 148, 0.2);
-          box-shadow: 0 12px 40px rgba(0, 184, 148, 0.1);
-        }
-
-        .digi-profile-image img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.5s ease;
-        }
-
-        .digi-profile-image:hover img {
-          transform: scale(1.05);
-        }
-
-        .digi-profile-info {
-          display: flex;
-          flex-direction: column;
-          justify-content: center;
-          position: relative;
-          z-index: 1;
-        }
-
-        .digi-name {
-          font-size: 2rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 4px;
-          letter-spacing: -0.02em;
-          line-height: 1.2;
-          transition: color 0.4s ease;
-        }
-
-        .digi-company {
-          font-size: 1rem;
-          font-weight: 500;
-          color: var(--accent);
-          margin-bottom: 24px;
-          letter-spacing: 0.02em;
-        }
-
-        .digi-about-section {
-          margin-bottom: 28px;
-        }
-
-        .digi-about-title {
-          font-size: 0.7rem;
-          font-weight: 700;
-          color: var(--accent);
-          margin-bottom: 10px;
-          text-transform: uppercase;
-          letter-spacing: 0.12em;
-        }
-
-        .digi-about-text {
-          font-size: 0.9rem;
-          color: var(--text-secondary);
-          line-height: 1.75;
-          transition: color 0.4s ease;
-        }
-
-        /* ===== Social Icons ===== */
-        .digi-social-icons {
-          display: flex;
-          gap: 10px;
-          margin-top: auto;
-        }
-
-        .digi-social-icon {
-          width: 44px;
-          height: 44px;
-          background: var(--surface-muted);
-          border-radius: var(--radius-sm);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 1.1rem;
-          color: var(--text-secondary);
-          text-decoration: none;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          border: 1px solid var(--border);
-        }
-
-        .digi-social-icon:hover {
-          background: var(--accent);
-          color: #ffffff;
-          transform: translateY(-3px);
-          box-shadow: 0 8px 24px var(--accent-glow);
-          border-color: var(--accent);
-        }
-
-        [data-theme="dark"] .digi-social-icon {
-          background: rgba(0, 184, 148, 0.08);
-          color: var(--accent);
-          border-color: rgba(0, 184, 148, 0.15);
-        }
-
-        [data-theme="dark"] .digi-social-icon:hover {
-          background: linear-gradient(135deg, #00b894, #00cec9);
-          color: #ffffff;
-          box-shadow: 0 8px 30px rgba(0, 184, 148, 0.3);
-          border-color: transparent;
-        }
-
-        /* ===== Works Section ===== */
-        .digi-works-section {
-          padding: 56px 44px;
-          background: var(--surface-subtle);
-          animation: digiSlideUp 0.6s ease-out 0.12s both;
-          transition: background 0.4s ease;
-        }
-
-        [data-theme="dark"] .digi-works-section {
-          background: var(--surface-subtle);
-        }
-
-        .digi-works-header {
-          text-align: center;
-          margin-bottom: 36px;
-        }
-
-        .digi-section-badge {
-          display: inline-block;
-          padding: 6px 16px;
-          background: var(--accent-subtle);
-          color: var(--accent);
-          border-radius: 100px;
-          font-size: 0.72rem;
-          font-weight: 700;
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          margin-bottom: 14px;
-          border: 1px solid var(--accent-glow);
-        }
-
-        .digi-works-title {
-          font-size: 1.75rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 8px;
-          letter-spacing: -0.02em;
-          transition: color 0.4s ease;
-        }
-
-        .digi-works-subtitle {
-          font-size: 0.9rem;
-          color: var(--text-secondary);
-          transition: color 0.4s ease;
-        }
-
-        .digi-works-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 16px;
-        }
-
-        .digi-work-item {
-          position: relative;
-          border-radius: var(--radius-md);
-          overflow: hidden;
-          aspect-ratio: 4/3;
-          cursor: pointer;
-          box-shadow: var(--shadow-md);
-          transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.4s ease;
-        }
-
-        .digi-work-item:hover {
-          transform: translateY(-4px);
-          box-shadow: var(--shadow-lg);
-        }
-
-        .digi-work-item img {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .digi-work-item:hover img {
-          transform: scale(1.08);
-        }
-
-        .digi-work-overlay {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          padding: 20px 16px 16px;
-          background: linear-gradient(0deg, rgba(0,0,0,0.75) 0%, rgba(0,0,0,0.3) 60%, transparent 100%);
-          color: #fff;
-          transform: translateY(100%);
-          transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .digi-work-item:hover .digi-work-overlay {
-          transform: translateY(0);
-        }
-
-        .digi-work-overlay h3 {
-          font-size: 1rem;
-          font-weight: 700;
-          margin-bottom: 3px;
-        }
-
-        .digi-work-overlay p {
-          font-size: 0.8rem;
-          opacity: 0.75;
-          font-weight: 400;
-        }
-
-        /* ===== Contact Form Section ===== */
-        .digi-form-section {
-          padding: 56px 44px;
-          background: var(--surface);
-          animation: digiSlideUp 0.6s ease-out 0.08s both;
-          transition: background 0.4s ease;
-        }
-
-        .digi-form-header {
-          text-align: center;
-          margin-bottom: 44px;
-        }
-
-        .digi-form-main-title {
-          font-size: 1.75rem;
-          font-weight: 800;
-          color: var(--text-primary);
-          margin-bottom: 12px;
-          letter-spacing: -0.02em;
-          transition: color 0.4s ease;
-        }
-
-        .digi-form-subtitle {
-          font-size: 0.9rem;
-          color: var(--text-secondary);
-          line-height: 1.65;
-          max-width: 520px;
-          margin: 0 auto;
-          transition: color 0.4s ease;
-        }
-
-        .digi-form-content {
-          display: grid;
-          grid-template-columns: 1fr 1.3fr;
-          gap: 48px;
-          align-items: start;
-        }
-
-        .digi-form-left { padding-right: 0; }
-
-        .digi-talk-title {
-          font-size: 1.15rem;
-          font-weight: 700;
-          color: var(--text-primary);
-          margin-bottom: 10px;
-          transition: color 0.4s ease;
-        }
-
-        .digi-talk-text {
-          font-size: 0.88rem;
-          color: var(--text-secondary);
-          line-height: 1.65;
-          margin-bottom: 32px;
-          transition: color 0.4s ease;
-        }
-
-        .digi-contact-details {
-          display: flex;
-          flex-direction: column;
-          gap: 22px;
-        }
-
-        .digi-contact-detail-item {
-          display: flex;
-          align-items: flex-start;
-          gap: 14px;
-        }
-
-        .digi-detail-icon {
-          width: 40px;
-          height: 40px;
-          min-width: 40px;
-          border-radius: var(--radius-sm);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 0.9rem;
-          color: #ffffff;
-          transition: transform 0.3s ease;
-        }
-
-        .digi-detail-icon:hover {
-          transform: scale(1.08);
-        }
-
-        .digi-detail-icon.phone { background: linear-gradient(135deg, #33cc33, #ffff00); color: #020617; }
-        .digi-detail-icon.email { background: linear-gradient(135deg, #33cc33, #ffff00); color: #020617; }
-        .digi-detail-icon.location { background: linear-gradient(135deg, #33cc33, #ffff00); color: #020617; }
-
-        .digi-phone-numbers {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .digi-contact-link {
-          font-size: 0.88rem;
-          color: var(--text-primary);
-          line-height: 1.6;
-          text-decoration: none;
-          font-weight: 500;
-          transition: color 0.3s ease;
-        }
-
-        .digi-contact-link:hover {
-          color: var(--accent);
-        }
-
-        /* ===== Form Inputs ===== */
-        .digi-contact-form {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .digi-form-row {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 16px;
-        }
-
-        .digi-form-group input,
-        .digi-form-group textarea {
-          width: 100%;
-          padding: 14px 18px;
-          border: 1.5px solid var(--border-strong);
-          border-radius: var(--radius-sm);
-          font-family: 'Inter', sans-serif;
-          font-size: 0.9rem;
-          color: var(--text-primary);
-          transition: all 0.3s ease;
-          background: var(--surface-subtle);
-        }
-
-        .digi-form-group input:focus,
-        .digi-form-group textarea:focus {
-          outline: none;
-          border-color: var(--accent);
-          box-shadow: 0 0 0 3px var(--accent-glow);
-          background: var(--surface);
-        }
-
-        [data-theme="dark"] .digi-form-group input,
-        [data-theme="dark"] .digi-form-group textarea {
-          background: var(--surface-muted);
-          border-color: rgba(255, 255, 255, 0.08);
-          color: var(--text-primary);
-        }
-
-        [data-theme="dark"] .digi-form-group input:focus,
-        [data-theme="dark"] .digi-form-group textarea:focus {
-          border-color: var(--accent);
-          box-shadow: 0 0 0 3px rgba(0, 184, 148, 0.12);
-          background: rgba(0, 184, 148, 0.04);
-        }
-
-        .digi-form-group input::placeholder,
-        .digi-form-group textarea::placeholder {
-          color: var(--text-muted);
-        }
-
-        .digi-form-group textarea {
-          resize: vertical;
-          min-height: 130px;
-        }
-
-        /* Visually hidden but read by screen readers - the inputs are
-           placeholder-only by design, so each needs a real label. */
-        .digi-sr-only {
-          position: absolute;
-          width: 1px;
-          height: 1px;
-          padding: 0;
-          margin: -1px;
-          overflow: hidden;
-          clip: rect(0, 0, 0, 0);
-          white-space: nowrap;
-          border: 0;
-        }
-
-        .digi-form-status:empty {
-          display: none;
-        }
-
-        .digi-form-status {
-          margin: 0 0 12px;
-          font-size: 14px;
-          line-height: 1.5;
-        }
-
-        .digi-submit-btn:disabled {
-          opacity: 0.6;
-          cursor: not-allowed;
-        }
-
-        .digi-demo-banner {
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          padding: 10px 16px;
-          background: #0f2e25;
-          color: #d1fae5;
-          font-size: 14px;
-          text-align: center;
-        }
-
-        .digi-demo-banner a {
-          color: #4ade80;
-          font-weight: 600;
-          text-decoration: underline;
-          text-underline-offset: 3px;
-        }
-
-        .digi-submit-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          padding: 14px 36px;
-          background: linear-gradient(to right, #33cc33, #ffff00);
-          color: #020617;
-          border: none;
-          border-radius: 9999px;
-          font-family: 'Inter', sans-serif;
-          font-size: 0.95rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-          gap: 8px;
-          letter-spacing: 0.01em;
-          box-shadow: 0 4px 14px rgba(51, 204, 51, 0.22);
-        }
-
-        .digi-submit-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(51, 204, 51, 0.3);
-        }
-
-        .digi-submit-btn:active {
-          transform: translateY(0);
-        }
-
-        /* ===== Map Section ===== */
-        .digi-map-section {
-          width: 100%;
-          line-height: 0;
-          position: relative;
-        }
-
-        .digi-map-section iframe {
-          width: 100%;
-          display: block;
-        }
-
-        /* ===== Footer ===== */
-        .digi-footer {
-          background: var(--surface-muted);
-          padding: 20px 24px;
-          text-align: center;
-          border-top: 1px solid var(--border);
-          transition: background 0.4s ease, border-color 0.4s ease;
-        }
-
-        [data-theme="dark"] .digi-footer {
-          background: rgba(19, 19, 31, 0.9);
-          border-top-color: rgba(255, 255, 255, 0.06);
-        }
-
-        .digi-footer-copyright {
-          font-size: 0.82rem;
-          color: var(--text-muted);
-          margin: 0;
-          font-weight: 400;
-        }
-
-        .digi-footer-copyright .digi-brand-name {
-          color: var(--accent);
-          font-weight: 600;
-          text-decoration: none;
-          transition: color 0.3s ease;
-        }
-
-        .digi-footer-copyright .digi-brand-name:hover {
-          color: var(--accent-light);
-        }
-
-        /* ===== Animation ===== */
-        @keyframes digiSlideUp {
-          from { opacity: 0; transform: translateY(24px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* ===== Responsive — Tablet ===== */
-        @media (max-width: 768px) {
-          .digi-preview-wrapper {
-            padding: 12px;
-          }
-
-          .digi-card-container {
-            border-radius: var(--radius-lg);
-          }
-
-          .digi-navbar {
-            padding: 14px 20px;
-          }
-
-          .digi-profile-section {
-            grid-template-columns: 1fr;
-            gap: 24px;
-            padding: 32px 24px;
-          }
-
-          .digi-profile-image {
-            width: 200px;
-            max-width: 100%;
-            margin: 0 auto;
-            border-radius: var(--radius-md);
-          }
-
-          .digi-profile-info {
-            text-align: center;
-          }
-
-          .digi-name {
-            font-size: 1.6rem;
-          }
-
-          .digi-about-title {
-            text-align: center;
-          }
-          .digi-about-text {
-            text-align: center;
-          }
-
-          .digi-social-icons {
-            justify-content: center;
-          }
-
-          .digi-works-section {
-            padding: 40px 24px;
-          }
-
-          .digi-works-grid {
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-          }
-
-          .digi-form-section {
-            padding: 40px 24px;
-          }
-
-          .digi-form-content {
-            grid-template-columns: 1fr;
-            gap: 32px;
-            display: flex;
-            flex-direction: column;
-          }
-
-          .digi-form-left {
-            order: 2;
-            text-align: center;
-          }
-
-          .digi-form-right {
-            order: 1;
-            width: 100%;
-          }
-
-          .digi-form-row {
-            grid-template-columns: 1fr;
-          }
-
-          .digi-contact-detail-item {
-            justify-content: center;
-          }
-        }
-
-        /* ===== Responsive — Mobile ===== */
-        @media (max-width: 480px) {
-          .digi-preview-wrapper {
-            padding: 8px;
-          }
-
-          .digi-card-container {
-            border-radius: var(--radius-md);
-          }
-
-          .digi-profile-section {
-            padding: 24px 18px;
-          }
-
-          .digi-profile-image {
-            width: 160px;
-          }
-
-          .digi-name {
-            font-size: 1.35rem;
-          }
-
-          .digi-works-section {
-            padding: 32px 18px;
-          }
-
-          .digi-works-grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
-          }
-
-          .digi-form-section {
-            padding: 32px 18px;
-          }
-
-          .digi-toggle-bg {
-            width: 60px;
-            height: 30px;
-          }
-
-          .digi-sun { width: 13px; height: 13px; top: 8px; left: 8px; }
-          .digi-moon { width: 13px; height: 13px; top: 8px; right: 8px; }
-          .digi-toggle-circle { width: 24px; height: 24px; top: 3px; right: 3px; }
-          .digi-theme-switch:checked + .digi-toggle-label .digi-toggle-circle { right: 33px; }
-        }
-      `}</style>
-
-      <div className="frontend-dark digi-preview-wrapper">
-      {/* This page is a sample of the profile a customer gets, populated with
-          placeholder people, stock photography and Tapvyo's own contact
-          details. Saying so up front is honest and stops the stock imagery
-          reading as real portfolio work. */}
-      <div className="digi-demo-banner" role="note">
-        <span>
-          <strong>Demo profile.</strong> An example of the free website included
-          with every Tapvyo card. Content and images are placeholders.
-        </span>
-        <a href="/create-card">Create yours</a>
-      </div>
-      <canvas id="particle-canvas" aria-hidden="true"></canvas>
-
-      <div className="digi-card-container">
-        {/* Navigation */}
-        <nav className="digi-navbar">
-          <a href="/" className="digi-logo" aria-label={`${BRAND.name} home`}>
-            <img src={BRAND.logo} alt={BRAND.name} className="digi-nav-logo-img" />
-          </a>
-          <div className="digi-nav-right">
-            <div className="digi-theme-toggle">
-              <input type="checkbox" id="theme-switch" className="digi-theme-switch" />
-              <label htmlFor="theme-switch" className="digi-toggle-label">
-                <div className="digi-toggle-bg">
-                  <div className="digi-sun"></div>
-                  <div className="digi-moon"></div>
-                  <div className="digi-stars">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                  <div className="digi-mountains">
-                    <div className="digi-mountain digi-mountain-1"></div>
-                    <div className="digi-mountain digi-mountain-2"></div>
-                    <div className="digi-mountain digi-mountain-3"></div>
-                  </div>
-                  <div className="digi-toggle-circle"></div>
-                </div>
-              </label>
-            </div>
-          </div>
-        </nav>
-
-        {/* Main Content */}
-        <main className="digi-main-content">
-          {/* Profile Section */}
-          <section className="digi-profile-section" id="about">
-            <div className="digi-profile-image">
-              <img
-                src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=400&h=400&fit=crop"
-                alt="Tapvyo"
-              width={400}
-              height={400}
-              decoding="async"
-              />
-            </div>
-            <div className="digi-profile-info">
-              <h1 className="digi-name">Tapvyo Admin</h1>
-              <p className="digi-company">Tapvyo — NFC Digital Solutions</p>
-
-              <div className="digi-about-section">
-                <h2 className="digi-about-title">About Us</h2>
-                <p className="digi-about-text">
-                  Tapvyo is a modern digital solutions company specializing in NFC-powered smart business cards
-                  and digital profiles. We help businesses and professionals share their identity with a single
-                  tap — no apps needed. From premium NFC cards to custom digital portfolios, we craft seamless
-                  experiences that make networking effortless and memorable.
-                </p>
-              </div>
-
-              <div className="digi-social-icons">
-                <a
-                  href={whatsappLink()}
-                  className="digi-social-icon"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="WhatsApp"
-                >
-                  <i className="fa-brands fa-whatsapp"></i>
-                </a>
-                <a
-                  href="https://www.instagram.com/tapvyo"
-                  className="digi-social-icon"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Instagram"
-                >
-                  <i className="fa-brands fa-instagram"></i>
-                </a>
-                <a
-                  href="https://www.facebook.com/tapvyo"
-                  className="digi-social-icon"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  title="Facebook"
-                >
-                  <i className="fa-brands fa-facebook-f"></i>
-                </a>
-                <a href="https://www.linkedin.com/company/tapvyo" className="digi-social-icon" target="_blank" rel="noopener noreferrer" title="LinkedIn">
-                  <i className="fa-brands fa-linkedin-in"></i>
-                </a>
-                <a href="https://tapvyo.com" className="digi-social-icon" target="_blank" rel="noopener noreferrer" title="Website">
-                  <i className="fa-solid fa-globe"></i>
-                </a>
-              </div>
-            </div>
-          </section>
-
-          {/* Our Works Section */}
-          <section className="digi-works-section" id="works">
-            <div className="digi-works-header">
-              <span className="digi-section-badge">Portfolio</span>
-              <h2 className="digi-works-title">Our Works</h2>
-              <p className="digi-works-subtitle">A glimpse of our NFC cards and digital solutions</p>
-            </div>
-            <div className="digi-works-grid">
-              <div className="digi-work-item">
-                <img
-                  src="https://images.unsplash.com/photo-1611532736597-de2d4265fba3?w=400&h=300&fit=crop"
-                  alt="NFC Business Card"
-                width={400}
-                height={300}
-                loading="lazy"
-                decoding="async"
-                />
-                <div className="digi-work-overlay">
-                  <h3>Premium NFC Card</h3>
-                  <p>Matte Black Edition</p>
-                </div>
-              </div>
-              <div className="digi-work-item">
-                <img
-                  src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=300&fit=crop"
-                  alt="Digital Dashboard"
-                width={400}
-                height={300}
-                loading="lazy"
-                decoding="async"
-                />
-                <div className="digi-work-overlay">
-                  <h3>Analytics Dashboard</h3>
-                  <p>Real-time Insights</p>
-                </div>
-              </div>
-              <div className="digi-work-item">
-                <img
-                  src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=400&h=300&fit=crop"
-                  alt="Digital Profile"
-                width={400}
-                height={300}
-                loading="lazy"
-                decoding="async"
-                />
-                <div className="digi-work-overlay">
-                  <h3>Digital Profile</h3>
-                  <p>Custom Website</p>
-                </div>
-              </div>
-              <div className="digi-work-item">
-                <img
-                  src="https://images.unsplash.com/photo-1553877522-43269d4ea984?w=400&h=300&fit=crop"
-                  alt="Corporate Solution"
-                width={400}
-                height={300}
-                loading="lazy"
-                decoding="async"
-                />
-                <div className="digi-work-overlay">
-                  <h3>Corporate Solution</h3>
-                  <p>Enterprise NFC</p>
-                </div>
-              </div>
-              <div className="digi-work-item">
-                <img
-                  src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?w=400&h=300&fit=crop"
-                  alt="Networking Event"
-                width={400}
-                height={300}
-                loading="lazy"
-                decoding="async"
-                />
-                <div className="digi-work-overlay">
-                  <h3>Event Networking</h3>
-                  <p>Conference Cards</p>
-                </div>
-              </div>
-              <div className="digi-work-item">
-                <img
-                  src="https://images.unsplash.com/photo-1559136555-9303baea8ebd?w=400&h=300&fit=crop"
-                  alt="Brand Identity"
-                width={400}
-                height={300}
-                loading="lazy"
-                decoding="async"
-                />
-                <div className="digi-work-overlay">
-                  <h3>Brand Identity</h3>
-                  <p>Custom Designs</p>
-                </div>
-              </div>
-            </div>
-          </section>
-
-          {/* Contact Form Section */}
-          <section className="digi-form-section" id="contact">
-            <div className="digi-form-header">
-              <span className="digi-section-badge">Contact</span>
-              <h2 className="digi-form-main-title">Get in Touch with Tapvyo</h2>
-              <p className="digi-form-subtitle">
-                Ready to upgrade your networking? Reach out to us and we&apos;ll help you create your perfect
-                NFC digital business card.
+    <div className="min-h-screen bg-[#070A09]">
+      {/* DEMO FRAME — says what the page is before the stock photography can
+          imply otherwise, and gives the one route out of the demo. */}
+      <div className="tv-demobar">
+        <div className="site-container">
+          <div className="tv-demobar-bar">
+            {/* At 320px the logo, the notice and the CTA cannot all fit on one
+                line, and the notice is the part that has to survive: it is the
+                only thing telling the visitor this is not a real profile. */}
+            <div className="flex items-center gap-3 sm:gap-5 min-w-0">
+              <span className="hidden sm:block">
+                <BrandLogo size="small" variant="light" />
+              </span>
+              <span className="tv-tag tv-tag-brass shrink-0">Demo</span>
+              <p className="tv-small hidden md:block truncate">
+                An example profile. Content and images are placeholders.
               </p>
             </div>
 
-            <div className="digi-form-content">
-              <div className="digi-form-left">
-                <h3 className="digi-talk-title">Let&apos;s build something great</h3>
-                <p className="digi-talk-text">
-                  Have questions about NFC cards or digital profiles? Drop us a message and our team will get back to you.
+            <a href="/create-card" className="tv-btn tv-btn-primary shrink-0">
+              Create yours
+              <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <main>
+        {/* IDENTITY — the portrait and the name are the page. Everything the
+            old hero fought over (badge, toggle, confetti) is gone. */}
+        <section className="tv-hero pt-28 pb-16 md:pt-36 md:pb-24" id="about">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="lg:col-span-5"
+              >
+                <div className="tv-portrait max-w-[22rem] lg:max-w-none">
+                  <img
+                    src="https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=800&h=1000&fit=crop"
+                    alt="Tapvyo brand portrait"
+                    width={800}
+                    height={1000}
+                    decoding="async"
+                  />
+                </div>
+                <p className="tv-mono mt-4">Tiruchirappalli · Tamil Nadu · India</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.12 }}
+                className="lg:col-span-7"
+              >
+                <p className="tv-eyebrow mb-6">Digital profile</p>
+                <h1 className="tv-display mb-4">Tapvyo Admin</h1>
+                <p className="tv-lead mb-8 tv-measure-lead">
+                  Tapvyo — NFC Digital Solutions
                 </p>
 
-                <div className="digi-contact-details">
-                  <div className="digi-contact-detail-item">
-                    <div className="digi-detail-icon phone">
-                      <i className="fa-solid fa-phone"></i>
-                    </div>
-                    <div className="digi-phone-numbers">
-                      <a href={`tel:${PHONE_E164}`} className="digi-contact-link">
-                        {PHONE_DISPLAY}
+                <ul className="tv-tag-row mb-9">
+                  <li>NFC Smart Cards</li>
+                  <li>Digital Profiles</li>
+                  <li>Custom Portfolios</li>
+                </ul>
+
+                <div className="flex flex-col sm:flex-row gap-3 mb-9">
+                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block">
+                    Get in touch
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </a>
+                  <a
+                    href={whatsappLink()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  >
+                    Chat on WhatsApp
+                  </a>
+                </div>
+
+                <ul className="flex flex-wrap gap-3">
+                  {CHANNELS.map(({ name, href, icon: Icon }) => (
+                    <li key={name}>
+                      <a
+                        href={href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="tv-iconlink tv-focus"
+                        aria-label={`${name} (opens in a new tab)`}
+                      >
+                        <Icon className="w-[18px] h-[18px]" strokeWidth={1.7} aria-hidden="true" />
                       </a>
+                    </li>
+                  ))}
+                </ul>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* ABOUT — one column of copy against a sticky heading, the same
+            editorial pairing /how-to-use and /services use. */}
+        <section className="tv-surface-graphite tv-section-tight">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              <motion.div {...fadeInUp} className="lg:col-span-4">
+                <div className="lg:sticky lg:top-28">
+                  <p className="tv-eyebrow mb-6">About</p>
+                  <h2 className="tv-h2">One tap, one identity.</h2>
+                </div>
+              </motion.div>
+
+              <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-8"
+              >
+                <p className="tv-lead tv-measure-body mb-6">
+                  Tapvyo is a modern digital solutions company specialising in NFC-powered
+                  smart business cards and digital profiles.
+                </p>
+                <p className="tv-body tv-measure-body">
+                  We help businesses and professionals share their identity with a single
+                  tap — no apps needed. From premium NFC cards to custom digital
+                  portfolios, we craft seamless experiences that make networking
+                  effortless and memorable.
+                </p>
+
+                <hr className="tv-rule my-9" />
+
+                <div className="tv-spec">
+                  <p className="tv-spec-row">Programmed NFC chip — works on any modern phone</p>
+                  <p className="tv-spec-row">Profile you can edit long after the card is printed</p>
+                  <p className="tv-spec-row">Shareable link and QR code for anyone without NFC</p>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* WORK — a gallery on the dark ground. The gradient overlays that sat
+            on top of every photograph are replaced by a caption on a hairline,
+            so the image is the image and the label is legible. */}
+        <section className="tv-surface-ink tv-section" id="works">
+          <div className="site-container">
+            <motion.div {...fadeInUp} className="max-w-2xl mb-12 md:mb-16">
+              <p className="tv-eyebrow mb-6">Portfolio</p>
+              <h2 className="tv-h2 mb-4">Selected work.</h2>
+              <p className="tv-lead tv-measure-body">
+                A glimpse of our NFC cards and digital solutions.
+              </p>
+            </motion.div>
+
+            <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+              {WORKS.map((work, index) => (
+                <motion.li
+                  key={work.title}
+                  initial={{ opacity: 0, y: 24 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: '-60px' }}
+                  transition={{ duration: 0.55, delay: (index % 3) * 0.08 }}
+                >
+                  <figure className="tv-figure">
+                    <div className="tv-figure-media">
+                      <img
+                        src={work.src}
+                        alt={work.alt}
+                        width={800}
+                        height={600}
+                        loading="lazy"
+                        decoding="async"
+                      />
                     </div>
-                  </div>
-                  <div className="digi-contact-detail-item">
-                    <div className="digi-detail-icon email">
-                      <i className="fa-solid fa-envelope"></i>
-                    </div>
-                    <a href={`mailto:${SUPPORT_EMAIL}`} className="digi-contact-link">
-                      {SUPPORT_EMAIL}
-                    </a>
-                  </div>
-                  <div className="digi-contact-detail-item">
-                    <div className="digi-detail-icon location">
-                      <i className="fa-solid fa-location-dot"></i>
-                    </div>
-                    <a
-                      href={`https://maps.google.com/?q=${encodeURIComponent(ADDRESS.full)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="digi-contact-link"
+                    <figcaption className="tv-figure-cap">
+                      <div>
+                        <h3 className="tv-h4">{work.title}</h3>
+                        <p className="tv-small mt-1">{work.detail}</p>
+                      </div>
+                      <span className="tv-mono shrink-0" aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                    </figcaption>
+                  </figure>
+                </motion.li>
+              ))}
+            </ul>
+          </div>
+        </section>
+
+        {/* CONTACT — on bone, matching /contact-us: the enquiry form is the one
+            place on the site that reads as printed paper. The map keeps its
+            natural colours here instead of glaring out of a dark section. */}
+        <section className="tv-surface-bone tv-section" id="contact">
+          <div className="site-container">
+            <motion.div {...fadeInUp} className="max-w-2xl mb-12 md:mb-16">
+              <p className="tv-eyebrow mb-6">Contact</p>
+              <h2 className="tv-h2 mb-4">Let&apos;s build something great.</h2>
+              <p className="tv-lead tv-measure-body">
+                Questions about NFC cards or digital profiles? Send a message and our
+                team will get back to you.
+              </p>
+            </motion.div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
+              {/* Details + map */}
+              <motion.div {...fadeInUp} className="lg:col-span-5">
+                <ul className="mb-10">
+                  {CONTACT_ROWS.map(({ icon: Icon, label, value, href, external }) => (
+                    <li
+                      key={label}
+                      className="flex items-start gap-4 py-4 border-b border-black/10"
                     >
-                      {ADDRESS.city}, {ADDRESS.state},
-                      <br />
-                      {ADDRESS.country}
-                    </a>
-                  </div>
+                      <span
+                        className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#6E5518]/10"
+                        aria-hidden="true"
+                      >
+                        <Icon className="h-4 w-4 text-[#6E5518]" strokeWidth={1.8} />
+                      </span>
+                      <span className="min-w-0">
+                        <span className="tv-mono block mb-1">{label}</span>
+                        <a
+                          href={href}
+                          className="tv-btn-tertiary !min-h-0 break-words"
+                          {...(external
+                            ? { target: '_blank', rel: 'noopener noreferrer' }
+                            : {})}
+                        >
+                          {value}
+                        </a>
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="tv-embed">
+                  <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125323.41844138754!2d78.61970684999999!3d10.804972749999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3baaf50ff2aab12f%3A0xb20657c7e2b3eab9!2sTiruchirappalli%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1710744000000!5m2!1sen!2sin"
+                    height={300}
+                    allowFullScreen
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    title="Map showing our location in Tiruchirappalli, Tamil Nadu"
+                  />
+                </div>
+              </motion.div>
+
+              {/* Form. Placeholder-only labels are gone: every field now has a
+                  real <label> above it, as on /contact-us. */}
+              <motion.div
+                {...fadeInUp}
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="lg:col-span-7"
+              >
+                <div className="tv-panel tv-panel-pad">
+                  <form onSubmit={handleContactSubmit}>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
+                      <div className="tv-field">
+                        <label htmlFor="pw-fullname" className="tv-label">
+                          Your name<span className="tv-label-req">*</span>
+                        </label>
+                        <input
+                          id="pw-fullname"
+                          type="text"
+                          name="fullname"
+                          placeholder="Priya Raman"
+                          autoComplete="name"
+                          required
+                          className="tv-input"
+                        />
+                      </div>
+
+                      <div className="tv-field">
+                        <label htmlFor="pw-phone" className="tv-label">
+                          Phone<span className="tv-label-req">*</span>
+                        </label>
+                        <input
+                          id="pw-phone"
+                          type="tel"
+                          name="phone"
+                          placeholder="9876543210"
+                          inputMode="tel"
+                          autoComplete="tel"
+                          maxLength={10}
+                          required
+                          className="tv-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-5">
+                      <div className="tv-field">
+                        <label htmlFor="pw-email" className="tv-label">
+                          Email<span className="tv-label-req">*</span>
+                        </label>
+                        <input
+                          id="pw-email"
+                          type="email"
+                          name="email"
+                          placeholder="your@email.com"
+                          inputMode="email"
+                          autoComplete="email"
+                          required
+                          className="tv-input"
+                        />
+                      </div>
+
+                      <div className="tv-field">
+                        <label htmlFor="pw-subject" className="tv-label">
+                          Subject
+                        </label>
+                        <input
+                          id="pw-subject"
+                          type="text"
+                          name="subject"
+                          placeholder="NFC card enquiry"
+                          className="tv-input"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="tv-field">
+                      <label htmlFor="pw-message" className="tv-label">
+                        Message<span className="tv-label-req">*</span>
+                      </label>
+                      <textarea
+                        id="pw-message"
+                        name="message"
+                        placeholder="Tell us what you need…"
+                        rows={5}
+                        required
+                        className="tv-textarea"
+                      />
+                    </div>
+
+                    <div className="mt-7">
+                      <button
+                        type="submit"
+                        disabled={isSubmitting}
+                        className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block disabled:opacity-50 disabled:cursor-not-allowed"
+                      >
+                        {isSubmitting ? 'Sending…' : 'Send message'}
+                        {!isSubmitting && (
+                          <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                        )}
+                      </button>
+
+                      {/* Outcome is both visible and announced. */}
+                      <div aria-live="polite">
+                        {submitState.status === 'success' ? (
+                          <p className="tv-form-success mt-4">
+                            Thanks — your message has been sent. We will reply shortly.
+                          </p>
+                        ) : null}
+                        {submitState.status === 'error' ? (
+                          <p className="tv-form-error mt-4" role="alert">
+                            {submitState.message}
+                          </p>
+                        ) : null}
+                      </div>
+                    </div>
+                  </form>
+                </div>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
+        {/* CLOSE — the demo's own sign-off. It is the customer's footer in the
+            real thing, so it stays small and carries the one CTA. */}
+        <section className="tv-surface-graphite tv-section-tight">
+          <div className="site-container">
+            <motion.div
+              {...fadeInUp}
+              className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-end border-t border-[#C9A961]/25 pt-12"
+            >
+              <div className="lg:col-span-7">
+                <h2 className="tv-h2 mb-4">This profile comes free with your card.</h2>
+                <p className="tv-body tv-measure-body">
+                  Every Tapvyo NFC card includes a profile like this one — yours to edit
+                  whenever your details change.
+                </p>
+              </div>
+
+              <div className="lg:col-span-5 lg:justify-self-end">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  <a
+                    href="/create-card"
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  >
+                    Create yours
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                  </a>
+                  <a href="/cards" className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block">
+                    View card designs
+                  </a>
                 </div>
               </div>
+            </motion.div>
+          </div>
+        </section>
+      </main>
 
-              <div className="digi-form-right">
-                <form className="digi-contact-form" onSubmit={handleContactSubmit}>
-                  <div className="digi-form-row">
-                    <div className="digi-form-group">
-                      <label htmlFor="pw-fullname" className="digi-sr-only">Your name</label>
-                      <input
-                        id="pw-fullname"
-                        type="text"
-                        name="fullname"
-                        placeholder="Your Name"
-                        autoComplete="name"
-                        required
-                      />
-                    </div>
-                    <div className="digi-form-group">
-                      <label htmlFor="pw-phone" className="digi-sr-only">Phone number</label>
-                      <input
-                        id="pw-phone"
-                        type="tel"
-                        name="phone"
-                        placeholder="Phone Number"
-                        inputMode="tel"
-                        autoComplete="tel"
-                        maxLength={10}
-                        required
-                      />
-                    </div>
-                  </div>
-                  <div className="digi-form-row">
-                    <div className="digi-form-group">
-                      <label htmlFor="pw-email" className="digi-sr-only">Your email</label>
-                      <input
-                        id="pw-email"
-                        type="email"
-                        name="email"
-                        placeholder="Your Email"
-                        inputMode="email"
-                        autoComplete="email"
-                        required
-                      />
-                    </div>
-                    <div className="digi-form-group">
-                      <label htmlFor="pw-subject" className="digi-sr-only">Subject</label>
-                      <input
-                        id="pw-subject"
-                        type="text"
-                        name="subject"
-                        placeholder="Subject"
-                      />
-                    </div>
-                  </div>
-                  <div className="digi-form-group">
-                    <label htmlFor="pw-message" className="digi-sr-only">Your message</label>
-                    <textarea
-                      id="pw-message"
-                      name="message"
-                      placeholder="Your Message"
-                      rows={5}
-                      required
-                    ></textarea>
-                  </div>
-
-                  {/* Submission outcome is always visible and announced. */}
-                  <p aria-live="polite" className="digi-form-status">
-                    {submitState.status === 'success' &&
-                      'Thanks - your message has been sent. We will reply shortly.'}
-                    {submitState.status === 'error' && submitState.message}
-                  </p>
-
-                  <button
-                    type="submit"
-                    className="digi-submit-btn"
-                    disabled={submitState.status === 'submitting'}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="20" height="20">
-                      <path fill="none" d="M0 0h24v24H0z"></path>
-                      <path
-                        fill="currentColor"
-                        d="M1.946 9.315c-.522-.174-.527-.455.01-.634l19.087-6.362c.529-.176.832.12.684.638l-5.454 19.086c-.15.529-.455.547-.679.045L12 14l6-8-8 6-8.054-2.685z"
-                      ></path>
-                    </svg>
-                    <span>
-                      {submitState.status === 'submitting' ? 'Sending...' : 'Send Message'}
-                    </span>
-                  </button>
-                </form>
-              </div>
-            </div>
-          </section>
-
-          {/* Map Section */}
-          <section className="digi-map-section">
-            <iframe
-              src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125323.41844138754!2d78.61970684999999!3d10.804972749999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3baaf50ff2aab12f%3A0xb20657c7e2b3eab9!2sTiruchirappalli%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1710744000000!5m2!1sen!2sin"
-              width="100%"
-              height="320"
-              style={{ border: 0 }}
-              allowFullScreen
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              title="Map showing our location in Tiruchirappalli, Tamil Nadu"
-            ></iframe>
-          </section>
-        </main>
-
-        {/* Footer */}
-        <footer className="digi-footer">
-          <p className="digi-footer-copyright">
-            &copy; 2026 All Rights Reserved. Designed &amp; Developed by{' '}
-            <a href="https://tapvyo.com" target="_blank" rel="noopener noreferrer" className="digi-brand-name">
-              Tapvyo.
+      <footer className="tv-surface-graphite border-t border-[#F1F3F1]/10">
+        <div className="site-container py-8">
+          <p className="tv-small">
+            © {new Date().getFullYear()} All rights reserved. Designed &amp; developed by{' '}
+            <a
+              href={SITE_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="tv-btn-tertiary !min-h-0"
+            >
+              Tapvyo
             </a>
+            .
           </p>
-        </footer>
-      </div>
-      </div>
-    </>
+        </div>
+      </footer>
+    </div>
   );
 }
