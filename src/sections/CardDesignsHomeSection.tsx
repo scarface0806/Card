@@ -194,7 +194,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       <button
                         onClick={() => handleBuyNow(card)}
                         className={`tv-btn w-full ${
-                          card.type === 'custom' ? 'tv-btn-secondary' : 'tv-btn-primary'
+                          card.type === 'custom' ? 'tv-btn-secondary' : 'tv-btn-gilded'
                         }`}
                       >
                         {card.type === 'custom' ? (
@@ -241,7 +241,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
               </div>
 
               <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end items-start sm:items-center gap-x-6 gap-y-4">
-                <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block">
+                <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block">
                   <span>Get your card</span>
                   <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                 </Link>

@@ -227,7 +227,7 @@ export default function AboutUsPage() {
                 <MotionLink href={ROUTES.ORDER}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
-                    className="tv-btn tv-btn-lg tv-btn-primary"
+                    className="tv-btn tv-btn-lg tv-btn-gilded"
                   >
                     Create Your Card
                     <ArrowUpRight className="w-5 h-5" />

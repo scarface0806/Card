@@ -73,7 +73,7 @@ export default function HowItWorksSection() {
                   href={ROUTES.CREATE_CARD}
                   whileHover={{ y: -2 }}
                   whileTap={{ y: 0 }}
-                  className="tv-btn tv-btn-primary"
+                  className="tv-btn tv-btn-gilded"
                 >
                   Get your card
                   <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
@@ -107,7 +107,7 @@ export default function HowItWorksSection() {
               href={ROUTES.CREATE_CARD}
               whileHover={{ y: -2 }}
               whileTap={{ y: 0 }}
-              className="tv-btn tv-btn-primary tv-btn-block"
+              className="tv-btn tv-btn-gilded tv-btn-block"
             >
               Get your card
               <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />

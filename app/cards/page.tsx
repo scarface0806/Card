@@ -266,7 +266,7 @@ export default function CardsPage() {
                         <button
                           onClick={() => handleBuyNow(card)}
                           className={`tv-btn w-full ${
-                            card.type === 'custom' ? 'tv-btn-secondary' : 'tv-btn-primary'
+                            card.type === 'custom' ? 'tv-btn-secondary' : 'tv-btn-gilded'
                           }`}
                         >
                           {card.type === 'custom' ? (

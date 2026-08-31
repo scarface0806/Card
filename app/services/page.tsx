@@ -216,7 +216,7 @@ export default function ServicesPage() {
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
                 transition={{ duration: 0.22, ease: [0.25, 0.1, 0.25, 1] }}
-                className="tv-btn tv-btn-lg tv-btn-primary"
+                className="tv-btn tv-btn-lg tv-btn-gilded"
               >
                 Get started
                 <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />

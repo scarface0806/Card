@@ -1756,8 +1756,11 @@ body {
 
 /* ----------------------------------------------------------------------------
    BUTTON TIERS - exactly three.
-   The arrow glyph is reserved for .tv-btn-primary and must not appear on the
-   other two tiers; that is what gives it meaning again.
+   Tier 1 ships in two finishes: .tv-btn-primary (solid patina, used for form
+   submits, auth and checkout) and .tv-btn-gilded (animated ring, used for the
+   marketing "Get your card" CTA). They are the same tier, not a fourth one.
+   The arrow glyph is reserved for tier 1 and must not appear on the other two;
+   that is what gives it meaning again.
    ---------------------------------------------------------------------------- */
 .tv-btn {
   display: inline-flex;
@@ -1797,6 +1800,60 @@ body {
   box-shadow: 0 10px 26px rgba(76, 174, 137, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.18);
 }
 .tv-btn-primary:active { transform: translateY(0); background: #429A78; }
+
+/* Tier 1, gilded - the marketing CTA ("Get your card") and the card-grid buy
+   buttons. Same tier and same weight as .tv-btn-primary, so the arrow glyph
+   still belongs here; it swaps the solid patina fill for an animated patina
+   ring around an ink core, with a brass label.
+
+   The ring is two background layers clipped to different boxes rather than a
+   ::before overlay. That keeps the label real text in the markup - readable by
+   screen readers and crawlers, still correct with CSS disabled - and leaves the
+   inline arrow glyph sitting naturally beside it with no z-index stack to
+   manage. Sweeping background-position on hover gives the same travel as a
+   moving gradient without animating an expensive property.
+
+   Brass on ink is 8.83:1. */
+.tv-btn-gilded {
+  border: 2px solid transparent;
+  color: var(--tv-brass);
+  background:
+    linear-gradient(var(--tv-ink), var(--tv-ink)) padding-box,
+    linear-gradient(
+      to right,
+      var(--tv-patina-deep),
+      var(--tv-patina),
+      var(--tv-patina-deep),
+      var(--tv-patina-deep),
+      var(--tv-patina),
+      var(--tv-patina-deep)
+    ) border-box;
+  background-size: auto, 250% 100%;
+  background-position: center, left center;
+  box-shadow: none;
+  transition:
+    background-position 900ms var(--tv-ease),
+    transform var(--duration-fast) var(--tv-ease),
+    color var(--duration-standard) var(--tv-ease),
+    box-shadow var(--duration-standard) var(--tv-ease);
+}
+
+.tv-btn-gilded:hover {
+  background-position: center, right center;
+  color: #E0C179;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px rgba(76, 174, 137, 0.22);
+}
+
+.tv-btn-gilded:active {
+  transform: translateY(0) scale(0.97);
+}
+
+/* On bone the ink core still reads as the darkest thing on the surface, so the
+   button keeps its contrast; only the ambient shadow needs toning down. */
+.tv-surface-bone .tv-btn-gilded:hover {
+  box-shadow: 0 10px 26px rgba(20, 98, 74, 0.18);
+}
 
 /* Tier 2 - outline. */
 .tv-btn-secondary {
@@ -1856,6 +1913,10 @@ body {
 
 @media (prefers-reduced-motion: reduce) {
   .tv-btn:hover { transform: none; }
+
+  .tv-btn-gilded { transition: color var(--duration-standard) var(--tv-ease); }
+  .tv-btn-gilded:hover { background-position: center, left center; transform: none; }
+  .tv-btn-gilded:active { transform: none; }
 }
 
 /* Focus. Visible on ink, graphite, slate and bone. */

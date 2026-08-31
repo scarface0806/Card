@@ -49,8 +49,8 @@ export default function StickyMobileCTA() {
                 <p className="tv-small truncate">No renewal fees</p>
               </div>
 
-              {/* Primary tier, same label as every other primary action. */}
-              <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-primary shrink-0">
+              {/* Tier 1 gilded, same label as every other primary action. */}
+              <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-gilded shrink-0">
                 Get your card
                 <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
               </Link>

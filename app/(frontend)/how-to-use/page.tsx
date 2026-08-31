@@ -194,7 +194,7 @@ export default function HowToUsePage() {
                 <div className="flex flex-col sm:flex-row lg:justify-end gap-3">
                   <Link
                     href={ROUTES.CREATE_CARD}
-                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                    className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
                   >
                     Get your card
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />

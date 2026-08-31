@@ -73,7 +73,7 @@ export default function HeroSection() {
                 href={ROUTES.CREATE_CARD}
                 whileHover={{ y: -2 }}
                 whileTap={{ y: 0 }}
-                className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
               >
                 Get your card
                 <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />

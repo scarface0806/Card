@@ -112,7 +112,7 @@ export default function Navbar() {
               Talk to our team
               <span className="sr-only"> (opens WhatsApp in a new tab)</span>
             </a>
-            <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-primary">
+            <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-gilded">
               Get your card
               <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
             </Link>
@@ -183,7 +183,7 @@ export default function Navbar() {
                   <Link
                     href={ROUTES.CREATE_CARD}
                     onClick={() => setIsOpen(false)}
-                    className="tv-btn tv-btn-primary w-full"
+                    className="tv-btn tv-btn-gilded w-full"
                   >
                     Get your card
                     <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
