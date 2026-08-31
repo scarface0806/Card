@@ -2,7 +2,51 @@
 
 import React, { useState } from 'react';
 import StatusBadge from './StatusBadge';
-import { ChevronLeft, ChevronRight, Database } from 'lucide-react';
+import {
+  ArrowRight,
+  Ban,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  CircleCheck,
+  CircleX,
+  Database,
+  Eye,
+  Loader2,
+  Power,
+  RefreshCw,
+  SquarePen,
+  Trash2,
+} from 'lucide-react';
+
+/**
+ * Icon for a row action, chosen by its label.
+ *
+ * The action API is label-driven and some labels are computed per row
+ * ("Disable"/"Enable"), so the icon is looked up from the label rather than
+ * added as a new prop - every existing caller keeps working untouched. A label
+ * with no entry here falls back to rendering its text, so an action added
+ * later can never come out as a blank square.
+ */
+const ACTION_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  view: Eye,
+  edit: SquarePen,
+  delete: Trash2,
+  disable: Ban,
+  deactivate: Ban,
+  enable: Power,
+  activate: Power,
+  cancel: CircleX,
+  accept: Check,
+  processing: RefreshCw,
+  complete: CircleCheck,
+  advance: ArrowRight,
+  loading: Loader2,
+};
+
+function actionIcon(label: string) {
+  return ACTION_ICONS[label.trim().toLowerCase().replace(/[.…]+$/, "")] ?? null;
+}
 
 // Generic data table row type - accept any object
 type TableRow = object;
@@ -76,6 +120,41 @@ export default function DataTable<T extends TableRow = TableRow>({
     if (tone === 'success') return 'tv-adm-action--patina' + filled;
     if (tone === 'info') return 'tv-adm-action--patina' + filled;
     return filled.trim();
+  };
+
+  /**
+   * Desktop rows render actions as icons only. Four uppercase text buttons
+   * made the Actions column wider than every data column combined and forced
+   * the whole table to scroll sideways to reach them. The label survives as
+   * both the tooltip and the accessible name, so nothing is lost to a screen
+   * reader or to a hover.
+   *
+   * Mobile keeps the text: a touch device has no hover, so an unlabelled icon
+   * there would be a guess, and those stacked cards have the width to spare.
+   */
+  const renderIconAction = (
+    key: string,
+    label: string,
+    tone: "neutral" | "info" | "success" | "warning" | "danger" | undefined,
+    onClick: () => void,
+    disabled = false
+  ) => {
+    const Icon = actionIcon(label);
+    const busy = label.trim().toLowerCase().startsWith("loading");
+
+    return (
+      <button
+        key={key}
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        title={label}
+        aria-label={label}
+        className={`tv-adm-action ${Icon ? "tv-adm-action--icon" : ""} ${resolveToneClass(tone, false)}`}
+      >
+        {Icon ? <Icon className={`h-4 w-4 ${busy ? "animate-spin" : ""}`} /> : label}
+      </button>
+    );
   };
 
   return (
@@ -212,46 +291,40 @@ export default function DataTable<T extends TableRow = TableRow>({
                     </td>
                   );})}
                   {actions && (
-                    <td >
-                      <div className="flex items-center gap-2">
-                        {onView && (
-                          <button
-                            onClick={() => onView(row)}
-                            className={`tv-adm-action ${resolveToneClass(actionTones?.view ?? 'info', false)}`}
-                          >
-                            {actionLabels?.view || 'View'}
-                          </button>
-                        )}
-                        {onEdit && (
-                          <button
-                            onClick={() => onEdit(row)}
-                            className={`tv-adm-action ${resolveToneClass(actionTones?.edit ?? 'warning', false)}`}
-                          >
-                            {actionLabels?.edit || 'Edit'}
-                          </button>
-                        )}
-                        {onDelete && (
-                          <button
-                            onClick={() => onDelete(row)}
-                            className={`tv-adm-action ${resolveToneClass(actionTones?.delete ?? 'danger', false)}`}
-                          >
-                            {actionLabels?.delete || 'Delete'}
-                          </button>
-                        )}
-                        {(extraActions || []).filter((action) => action.visible ? action.visible(row) : true).map((action) => {
-                          const toneClass = resolveToneClass(action.tone, false);
-
-                          return (
-                            <button
-                              key={action.key}
-                              onClick={() => action.onClick(row)}
-                              disabled={action.disabled ? action.disabled(row) : false}
-                              className={`tv-adm-action ${toneClass}`}
-                            >
-                              {typeof action.label === 'function' ? action.label(row) : action.label}
-                            </button>
-                          );
-                        })}
+                    <td>
+                      <div className="flex items-center gap-0.5">
+                        {onView &&
+                          renderIconAction(
+                            "view",
+                            actionLabels?.view || "View",
+                            actionTones?.view ?? "info",
+                            () => onView(row)
+                          )}
+                        {onEdit &&
+                          renderIconAction(
+                            "edit",
+                            actionLabels?.edit || "Edit",
+                            actionTones?.edit ?? "warning",
+                            () => onEdit(row)
+                          )}
+                        {onDelete &&
+                          renderIconAction(
+                            "delete",
+                            actionLabels?.delete || "Delete",
+                            actionTones?.delete ?? "danger",
+                            () => onDelete(row)
+                          )}
+                        {(extraActions || [])
+                          .filter((action) => (action.visible ? action.visible(row) : true))
+                          .map((action) =>
+                            renderIconAction(
+                              action.key,
+                              typeof action.label === "function" ? action.label(row) : action.label,
+                              action.tone,
+                              () => action.onClick(row),
+                              action.disabled ? action.disabled(row) : false
+                            )
+                          )}
                       </div>
                     </td>
                   )}

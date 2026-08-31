@@ -200,10 +200,9 @@ END:VCARD`;
               >
                 <BrandLogo size="small" variant="light" />
               </Link>
-              <span className="tv-mono truncate">{details.company || fullName}</span>
             </div>
 
-            <button onClick={generateVCard} className="tv-btn tv-btn-primary shrink-0">
+            <button onClick={generateVCard} className="tv-btn tv-btn-gilded shrink-0">
               <Download className="w-[18px] h-[18px]" aria-hidden="true" />
               Save contact
             </button>
@@ -265,7 +264,7 @@ END:VCARD`;
                 <div className="flex flex-col sm:flex-row gap-3 mb-6">
                   <button
                     onClick={generateVCard}
-                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                    className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
                   >
                     Save contact
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
@@ -508,7 +507,7 @@ END:VCARD`;
                     href={ROUTES.CREATE_CARD}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                    className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
                   >
                     Create your card
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />

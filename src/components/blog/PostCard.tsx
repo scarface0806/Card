@@ -16,19 +16,30 @@ interface PostCardProps {
  * link, so none of this ships to the browser as JavaScript.
  */
 export default function PostCard({ post, featured = false, priority = false }: PostCardProps) {
+  const cover = post.coverImage;
+
   return (
-    <article className={featured ? 'tv-panel overflow-hidden md:grid md:grid-cols-2' : 'tv-panel flex flex-col overflow-hidden'}>
-      <Link
-        href={`/blog/${post.slug}`}
-        className="tv-focus group block overflow-hidden"
-        tabIndex={-1}
-        aria-hidden="true"
-      >
-        <div className={`relative overflow-hidden bg-[var(--tv-graphite)] ${featured ? 'aspect-[16/10] h-full' : 'aspect-[16/9]'}`}>
-          {post.coverImage ? (
+    <article
+      className={
+        // A cover-less post drops the media column entirely rather than
+        // reserving an empty one — an unfilled 16:9 box reads as a broken
+        // image, not as a deliberate choice.
+        featured && cover
+          ? 'tv-panel overflow-hidden md:grid md:grid-cols-2'
+          : 'tv-panel flex flex-col overflow-hidden'
+      }
+    >
+      {cover && (
+        <Link
+          href={`/blog/${post.slug}`}
+          className="tv-focus group block overflow-hidden"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
+          <div className={`relative overflow-hidden bg-[var(--tv-graphite)] ${featured ? 'aspect-[16/10] h-full' : 'aspect-[16/9]'}`}>
             <Image
-              src={post.coverImage.url}
-              alt={post.coverImage.alt}
+              src={cover.url}
+              alt={cover.alt}
               fill
               // Featured spans half the container on desktop, cards a third.
               sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
@@ -36,9 +47,9 @@ export default function PostCard({ post, featured = false, priority = false }: P
               loading={priority ? undefined : 'lazy'}
               className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
             />
-          ) : null}
-        </div>
-      </Link>
+          </div>
+        </Link>
+      )}
 
       <div className={`flex flex-1 flex-col ${featured ? 'p-6 md:p-8' : 'p-5'}`}>
         {post.tags.length > 0 && (

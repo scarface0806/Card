@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { isValidSlug, MAX_SLUG_LENGTH } from "@/lib/blog/slug";
+import { isValidSlug, MAX_SLUG_LENGTH, slugify } from "@/lib/blog/slug";
 
 /** Cloudinary-backed image. Alt text is required, never optional. */
 export const postImageSchema = z.object({
@@ -19,10 +19,15 @@ const slugField = z
     message: "Slug may only contain lowercase letters, numbers and single hyphens",
   });
 
+/**
+ * Tags become URLs (/blog/tag/<tag>), so they are held to the same rule as a
+ * post slug: lowercase and hyphenated. Typing "Business Cards" stores
+ * "business-cards" rather than a tag whose URL is half percent-encoding.
+ */
 const tagsField = z
   .array(z.string().trim().min(1).max(40))
   .max(10, "A post can carry at most 10 tags")
-  .transform((tags) => Array.from(new Set(tags.map((tag) => tag.toLowerCase()))));
+  .transform((tags) => Array.from(new Set(tags.map(slugify).filter(Boolean))));
 
 /**
  * The write payload for a post. `readingTimeMinutes`, `views` and

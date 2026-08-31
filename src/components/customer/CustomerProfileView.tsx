@@ -330,12 +330,9 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
               >
                 <BrandLogo size="small" variant="light" />
               </a>
-              {shopName ? (
-                <span className="tv-mono truncate hidden sm:block">{shopName}</span>
-              ) : null}
             </div>
 
-            <a href={`tel:${customer.phone}`} className="tv-btn tv-btn-primary shrink-0">
+            <a href={`tel:${customer.phone}`} className="tv-btn tv-btn-gilded shrink-0">
               <Phone className="w-[18px] h-[18px]" aria-hidden="true" />
               Call
             </a>
@@ -388,7 +385,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 mb-9">
-                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block">
+                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block">
                     Get in touch
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                   </a>
@@ -728,7 +725,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                     href={ROUTES.CREATE_CARD}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                    className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
                   >
                     Create your card
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
