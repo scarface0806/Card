@@ -2,7 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useState } from 'react';
-import { useForm, FormProvider } from 'react-hook-form';
+import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
@@ -20,7 +20,11 @@ import { CardTemplate } from '@/utils/cardTemplates';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';
-import { createCardFormSchema, type CreateCardFormValues } from '@/lib/validations/createCardFormSchema';
+import {
+  createCardFormSchema,
+  getStepFieldNames,
+  type CreateCardFormValues,
+} from '@/lib/validations/createCardFormSchema';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   loading: () => (
@@ -36,6 +40,15 @@ const CARD_FACTS = [
 ];
 
 type FormData = CreateCardFormValues;
+
+/** Which step renders each schema section, in step order. */
+const SECTION_STEPS: ReadonlyArray<[keyof FormData, number]> = [
+  ['personalDetails', 1],
+  ['businessDetails', 2],
+  ['socialLinks', 3],
+  ['uploads', 4],
+  ['payment', 5],
+];
 
 export default function CreateCardClient({
   template,
@@ -105,12 +118,26 @@ export default function CreateCardClient({
   const designation = watch('personalDetails.designation') ?? '';
   const company = watch('personalDetails.company') ?? '';
 
-  const onSubmit = async (data: FormData) => {
-    if (currentStep < 5) {
-      setCurrentStep(currentStep + 1);
+  /**
+   * Advance one step, validating only the fields that step actually renders.
+   *
+   * Deliberately NOT routed through handleSubmit. handleSubmit runs the whole
+   * zod schema, so on step 1 it failed on step 2 and step 5 fields the customer
+   * had not been shown yet: onSubmit never fired, Continue did nothing at all,
+   * and the errors landed on inputs that were not on screen.
+   */
+  const goToNextStep = async () => {
+    const stepFields = getStepFieldNames(currentStep);
+    const isCurrentStepValid = stepFields.length === 0 || (await methods.trigger(stepFields));
+
+    if (!isCurrentStepValid) {
       return;
     }
 
+    setCurrentStep((step) => Math.min(step + 1, 5));
+  };
+
+  const placeOrder = async (data: FormData) => {
     setIsSubmitting(true);
     setPaymentError(null);
 
@@ -171,6 +198,36 @@ export default function CreateCardClient({
     }
   };
 
+  /**
+   * Pressing Enter inside a field submits the form too, so the same dispatch
+   * lives here rather than only on the button: steps 1-4 advance, step 5 pays.
+   */
+  const handleFormSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    if (currentStep < 5) {
+      void goToNextStep();
+      return;
+    }
+
+    void handleSubmit(placeOrder, onInvalid)();
+  };
+
+  /**
+   * Safety net for step 5. Every required field is gated on its own step, so
+   * this should not fire - but if the full schema ever rejects something from
+   * an earlier step, send the customer back to it instead of leaving the Pay
+   * button looking broken with the error on a screen they cannot see.
+   */
+  const onInvalid = (errors: FieldErrors<FormData>) => {
+    const firstBadStep = SECTION_STEPS.find(([section]) => section in errors)?.[1];
+
+    if (firstBadStep && firstBadStep !== currentStep) {
+      setCurrentStep(firstBadStep);
+      setPaymentError(null);
+    }
+  };
+
   return (
     <>
       <Navbar />
@@ -200,7 +257,7 @@ export default function CreateCardClient({
 
                 <hr className="tv-rule my-8" />
 
-                <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+                <form onSubmit={handleFormSubmit} className="space-y-8">
                   <FormProvider {...methods}>
                     {currentStep === 1 && <PersonalDetailsForm />}
                     {currentStep === 2 && <BusinessDetailsForm />}
@@ -248,7 +305,8 @@ export default function CreateCardClient({
                       </button>
                     )}
                     <button
-                      type="submit"
+                      type={currentStep === 5 ? 'submit' : 'button'}
+                      onClick={currentStep === 5 ? undefined : () => void goToNextStep()}
                       disabled={isBusy}
                       className="tv-btn tv-btn-primary tv-btn-block sm:flex-1 disabled:opacity-50 disabled:cursor-not-allowed"
                     >

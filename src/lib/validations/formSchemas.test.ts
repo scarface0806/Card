@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { contactFormSchema } from './contactFormSchema';
-import { createCardFormSchema } from './createCardFormSchema';
+import { createCardFormSchema, getStepFieldNames } from './createCardFormSchema';
 
 describe('contactFormSchema', () => {
   it('accepts valid Indian mobile and trimmed email', () => {
@@ -36,6 +36,25 @@ describe('contactFormSchema', () => {
 });
 
 describe('createCardFormSchema', () => {
+  it('validates only the current step fields for step progression', () => {
+    expect(getStepFieldNames(1)).toEqual([
+      'personalDetails.name',
+      'personalDetails.designation',
+      'personalDetails.mobile',
+      'personalDetails.email',
+    ]);
+
+    // Step 2 renders address, about and services, and the schema makes all
+    // three required - so all three have to be gated here, or the customer
+    // reaches step 5 with a form the full schema will reject.
+    expect(getStepFieldNames(2)).toEqual([
+      'businessDetails.address',
+      'businessDetails.about',
+      'businessDetails.services',
+    ]);
+    expect(getStepFieldNames(5)).toEqual(['payment.terms']);
+  });
+
   it('accepts valid card details', () => {
     const result = createCardFormSchema.safeParse({
       personalDetails: {

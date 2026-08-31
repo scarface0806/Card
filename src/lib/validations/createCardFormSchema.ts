@@ -1,3 +1,4 @@
+import type { Path } from 'react-hook-form';
 import { z } from 'zod';
 
 const emailRegex = /^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/;
@@ -48,5 +49,31 @@ export const createCardFormSchema = z.object({
     terms: z.boolean().refine((value) => value === true, { message: 'Please accept the terms to continue' }),
   }),
 });
+
+export const getStepFieldNames = (step: number): Path<CreateCardFormValues>[] => {
+  switch (step) {
+    case 1:
+      return [
+        'personalDetails.name',
+        'personalDetails.designation',
+        'personalDetails.mobile',
+        'personalDetails.email',
+      ];
+    case 2:
+      return [
+        'businessDetails.address',
+        'businessDetails.about',
+        'businessDetails.services',
+      ];
+    case 3:
+      return [];
+    case 4:
+      return [];
+    case 5:
+      return ['payment.terms'];
+    default:
+      return [];
+  }
+};
 
 export type CreateCardFormValues = z.infer<typeof createCardFormSchema>;
