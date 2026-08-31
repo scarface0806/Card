@@ -459,27 +459,27 @@ export default function OrdersPage() {
     <main className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Orders</h1>
-          <p className="text-gray-400 text-sm mt-1">Review incoming purchase orders and accept or reject them</p>
+          <h1 className="tv-adm-page-title">Orders</h1>
+          <p className="text-[var(--tv-text-muted)] text-sm mt-1">Review incoming purchase orders and accept or reject them</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             onClick={cycleFilter}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
           >
             <Filter className="w-4 h-4" />
             Filter: {statusFilter === 'all' ? 'All' : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
           </button>
           <button
             onClick={() => fetchOrders()}
-            className="btn btn-primary w-full sm:w-auto"
+            className="tv-btn tv-btn-gilded w-full sm:w-auto"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
           <button
             onClick={openCreateOrder}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
           >
             <ShoppingCart className="w-4 h-4" />
             New Order
@@ -548,10 +548,10 @@ export default function OrdersPage() {
       <RightDrawer open={!!selectedOrder} onClose={closeDrawer}>
         {selectedOrder && (
             <div className="p-4 sm:p-6 space-y-6">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+              <div className="flex items-center justify-between border-b border-[var(--tv-rule)] pb-4">
                 <div>
-                  <h2 className="text-lg font-semibold text-white">Order Details</h2>
-                  <p className="text-sm text-slate-400 mt-1">{selectedOrder.orderNumber}</p>
+                  <h2 className="tv-adm-panel-title">Order Details</h2>
+                  <p className="text-sm text-[var(--tv-text-muted)] mt-1">{selectedOrder.orderNumber}</p>
                 </div>
                 <div className="flex items-center gap-3">
                   {selectedPresentation && (
@@ -560,7 +560,7 @@ export default function OrdersPage() {
                   <button
                     type="button"
                     onClick={closeDrawer}
-                    className="text-slate-400 hover:text-white"
+                    className="text-[var(--tv-text-muted)] hover:text-[var(--tv-text)]"
                     aria-label="Close order details"
                   >
                     ✕
@@ -569,37 +569,37 @@ export default function OrdersPage() {
               </div>
 
               <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Customer Info</h3>
+                <h3 className="tv-adm-label">Customer Info</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="bg-slate-800 rounded-lg p-4">
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Customer Name</p>
-                    <p className="mt-1 text-white">{selectedOrder.guestName || selectedOrder.user?.name || '-'}</p>
+                  <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                    <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Customer Name</p>
+                    <p className="mt-1 text-[var(--tv-text)]">{selectedOrder.guestName || selectedOrder.user?.name || '-'}</p>
                   </div>
-                  <div className="bg-slate-800 rounded-lg p-4">
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Email</p>
-                    <p className="mt-1 text-white break-all">{selectedOrder.guestEmail || selectedOrder.user?.email || '-'}</p>
+                  <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                    <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Email</p>
+                    <p className="mt-1 text-[var(--tv-text)] break-all">{selectedOrder.guestEmail || selectedOrder.user?.email || '-'}</p>
                   </div>
-                  <div className="bg-slate-800 rounded-lg p-4">
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Phone</p>
-                    <p className="mt-1 text-white">{selectedOrder.guestPhone || selectedOrder.user?.phone || '-'}</p>
+                  <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                    <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Phone</p>
+                    <p className="mt-1 text-[var(--tv-text)]">{selectedOrder.guestPhone || selectedOrder.user?.phone || '-'}</p>
                   </div>
-                  <div className="bg-slate-800 rounded-lg p-4">
-                    <p className="text-xs uppercase tracking-wide text-gray-400">Order Date</p>
-                    <p className="mt-1 text-white">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
+                  <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                    <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Order Date</p>
+                    <p className="mt-1 text-[var(--tv-text)]">{new Date(selectedOrder.createdAt).toLocaleString()}</p>
                   </div>
                 </div>
               </section>
 
               <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Products</h3>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <div className="grid grid-cols-4 gap-4 border-b border-slate-700 pb-2 text-xs uppercase tracking-wide text-slate-400">
+                <h3 className="tv-adm-label">Products</h3>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                  <div className="grid grid-cols-4 gap-4 border-b border-[var(--tv-rule)] pb-2 text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">
                     <span>Product</span>
                     <span>Quantity</span>
                     <span>Price</span>
                     <span className="text-right">Total</span>
                   </div>
-                  <div className="grid grid-cols-4 gap-4 py-3 text-sm text-white">
+                  <div className="grid grid-cols-4 gap-4 py-3 text-sm text-[var(--tv-text)]">
                     <span>{selectedOrder.cardType || 'NFC Card'}</span>
                     <span>1</span>
                     <span>₹{(selectedOrder.price ?? selectedOrder.total ?? 0).toLocaleString()}</span>
@@ -609,34 +609,34 @@ export default function OrdersPage() {
               </section>
 
               <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Shipping Address</h3>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <p className="text-white">{selectedOrder.address || '-'}</p>
+                <h3 className="tv-adm-label">Shipping Address</h3>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                  <p className="text-[var(--tv-text)]">{selectedOrder.address || '-'}</p>
                 </div>
               </section>
 
               {selectedOrder.notes && (
                 <section className="space-y-3">
-                  <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Notes</h3>
-                  <div className="bg-slate-800 rounded-lg p-4">
-                    <p className="text-white whitespace-pre-wrap">{selectedOrder.notes}</p>
+                  <h3 className="tv-adm-label">Notes</h3>
+                  <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                    <p className="text-[var(--tv-text)] whitespace-pre-wrap">{selectedOrder.notes}</p>
                   </div>
                 </section>
               )}
 
               <section className="space-y-3">
-                <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Payment Summary</h3>
-                <div className="bg-slate-800 rounded-lg p-4">
+                <h3 className="tv-adm-label">Payment Summary</h3>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
                   <div className="space-y-2 text-sm">
-                    <div className="flex items-center justify-between text-gray-300">
+                    <div className="flex items-center justify-between text-[var(--tv-text)]">
                       <span>Subtotal</span>
                       <span>₹{(selectedOrder.price ?? selectedOrder.total ?? 0).toLocaleString()}</span>
                     </div>
-                    <div className="flex items-center justify-between text-gray-300">
+                    <div className="flex items-center justify-between text-[var(--tv-text)]">
                       <span>Tax</span>
                       <span>₹{Math.max((selectedOrder.total ?? 0) - (selectedOrder.price ?? selectedOrder.total ?? 0), 0).toLocaleString()}</span>
                     </div>
-                    <div className="border-t border-slate-700 pt-2 flex items-center justify-between text-white font-semibold">
+                    <div className="border-t border-[var(--tv-rule)] pt-2 flex items-center justify-between text-[var(--tv-text)] font-semibold">
                       <span>Total Amount</span>
                       <span>₹{(selectedOrder.total ?? selectedOrder.price ?? 0).toLocaleString()}</span>
                     </div>
@@ -644,12 +644,12 @@ export default function OrdersPage() {
                 </div>
               </section>
 
-              <div className="border-t border-slate-700 pt-4">
+              <div className="border-t border-[var(--tv-rule)] pt-4">
                 <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={closeDrawer}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-600 text-gray-200 hover:bg-slate-800"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[var(--tv-rule)] text-[var(--tv-text)] hover:bg-[var(--tv-slate)]"
                   >
                     Close
                   </button>
@@ -657,7 +657,7 @@ export default function OrdersPage() {
                     type="button"
                     onClick={() => advanceOrderStatus(buildOrderRow(selectedOrder))}
                     disabled={!lifecycleActionLabel(selectedOrder.status)}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-primary/100/90 text-white hover:bg-primary/100"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[var(--tv-patina)] text-[var(--tv-text)] hover:bg-[var(--tv-patina)]"
                   >
                     {lifecycleActionLabel(selectedOrder.status) || 'Done'}
                   </button>
@@ -665,7 +665,7 @@ export default function OrdersPage() {
                     <button
                       type="button"
                       onClick={() => cancelOrder(buildOrderRow(selectedOrder))}
-                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-amber-500/90 text-white hover:bg-amber-500"
+                      className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[rgba(201,169,97,0.90)] text-[var(--tv-text)] hover:bg-[var(--tv-brass)]"
                     >
                       Cancel
                     </button>
@@ -673,7 +673,7 @@ export default function OrdersPage() {
                   <button
                     type="button"
                     onClick={() => setRejectTarget(buildOrderRow(selectedOrder))}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-red-500/90 text-white hover:bg-red-500"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[rgba(224,122,110,0.90)] text-[var(--tv-text)] hover:bg-[var(--tv-danger)]"
                   >
                     Delete
                   </button>
@@ -685,15 +685,15 @@ export default function OrdersPage() {
 
       <RightDrawer open={createOpen} onClose={() => setCreateOpen(false)}>
             <div className="p-4 sm:p-6 space-y-6">
-              <div className="flex items-start justify-between border-b border-white/10 pb-4">
+              <div className="flex items-start justify-between border-b border-[var(--tv-rule)] pb-4">
                 <div>
-                  <h2 className="text-xl font-semibold text-white">Create New Order</h2>
-                  <p className="text-sm text-gray-400 mt-1">Manually create an order from admin dashboard.</p>
+                  <h2 className="tv-adm-panel-title">Create New Order</h2>
+                  <p className="text-sm text-[var(--tv-text-muted)] mt-1">Manually create an order from admin dashboard.</p>
                 </div>
                 <button
                   type="button"
                   onClick={() => setCreateOpen(false)}
-                  className="text-gray-400 hover:text-white"
+                  className="text-[var(--tv-text-muted)] hover:text-[var(--tv-text)]"
                   aria-label="Close create order drawer"
                 >
                   ✕
@@ -702,11 +702,11 @@ export default function OrdersPage() {
 
               <form className="space-y-4" onSubmit={submitCreateOrder}>
                 <div>
-                  <label className="text-sm text-gray-300 mb-1 block">Customer</label>
+                  <label className="tv-adm-field-label">Customer</label>
                   <select
                     value={form.customerId}
                     onChange={(event) => setForm((prev) => ({ ...prev, customerId: event.target.value }))}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2.5 text-sm text-[var(--tv-text)] focus:outline-none focus:ring-2 focus:ring-[rgba(76,174,137,0.50)]"
                   >
                     <option value="">Guest Customer</option>
                     {customerOptions.map((customer) => (
@@ -718,7 +718,7 @@ export default function OrdersPage() {
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-300 mb-1 block">Product</label>
+                  <label className="tv-adm-field-label">Product</label>
                   <select
                     value={form.productId}
                     onChange={(event) => {
@@ -730,7 +730,7 @@ export default function OrdersPage() {
                         price: selected ? String(selected.price) : prev.price,
                       }));
                     }}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2.5 text-sm text-[var(--tv-text)] focus:outline-none focus:ring-2 focus:ring-[rgba(76,174,137,0.50)]"
                     required
                   >
                     <option value="">Select product</option>
@@ -744,64 +744,64 @@ export default function OrdersPage() {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-sm text-gray-300 mb-1 block">Quantity</label>
+                    <label className="tv-adm-field-label">Quantity</label>
                     <input
                       type="number"
                       min={1}
                       value={form.quantity}
                       onChange={(event) => setForm((prev) => ({ ...prev, quantity: event.target.value }))}
-                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2.5 text-sm text-[var(--tv-text)] focus:outline-none focus:ring-2 focus:ring-[rgba(76,174,137,0.50)]"
                       required
                     />
                   </div>
                   <div>
-                    <label className="text-sm text-gray-300 mb-1 block">Price</label>
+                    <label className="tv-adm-field-label">Price</label>
                     <input
                       type="number"
                       min={0}
                       step="0.01"
                       value={form.price}
                       onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))}
-                      className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                      className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2.5 text-sm text-[var(--tv-text)] focus:outline-none focus:ring-2 focus:ring-[rgba(76,174,137,0.50)]"
                       required
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-300 mb-1 block">Address</label>
+                  <label className="tv-adm-field-label">Address</label>
                   <textarea
                     value={form.address}
                     onChange={(event) => setForm((prev) => ({ ...prev, address: event.target.value }))}
                     rows={3}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2.5 text-sm text-[var(--tv-text)] focus:outline-none focus:ring-2 focus:ring-[rgba(76,174,137,0.50)]"
                     placeholder="Enter shipping/customer address"
                   />
                 </div>
 
                 <div>
-                  <label className="text-sm text-gray-300 mb-1 block">Notes</label>
+                  <label className="tv-adm-field-label">Notes</label>
                   <textarea
                     value={form.notes}
                     onChange={(event) => setForm((prev) => ({ ...prev, notes: event.target.value }))}
                     rows={3}
-                    className="w-full rounded-xl border border-white/10 bg-[#1a243c] px-3 py-2.5 text-sm text-white focus:outline-none focus:ring-2 focus:ring-primary/50"
+                    className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2.5 text-sm text-[var(--tv-text)] focus:outline-none focus:ring-2 focus:ring-[rgba(76,174,137,0.50)]"
                     placeholder="Order notes"
                   />
                 </div>
 
-                <div className="pt-2 border-t border-white/10 flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
+                <div className="pt-2 border-t border-[var(--tv-rule)] flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
                   <button
                     type="button"
                     onClick={() => setCreateOpen(false)}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl border border-white/15 text-gray-200 hover:bg-white/5"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[rgba(241,243,241,0.18)] text-[var(--tv-text)] hover:bg-[rgba(241,243,241,0.06)]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={createLoading}
-                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold hover:from-[#28A428] hover:to-[#e6e600] disabled:opacity-60 transition-all"
+                    className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[var(--tv-brass)] text-[var(--tv-ink)] font-semibold hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] disabled:opacity-60 transition-all"
                   >
                     {createLoading ? 'Creating...' : 'Create Order'}
                   </button>

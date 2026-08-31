@@ -193,20 +193,20 @@ export default function CardsPage() {
     <main className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Cards</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage and customize NFC card products and designs</p>
+          <h1 className="tv-adm-page-title">Cards</h1>
+          <p className="text-[var(--tv-text-muted)] text-sm mt-1">Manage and customize NFC card products and designs</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             onClick={() => fetchCards()}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
           <button
             onClick={() => window.location.assign('/admin/customers/create')}
-            className="btn btn-primary w-full sm:w-auto"
+            className="tv-btn tv-btn-gilded w-full sm:w-auto"
           >
             <Plus className="w-4 h-4 ml-[-5px]" />
             Add New Card
@@ -229,30 +229,30 @@ export default function CardsPage() {
       />
 
       {editTarget && (
-        <section className="rounded-2xl border border-white/10 bg-[#101628] p-5">
+        <section className="rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-5">
           <div className="flex items-center justify-between gap-4">
             <div>
-              <h2 className="text-lg font-semibold text-white">Edit Card</h2>
-              <p className="mt-1 text-sm text-gray-400">Update the profile details shown on the NFC card.</p>
+              <h2 className="tv-adm-panel-title">Edit Card</h2>
+              <p className="mt-1 text-sm text-[var(--tv-text-muted)]">Update the profile details shown on the NFC card.</p>
             </div>
-            <button type="button" onClick={() => setEditTarget(null)} className="text-sm text-gray-400 hover:text-white">
+            <button type="button" onClick={() => setEditTarget(null)} className="text-sm text-[var(--tv-text-muted)] hover:text-[var(--tv-text)]">
               Cancel
             </button>
           </div>
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             {(['firstName', 'lastName', 'title', 'company'] as const).map((field) => (
-              <label key={field} className="space-y-2 text-sm font-medium text-gray-300">
+              <label key={field} className="space-y-2 text-sm font-medium text-[var(--tv-text)]">
                 {field === 'title' ? 'Title' : field === 'firstName' ? 'First name' : field === 'lastName' ? 'Last name' : 'Company'}
                 <input
                   value={editDetails[field]}
                   onChange={(event) => setEditDetails((current) => ({ ...current, [field]: event.target.value }))}
-                  className="w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-2.5 text-white outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                  className="w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-2.5 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.30)]"
                 />
               </label>
             ))}
           </div>
           <div className="mt-5 flex justify-end">
-            <button type="button" onClick={saveEdit} disabled={editLoading} className="btn btn-primary disabled:opacity-50">
+            <button type="button" onClick={saveEdit} disabled={editLoading} className="tv-btn tv-btn-gilded disabled:opacity-50">
               <Pencil className="h-4 w-4" />
               {editLoading ? 'Saving...' : 'Save Card'}
             </button>
@@ -271,7 +271,7 @@ export default function CardsPage() {
             key: 'nfcLink',
             label: 'NFC Link',
             render: (value: string) => (
-              <a href={value} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-primary hover:text-primary-light" title={value}>
+              <a href={value} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-[var(--tv-patina)] hover:text-[var(--tv-patina)]" title={value}>
                 Open <ExternalLink className="h-3.5 w-3.5" />
               </a>
             ),

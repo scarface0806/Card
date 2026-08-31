@@ -41,56 +41,56 @@ export default function AdminLoginPage() {
   }, [router]);
 
   return (
-    <main className="relative min-h-screen overflow-hidden bg-[#070d1d] px-4 py-6 sm:px-6 sm:py-10">
+    <main className="relative min-h-screen overflow-hidden bg-[rgba(7,10,9,0.55)] px-4 py-6 sm:px-6 sm:py-10">
       <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -left-16 top-1/4 h-72 w-72 rounded-full bg-primary/12 blur-[110px]" />
-        <div className="absolute -right-10 bottom-1/4 h-80 w-80 rounded-full bg-secondary/10 blur-[120px]" />
+        <div className="absolute -left-16 top-1/4 h-72 w-72 rounded-full bg-[rgba(76,174,137,0.12)] blur-[110px]" />
+        <div className="absolute -right-10 bottom-1/4 h-80 w-80 rounded-full bg-[rgba(201,169,97,0.10)] blur-[120px]" />
       </div>
 
-      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-3rem)] w-full max-w-6xl overflow-hidden rounded-3xl border border-white/10 bg-[#0f172d]/75 shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
-        <section className="hidden lg:flex flex-col justify-between border-r border-white/10 bg-gradient-to-b from-[#101b35] via-[#0d162d] to-[#0a1227] p-10">
+      <div className="relative z-10 mx-auto grid min-h-[calc(100vh-3rem)] w-full max-w-6xl overflow-hidden rounded-3xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] shadow-[0_30px_80px_rgba(0,0,0,0.45)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
+        <section className="hidden lg:flex flex-col justify-between border-r border-[var(--tv-rule)] tv-adm-ground bg-[var(--tv-graphite)] p-10">
           <div>
-            <div className="inline-flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 px-4 py-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-r from-primary to-secondary shadow-lg shadow-primary-glow">
-                <Zap className="h-6 w-6 text-white" />
+            <div className="inline-flex items-center gap-3 rounded-2xl border border-[var(--tv-rule)] bg-[rgba(241,243,241,0.06)] px-4 py-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-[var(--tv-brass)] shadow-lg shadow-primary-glow">
+                <Zap className="h-6 w-6 text-[var(--tv-text)]" />
               </div>
               <div>
-                <p className="text-lg font-semibold tracking-tight text-white">Tapvyo Admin</p>
-                <p className="text-[11px] uppercase tracking-[0.24em] text-gray-400">Control Center</p>
+                <p className="text-lg font-semibold tracking-tight text-[var(--tv-text)]">Tapvyo Admin</p>
+                <p className="text-[11px] uppercase tracking-[0.24em] text-[var(--tv-text-muted)]">Control Center</p>
               </div>
             </div>
 
             <div className="mt-12 space-y-4">
-              <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white">
+              <h1 className="tv-adm-page-title">
                 Secure workspace for managing your NFC business.
               </h1>
-              <p className="max-w-md text-sm leading-relaxed text-gray-300">
+              <p className="max-w-md text-sm leading-relaxed text-[var(--tv-text)]">
                 Access orders, cards, leads, and customer profiles from one clean dashboard built for your admin team.
               </p>
             </div>
           </div>
 
-          <p className="text-xs text-gray-500">© {new Date().getFullYear()} Tapvyo NFC. All rights reserved.</p>
+          <p className="text-xs text-[var(--tv-text-muted)]">© {new Date().getFullYear()} Tapvyo NFC. All rights reserved.</p>
         </section>
 
         <section className="flex items-center justify-center px-5 py-8 sm:px-8 sm:py-10 lg:px-12">
           <div className="w-full max-w-md">
             <div className="mb-7 text-center lg:text-left">
-              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-r from-primary to-secondary shadow-lg shadow-[0_18px_40px_rgba(51,204,51,0.18)] lg:hidden">
-                <Zap className="h-7 w-7 text-white" />
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[var(--tv-brass)] shadow-lg shadow-[0_18px_40px_rgba(51,204,51,0.18)] lg:hidden">
+                <Zap className="h-7 w-7 text-[var(--tv-text)]" />
               </div>
-              <h2 className="text-2xl font-semibold tracking-tight text-white">Welcome back</h2>
-              <p className="mt-1 text-sm text-gray-400">Sign in with your admin credentials to continue.</p>
+              <h2 className="text-2xl font-semibold tracking-tight text-[var(--tv-text)]">Welcome back</h2>
+              <p className="mt-1 text-sm text-[var(--tv-text-muted)]">Sign in with your admin credentials to continue.</p>
             </div>
 
-            <div className="rounded-2xl border border-white/10 bg-[#151f37]/70 p-5 sm:p-6">
+            <div className="rounded-2xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-5 sm:p-6">
               <div className="mb-6 flex justify-center">
                 <BrandLogo size="large" variant="light" />
               </div>
               <AdminLoginForm />
             </div>
 
-            <p className="mt-6 text-center text-xs text-gray-500 lg:hidden">
+            <p className="mt-6 text-center text-xs text-[var(--tv-text-muted)] lg:hidden">
               © {new Date().getFullYear()} Tapvyo NFC. All rights reserved.
             </p>
           </div>

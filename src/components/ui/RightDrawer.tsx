@@ -43,10 +43,12 @@ export default function RightDrawer({
 
   return createPortal(
     <div className="fixed inset-0 z-50 flex" role="dialog" aria-modal="true">
-      <div className="flex-1 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="tv-adm-scrim !static flex-1" onClick={onClose} />
 
+      {/* The panel is the site graphite surface with a hairline edge, and it
+          slides on transform alone so the whole sheet composites. */}
       <div
-        className={`${widthClassName} h-full max-h-screen bg-slate-900 border-l border-slate-700 shadow-2xl overflow-y-auto transition-transform duration-300 ease-in-out ${
+        className={`${widthClassName} h-full max-h-screen overflow-y-auto border-l border-[var(--tv-rule)] bg-[var(--tv-graphite)] text-[var(--tv-text)] shadow-[-24px_0_60px_rgba(0,0,0,0.55)] transition-transform duration-300 ease-[cubic-bezier(0.22,1,0.36,1)] motion-reduce:transition-none ${
           visible ? 'translate-x-0' : 'translate-x-full'
         }`}
       >

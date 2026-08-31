@@ -5,52 +5,32 @@ interface StatusBadgeProps {
   label?: string;
 }
 
-const statusConfig = {
-  active: {
-    bg: 'bg-green-500/15',
-    text: 'text-green-400',
-    dot: 'bg-green-400',
-    ring: 'ring-green-500/20',
-  },
-  inactive: {
-    bg: 'bg-gray-500/15',
-    text: 'text-gray-400',
-    dot: 'bg-gray-400',
-    ring: 'ring-gray-500/20',
-  },
-  pending: {
-    bg: 'bg-amber-500/15',
-    text: 'text-amber-400',
-    dot: 'bg-amber-400',
-    ring: 'ring-amber-500/20',
-  },
-  completed: {
-    bg: 'bg-green-500/15',
-    text: 'text-green-400',
-    dot: 'bg-green-400',
-    ring: 'ring-green-500/20',
-  },
-  cancelled: {
-    bg: 'bg-red-500/15',
-    text: 'text-red-400',
-    dot: 'bg-red-400',
-    ring: 'ring-red-500/20',
-  },
+/**
+ * Four tones drawn from the site palette: patina for live and done, brass for
+ * waiting, neutral for dormant, danger for stopped. The status set and the
+ * labels are unchanged.
+ */
+const statusConfig: Record<StatusBadgeProps['status'], string> = {
+  active: 'tv-adm-badge--patina',
+  completed: 'tv-adm-badge--patina',
+  pending: 'tv-adm-badge--brass',
+  inactive: 'tv-adm-badge--neutral',
+  cancelled: 'tv-adm-badge--danger',
 };
 
 export default function StatusBadge({ status, label }: StatusBadgeProps) {
-  const config = statusConfig[status];
+  const toneClass = statusConfig[status];
   const displayLabel = label || status.charAt(0).toUpperCase() + status.slice(1);
 
   return (
-    <span
-      className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-md text-xs font-semibold ring-1 ${config.bg} ${config.text} ${config.ring} transition-all duration-200`}
-    >
-      <span className={`relative flex h-1.5 w-1.5`}>
+    <span className={`tv-adm-badge ${toneClass}`}>
+      <span className="relative flex h-1.5 w-1.5">
+        {/* Only "active" pulses — it is the one status that means something is
+            live right now. motion-reduce drops it. */}
         {status === 'active' && (
-          <span className={`animate-pulse absolute inline-flex h-full w-full rounded-full ${config.dot} opacity-75`} />
+          <span className="tv-adm-badge-dot absolute inline-flex h-full w-full animate-pulse opacity-75 motion-reduce:hidden" />
         )}
-        <span className={`relative inline-flex rounded-full h-1.5 w-1.5 ${config.dot}`} />
+        <span className="tv-adm-badge-dot relative inline-flex" />
       </span>
       {displayLabel}
     </span>

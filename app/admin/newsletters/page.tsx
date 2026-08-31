@@ -154,8 +154,8 @@ export default function NewslettersPage() {
     <main className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Newsletters</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage your email subscriber list and newsletter campaigns</p>
+          <h1 className="tv-adm-page-title">Newsletters</h1>
+          <p className="text-[var(--tv-text-muted)] text-sm mt-1">Manage your email subscriber list and newsletter campaigns</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
@@ -163,14 +163,14 @@ export default function NewslettersPage() {
               setShowComposer((prev) => !prev);
               setPendingDelete(null);
             }}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
           >
-            <Send className="w-4 h-4 text-primary" />
+            <Send className="w-4 h-4 text-[var(--tv-patina)]" />
             {showComposer ? 'Close Composer' : 'Send Campaign'}
           </button>
           <button
             onClick={handleRefresh}
-            className="btn btn-primary w-full sm:w-auto"
+            className="tv-btn tv-btn-gilded w-full sm:w-auto"
           >
             <RotateCw className="w-4 h-4" />
             Refresh
@@ -179,57 +179,57 @@ export default function NewslettersPage() {
       </div>
 
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+        <div className="rounded-xl border border-[rgba(224,122,110,0.30)] bg-[rgba(224,122,110,0.10)] p-4 text-sm text-[var(--tv-danger)]">
           {error}
         </div>
       )}
 
       {success && (
-        <div className="rounded-xl border border-secondary/20 bg-primary/100/10 p-4 text-sm text-primary">
+        <div className="rounded-xl border border-[rgba(201,169,97,0.32)] bg-[rgba(76,174,137,0.10)] p-4 text-sm text-[var(--tv-patina)]">
           {success}
         </div>
       )}
 
       {showComposer && (
-        <div className="rounded-2xl border border-white/10 bg-[#1b2030] p-4 sm:p-5 space-y-4">
-          <h2 className="text-white text-lg font-medium">Compose Campaign</h2>
+        <div className="rounded-2xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4 sm:p-5 space-y-4">
+          <h2 className="tv-adm-panel-title">Compose Campaign</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-sm text-gray-300">Subject</label>
+              <label className="text-sm text-[var(--tv-text)]">Subject</label>
               <input
                 type="text"
                 value={campaign.subject}
                 onChange={(e) => setCampaign((prev) => ({ ...prev, subject: e.target.value }))}
                 placeholder="Monthly updates from Tapvyo"
-                className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50"
+                className="w-full rounded-xl bg-[var(--tv-slate)] border border-[var(--tv-rule)] px-4 py-2.5 text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)]"
               />
             </div>
             <div className="space-y-2">
-              <label className="text-sm text-gray-300">Preview Text (Optional)</label>
+              <label className="text-sm text-[var(--tv-text)]">Preview Text (Optional)</label>
               <input
                 type="text"
                 value={campaign.previewText}
                 onChange={(e) => setCampaign((prev) => ({ ...prev, previewText: e.target.value }))}
                 placeholder="New features, offers, and product highlights"
-                className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50"
+                className="w-full rounded-xl bg-[var(--tv-slate)] border border-[var(--tv-rule)] px-4 py-2.5 text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)]"
               />
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-sm text-gray-300">HTML Content</label>
+            <label className="text-sm text-[var(--tv-text)]">HTML Content</label>
             <textarea
               value={campaign.content}
               onChange={(e) => setCampaign((prev) => ({ ...prev, content: e.target.value }))}
               rows={7}
               placeholder="<h1>Hello from Tapvyo</h1><p>Your campaign content goes here.</p>"
-              className="w-full rounded-xl bg-[#262b40] border border-white/10 px-4 py-2.5 text-white placeholder-gray-500 focus:outline-none focus:border-primary/50"
+              className="w-full rounded-xl bg-[var(--tv-slate)] border border-[var(--tv-rule)] px-4 py-2.5 text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)]"
             />
           </div>
           <div className="flex justify-end">
             <button
               onClick={handleSendCampaign}
               disabled={sending}
-              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-medium disabled:opacity-60 hover:from-[#28A428] hover:to-[#e6e600] transition-all"
+              className="px-5 py-2.5 rounded-xl bg-[var(--tv-brass)] text-[var(--tv-ink)] font-medium disabled:opacity-60 hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] transition-all"
             >
               {sending ? 'Sending...' : 'Send Campaign'}
             </button>
@@ -238,20 +238,20 @@ export default function NewslettersPage() {
       )}
 
       {pendingDelete && (
-        <div className="rounded-2xl border border-amber-500/30 bg-amber-500/10 p-4 sm:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
-          <p className="text-sm text-amber-200">
+        <div className="rounded-2xl border border-[rgba(201,169,97,0.30)] bg-[rgba(201,169,97,0.10)] p-4 sm:p-5 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+          <p className="text-sm text-[var(--tv-brass)]">
             Remove subscriber <span className="font-medium">{pendingDelete.email}</span> from the newsletter list?
           </p>
           <div className="flex w-full md:w-auto items-center gap-2">
             <button
               onClick={() => setPendingDelete(null)}
-              className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-white/5 text-gray-200 hover:bg-white/10"
+              className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-[rgba(241,243,241,0.06)] text-[var(--tv-text)] hover:bg-[rgba(241,243,241,0.06)]"
             >
               Cancel
             </button>
             <button
               onClick={confirmDelete}
-              className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-red-500 text-white hover:bg-red-400"
+              className="flex-1 md:flex-none px-4 py-2 rounded-lg bg-[var(--tv-danger)] text-[var(--tv-text)] hover:bg-[var(--tv-danger)]"
             >
               Confirm Remove
             </button>

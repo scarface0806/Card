@@ -173,14 +173,14 @@ export default function CustomersPage() {
     <main className="space-y-6">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Customers</h1>
-          <p className="text-gray-400 text-sm mt-1">Manage all your customer accounts and their information</p>
+          <h1 className="tv-adm-page-title">Customers</h1>
+          <p className="text-[var(--tv-text-muted)] text-sm mt-1">Manage all your customer accounts and their information</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             type="button"
             onClick={() => fetchCustomers()}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -188,7 +188,7 @@ export default function CustomersPage() {
           <button
             type="button"
             onClick={() => router.push('/admin/customers/create')}
-            className="btn btn-primary w-full sm:w-auto"
+            className="tv-btn tv-btn-gilded w-full sm:w-auto"
           >
             <UserPlus className="w-4 h-4" />
             Create NFC Customer
@@ -228,11 +228,11 @@ export default function CustomersPage() {
             label: 'NFC Link',
             render: (value: string, row: CustomerRow) => (
               <div className="flex items-center gap-2">
-                <span className="max-w-[220px] truncate text-gray-300">{value}</span>
+                <span className="max-w-[220px] truncate text-[var(--tv-text)]">{value}</span>
                 <button
                   type="button"
                   onClick={() => handleCopy(row.nfcLink)}
-                  className="rounded-lg p-2 text-primary transition hover:bg-primary/100/10"
+                  className="rounded-lg p-2 text-[var(--tv-patina)] transition hover:bg-[rgba(76,174,137,0.10)]"
                   aria-label={`Copy NFC link for ${row.name}`}
                 >
                   <Copy className="h-4 w-4" />
@@ -258,7 +258,7 @@ export default function CustomersPage() {
       />
 
       {!loading && customers.length > 0 ? (
-        <div className="rounded-xl border border-white/5 bg-[#161b2e] px-5 py-4 text-sm text-gray-400">
+        <div className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-5 py-4 text-sm text-[var(--tv-text-muted)]">
           Customer creation now generates a live NFC profile link automatically. Use the copy action to write the URL to a physical NFC card.
         </div>
       ) : null}
@@ -266,15 +266,15 @@ export default function CustomersPage() {
       <RightDrawer open={!!selectedCustomer} onClose={() => setSelectedCustomer(null)}>
         {selectedCustomer ? (
           <div className="p-4 sm:p-6 space-y-6">
-            <div className="flex items-center justify-between border-b border-slate-700 pb-4">
+            <div className="flex items-center justify-between border-b border-[var(--tv-rule)] pb-4">
               <div>
-                <h2 className="text-lg font-semibold text-white">{selectedCustomer.name}</h2>
-                <p className="text-sm text-slate-400 mt-1">Customer ID: {selectedCustomer.id}</p>
+                <h2 className="tv-adm-panel-title">{selectedCustomer.name}</h2>
+                <p className="text-sm text-[var(--tv-text-muted)] mt-1">Customer ID: {selectedCustomer.id}</p>
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedCustomer(null)}
-                className="text-slate-400 hover:text-white"
+                className="text-[var(--tv-text-muted)] hover:text-[var(--tv-text)]"
                 aria-label="Close customer details"
               >
                 ✕
@@ -282,51 +282,51 @@ export default function CustomersPage() {
             </div>
 
             <section className="space-y-3">
-              <h3 className="text-sm font-semibold text-slate-200 uppercase tracking-wide">Customer Info</h3>
+              <h3 className="tv-adm-label">Customer Info</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Name</p>
-                  <p className="mt-1 text-white">{selectedCustomer.name}</p>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Name</p>
+                  <p className="mt-1 text-[var(--tv-text)]">{selectedCustomer.name}</p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Email</p>
-                  <p className="mt-1 text-white break-all">{selectedCustomer.email}</p>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Email</p>
+                  <p className="mt-1 text-[var(--tv-text)] break-all">{selectedCustomer.email}</p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Phone</p>
-                  <p className="mt-1 text-white">{selectedCustomer.phone}</p>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Phone</p>
+                  <p className="mt-1 text-[var(--tv-text)]">{selectedCustomer.phone}</p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">Status</p>
-                  <p className="mt-1 text-white capitalize">{selectedCustomer.status}</p>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4">
+                  <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Status</p>
+                  <p className="mt-1 text-[var(--tv-text)] capitalize">{selectedCustomer.status}</p>
                 </div>
-                <div className="bg-slate-800 rounded-lg p-4 md:col-span-2">
-                  <p className="text-xs uppercase tracking-wide text-gray-400">NFC Link</p>
-                  <p className="mt-1 text-white break-all">{selectedCustomer.nfcLink}</p>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4 md:col-span-2">
+                  <p className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">NFC Link</p>
+                  <p className="mt-1 text-[var(--tv-text)] break-all">{selectedCustomer.nfcLink}</p>
                 </div>
               </div>
             </section>
 
-            <div className="border-t border-slate-700 pt-4">
+            <div className="border-t border-[var(--tv-rule)] pt-4">
               <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setSelectedCustomer(null)}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl border border-slate-600 text-gray-200 hover:bg-slate-800"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl border border-[var(--tv-rule)] text-[var(--tv-text)] hover:bg-[var(--tv-slate)]"
                 >
                   Close
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push(`/admin/customers/${selectedCustomer.id}`)}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-green-400 to-emerald-500 text-black font-semibold hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-[var(--tv-patina)] to-[var(--tv-patina)] text-[var(--tv-ink)] font-semibold hover:shadow-[0_0_20px_rgba(34,197,94,0.4)]"
                 >
                   Open Full View
                 </button>
                 <button
                   type="button"
                   onClick={() => router.push(`/admin/customers/${selectedCustomer.id}/edit`)}
-                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-gradient-to-r from-primary to-secondary text-[#0f2e25] font-semibold hover:from-[#28A428] hover:to-[#e6e600] transition-all"
+                  className="w-full sm:w-auto px-4 py-2 rounded-xl bg-[var(--tv-brass)] text-[var(--tv-ink)] font-semibold hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] transition-all"
                 >
                   Edit Customer
                 </button>

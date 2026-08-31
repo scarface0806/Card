@@ -71,8 +71,8 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
       {/* Server Error */}
       {serverError && (
-        <div className="rounded-xl border border-red-500/30 bg-red-500/10 p-3">
-          <p className="text-sm text-red-400 font-medium">{serverError}</p>
+        <div className="rounded-xl border border-[rgba(224,122,110,0.30)] bg-[rgba(224,122,110,0.10)] p-3">
+          <p className="text-sm text-[var(--tv-danger)] font-medium">{serverError}</p>
         </div>
       )}
 
@@ -80,12 +80,12 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       <div className="space-y-2.5">
         <label
           htmlFor="email"
-          className="block text-sm font-medium text-gray-300"
+          className="tv-adm-field-label"
         >
           Email Address
         </label>
         <div className="relative group">
-          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 group-focus-within:text-primary transition-colors pointer-events-none" />
+          <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--tv-text-muted)] group-focus-within:text-[var(--tv-patina)] transition-colors pointer-events-none" />
           <input
             {...register('email', {
               required: 'Email is required',
@@ -98,14 +98,14 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type="email"
             placeholder="admin@example.com"
             disabled={isLoading}
-            className={`w-full pl-11 pr-4 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${errors.email
-                ? 'border-red-500'
-              : 'border-white/15'
+            className={`w-full pl-11 pr-4 py-3 bg-[var(--tv-slate)] border rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.60)] focus:ring-2 focus:ring-[rgba(76,174,137,0.50)] transition-all duration-200 ${errors.email
+                ? 'border-[rgba(224,122,110,0.32)]'
+              : 'border-[rgba(241,243,241,0.18)]'
               } disabled:opacity-50`}
           />
         </div>
         {errors.email && (
-          <p className="mt-1.5 text-xs text-red-400 font-medium">{errors.email.message}</p>
+          <p className="mt-1.5 text-xs text-[var(--tv-danger)] font-medium">{errors.email.message}</p>
         )}
       </div>
 
@@ -113,12 +113,12 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       <div className="space-y-2.5">
         <label
           htmlFor="password"
-          className="block text-sm font-medium text-gray-300"
+          className="tv-adm-field-label"
         >
           Password
         </label>
         <div className="relative group">
-          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-gray-500 group-focus-within:text-primary transition-colors pointer-events-none" />
+          <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4.5 h-4.5 text-[var(--tv-text-muted)] group-focus-within:text-[var(--tv-patina)] transition-colors pointer-events-none" />
           <input
             {...register('password', {
               required: 'Password is required',
@@ -131,38 +131,38 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
             type={showPassword ? 'text' : 'password'}
             placeholder="••••••••"
             disabled={isLoading}
-            className={`w-full pl-11 pr-12 py-3 bg-[#222c47] border rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/60 focus:ring-2 focus:ring-primary/50 transition-all duration-200 ${errors.password
-                ? 'border-red-500'
-              : 'border-white/15'
+            className={`w-full pl-11 pr-12 py-3 bg-[var(--tv-slate)] border rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.60)] focus:ring-2 focus:ring-[rgba(76,174,137,0.50)] transition-all duration-200 ${errors.password
+                ? 'border-[rgba(224,122,110,0.32)]'
+              : 'border-[rgba(241,243,241,0.18)]'
               } disabled:opacity-50`}
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
             disabled={isLoading}
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors disabled:opacity-50"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 text-[var(--tv-text-muted)] hover:text-[var(--tv-patina)] transition-colors disabled:opacity-50"
           >
             {showPassword ? <EyeOff className="w-4.5 h-4.5" /> : <Eye className="w-4.5 h-4.5" />}
           </button>
         </div>
         {errors.password && (
-          <p className="mt-1.5 text-xs text-red-400 font-medium">{errors.password.message}</p>
+          <p className="mt-1.5 text-xs text-[var(--tv-danger)] font-medium">{errors.password.message}</p>
         )}
       </div>
 
       <div className="flex items-center justify-between py-0.5">
         <label className="flex items-center gap-2 cursor-pointer group">
-          <input type="checkbox" className="w-4 h-4 rounded border-white/10 bg-[#222c47] text-primary focus:ring-teal-500/50" />
-          <span className="text-sm text-gray-400 group-hover:text-gray-300 transition-colors">Remember me</span>
+          <input type="checkbox" className="w-4 h-4 rounded border-[var(--tv-rule)] bg-[var(--tv-slate)] text-[var(--tv-patina)] focus:ring-[rgba(76,174,137,0.35)]" />
+          <span className="text-sm text-[var(--tv-text-muted)] group-hover:text-[var(--tv-text)] transition-colors">Remember me</span>
         </label>
-        <button type="button" className="text-sm text-primary hover:text-primary transition-colors font-medium">Forgot password?</button>
+        <button type="button" className="text-sm text-[var(--tv-patina)] hover:text-[var(--tv-patina)] transition-colors font-medium">Forgot password?</button>
       </div>
 
       {/* Submit Button */}
       <button
         type="submit"
         disabled={isLoading}
-        className="btn btn-primary w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:filter-none"
+        className="tv-btn tv-btn-gilded w-full disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:transform-none disabled:hover:filter-none"
       >
         {isLoading ? (
           <>

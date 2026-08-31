@@ -55,8 +55,8 @@ export default function ImageUpload({
   const dropZoneClass = useMemo(() => {
     const base = "rounded-xl border border-dashed p-4 transition-all";
     const accent = isDragOver
-      ? "border-primary/30 bg-primary/100/10"
-      : "border-white/20 bg-[#0f1424] hover:border-primary/40";
+      ? "border-[rgba(76,174,137,0.30)] bg-[rgba(76,174,137,0.10)]"
+      : "border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)] hover:border-[rgba(76,174,137,0.40)]";
     return `${base} ${accent}`;
   }, [isDragOver]);
 
@@ -99,7 +99,7 @@ export default function ImageUpload({
 
   return (
     <div className="space-y-3">
-      <p className="text-sm font-medium text-gray-200">{label}</p>
+      <p className="text-sm font-medium text-[var(--tv-text)]">{label}</p>
 
       <div
         className={dropZoneClass}
@@ -112,7 +112,7 @@ export default function ImageUpload({
       >
         {localPreview ? (
           <div className="space-y-3">
-            <div className={`overflow-hidden rounded-lg border border-white/10 bg-[#161b2e] ${aspectRatioClassMap[aspectRatio]}`}>
+            <div className={`overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[var(--tv-graphite)] ${aspectRatioClassMap[aspectRatio]}`}>
               <img src={localPreview} alt="Uploaded" className="h-full w-full object-cover" />
             </div>
 
@@ -121,7 +121,7 @@ export default function ImageUpload({
                 type="button"
                 onClick={openFilePicker}
                 disabled={isUploading}
-                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-3 py-2 text-xs text-white hover:bg-white/10 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg border border-[rgba(241,243,241,0.18)] px-3 py-2 text-xs text-[var(--tv-text)] hover:bg-[rgba(241,243,241,0.06)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <ImagePlus className="h-3.5 w-3.5" />
                 Replace
@@ -130,7 +130,7 @@ export default function ImageUpload({
                 type="button"
                 onClick={removeImage}
                 disabled={isUploading}
-                className="inline-flex items-center gap-2 rounded-lg border border-red-400/40 px-3 py-2 text-xs text-red-300 hover:bg-red-500/10 disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center gap-2 rounded-lg border border-[rgba(224,122,110,0.40)] px-3 py-2 text-xs text-[var(--tv-danger)] hover:bg-[rgba(224,122,110,0.10)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 <Trash2 className="h-3.5 w-3.5" />
                 Remove
@@ -142,11 +142,11 @@ export default function ImageUpload({
             type="button"
             onClick={openFilePicker}
             disabled={isUploading}
-            className="flex w-full flex-col items-center justify-center gap-2 py-8 text-center text-sm text-gray-300 disabled:cursor-not-allowed disabled:opacity-70"
+            className="flex w-full flex-col items-center justify-center gap-2 py-8 text-center text-sm text-[var(--tv-text)] disabled:cursor-not-allowed disabled:opacity-70"
           >
-            <UploadCloud className="h-6 w-6 text-primary" />
+            <UploadCloud className="h-6 w-6 text-[var(--tv-patina)]" />
             <span>Drag and drop an image here, or click to select</span>
-            <span className="text-xs text-gray-500">JPG, PNG, WEBP, GIF up to 5MB</span>
+            <span className="text-xs text-[var(--tv-text-muted)]">JPG, PNG, WEBP, GIF up to 5MB</span>
           </button>
         )}
 
@@ -161,20 +161,20 @@ export default function ImageUpload({
 
       {isUploading ? (
         <div className="space-y-2">
-          <div className="flex items-center gap-2 text-xs text-gray-300">
+          <div className="flex items-center gap-2 text-xs text-[var(--tv-text)]">
             <Loader2 className="h-3.5 w-3.5 animate-spin" />
             Uploading... {uploadProgress}%
           </div>
-          <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-[rgba(241,243,241,0.06)]">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-primary to-secondary transition-all"
+              className="h-full rounded-full bg-[var(--tv-brass)] transition-all"
               style={{ width: `${uploadProgress}%` }}
             />
           </div>
         </div>
       ) : null}
 
-      {error ? <p className="text-sm text-red-400">{error}</p> : null}
+      {error ? <p className="text-sm text-[var(--tv-danger)]">{error}</p> : null}
     </div>
   );
 }

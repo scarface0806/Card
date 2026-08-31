@@ -18,7 +18,7 @@ import { useDashboard, formatCurrency } from '@/hooks/useDashboard';
 
 /** Shared section heading / link / grid styles, so every group on the page sits
  *  in the same hierarchy: h1 28px -> section 16px -> card label 11px. */
-const SECTION_TITLE = 'text-base font-semibold tracking-tight text-white';
+const SECTION_TITLE = 'text-base font-semibold tracking-tight text-[var(--tv-text)]';
 const STAT_GRID = 'grid grid-cols-1 items-stretch gap-4 sm:grid-cols-2 xl:grid-cols-3';
 /** Applied to the 3rd card of a 3-card row so it fills the width of the 2-column
  *  range instead of leaving an empty slot beside it. 3 columns only from xl,
@@ -30,7 +30,7 @@ const STAT_SPAN_LAST = 'min-w-0 sm:col-span-2 xl:col-span-1';
 function CardSkeleton({ className = '' }: { className?: string }) {
   return (
     <div
-      className={`h-[136px] animate-pulse rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617] ${className}`}
+      className={`h-[136px] animate-pulse rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-slate)] ${className}`}
     />
   );
 }
@@ -38,8 +38,8 @@ function CardSkeleton({ className = '' }: { className?: string }) {
 function TableSkeleton() {
   return (
     <div className="min-w-0 space-y-3">
-      <div className="h-5 w-40 animate-pulse rounded bg-white/[0.08]" />
-      <div className="h-64 animate-pulse rounded-xl border border-white/[0.12] bg-gradient-to-b from-[#0f172a] to-[#020617]" />
+      <div className="h-5 w-40 animate-pulse rounded bg-[rgba(241,243,241,0.06)]" />
+      <div className="h-64 animate-pulse rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-slate)]" />
     </div>
   );
 }
@@ -127,9 +127,9 @@ export default function Dashboard() {
   // Header renders immediately in every state so the page never looks blank.
   const pageHeader = (
     <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-      <h1 className="text-[28px] font-bold leading-tight tracking-[-0.02em] text-white">Dashboard</h1>
+      <h1 className="tv-adm-page-title">Dashboard</h1>
       {/* Plain label, not a control: there is no date-range filter behind it. */}
-      <p className="text-sm text-[#9ca3af]">{todayLabel}</p>
+      <p className="text-sm text-[var(--tv-text-muted)]">{todayLabel}</p>
     </div>
   );
 
@@ -144,7 +144,7 @@ export default function Dashboard() {
           <CardSkeleton className={STAT_SPAN_LAST} />
         </div>
         <div className="space-y-3">
-          <div className="h-5 w-24 animate-pulse rounded bg-white/[0.08]" />
+          <div className="h-5 w-24 animate-pulse rounded bg-[rgba(241,243,241,0.06)]" />
           <div className={STAT_GRID} aria-hidden="true">
             <CardSkeleton />
             <CardSkeleton />
@@ -160,9 +160,9 @@ export default function Dashboard() {
     return (
       <div className="space-y-5">
         {pageHeader}
-        <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] p-5">
-          <p className="text-sm text-red-300">{error || 'Failed to load dashboard metrics'}</p>
-          <button onClick={() => refetch(true)} className="btn btn-primary mt-4">
+        <div className="rounded-xl border border-[rgba(224,122,110,0.25)] bg-[rgba(224,122,110,0.07)] p-5">
+          <p className="text-sm text-[var(--tv-danger)]">{error || 'Failed to load dashboard metrics'}</p>
+          <button onClick={() => refetch(true)} className="tv-btn tv-btn-gilded mt-4">
             Retry
           </button>
         </div>
@@ -258,7 +258,7 @@ export default function Dashboard() {
       />
 
       {/* Footer */}
-      <p className="border-t border-white/[0.08] pt-6 text-center text-xs text-[#9ca3af]">
+      <p className="border-t border-[var(--tv-rule)] pt-6 text-center text-xs text-[var(--tv-text-muted)]">
         © {new Date().getFullYear()} Tapvyo Admin Panel · All rights reserved
       </p>
     </div>

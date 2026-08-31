@@ -11,35 +11,41 @@ interface AdminToastProps {
   onClose?: () => void;
 }
 
+/**
+ * The old success variant was built from three class names that do not exist
+ * in Tailwind v4 — they were declared only in tailwind.config.ts, which v4
+ * never loads — and one of them carried a doubled opacity suffix that was
+ * never valid in any version. A success toast therefore rendered with no
+ * border, no background and inherited text. All three variants now resolve to
+ * real tones from the site palette.
+ */
 const styleMap: Record<ToastVariant, string> = {
-  success: 'border-secondary/20 bg-primary/100/10 text-primary',
-  error: 'border-red-500/30 bg-red-500/10 text-red-300',
-  info: 'border-green-500/30 bg-green-500/10 text-green-300',
+  success: 'tv-adm-alert--patina',
+  error: 'tv-adm-alert--danger',
+  info: 'tv-adm-alert--brass',
 };
 
 function ToastIcon({ variant }: { variant: ToastVariant }) {
   if (variant === 'success') {
-    return <CheckCircle2 className="w-4 h-4" />;
+    return <CheckCircle2 className="tv-adm-alert-icon h-4 w-4 flex-shrink-0" />;
   }
   if (variant === 'error') {
-    return <AlertTriangle className="w-4 h-4" />;
+    return <AlertTriangle className="tv-adm-alert-icon h-4 w-4 flex-shrink-0" />;
   }
-  return <Info className="w-4 h-4" />;
+  return <Info className="tv-adm-alert-icon h-4 w-4 flex-shrink-0" />;
 }
 
 export default function AdminToast({ message, variant = 'info', onClose }: AdminToastProps) {
   return (
-    <div className={`rounded-2xl border p-3.5 sm:p-4 text-sm flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 ${styleMap[variant]}`}>
-      <div className="flex items-start gap-2">
+    <div
+      className={`tv-adm-alert flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between ${styleMap[variant]}`}
+    >
+      <div className="flex items-start gap-3">
         <ToastIcon variant={variant} />
         <p>{message}</p>
       </div>
       {onClose && (
-        <button
-          type="button"
-          onClick={onClose}
-          className="text-xs px-2.5 py-1.5 rounded-lg bg-black/20 hover:bg-black/30 transition-colors"
-        >
+        <button type="button" onClick={onClose} className="tv-adm-action flex-shrink-0">
           Dismiss
         </button>
       )}

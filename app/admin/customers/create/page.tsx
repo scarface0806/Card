@@ -274,70 +274,70 @@ export default function CreateCustomerPage() {
   return (
     <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Create NFC Customer</h1>
-        <p className="mt-1 text-sm text-gray-400">This form creates the profile website, social icons, gallery cards, and NFC link.</p>
+        <h1 className="tv-adm-page-title">Create NFC Customer</h1>
+        <p className="mt-1 text-sm text-[var(--tv-text-muted)]">This form creates the profile website, social icons, gallery cards, and NFC link.</p>
       </div>
 
       {toast ? <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} /> : null}
 
       {created ? (
-        <section className="rounded-2xl border border-primary/20 bg-primary/100/10 p-5">
-          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-primary">Generated NFC Link</p>
-          <p className="mt-3 break-all text-base font-medium text-white">{created.link}</p>
+        <section className="rounded-2xl border border-[rgba(76,174,137,0.30)] bg-[rgba(76,174,137,0.10)] p-5">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[var(--tv-patina)]">Generated NFC Link</p>
+          <p className="mt-3 break-all text-base font-medium text-[var(--tv-text)]">{created.link}</p>
           <div className="mt-4 flex flex-wrap gap-3">
-            <button type="button" onClick={copyLink} className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-stone-900 transition hover:bg-primary/20">
+            <button type="button" onClick={copyLink} className="tv-btn tv-btn-secondary !min-h-[38px] !rounded-full !text-sm">
               <Copy className="h-4 w-4" /> Copy Link
             </button>
-            <Link href={created.link} target="_blank" className="inline-flex items-center gap-2 rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:bg-white/10">
+            <Link href={created.link} target="_blank" className="inline-flex items-center gap-2 rounded-full border border-[rgba(241,243,241,0.18)] px-4 py-2 text-sm font-semibold text-[var(--tv-text)] transition hover:bg-[rgba(241,243,241,0.06)]">
               <ExternalLink className="h-4 w-4" /> Open Profile
             </Link>
           </div>
         </section>
       ) : null}
 
-      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-white/10 bg-[#161b2e] p-4 sm:p-5 lg:p-6">
+      <form onSubmit={handleSubmit} className="space-y-6 rounded-2xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4 sm:p-5 lg:p-6">
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="block text-sm font-medium text-gray-200">Name
-            <input name="name" value={form.name} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Name
+            <input name="name" value={form.name} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Designation
-            <input name="designation" value={form.designation} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Designation
+            <input name="designation" value={form.designation} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Company
-            <input name="company" value={form.company} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Company
+            <input name="company" value={form.company} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Phone
-            <input name="phone" value={form.phone} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Phone
+            <input name="phone" value={form.phone} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Email
-            <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Email
+            <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Mail API Key (Optional)
-            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Mail API Key (Optional)
+            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Address
-            <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Address
+            <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
         </div>
 
-        <label className="block text-sm font-medium text-gray-200">About Us
-          <textarea name="about" value={form.about} onChange={handleTextChange} className="mt-2 min-h-36 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+        <label className="tv-adm-field-label">About Us
+          <textarea name="about" value={form.about} onChange={handleTextChange} className="mt-2 min-h-36 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
         </label>
 
-        <label className="block text-sm font-medium text-gray-200">Google Maps Embed URL (optional)
-          <input name="mapEmbedUrl" value={form.mapEmbedUrl} onChange={handleTextChange} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+        <label className="tv-adm-field-label">Google Maps Embed URL (optional)
+          <input name="mapEmbedUrl" value={form.mapEmbedUrl} onChange={handleTextChange} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
         </label>
 
-        <div className="space-y-3 rounded-2xl border border-white/10 bg-[#0f1424] p-4">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">Social Media Links</h3>
+        <div className="space-y-3 rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
+          <h3 className="tv-adm-label">Social Media Links</h3>
           {socialFields.map((field) => {
             const enabledKey = `${field.key}Enabled` as keyof FormState;
             const valueKey = field.key as keyof FormState;
             const enabled = Boolean(form[enabledKey]);
             return (
               <div key={field.key} className="grid gap-3 lg:grid-cols-[130px_1fr] lg:items-center">
-                <label className="inline-flex items-center gap-2 text-sm font-medium text-gray-200">
-                  <input type="checkbox" checked={enabled} onChange={(e) => handleToggleChange(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
+                <label className="inline-flex items-center gap-2 text-sm font-medium text-[var(--tv-text)]">
+                  <input type="checkbox" checked={enabled} onChange={(e) => handleToggleChange(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
                   {field.label}
                 </label>
                 <input
@@ -345,7 +345,7 @@ export default function CreateCustomerPage() {
                   onChange={(e) => handleTextChange({ target: { name: valueKey as string, value: e.target.value } } as ChangeEvent<HTMLInputElement>)}
                   disabled={!enabled}
                   placeholder={`${field.label} URL`}
-                  className="w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-sm text-white outline-none focus:border-primary/30 disabled:cursor-not-allowed disabled:opacity-40"
+                  className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-4 py-2.5 text-sm text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)] disabled:cursor-not-allowed disabled:opacity-40"
                 />
               </div>
             );
@@ -369,18 +369,18 @@ export default function CreateCustomerPage() {
               the uploads were small, low-resolution marks that sat badly above
               the display name - so a field that collected an image nothing
               renders was only a way to waste an admin's time. */}
-          <label className="block rounded-2xl border border-dashed border-white/15 bg-[#0f1424] p-5 text-sm font-medium text-gray-200">
-            <span className="mb-3 flex items-center gap-2 text-primary"><UploadCloud className="h-4 w-4" /> Profile Photo</span>
-            <input type="file" name="profileImage" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-gray-400 file:mr-4 file:rounded-full file:border-0 file:bg-primary file:px-4 file:py-2 file:text-sm file:font-semibold file:text-white hover:file:bg-primary/100" />
+          <label className="block rounded-2xl border border-dashed border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)] p-5 text-sm font-medium text-[var(--tv-text)]">
+            <span className="mb-3 flex items-center gap-2 text-[var(--tv-patina)]"><UploadCloud className="h-4 w-4" /> Profile Photo</span>
+            <input type="file" name="profileImage" accept="image/*" onChange={handleFileChange} className="block w-full text-sm text-[var(--tv-text-muted)] file:mr-4 file:rounded-full file:border-0 file:bg-[var(--tv-patina)] file:px-4 file:py-2 file:text-sm file:font-semibold file:text-[var(--tv-text)] hover:file:bg-[var(--tv-patina)]" />
             {profilePreview ? <Image src={profilePreview} alt="Profile preview" width={180} height={180} className="mt-4 h-32 w-32 rounded-2xl object-cover" /> : null}
           </label>
         </div>
 
-        <section className="space-y-4 rounded-2xl border border-white/10 bg-[#0f1424] p-4">
+        <section className="space-y-4 rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
           <div className="flex items-center justify-between gap-4">
-            <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-gray-400">Gallery (3 Images)</h3>
-            <label className="inline-flex items-center gap-2 text-sm text-gray-200">
-              <input type="checkbox" checked={form.enableGallery} onChange={(e) => handleToggleChange('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
+            <h3 className="tv-adm-label">Gallery (3 Images)</h3>
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--tv-text)]">
+              <input type="checkbox" checked={form.enableGallery} onChange={(e) => handleToggleChange('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
               Enable Gallery
             </label>
           </div>
@@ -388,24 +388,24 @@ export default function CreateCustomerPage() {
           {form.enableGallery ? (
             <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
               {form.gallerySlots.map((slot, index) => (
-                <div key={index} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-gray-500">Image {index + 1}</p>
-                  <input type="file" name={`galleryImage${index + 1}`} accept="image/*" onChange={handleFileChange} className="block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-primary file:px-3 file:py-1.5 file:font-semibold file:text-white" />
-                  <div className="mt-3 overflow-hidden rounded-lg border border-white/10 bg-[#0f1424]">
+                <div key={index} className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--tv-text-muted)]">Image {index + 1}</p>
+                  <input type="file" name={`galleryImage${index + 1}`} accept="image/*" onChange={handleFileChange} className="block w-full text-xs text-[var(--tv-text-muted)] file:mr-2 file:rounded-full file:border-0 file:bg-[var(--tv-patina)] file:px-3 file:py-1.5 file:font-semibold file:text-[var(--tv-text)]" />
+                  <div className="mt-3 overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)]">
                     {galleryPreviews[index] ? (
                       <Image src={galleryPreviews[index] as string} alt={`Gallery ${index + 1}`} width={400} height={220} className="h-28 w-full object-cover" />
                     ) : (
-                      <div className="flex h-28 items-center justify-center text-xs font-semibold uppercase tracking-wider text-gray-500">No Image</div>
+                      <div className="flex h-28 items-center justify-center text-xs font-semibold uppercase tracking-wider text-[var(--tv-text-muted)]">No Image</div>
                     )}
                   </div>
-                  <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder={`Image ${index + 1} hover text`} className="mt-3 w-full rounded-lg border border-white/10 bg-[#0f1424] px-3 py-2 text-xs text-white outline-none focus:border-primary/30" />
+                  <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder={`Image ${index + 1} hover text`} className="mt-3 w-full rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-3 py-2 text-xs text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
                 </div>
               ))}
             </div>
           ) : null}
         </section>
 
-        <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-semibold text-[#0f2e25] transition hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70">
+        <button type="submit" disabled={submitting} className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-[var(--tv-brass)] px-5 py-3 text-sm font-semibold text-[var(--tv-ink)] transition hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70">
           {submitting ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {submitting ? 'Creating Customer...' : 'Create Customer and Generate NFC Link'}
         </button>

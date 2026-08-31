@@ -286,7 +286,7 @@ export default function EditCustomerPage() {
   if (loading) {
     return (
       <main className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--tv-patina)]" />
       </main>
     );
   }
@@ -294,42 +294,42 @@ export default function EditCustomerPage() {
   return (
     <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Edit Customer</h1>
-        <p className="mt-1 text-sm text-gray-400">Update profile details, social links, status, and gallery hover text.</p>
+        <h1 className="tv-adm-page-title">Edit Customer</h1>
+        <p className="mt-1 text-sm text-[var(--tv-text-muted)]">Update profile details, social links, status, and gallery hover text.</p>
       </div>
 
       {toast ? <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} /> : null}
 
-      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-white/10 bg-[#161b2e] p-4 sm:p-5 lg:p-6">
+      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4 sm:p-5 lg:p-6">
         <div className="grid gap-4 md:grid-cols-2">
-          <label className="block text-sm font-medium text-gray-200">Name
-            <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" required />
+          <label className="tv-adm-field-label">Name
+            <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Designation
-            <input value={form.designation} onChange={(e) => setText('designation', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Designation
+            <input value={form.designation} onChange={(e) => setText('designation', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Company
-            <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Company
+            <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Phone
-            <input value={form.phone} onChange={(e) => setText('phone', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" required />
+          <label className="tv-adm-field-label">Phone
+            <input value={form.phone} onChange={(e) => setText('phone', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Email
-            <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" required />
+          <label className="tv-adm-field-label">Email
+            <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Mail API Key
-            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Mail API Key
+            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Status
-            <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30">
+          <label className="tv-adm-field-label">Status
+            <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]">
               <option value="active">Active</option>
               <option value="inactive">Disabled</option>
             </select>
           </label>
         </div>
 
-        <label className="block text-sm font-medium text-gray-200">About Us
-          <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="mt-2 min-h-32 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+        <label className="tv-adm-field-label">About Us
+          <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="mt-2 min-h-32 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
         </label>
 
         <div className="grid gap-4 md:grid-cols-2">
@@ -343,16 +343,16 @@ export default function EditCustomerPage() {
             />
           </div>
 
-          <label className="block text-sm font-medium text-gray-200">Address
-            <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Address
+            <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
-          <label className="block text-sm font-medium text-gray-200">Google Maps Embed URL
-            <input value={form.mapEmbedUrl} onChange={(e) => setText('mapEmbedUrl', e.target.value)} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-white/10 bg-[#0f1424] px-4 py-3 text-white outline-none focus:border-primary/30" />
+          <label className="tv-adm-field-label">Google Maps Embed URL
+            <input value={form.mapEmbedUrl} onChange={(e) => setText('mapEmbedUrl', e.target.value)} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
         </div>
 
-        <div className="space-y-3 rounded-xl border border-white/10 bg-[#0f1424] p-4">
-          <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400">Social Links</h3>
+        <div className="space-y-3 rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
+          <h3 className="tv-adm-label">Social Links</h3>
           {socialFields.map((field) => {
             const enabledKey = `${field.key}Enabled` as keyof FormState;
             const valueKey = field.key as keyof FormState;
@@ -360,21 +360,21 @@ export default function EditCustomerPage() {
             const value = String(form[valueKey] || '');
             return (
               <div key={field.key} className="grid gap-3 lg:grid-cols-[120px_1fr] lg:items-center">
-                <label className="inline-flex items-center gap-2 text-sm text-gray-200">
-                  <input type="checkbox" checked={isEnabled} onChange={(e) => setToggle(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
+                <label className="inline-flex items-center gap-2 text-sm text-[var(--tv-text)]">
+                  <input type="checkbox" checked={isEnabled} onChange={(e) => setToggle(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
                   <span>{field.label}</span>
                 </label>
-                <input value={value} disabled={!isEnabled} onChange={(e) => setText(valueKey, e.target.value)} placeholder={`${field.label} URL`} className="w-full rounded-xl border border-white/10 bg-[#161b2e] px-4 py-2.5 text-sm text-white outline-none focus:border-primary/30 disabled:cursor-not-allowed disabled:opacity-40" />
+                <input value={value} disabled={!isEnabled} onChange={(e) => setText(valueKey, e.target.value)} placeholder={`${field.label} URL`} className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-4 py-2.5 text-sm text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)] disabled:cursor-not-allowed disabled:opacity-40" />
               </div>
             );
           })}
         </div>
 
-        <div className="space-y-3 rounded-xl border border-white/10 bg-[#0f1424] p-4">
+        <div className="space-y-3 rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
           <div className="flex items-center justify-between gap-3">
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-gray-400">Gallery (3 Images)</h3>
-            <label className="inline-flex items-center gap-2 text-sm text-gray-200">
-              <input type="checkbox" checked={form.enableGallery} onChange={(e) => setToggle('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-white/20 bg-[#0f1424]" />
+            <h3 className="tv-adm-label">Gallery (3 Images)</h3>
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--tv-text)]">
+              <input type="checkbox" checked={form.enableGallery} onChange={(e) => setToggle('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
               Enable Gallery
             </label>
           </div>
@@ -382,9 +382,9 @@ export default function EditCustomerPage() {
           {form.enableGallery ? (
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {form.gallery.map((item) => (
-                <div key={item.slot} className="rounded-xl border border-white/10 bg-[#161b2e] p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">Image {item.slot}</p>
-                  <div className="mt-2 overflow-hidden rounded-lg border border-white/10 bg-[#0f1424]">
+                <div key={item.slot} className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--tv-text-muted)]">Image {item.slot}</p>
+                  <div className="mt-2 overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)]">
                     <img
                       src={item.file ? URL.createObjectURL(item.file) : item.image || '/no-image-placeholder.svg'}
                       alt={`Gallery ${item.slot}`}
@@ -395,13 +395,13 @@ export default function EditCustomerPage() {
                     type="file"
                     accept="image/*"
                     onChange={(e) => updateGalleryFile(item.slot, e.target.files?.[0] || null)}
-                    className="mt-2 block w-full text-xs text-gray-400 file:mr-2 file:rounded-full file:border-0 file:bg-primary file:px-3 file:py-1.5 file:font-semibold file:text-white"
+                    className="mt-2 block w-full text-xs text-[var(--tv-text-muted)] file:mr-2 file:rounded-full file:border-0 file:bg-[var(--tv-patina)] file:px-3 file:py-1.5 file:font-semibold file:text-[var(--tv-text)]"
                   />
                   <input
                     value={item.hoverText}
                     onChange={(e) => updateGalleryHover(item.slot, e.target.value)}
                     placeholder={`Image ${item.slot} hover text`}
-                    className="mt-2 w-full rounded-xl border border-white/10 bg-[#161b2e] px-3 py-2 text-sm text-white outline-none focus:border-primary/30"
+                    className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2 text-sm text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]"
                   />
                 </div>
               ))}
@@ -409,7 +409,7 @@ export default function EditCustomerPage() {
           ) : null}
         </div>
 
-        <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-primary to-secondary px-5 py-3 text-sm font-semibold text-[#0f2e25] transition hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70">
+        <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--tv-brass)] px-5 py-3 text-sm font-semibold text-[var(--tv-ink)] transition hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70">
           {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
           {saving ? 'Saving...' : 'Save Customer'}
         </button>

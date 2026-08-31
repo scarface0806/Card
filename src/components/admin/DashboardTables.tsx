@@ -15,9 +15,9 @@ import StatusBadge from '@/components/admin/StatusBadge';
  * Presentational only: every row is computed by the page and passed in.
  */
 
-const SECTION_TITLE = 'text-base font-semibold tracking-tight text-white';
+const SECTION_TITLE = 'text-base font-semibold tracking-tight text-[var(--tv-text)]';
 const SECTION_LINK =
-  'flex items-center gap-1.5 text-xs font-medium text-green-400 transition-colors duration-200 hover:text-green-300';
+  'flex items-center gap-1.5 text-xs font-medium text-[var(--tv-patina)] transition-colors duration-200 hover:text-[var(--tv-patina)]';
 
 type StatusTone = 'active' | 'inactive' | 'pending' | 'completed' | 'cancelled';
 

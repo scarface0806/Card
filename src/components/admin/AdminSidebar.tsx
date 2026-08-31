@@ -58,10 +58,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
     <>
       {/* Mobile Overlay */}
       {mobileOpen && (
-        <div
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm lg:hidden z-30"
-          onClick={onMobileClose}
-        />
+        <div className="tv-adm-scrim z-30 lg:hidden" onClick={onMobileClose} />
       )}
 
       {/* Sidebar */}
@@ -69,12 +66,12 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
         /* Fixed width + flex-shrink-0: the sidebar is the single source of the
            main area's horizontal offset. The main column is flex-1/min-w-0 with
            no margin-left, so there is no second offset to double up. */
-        className={`fixed left-0 top-0 h-screen w-[220px] flex-shrink-0 bg-gradient-to-b from-[#0f172a] to-[#020617] border-r border-white/10 text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto shadow-lg
+        className={`tv-adm-sidebar fixed left-0 top-0 h-screen w-[220px] flex-shrink-0 transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static z-40 flex flex-col overflow-y-auto
           ${mobileOpen ? 'translate-x-0' : '-translate-x-full'}`}
       >
         {/* Logo — h-16 matches the header height exactly so this divider and the
             header's bottom border form one continuous horizontal line. */}
-        <div className="flex h-16 flex-shrink-0 items-center border-b border-white/10 bg-white/[0.02] px-5">
+        <div className="tv-adm-band flex h-16 flex-shrink-0 items-center border-b px-5">
           <Link href="/admin/dashboard" className="flex items-center gap-3">
             <BrandLogo size="small" variant="light" />
           </Link>
@@ -84,9 +81,7 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-4">
           {menuItems.map((section) => (
             <div key={section.section}>
-              <p className="mb-1.5 px-3 text-[10px] font-semibold uppercase tracking-[0.14em] text-[#9ca3af]">
-                {section.section}
-              </p>
+              <p className="tv-adm-nav-section mb-1.5 px-3">{section.section}</p>
               <div className="space-y-0.5">
                 {section.items.map((item) => {
                   const Icon = item.icon;
@@ -97,17 +92,16 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
                       key={item.href}
                       href={item.href}
                       onClick={onMobileClose}
-                      /* Active state uses exactly two signals: a tinted
-                         background and green foreground. No accent bar, no
-                         border, no glow, no chevron (there is no submenu). */
-                      className={`flex items-center gap-2.5 rounded-lg px-3 py-2 transition-colors duration-200
-                        ${active
-                          ? 'bg-green-500/10 text-green-400'
-                          : 'text-gray-400 hover:bg-white/5 hover:text-white'
-                        }`}
+                      /* Active state uses exactly two signals: a patina wash
+                         and patina foreground. No accent bar, no border, no
+                         glow, no chevron (there is no submenu). It hangs off
+                         aria-current, so the styling and the accessible state
+                         cannot drift apart. */
+                      aria-current={active ? 'page' : undefined}
+                      className="tv-adm-nav-item"
                     >
                       <Icon className="h-4 w-4 flex-shrink-0" />
-                      <span className="text-sm font-medium tracking-tight">{item.label}</span>
+                      <span className="tracking-tight">{item.label}</span>
                     </Link>
                   );
                 })}
@@ -117,8 +111,8 @@ export default function AdminSidebar({ mobileOpen = false, onMobileClose }: Admi
         </nav>
 
         {/* Footer — build stamp (mirrors "version" in package.json) */}
-        <div className="flex-shrink-0 border-t border-white/10 bg-white/[0.02] px-3 py-3">
-          <p className="text-[11px] tabular-nums text-[#9ca3af]">v0.1.0</p>
+        <div className="tv-adm-band flex-shrink-0 border-t px-3 py-3">
+          <p className="tv-adm-label !tracking-[0.08em]">v0.1.0</p>
         </div>
       </aside>
     </>

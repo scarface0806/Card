@@ -69,8 +69,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (checkingAuth) {
     return (
-      <div className="min-h-screen bg-[#0b1020] text-white flex items-center justify-center">
-        <div className="rounded-2xl border border-white/10 bg-white/[0.03] px-4 py-3 text-sm text-gray-300">
+      <div className="tv-adm-shell tv-adm-ground min-h-screen flex items-center justify-center">
+        <div className="tv-adm-panel px-4 py-3 text-sm text-[var(--tv-text-muted)]">
           Checking admin session...
         </div>
       </div>
@@ -83,14 +83,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   if (pathname === '/admin/login') {
     return (
-      <div className="admin-shell min-h-screen">
+      <div className="tv-adm-shell tv-adm-ground min-h-screen">
         {children}
       </div>
     );
   }
 
   return (
-    <div className="admin-shell flex h-screen overflow-hidden bg-[#020617] text-white">
+    <div className="tv-adm-shell flex h-screen overflow-hidden">
       {/* Sidebar */}
       <AdminSidebar
         mobileOpen={mobileMenuOpen}
@@ -107,7 +107,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <AdminHeader onMenuClick={() => setMobileMenuOpen(!mobileMenuOpen)} />
 
         {/* Main Area - Proper spacing with 8px grid */}
-        <main className="flex-1 bg-gradient-to-b from-[#0f172a] to-[#020617]">
+        <main className="tv-adm-ground flex-1">
           <div className="admin-gutter py-5 md:py-6">
             {children}
           </div>

@@ -106,24 +106,24 @@ export default function SecurityPage() {
   return (
     <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Security Settings</h1>
-        <p className="text-gray-400 text-sm mt-1">Manage your account security, password, and authentication preferences</p>
+        <h1 className="tv-adm-page-title">Security Settings</h1>
+        <p className="text-[var(--tv-text-muted)] text-sm mt-1">Manage your account security, password, and authentication preferences</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Password Change Form */}
-        <div className="lg:col-span-2 bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
-          <h2 className="text-lg font-medium text-white mb-8 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-primary/100 rounded-full"></span>
+        <div className="lg:col-span-2 bg-[var(--tv-graphite)] rounded-2xl border border-[var(--tv-rule)] p-4 sm:p-6 lg:p-8 shadow-xl">
+          <h2 className="tv-adm-panel-title mb-8 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-[var(--tv-patina)] rounded-full"></span>
             Change Password
           </h2>
 
-          {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
-          {success && <p className="text-sm text-primary mb-4">{success}</p>}
+          {error && <p className="text-sm text-[var(--tv-danger)] mb-4">{error}</p>}
+          {success && <p className="text-sm text-[var(--tv-patina)] mb-4">{success}</p>}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label htmlFor="currentPassword" className="block text-sm font-medium text-gray-300">
+              <label htmlFor="currentPassword" className="tv-adm-field-label">
                 Current Password
               </label>
               <div className="relative group">
@@ -135,14 +135,14 @@ export default function SecurityPage() {
                   onChange={handleChange}
                   placeholder="Enter current password"
                   disabled={submitting}
-                  className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                  className="w-full px-4 py-2.5 bg-[var(--tv-slate)] border border-[var(--tv-rule)] rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.35)] transition-all"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => toggleShowPassword('current')}
                   disabled={submitting}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--tv-text-muted)] hover:text-[var(--tv-patina)] transition-colors"
                 >
                   {showPasswords.current ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -151,7 +151,7 @@ export default function SecurityPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               <div className="space-y-2">
-                <label htmlFor="newPassword" className="block text-sm font-medium text-gray-300">
+                <label htmlFor="newPassword" className="tv-adm-field-label">
                   New Password
                 </label>
                 <div className="relative group">
@@ -163,14 +163,14 @@ export default function SecurityPage() {
                     onChange={handleChange}
                     placeholder="Min. 8 characters"
                     disabled={submitting}
-                    className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                    className="w-full px-4 py-2.5 bg-[var(--tv-slate)] border border-[var(--tv-rule)] rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.35)] transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => toggleShowPassword('new')}
                     disabled={submitting}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--tv-text-muted)] hover:text-[var(--tv-patina)] transition-colors"
                   >
                     {showPasswords.new ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -178,7 +178,7 @@ export default function SecurityPage() {
               </div>
 
               <div className="space-y-2">
-                <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-300">
+                <label htmlFor="confirmPassword" className="tv-adm-field-label">
                   Confirm Password
                 </label>
                 <div className="relative group">
@@ -190,14 +190,14 @@ export default function SecurityPage() {
                     onChange={handleChange}
                     placeholder="Repeat new password"
                     disabled={submitting}
-                    className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                    className="w-full px-4 py-2.5 bg-[var(--tv-slate)] border border-[var(--tv-rule)] rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.35)] transition-all"
                     required
                   />
                   <button
                     type="button"
                     onClick={() => toggleShowPassword('confirm')}
                     disabled={submitting}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-primary transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--tv-text-muted)] hover:text-[var(--tv-patina)] transition-colors"
                   >
                     {showPasswords.confirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
@@ -205,17 +205,17 @@ export default function SecurityPage() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-6 border-t border-white/5">
+            <div className="flex items-center justify-end gap-3 pt-6 border-t border-[var(--tv-rule)]">
               <button
                 type="button"
-                className="px-6 py-2.5 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                className="px-6 py-2.5 text-sm font-medium text-[var(--tv-text-muted)] hover:text-[var(--tv-text)] transition-colors"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-8 py-2.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] rounded-xl font-semibold shadow-lg hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-xl transition-all active:scale-95"
+                className="px-8 py-2.5 bg-[var(--tv-brass)] text-[var(--tv-ink)] rounded-xl font-semibold shadow-lg hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] hover:shadow-xl transition-all active:scale-95"
               >
                 {submitting ? 'Updating...' : 'Update Password'}
               </button>
@@ -224,9 +224,9 @@ export default function SecurityPage() {
         </div>
 
         {/* Password Requirements */}
-        <div className="bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
-          <h2 className="text-lg font-medium text-white mb-6 flex items-center gap-2">
-            <span className="w-1.5 h-6 bg-primary/100 rounded-full"></span>
+        <div className="bg-[var(--tv-graphite)] rounded-2xl border border-[var(--tv-rule)] p-4 sm:p-6 lg:p-8 shadow-xl">
+          <h2 className="tv-adm-panel-title mb-6 flex items-center gap-2">
+            <span className="w-1.5 h-6 bg-[var(--tv-patina)] rounded-full"></span>
             Requirements
           </h2>
 
@@ -238,11 +238,11 @@ export default function SecurityPage() {
             <RequirementItem met={passwordStrength.isLongEnough} label="At least 8 characters" />
 
             {/* Strength Meter */}
-            <div className="mt-8 pt-8 border-t border-white/5 space-y-3">
+            <div className="mt-8 pt-8 border-t border-[var(--tv-rule)] space-y-3">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-gray-400">Password Strength</span>
+                <span className="text-[var(--tv-text-muted)]">Password Strength</span>
                 <span
-                  className={`font-semibold ${strengthScore <= 2 ? 'text-red-400' : strengthScore <= 4 ? 'text-amber-400' : 'text-primary'
+                  className={`font-semibold ${strengthScore <= 2 ? 'text-[var(--tv-danger)]' : strengthScore <= 4 ? 'text-[var(--tv-brass)]' : 'text-[var(--tv-patina)]'
                     }`}
                 >
                   {strengthScore <= 2 ? 'Weak' : strengthScore <= 4 ? 'Moderate' : 'Strong'}
@@ -252,15 +252,15 @@ export default function SecurityPage() {
                 {[1, 2, 3, 4, 5].map((idx) => (
                   <div
                     key={idx}
-                    className={`flex-1 rounded-full bg-white/5 overflow-hidden`}
+                    className={`flex-1 rounded-full bg-[rgba(241,243,241,0.06)] overflow-hidden`}
                   >
                     <div
                       className={`h-full transition-all duration-500 ${idx <= strengthScore
                         ? strengthScore <= 2
-                          ? 'bg-red-500'
+                          ? 'bg-[var(--tv-danger)]'
                           : strengthScore <= 4
-                            ? 'bg-amber-500'
-                            : 'bg-primary/100'
+                            ? 'bg-[var(--tv-brass)]'
+                            : 'bg-[var(--tv-patina)]'
                         : 'bg-transparent'
                         }`}
                     />
@@ -277,8 +277,8 @@ export default function SecurityPage() {
 
 function RequirementItem({ met, label }: { met: boolean; label: string }) {
   return (
-    <div className={`flex items-center gap-3 text-sm transition-colors duration-300 ${met ? 'text-primary' : 'text-gray-500'}`}>
-      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border ${met ? 'border-secondary/50 bg-primary/100/10' : 'border-white/10 bg-white/5'}`}>
+    <div className={`flex items-center gap-3 text-sm transition-colors duration-300 ${met ? 'text-[var(--tv-patina)]' : 'text-[var(--tv-text-muted)]'}`}>
+      <div className={`flex-shrink-0 w-5 h-5 rounded-full flex items-center justify-center border ${met ? 'border-[rgba(201,169,97,0.50)] bg-[rgba(76,174,137,0.10)]' : 'border-[var(--tv-rule)] bg-[rgba(241,243,241,0.06)]'}`}>
         <CheckCircle className={`w-3 h-3 ${met ? 'opacity-100' : 'opacity-20'}`} />
       </div>
       {label}

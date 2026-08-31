@@ -68,43 +68,38 @@ export default function DataTable<T extends TableRow = TableRow>({
     tone: 'neutral' | 'info' | 'success' | 'warning' | 'danger' | undefined,
     mobile: boolean
   ) => {
-    if (tone === 'danger') {
-      return mobile ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20' : 'text-red-400 hover:bg-red-400/10';
-    }
-    if (tone === 'warning') {
-      return mobile ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20' : 'text-amber-400 hover:bg-amber-400/10';
-    }
-    if (tone === 'success') {
-      return mobile ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20' : 'text-green-400 hover:bg-green-400/10';
-    }
-    if (tone === 'info') {
-      return mobile ? 'text-blue-400 bg-blue-500/10 hover:bg-blue-500/20' : 'text-blue-400 hover:bg-blue-400/10';
-    }
-    return mobile ? 'text-gray-300 bg-white/5 hover:bg-white/10' : 'text-gray-400 hover:bg-white/10';
+    // Mobile rows sit on a flat card, so their actions carry a filled
+    // background; desktop rows already have a hover band behind them.
+    const filled = mobile ? ' bg-[rgba(241,243,241,0.05)]' : '';
+    if (tone === 'danger') return 'tv-adm-action--danger' + filled;
+    if (tone === 'warning') return 'tv-adm-action--brass' + filled;
+    if (tone === 'success') return 'tv-adm-action--patina' + filled;
+    if (tone === 'info') return 'tv-adm-action--patina' + filled;
+    return filled.trim();
   };
 
   return (
-    <div className="bg-gradient-to-b from-[#0f172a]/50 to-[#020617]/50 border border-white/10 rounded-lg overflow-hidden shadow-lg">
+    <div className="tv-adm-panel overflow-hidden">
       {title && (
-        <div className="px-4 sm:px-6 py-4 border-b border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-          <h3 className="text-base font-semibold text-white">{title}</h3>
-          <span className="text-xs text-[#9ca3af] bg-white/5 px-3 py-1 rounded-md border border-white/10">
+        <div className="tv-adm-panel-head">
+          <h3 className="tv-adm-panel-title">{title}</h3>
+          <span className="tv-adm-count">
             {data.length} records
           </span>
         </div>
       )}
 
-      <div className="md:hidden divide-y divide-white/10">
+      <div className="md:hidden divide-y divide-[var(--tv-rule)]">
         {currentData.length > 0 ? (
           currentData.map((row, rowIndex) => (
-            <div key={rowIndex} className="p-4 space-y-3 hover:bg-white/[0.02] transition-colors duration-150">
+            <div key={rowIndex} className="p-4 space-y-3 transition-colors duration-150 hover:bg-[rgba(241,243,241,0.03)]">
               <div className="grid grid-cols-1 gap-3">
                 {columns.map((column) => {
                   const rowRecord = row as Record<string, any>;
                   return (
                   <div key={`${rowIndex}-${column.key}`} className="flex items-start justify-between gap-3">
-                    <p className="text-xs font-semibold uppercase tracking-wider text-[#9ca3af]">{column.label}</p>
-                    <div className="text-sm text-right text-gray-300 max-w-[65%] break-words font-medium">
+                    <p className="tv-adm-label">{column.label}</p>
+                    <div className="max-w-[65%] break-words text-right text-sm text-[var(--tv-text)]">
                       {column.render ? column.render(rowRecord[column.key], row) : rowRecord[column.key]}
                     </div>
                   </div>
@@ -112,11 +107,11 @@ export default function DataTable<T extends TableRow = TableRow>({
               </div>
 
               {actions && (
-                <div className="flex flex-wrap items-center gap-2 pt-3 border-t border-white/10">
+                <div className="flex flex-wrap items-center gap-2 border-t border-[var(--tv-rule)] pt-3">
                   {onView && (
                     <button
                       onClick={() => onView(row)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.view ?? 'info', true)}`}
+                      className={`tv-adm-action ${resolveToneClass(actionTones?.view ?? 'info', true)}`}
                     >
                       {actionLabels?.view || 'View'}
                     </button>
@@ -124,7 +119,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                   {onEdit && (
                     <button
                       onClick={() => onEdit(row)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.edit ?? 'warning', true)}`}
+                      className={`tv-adm-action ${resolveToneClass(actionTones?.edit ?? 'warning', true)}`}
                     >
                       {actionLabels?.edit || 'Edit'}
                     </button>
@@ -132,26 +127,20 @@ export default function DataTable<T extends TableRow = TableRow>({
                   {onDelete && (
                     <button
                       onClick={() => onDelete(row)}
-                      className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.delete ?? 'danger', true)}`}
+                      className={`tv-adm-action ${resolveToneClass(actionTones?.delete ?? 'danger', true)}`}
                     >
                       {actionLabels?.delete || 'Delete'}
                     </button>
                   )}
                   {(extraActions || []).filter((action) => action.visible ? action.visible(row) : true).map((action) => {
-                    const toneClass = action.tone === 'danger'
-                      ? 'text-red-400 bg-red-500/10 hover:bg-red-500/20'
-                      : action.tone === 'warning'
-                        ? 'text-amber-400 bg-amber-500/10 hover:bg-amber-500/20'
-                        : action.tone === 'success'
-                          ? 'text-green-400 bg-green-500/10 hover:bg-green-500/20'
-                          : 'text-gray-300 bg-white/5 hover:bg-white/10';
+                    const toneClass = resolveToneClass(action.tone, true);
 
                     return (
                       <button
                         key={action.key}
                         onClick={() => action.onClick(row)}
                         disabled={action.disabled ? action.disabled(row) : false}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${toneClass}`}
+                        className={`tv-adm-action ${toneClass}`}
                       >
                         {typeof action.label === 'function' ? action.label(row) : action.label}
                       </button>
@@ -163,11 +152,11 @@ export default function DataTable<T extends TableRow = TableRow>({
           ))
         ) : (
           <div className="px-4 py-16 text-center">
-            <div className="flex flex-col items-center justify-center space-y-3">
-              <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
-                <Database className="w-6 h-6 text-gray-500" />
+            <div className="tv-adm-empty !py-0">
+              <div className="tv-adm-empty-icon">
+                <Database className="h-5 w-5" aria-hidden="true" />
               </div>
-              <p className="text-sm text-[#9ca3af] font-medium tracking-tight">No records found</p>
+              <p className="tv-adm-meta">No records found</p>
             </div>
           </div>
         )}
@@ -175,9 +164,9 @@ export default function DataTable<T extends TableRow = TableRow>({
 
       {/* Horizontal scroll is a fallback, not the normal case. The thumb is
           styled so it reads as part of the dark UI when it does appear. */}
-      <div className="hidden md:block overflow-x-auto [scrollbar-color:rgba(255,255,255,0.16)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-white/[0.16] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:h-1.5">
+      <div className="hidden md:block overflow-x-auto [scrollbar-color:rgba(241,243,241,0.16)_transparent] [scrollbar-width:thin] [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(241,243,241,0.16)] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar]:h-1.5">
         <table
-          className="w-full"
+          className="tv-adm-table"
           /* The floor scales with column count instead of being a flat 760px,
              which forced narrow tables (e.g. a 2-column Metric/Value table in a
              half-width container) to scroll their own columns out of view.
@@ -185,39 +174,37 @@ export default function DataTable<T extends TableRow = TableRow>({
              per-column content width still wins where it needs more room. */
           style={{ minWidth: Math.min(760, (columns.length + (actions ? 1 : 0)) * 110) }}
         >
-          <thead className="sticky top-0 z-10 bg-gradient-to-b from-[#0f172a] to-[#0a0e1a] border-b border-white/10">
+          <thead className="sticky top-0 z-10">
             <tr>
               {columns.map((column) => (
                 <th
                   key={column.key}
-                  className={`px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
-                    }`}
+                  className={column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : undefined}
                   style={{ width: column.width }}
                 >
                   {column.label}
                 </th>
               ))}
               {actions && (
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-400 uppercase tracking-widest">
+                <th >
                   Actions
                 </th>
               )}
             </tr>
           </thead>
-          <tbody className="divide-y divide-white/10">
+          <tbody >
             {currentData.length > 0 ? (
               currentData.map((row, rowIndex) => (
                 <tr
                   key={rowIndex}
-                  className="hover:bg-white/[0.05] transition-colors duration-150 group"
+                  className="group"
                 >
                   {columns.map((column) => {
                     const rowRecord = row as Record<string, any>;
                     return (
                     <td
                       key={`${rowIndex}-${column.key}`}
-                      className={`px-6 py-4 text-sm text-gray-300 font-medium ${column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : ''
-                        }`}
+                      className={column.align === 'center' ? 'text-center' : column.align === 'right' ? 'text-right' : undefined}
                     >
                       {column.render
                         ? column.render(rowRecord[column.key], row)
@@ -225,12 +212,12 @@ export default function DataTable<T extends TableRow = TableRow>({
                     </td>
                   );})}
                   {actions && (
-                    <td className="px-6 py-4 text-sm">
+                    <td >
                       <div className="flex items-center gap-2">
                         {onView && (
                           <button
                             onClick={() => onView(row)}
-                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.view ?? 'info', false)}`}
+                            className={`tv-adm-action ${resolveToneClass(actionTones?.view ?? 'info', false)}`}
                           >
                             {actionLabels?.view || 'View'}
                           </button>
@@ -238,7 +225,7 @@ export default function DataTable<T extends TableRow = TableRow>({
                         {onEdit && (
                           <button
                             onClick={() => onEdit(row)}
-                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.edit ?? 'warning', false)}`}
+                            className={`tv-adm-action ${resolveToneClass(actionTones?.edit ?? 'warning', false)}`}
                           >
                             {actionLabels?.edit || 'Edit'}
                           </button>
@@ -246,26 +233,20 @@ export default function DataTable<T extends TableRow = TableRow>({
                         {onDelete && (
                           <button
                             onClick={() => onDelete(row)}
-                            className={`px-3 py-1.5 rounded-md text-xs font-medium transition-all active:scale-95 ${resolveToneClass(actionTones?.delete ?? 'danger', false)}`}
+                            className={`tv-adm-action ${resolveToneClass(actionTones?.delete ?? 'danger', false)}`}
                           >
                             {actionLabels?.delete || 'Delete'}
                           </button>
                         )}
                         {(extraActions || []).filter((action) => action.visible ? action.visible(row) : true).map((action) => {
-                          const toneClass = action.tone === 'danger'
-                            ? 'text-red-400 hover:bg-red-400/10'
-                            : action.tone === 'warning'
-                              ? 'text-amber-400 hover:bg-amber-400/10'
-                              : action.tone === 'success'
-                                ? 'text-green-400 hover:bg-green-400/10'
-                                : 'text-gray-400 hover:bg-white/10';
+                          const toneClass = resolveToneClass(action.tone, false);
 
                           return (
                             <button
                               key={action.key}
                               onClick={() => action.onClick(row)}
                               disabled={action.disabled ? action.disabled(row) : false}
-                              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${toneClass}`}
+                              className={`tv-adm-action ${toneClass}`}
                             >
                               {typeof action.label === 'function' ? action.label(row) : action.label}
                             </button>
@@ -280,13 +261,13 @@ export default function DataTable<T extends TableRow = TableRow>({
               <tr>
                 <td
                   colSpan={columns.length + (actions ? 1 : 0)}
-                  className="px-6 py-20 text-center"
+                  className="text-center"
                 >
-                  <div className="flex flex-col items-center justify-center space-y-3">
-                    <div className="w-12 h-12 bg-white/5 rounded-2xl flex items-center justify-center">
-                      <Database className="w-6 h-6 text-gray-500" />
+                  <div className="tv-adm-empty !py-0">
+                    <div className="tv-adm-empty-icon">
+                      <Database className="h-5 w-5" aria-hidden="true" />
                     </div>
-                    <p className="text-sm text-[#9ca3af] font-medium tracking-tight">No records found</p>
+                    <p className="tv-adm-meta">No records found</p>
                   </div>
                 </td>
               </tr>
@@ -296,17 +277,17 @@ export default function DataTable<T extends TableRow = TableRow>({
       </div>
 
       {totalPages > 1 && (
-        <div className="px-4 sm:px-5 py-3.5 border-t border-white/10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-[#0d1117]/30">
-          <p className="text-xs text-[#9ca3af] font-medium">
-            Showing <span className="text-gray-300">{startIndex + 1}</span> to{' '}
-            <span className="text-gray-300">{Math.min(endIndex, data.length)}</span> of{' '}
-            <span className="text-gray-300">{data.length}</span> records
+        <div className="tv-adm-dialog-foot flex-col !py-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="tv-adm-meta text-xs">
+            Showing <span className="text-[var(--tv-text)] tabular-nums">{startIndex + 1}</span> to{' '}
+            <span className="text-[var(--tv-text)] tabular-nums">{Math.min(endIndex, data.length)}</span> of{' '}
+            <span className="text-[var(--tv-text)] tabular-nums">{data.length}</span> records
           </p>
           <div className="flex items-center gap-1 overflow-x-auto">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className="p-2 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-gray-400 hover:text-white transition-all active:scale-90"
+              className="tv-adm-page-btn !min-w-0 !px-1.5"
             >
               <ChevronLeft className="w-4 h-4" />
             </button>
@@ -315,13 +296,11 @@ export default function DataTable<T extends TableRow = TableRow>({
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`min-w-[32px] h-8 px-2 rounded-lg text-xs font-semibold transition-all duration-200 ${page === currentPage
-                    /* bg-primary / shadow-primary-glow were dead classes: they
-                       only exist in tailwind.config.ts, which Tailwind v4 never
-                       loads, so the current page had no background at all. */
-                    ? 'bg-green-500 text-black active:scale-95'
-                    : 'text-[#9ca3af] hover:bg-white/5 hover:text-white'
-                    }`}
+                  /* The current page is marked with aria-current, and the CSS
+                     hangs the patina fill off that — so the visible state and
+                     the announced one cannot drift apart. */
+                  aria-current={page === currentPage ? 'page' : undefined}
+                  className="tv-adm-page-btn"
                 >
                   {page}
                 </button>
@@ -330,7 +309,7 @@ export default function DataTable<T extends TableRow = TableRow>({
             <button
               onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
               disabled={currentPage === totalPages}
-              className="p-2 hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed rounded-lg text-gray-400 hover:text-white transition-all active:scale-90"
+              className="tv-adm-page-btn !min-w-0 !px-1.5"
             >
               <ChevronRight className="w-4 h-4" />
             </button>

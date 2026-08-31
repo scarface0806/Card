@@ -152,14 +152,14 @@ export default function ProductsPage() {
     <main className="space-y-6 pb-8">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-white">Products</h1>
-          <p className="text-gray-400 text-sm mt-1">Create, edit and delete frontend product cards from admin</p>
+          <h1 className="tv-adm-page-title">Products</h1>
+          <p className="text-[var(--tv-text-muted)] text-sm mt-1">Create, edit and delete frontend product cards from admin</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
           <button
             type="button"
             onClick={() => fetchProducts()}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#2a3048] hover:bg-[#313755] text-white px-4 py-2.5 rounded-xl transition-all font-medium border border-white/10"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -167,7 +167,7 @@ export default function ProductsPage() {
           <button
             type="button"
             onClick={openCreate}
-            className="btn btn-primary w-full sm:w-auto"
+            className="tv-btn tv-btn-gilded w-full sm:w-auto"
           >
             <Plus className="w-4 h-4" />
             Add Product
@@ -179,8 +179,8 @@ export default function ProductsPage() {
       {toast && <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
 
       {formOpen ? (
-        <section className="rounded-2xl border border-white/10 bg-[#101628] p-5">
-          <h2 className="text-lg font-semibold text-white mb-4">{formMode === 'create' ? 'Create Product' : 'Edit Product'}</h2>
+        <section className="rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-5">
+          <h2 className="tv-adm-panel-title mb-4">{formMode === 'create' ? 'Create Product' : 'Edit Product'}</h2>
           <ProductForm
             initialValues={
               activeProduct
@@ -200,36 +200,36 @@ export default function ProductsPage() {
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-white/10 bg-[#101628] p-4 sm:p-5">
+      <section className="rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4 sm:p-5">
         {loading ? (
-          <p className="text-gray-400">Loading products...</p>
+          <p className="text-[var(--tv-text-muted)]">Loading products...</p>
         ) : products.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-white/15 bg-[#151a2d] p-8 text-center">
-            <Package className="mx-auto mb-3 h-8 w-8 text-gray-500" />
-            <p className="text-white font-medium">No products found</p>
-            <p className="text-sm text-gray-400 mt-1">Create your first product to display cards on the frontend.</p>
+          <div className="rounded-xl border border-dashed border-[rgba(241,243,241,0.18)] bg-[var(--tv-graphite)] p-8 text-center">
+            <Package className="mx-auto mb-3 h-8 w-8 text-[var(--tv-text-muted)]" />
+            <p className="text-[var(--tv-text)] font-medium">No products found</p>
+            <p className="text-sm text-[var(--tv-text-muted)] mt-1">Create your first product to display cards on the frontend.</p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {products.map((product) => (
-              <article key={product.id} className="rounded-xl border border-white/10 bg-[#151a2d] p-4">
-                <div className="aspect-video overflow-hidden rounded-lg bg-[#0f1426]">
+              <article key={product.id} className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+                <div className="aspect-video overflow-hidden rounded-lg bg-[rgba(7,10,9,0.55)]">
                   <img
                     src={product.images?.[0] || product.image || "/placeholder.svg"}
                     alt={product.name}
                     className="h-full w-full object-cover"
                   />
                 </div>
-                <h3 className="mt-3 text-white font-semibold">{product.name}</h3>
-                <p className="mt-1 text-sm text-gray-400 line-clamp-2">{product.description}</p>
-                <div className="mt-3 text-primary font-semibold">₹{product.price.toLocaleString()}</div>
-                <p className="mt-1 text-xs text-gray-500">Created {new Date(product.createdAt).toLocaleDateString()}</p>
+                <h3 className="mt-3 text-[var(--tv-text)] font-semibold">{product.name}</h3>
+                <p className="mt-1 text-sm text-[var(--tv-text-muted)] line-clamp-2">{product.description}</p>
+                <div className="mt-3 text-[var(--tv-patina)] font-semibold">₹{product.price.toLocaleString()}</div>
+                <p className="mt-1 text-xs text-[var(--tv-text-muted)]">Created {new Date(product.createdAt).toLocaleDateString()}</p>
 
                 <div className="mt-4 flex items-center gap-2">
                   <button
                     type="button"
                     onClick={() => openEdit(product)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-white/20 px-3 py-2 text-xs text-white hover:bg-white/5"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[rgba(241,243,241,0.18)] px-3 py-2 text-xs text-[var(--tv-text)] hover:bg-[rgba(241,243,241,0.06)]"
                   >
                     <Pencil className="h-3.5 w-3.5" />
                     Edit
@@ -237,7 +237,7 @@ export default function ProductsPage() {
                   <button
                     type="button"
                     onClick={() => deleteProduct(product)}
-                    className="inline-flex items-center gap-1 rounded-lg border border-red-400/40 px-3 py-2 text-xs text-red-300 hover:bg-red-500/10"
+                    className="inline-flex items-center gap-1 rounded-lg border border-[rgba(224,122,110,0.40)] px-3 py-2 text-xs text-[var(--tv-danger)] hover:bg-[rgba(224,122,110,0.10)]"
                   >
                     <Trash2 className="h-3.5 w-3.5" />
                     Delete

@@ -134,19 +134,19 @@ export default function AccountPage() {
   return (
     <main className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-white">Account Settings</h1>
-        <p className="text-gray-400 text-sm mt-1">Update your profile information and account details</p>
+        <h1 className="tv-adm-page-title">Account Settings</h1>
+        <p className="text-[var(--tv-text-muted)] text-sm mt-1">Update your profile information and account details</p>
       </div>
 
-      <div className="max-w-3xl bg-[#1f2436] rounded-2xl border border-white/10 p-4 sm:p-6 lg:p-8 shadow-xl">
-        {loading && <p className="text-sm text-gray-400 mb-4">Loading account details...</p>}
-        {error && <p className="text-sm text-red-400 mb-4">{error}</p>}
-        {success && <p className="text-sm text-primary mb-4">{success}</p>}
+      <div className="max-w-3xl bg-[var(--tv-graphite)] rounded-2xl border border-[var(--tv-rule)] p-4 sm:p-6 lg:p-8 shadow-xl">
+        {loading && <p className="text-sm text-[var(--tv-text-muted)] mb-4">Loading account details...</p>}
+        {error && <p className="text-sm text-[var(--tv-danger)] mb-4">{error}</p>}
+        {success && <p className="text-sm text-[var(--tv-patina)] mb-4">{success}</p>}
 
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Profile Photo */}
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-4">
+            <label className="block text-sm font-medium text-[var(--tv-text)] mb-4">
               Profile Photo
             </label>
             <div className="mb-4">
@@ -163,17 +163,17 @@ export default function AccountPage() {
             </div>
             <div className="flex flex-col sm:flex-row sm:items-center gap-5 sm:gap-8">
               <div className="relative group">
-                <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-white/10 group-hover:border-primary/50 transition-colors">
+                <div className="w-24 h-24 rounded-2xl overflow-hidden border-2 border-[var(--tv-rule)] group-hover:border-[rgba(76,174,137,0.50)] transition-colors">
                   <img src={previewUrl} alt="Profile" className="w-full h-full object-cover" />
                 </div>
-                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
-                  <Upload className="w-6 h-6 text-white" />
+                <div className="absolute inset-0 bg-[rgba(7,10,9,0.45)] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center rounded-2xl">
+                  <Upload className="w-6 h-6 text-[var(--tv-text)]" />
                 </div>
               </div>
               <div className="flex-1">
                 <div className="flex flex-wrap gap-3">
-                  <label className="flex items-center gap-2 px-4 py-2 bg-[#2a3048] hover:bg-[#313755] border border-white/5 text-white rounded-xl cursor-pointer transition-all text-sm font-medium">
-                    <Upload className="w-4 h-4 text-primary" />
+                  <label className="flex items-center gap-2 px-4 py-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] border border-[var(--tv-rule)] text-[var(--tv-text)] rounded-xl cursor-pointer transition-all text-sm font-medium">
+                    <Upload className="w-4 h-4 text-[var(--tv-patina)]" />
                     <span>Upload New Photo</span>
                     <input
                       type="file"
@@ -188,12 +188,12 @@ export default function AccountPage() {
                       setFormData((prev) => ({ ...prev, avatar: '', imageUrl: '', photo: null }));
                       setPreviewUrl(fallbackPreviewUrl);
                     }}
-                    className="px-4 py-2 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+                    className="px-4 py-2 text-sm font-medium text-[var(--tv-text-muted)] hover:text-[var(--tv-text)] transition-colors"
                   >
                     Remove
                   </button>
                 </div>
-                <p className="text-xs text-gray-500 mt-3 font-normal">Recommended: Square image, max 5MB (JPG, PNG)</p>
+                <p className="text-xs text-[var(--tv-text-muted)] mt-3 font-normal">Recommended: Square image, max 5MB (JPG, PNG)</p>
               </div>
             </div>
           </div>
@@ -201,7 +201,7 @@ export default function AccountPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             {/* Name Field */}
             <div className="space-y-2">
-              <label htmlFor="name" className="block text-sm font-medium text-gray-300">
+              <label htmlFor="name" className="tv-adm-field-label">
                 Full Name
               </label>
               <input
@@ -211,13 +211,13 @@ export default function AccountPage() {
                 value={formData.name}
                 onChange={handleChange}
                 disabled={loading || saving}
-                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                className="w-full px-4 py-2.5 bg-[var(--tv-slate)] border border-[var(--tv-rule)] rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.35)] transition-all"
               />
             </div>
 
             {/* Email Field */}
             <div className="space-y-2">
-              <label htmlFor="email" className="block text-sm font-medium text-gray-300">
+              <label htmlFor="email" className="tv-adm-field-label">
                 Email Address
               </label>
               <input
@@ -227,12 +227,12 @@ export default function AccountPage() {
                 value={formData.email}
                 onChange={handleChange}
                 disabled={loading || saving}
-                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                className="w-full px-4 py-2.5 bg-[var(--tv-slate)] border border-[var(--tv-rule)] rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.35)] transition-all"
               />
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label htmlFor="avatar" className="block text-sm font-medium text-gray-300">
+              <label htmlFor="avatar" className="tv-adm-field-label">
                 Avatar URL (Optional)
               </label>
               <input
@@ -243,23 +243,23 @@ export default function AccountPage() {
                 onChange={handleChange}
                 disabled={loading || saving}
                 placeholder="https://example.com/avatar.png"
-                className="w-full px-4 py-2.5 bg-[#262b40] border border-white/10 rounded-xl text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-teal-500/50 transition-all"
+                className="w-full px-4 py-2.5 bg-[var(--tv-slate)] border border-[var(--tv-rule)] rounded-xl text-[var(--tv-text)] placeholder-[rgba(169,181,176,0.7)] focus:outline-none focus:border-[rgba(76,174,137,0.50)] focus:ring-1 focus:ring-[rgba(76,174,137,0.35)] transition-all"
               />
             </div>
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-6 border-t border-white/5">
+          <div className="flex items-center justify-end gap-3 pt-6 border-t border-[var(--tv-rule)]">
             <button
               type="button"
-              className="px-6 py-2.5 text-sm font-medium text-gray-400 hover:text-white transition-colors"
+              className="px-6 py-2.5 text-sm font-medium text-[var(--tv-text-muted)] hover:text-[var(--tv-text)] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading || saving}
-              className="px-8 py-2.5 bg-gradient-to-r from-primary to-secondary text-[#0f2e25] rounded-xl font-semibold shadow-lg hover:from-[#28A428] hover:to-[#e6e600] hover:shadow-xl transition-all active:scale-95"
+              className="px-8 py-2.5 bg-[var(--tv-brass)] text-[var(--tv-ink)] rounded-xl font-semibold shadow-lg hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] hover:shadow-xl transition-all active:scale-95"
             >
               {saving ? 'Saving...' : 'Save Changes'}
             </button>

@@ -98,7 +98,7 @@ export default function CustomerDetailPage() {
   if (loading) {
     return (
       <main className="flex min-h-[40vh] items-center justify-center">
-        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+        <Loader2 className="h-6 w-6 animate-spin text-[var(--tv-patina)]" />
       </main>
     );
   }
@@ -106,7 +106,7 @@ export default function CustomerDetailPage() {
   if (error) {
     return (
       <main className="space-y-4">
-        <h1 className="text-2xl font-semibold text-white">Customer Detail</h1>
+        <h1 className="tv-adm-page-title">Customer Detail</h1>
         <AdminToast variant="error" message={error} onClose={() => setError(null)} />
       </main>
     );
@@ -115,8 +115,8 @@ export default function CustomerDetailPage() {
   if (!customer) {
     return (
       <main className="space-y-4">
-        <h1 className="text-2xl font-semibold text-white">Customer Detail</h1>
-        <p className="text-sm text-gray-400">Customer not found.</p>
+        <h1 className="tv-adm-page-title">Customer Detail</h1>
+        <p className="text-sm text-[var(--tv-text-muted)]">Customer not found.</p>
       </main>
     );
   }
@@ -125,72 +125,72 @@ export default function CustomerDetailPage() {
     <main className="space-y-6">
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-semibold text-white">{customer.name}</h1>
-          <p className="mt-1 text-sm text-gray-400">Slug: {customer.slug}</p>
+          <h1 className="tv-adm-page-title">{customer.name}</h1>
+          <p className="mt-1 text-sm text-[var(--tv-text-muted)]">Slug: {customer.slug}</p>
         </div>
         <div className="flex gap-2">
-          <Link href={`/admin/customers/${customer.id}/edit`} className="rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary/100">
+          <Link href={`/admin/customers/${customer.id}/edit`} className="rounded-lg bg-[var(--tv-patina)] px-4 py-2 text-sm font-semibold text-[var(--tv-text)] hover:bg-[var(--tv-patina)]">
             Edit
           </Link>
-          <Link href={profileLink} target="_blank" className="rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10">
+          <Link href={profileLink} target="_blank" className="rounded-lg border border-[rgba(241,243,241,0.18)] px-4 py-2 text-sm font-semibold text-[var(--tv-text)] hover:bg-[rgba(241,243,241,0.06)]">
             Open Profile
           </Link>
         </div>
       </div>
 
       <section className="grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border border-white/10 bg-[#161b2e] p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-gray-400">Contact</h2>
-          <p className="text-sm text-gray-200">Email: {customer.email}</p>
-          <p className="text-sm text-gray-200">Phone: {customer.phone}</p>
-          <p className="text-sm text-gray-200">Status: {customer.isActive ? 'Active' : 'Disabled'}</p>
+        <div className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+          <h2 className="tv-adm-label mb-3">Contact</h2>
+          <p className="text-sm text-[var(--tv-text)]">Email: {customer.email}</p>
+          <p className="text-sm text-[var(--tv-text)]">Phone: {customer.phone}</p>
+          <p className="text-sm text-[var(--tv-text)]">Status: {customer.isActive ? 'Active' : 'Disabled'}</p>
         </div>
 
-        <div className="rounded-xl border border-white/10 bg-[#161b2e] p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-gray-400">Business</h2>
-          <p className="text-sm text-gray-200">Designation: {customer.designation || '-'}</p>
-          <p className="text-sm text-gray-200">Company: {customer.company || '-'}</p>
-          <p className="text-sm text-gray-200">Website: {customer.website || '-'}</p>
+        <div className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+          <h2 className="tv-adm-label mb-3">Business</h2>
+          <p className="text-sm text-[var(--tv-text)]">Designation: {customer.designation || '-'}</p>
+          <p className="text-sm text-[var(--tv-text)]">Company: {customer.company || '-'}</p>
+          <p className="text-sm text-[var(--tv-text)]">Website: {customer.website || '-'}</p>
         </div>
       </section>
 
-      <section className="rounded-xl border border-white/10 bg-[#161b2e] p-4">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-gray-400">About</h2>
-        <p className="text-sm leading-relaxed text-gray-200">{customer.about || 'No description provided.'}</p>
+      <section className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+        <h2 className="tv-adm-label mb-3">About</h2>
+        <p className="text-sm leading-relaxed text-[var(--tv-text)]">{customer.about || 'No description provided.'}</p>
       </section>
 
-      <section className="rounded-xl border border-white/10 bg-[#161b2e] p-4">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-gray-400">Gallery</h2>
+      <section className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+        <h2 className="tv-adm-label mb-3">Gallery</h2>
         {customer.galleries?.length ? (
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {customer.galleries.map((item) => (
-              <div key={item.id} className="rounded-lg border border-white/10 bg-[#101729] p-3">
+              <div key={item.id} className="rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-3">
                 <img src={item.image} alt={item.hoverText || `Gallery ${item.slot}`} className="h-32 w-full rounded-md object-cover" />
-                <p className="mt-2 text-xs text-gray-400">Slot {item.slot}</p>
-                <p className="text-xs text-gray-300">{item.hoverText || '-'}</p>
+                <p className="mt-2 text-xs text-[var(--tv-text-muted)]">Slot {item.slot}</p>
+                <p className="text-xs text-[var(--tv-text)]">{item.hoverText || '-'}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">No gallery items available.</p>
+          <p className="text-sm text-[var(--tv-text-muted)]">No gallery items available.</p>
         )}
       </section>
 
-      <section className="rounded-xl border border-white/10 bg-[#161b2e] p-4">
-        <h2 className="mb-3 text-sm font-semibold uppercase tracking-widest text-gray-400">Recent Leads</h2>
+      <section className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+        <h2 className="tv-adm-label mb-3">Recent Leads</h2>
         {customer.leads?.length ? (
           <div className="space-y-3">
             {customer.leads.map((lead) => (
-              <div key={lead.id} className="rounded-lg border border-white/10 bg-[#101729] p-3">
-                <p className="text-sm font-medium text-white">{lead.name}</p>
-                <p className="text-xs text-gray-400">{new Date(lead.createdAt).toLocaleString()}</p>
-                <p className="mt-1 text-xs text-gray-300">{lead.phone} {lead.email ? `| ${lead.email}` : ''}</p>
-                <p className="mt-1 text-sm text-gray-200">{lead.message}</p>
+              <div key={lead.id} className="rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-3">
+                <p className="text-sm font-medium text-[var(--tv-text)]">{lead.name}</p>
+                <p className="text-xs text-[var(--tv-text-muted)]">{new Date(lead.createdAt).toLocaleString()}</p>
+                <p className="mt-1 text-xs text-[var(--tv-text)]">{lead.phone} {lead.email ? `| ${lead.email}` : ''}</p>
+                <p className="mt-1 text-sm text-[var(--tv-text)]">{lead.message}</p>
               </div>
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-400">No leads captured yet.</p>
+          <p className="text-sm text-[var(--tv-text-muted)]">No leads captured yet.</p>
         )}
       </section>
     </main>
