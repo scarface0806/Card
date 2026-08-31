@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import CardPreviewModal from '@/components/CardPreviewModal';
-import CardFace from '@/components/CardFace';
+import NFCCard from '@/components/ui/NFCCard';
 import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
@@ -180,7 +180,7 @@ export default function CardsPage() {
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <CardFace
+                        <NFCCard
                           name={card.name}
                           color={card.color}
                           label={card.material || undefined}

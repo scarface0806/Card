@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Wifi } from 'lucide-react';
-import CardFace from './CardFace';
+import NFCCard from '@/components/ui/NFCCard';
 
 interface CardPreviewModalProps {
   isOpen: boolean;
@@ -61,20 +61,21 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
 
               <div className="tv-modal-body">
                 {/* Card Preview */}
+                {/* Flat and square to the page. The card used to swing in on
+                    rotateY/rotateX behind a perspective; there is no rotation
+                    anywhere in the product any more, so it simply settles. */}
                 <motion.div
-                  initial={{ rotateY: -12, rotateX: 4 }}
-                  animate={{ rotateY: 0, rotateX: 0 }}
-                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.4, ease: 'easeOut' }}
                   className="relative aspect-[1.6/1] rounded-2xl overflow-hidden mx-auto max-w-sm mb-7"
                   style={{
                     background: card.color,
-                    transformStyle: 'preserve-3d',
-                    perspective: '1000px',
                     boxShadow: '0 30px 60px rgba(0,0,0,0.5)',
                   }}
                 >
                   {/* The photograph, or the finish drawn from the design's own
-                      gradient. CardFace brings its own NFC mark and name
+                      gradient. NFCCard brings its own NFC mark and name
                       plate, so the overlay below is only for the photo case. */}
                   {card.images?.[0] || card.image ? (
                     <>
@@ -93,7 +94,7 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                       </div>
                     </>
                   ) : (
-                    <CardFace name={card.name} color={card.color} />
+                    <NFCCard name={card.name} color={card.color} />
                   )}
 
                   {/* Shine sweep */}

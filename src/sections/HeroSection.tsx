@@ -4,12 +4,7 @@ import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Star } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
-import dynamic from 'next/dynamic';
-
-const Card360Viewer = dynamic(() => import('@/components/Card360Viewer'), {
-  ssr: false,
-  loading: () => <div className="w-full aspect-square" />,
-});
+import NFCCard, { NFC_CARD_DEMO } from '@/components/ui/NFCCard';
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -110,9 +105,18 @@ export default function HeroSection() {
             transition={{ duration: 0.8, delay: 0.3, ease: [0.23, 1, 0.320, 1] }}
             className="lg:col-span-7 overflow-visible"
           >
-            <div className="w-full overflow-visible">
-              <Card360Viewer />
-            </div>
+            {/* The card sits square and static — no rotation, no drag, no
+                pointer tracking. The only motion is the ambient glow behind it
+                and one slow sheen sweep, both pure CSS on transform/opacity
+                and both dropped under prefers-reduced-motion. See NFC CARD
+                STAGE in globals.css. */}
+            <NFCCard
+              variant="obsidian"
+              label="Obsidian Dark"
+              size="hero"
+              glow
+              {...NFC_CARD_DEMO}
+            />
 
             <div className="mt-10 lg:mt-12 mx-auto max-w-[420px] lg:max-w-none lg:px-10">
               <hr className="tv-rule mb-5" />

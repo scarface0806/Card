@@ -3220,3 +3220,156 @@ body {
   width: 100%;
   border: 0;
 }
+
+/* ----------------------------------------------------------------------------
+   NFC CARD STAGE
+   A static card face over an ambient glow, used by the hero (dark ground) and
+   the finishes section (bone ground). The card does not move: it sits square,
+   no tilt, no rotation, no perspective. The 360-degree viewer this replaced
+   tracked the pointer and re-rendered React state on every mousemove; that is
+   deleted, not disabled.
+
+   Two things animate, both decorative and both compositor-only (transform and
+   opacity), and both are silenced under prefers-reduced-motion.
+   ---------------------------------------------------------------------------- */
+
+/* Registered so a finish swap CROSS-FADES the glow tint rather than cutting to
+   it. Unregistered custom properties are not interpolable. Defaults are the
+   two brand accents: --tv-patina and --tv-brass. */
+@property --tv-glow-a {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(76, 174, 137, 0.55);
+}
+@property --tv-glow-b {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: rgba(201, 169, 97, 0.40);
+}
+
+.tv-card-stage {
+  position: relative;
+  width: 100%;
+  margin-inline: auto;
+  /* Room for the glow to bloom without pushing the column. html/body already
+     clamp overflow-x, so nothing here can scroll the page sideways. */
+  padding-block: 2rem;
+  isolation: isolate;
+  transition:
+    --tv-glow-a 300ms ease,
+    --tv-glow-b 300ms ease;
+}
+
+/* The hero stage matches the 420px measure of the stat strip beneath it. */
+.tv-card-stage--hero { max-width: 420px; }
+.tv-card-stage--showcase { max-width: 400px; }
+
+@media (min-width: 1024px) {
+  .tv-card-stage--hero { max-width: 460px; }
+  .tv-card-stage--showcase { max-width: 440px; }
+}
+
+.tv-card-glow {
+  position: absolute;
+  z-index: -1;
+  /* Sits behind the card, not below it - an earlier version spilled past the
+     bottom edge and read as a dark bar under the card rather than as light. */
+  inset: 8% 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background:
+    radial-gradient(58% 54% at 38% 36%, var(--tv-glow-a) 0%, transparent 70%),
+    radial-gradient(52% 48% at 70% 66%, var(--tv-glow-b) 0%, transparent 72%);
+  filter: blur(64px);
+  opacity: 0.45;
+  will-change: transform, opacity;
+  animation: tv-card-glow-pulse 5s ease-in-out infinite alternate;
+}
+
+@keyframes tv-card-glow-pulse {
+  from { opacity: 0.45; transform: scale(1); }
+  to   { opacity: 0.85; transform: scale(1.06); }
+}
+
+/* The frame. Square to the page - the tilt is deliberately absent. It clips
+   the sheen to the card radius and carries the drop shadow the face itself
+   does not. */
+.tv-card-frame {
+  position: relative;
+  aspect-ratio: 1.6 / 1;
+  border-radius: 20px;
+  overflow: hidden;
+  border: 1px solid rgba(241, 243, 241, 0.12);
+  /* Kept light on purpose. A heavy black shadow on the near-black hero ground
+     reads as a smudge under the card instead of as depth. */
+  box-shadow:
+    0 28px 60px rgba(0, 0, 0, 0.42),
+    0 6px 16px rgba(0, 0, 0, 0.28);
+}
+
+/* One slow diagonal pass of light. Low opacity on purpose - it should read as
+   a reflection travelling across the surface, not as a highlight. */
+.tv-card-sheen {
+  position: absolute;
+  top: -50%;
+  left: 0;
+  width: 42%;
+  height: 200%;
+  pointer-events: none;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.10) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: translateX(-150%) rotate(14deg);
+  will-change: transform;
+  animation: tv-card-sheen-sweep 6s ease-in-out infinite;
+}
+
+@keyframes tv-card-sheen-sweep {
+  0%, 14%   { transform: translateX(-150%) rotate(14deg); }
+  66%, 100% { transform: translateX(330%) rotate(14deg); }
+}
+
+/* --- On the bone ground -------------------------------------------------
+   The finishes section is cream, so the same glow needs retuning: pulled in
+   tighter and pushed down a little so it reads as coloured light pooling
+   under the card, and the drop shadow warmed off pure black. */
+.tv-card-stage--showcase .tv-card-glow {
+  inset: 14% 4% 2%;
+  filter: blur(56px);
+}
+
+.tv-card-stage--showcase .tv-card-frame {
+  border-color: rgba(18, 16, 12, 0.10);
+  box-shadow:
+    0 26px 54px rgba(18, 16, 12, 0.24),
+    0 6px 16px rgba(18, 16, 12, 0.14);
+}
+
+/* --- Phones -------------------------------------------------------------
+   At 375px the stage already reaches the container gutter, so the glow is
+   pulled inside the card: a 64px bloom at that width touches the viewport
+   edge and reads as a band down the side of the screen. */
+@media (max-width: 639px) {
+  .tv-card-glow {
+    inset: 10% 6%;
+    filter: blur(46px);
+  }
+  .tv-card-stage--showcase .tv-card-glow {
+    inset: 16% 8% 2%;
+    filter: blur(40px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* Static glow held at mid opacity - the lighting stays, the pulse goes. */
+  .tv-card-glow {
+    animation: none;
+    opacity: 0.65;
+    transform: none;
+    will-change: auto;
+  }
+  .tv-card-sheen { display: none; }
+}

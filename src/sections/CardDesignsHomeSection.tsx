@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { Eye, ArrowUpRight, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
-import CardFace from '@/components/CardFace';
+import NFCCard from '@/components/ui/NFCCard';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
 import { ContactSource } from '@/components/ContactModal';
@@ -113,7 +113,7 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      <CardFace
+                      <NFCCard
                         name={card.name}
                         color={card.color}
                         label={card.material || undefined}
