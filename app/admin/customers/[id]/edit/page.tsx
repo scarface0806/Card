@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
@@ -293,61 +294,94 @@ export default function EditCustomerPage() {
 
   return (
     <main className="space-y-6">
-      <div>
-        <h1 className="tv-adm-page-title">Edit Customer</h1>
-        <p className="mt-1 text-sm text-[var(--tv-text-muted)]">Update profile details, social links, status, and gallery hover text.</p>
+      <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
+        <div>
+          <h1 className="tv-adm-page-title">Edit Customer</h1>
+          <p className="tv-adm-page-sub mt-1">Update profile details, social links, status, and gallery hover text.</p>
+        </div>
+        <Link href="/admin/customers" className="tv-btn tv-btn-secondary !min-h-[42px] !text-sm w-fit">
+          Back to customers
+        </Link>
       </div>
 
       {toast ? <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} /> : null}
 
-      <form onSubmit={handleSave} className="space-y-6 rounded-2xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4 sm:p-5 lg:p-6">
-        <div className="grid gap-4 md:grid-cols-2">
-          <label className="tv-adm-field-label">Name
-            <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
-          </label>
-          <label className="tv-adm-field-label">Designation
-            <input value={form.designation} onChange={(e) => setText('designation', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
-          </label>
-          <label className="tv-adm-field-label">Company
-            <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
-          </label>
-          <label className="tv-adm-field-label">Phone
-            {/* Digits and separators only - the field used to accept letters.
-                Editing this does NOT move the profile URL: the slug was fixed
-                when the customer was created and may already be written to a
-                physical NFC chip. */}
-            <input
-              type="tel"
-              inputMode="tel"
-              autoComplete="tel"
-              value={form.phone}
-              onChange={(e) => setText('phone', e.target.value.replace(/[^0-9+()-s]/g, ''))}
-              className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]"
-              required
-              minLength={6}
-              maxLength={30}
-            />
-          </label>
-          <label className="tv-adm-field-label">Email
-            <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
-          </label>
-          <label className="tv-adm-field-label">Mail API Key
-            <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
-          </label>
-          <label className="tv-adm-field-label">Status
-            <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]">
-              <option value="active">Active</option>
-              <option value="inactive">Disabled</option>
-            </select>
-          </label>
-        </div>
+      {/* One panel per group of fields, matching the rest of the admin. The
+          whole form used to be a single undivided card, so a long page of
+          inputs read as one undifferentiated wall. The repeated inline class
+          strings are gone too - `.tv-adm-input` is the same declaration, kept
+          in one place. */}
+      <form onSubmit={handleSave} className="space-y-5">
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">Details</h2>
+          </div>
+          <div className="tv-adm-panel-pad grid gap-4 md:grid-cols-2">
+            <label className="tv-adm-field-label">Name
+              <input value={form.name} onChange={(e) => setText('name', e.target.value)} className="tv-adm-input mt-2" required />
+            </label>
+            <label className="tv-adm-field-label">Designation
+              <input value={form.designation} onChange={(e) => setText('designation', e.target.value)} className="tv-adm-input mt-2" />
+            </label>
+            <label className="tv-adm-field-label">Company
+              <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="tv-adm-input mt-2" />
+            </label>
+            <label className="tv-adm-field-label">Phone
+              {/* Digits and separators only - the field used to accept letters.
+                  Editing this does NOT move the profile URL: the slug was fixed
+                  when the customer was created and may already be written to a
+                  physical NFC chip. */}
+              <input
+                type="tel"
+                inputMode="tel"
+                autoComplete="tel"
+                value={form.phone}
+                onChange={(e) => setText('phone', e.target.value.replace(/[^0-9+() -]/g, ''))}
+                className="tv-adm-input mt-2"
+                required
+                minLength={6}
+                maxLength={30}
+              />
+            </label>
+            <label className="tv-adm-field-label">Email
+              <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="tv-adm-input mt-2" required />
+            </label>
+            <label className="tv-adm-field-label">Mail API Key
+              <input value={form.mailApiEndpoint} onChange={(e) => setText('mailApiEndpoint', e.target.value)} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="tv-adm-input mt-2" />
+              <span className="tv-adm-meta mt-1.5 block text-xs normal-case tracking-normal">
+                Leave empty and the profile shows no enquiry form - only phone, email and address.
+              </span>
+            </label>
+            <label className="tv-adm-field-label">Status
+              <select value={form.isActive ? 'active' : 'inactive'} onChange={(e) => setToggle('isActive', e.target.value === 'active')} className="tv-adm-select mt-2">
+                <option value="active">Active</option>
+                <option value="inactive">Disabled</option>
+              </select>
+            </label>
+          </div>
+        </section>
 
-        <label className="tv-adm-field-label">About Us
-          <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="mt-2 min-h-32 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
-        </label>
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">About</h2>
+          </div>
+          <div className="tv-adm-panel-pad">
+            <label className="tv-adm-field-label">About Us
+              <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="tv-adm-textarea mt-2" />
+            </label>
+          </div>
+        </section>
 
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="md:col-span-2">
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">Photo &amp; location</h2>
+          </div>
+          <div className="tv-adm-panel-pad grid gap-5 md:grid-cols-[240px_1fr] md:items-start">
+            {/* The uploader used to span the full width of the form. A square
+                aspect ratio across that width rendered the profile photo as an
+                enormous block that pushed every field below it off screen. It
+                is now a fixed thumbnail column with the address fields beside
+                it, so the whole group fits on one screen. */}
             <ImageUpload
               folder="admin/customers"
               label="Customer Profile Photo"
@@ -355,18 +389,29 @@ export default function EditCustomerPage() {
               currentImageUrl={form.imageUrl || undefined}
               onUploadComplete={(url) => setText('imageUrl', url)}
             />
+
+            <div className="grid gap-4">
+              <label className="tv-adm-field-label">Address
+                <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="tv-adm-input mt-2" />
+              </label>
+              <label className="tv-adm-field-label">Google Maps Embed URL
+                <input value={form.mapEmbedUrl} onChange={(e) => setText('mapEmbedUrl', e.target.value)} placeholder="https://www.google.com/maps/embed?..." className="tv-adm-input mt-2" />
+                <span className="tv-adm-meta mt-1.5 block text-xs normal-case tracking-normal">
+                  Leave empty and the profile shows no map.
+                </span>
+              </label>
+            </div>
           </div>
+        </section>
 
-          <label className="tv-adm-field-label">Address
-            <input value={form.address} onChange={(e) => setText('address', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
-          </label>
-          <label className="tv-adm-field-label">Google Maps Embed URL
-            <input value={form.mapEmbedUrl} onChange={(e) => setText('mapEmbedUrl', e.target.value)} placeholder="https://www.google.com/maps/embed?..." className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
-          </label>
-        </div>
-
-        <div className="space-y-3 rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
-          <h3 className="tv-adm-label">Social Links</h3>
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">Social links</h2>
+            <span className="tv-adm-count">
+              {socialFields.filter((field) => Boolean(form[`${field.key}Enabled` as keyof FormState])).length} enabled
+            </span>
+          </div>
+          <div className="tv-adm-panel-pad space-y-3">
           {socialFields.map((field) => {
             const enabledKey = `${field.key}Enabled` as keyof FormState;
             const valueKey = field.key as keyof FormState;
@@ -378,55 +423,72 @@ export default function EditCustomerPage() {
                   <input type="checkbox" checked={isEnabled} onChange={(e) => setToggle(enabledKey, e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
                   <span>{field.label}</span>
                 </label>
-                <input value={value} disabled={!isEnabled} onChange={(e) => setText(valueKey, e.target.value)} placeholder={`${field.label} URL`} className="w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-4 py-2.5 text-sm text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)] disabled:cursor-not-allowed disabled:opacity-40" />
+                <input value={value} disabled={!isEnabled} onChange={(e) => setText(valueKey, e.target.value)} placeholder={`${field.label} URL`} className="tv-adm-input disabled:cursor-not-allowed disabled:opacity-40" />
               </div>
             );
           })}
-        </div>
+          </div>
+        </section>
 
-        <div className="space-y-3 rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
-          <div className="flex items-center justify-between gap-3">
-            <h3 className="tv-adm-label">Gallery (3 Images)</h3>
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">Gallery</h2>
             <label className="inline-flex items-center gap-2 text-sm text-[var(--tv-text)]">
               <input type="checkbox" checked={form.enableGallery} onChange={(e) => setToggle('enableGallery', e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
-              Enable Gallery
+              Enable gallery
             </label>
           </div>
 
           {form.enableGallery ? (
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="tv-adm-panel-pad grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {form.gallery.map((item) => (
-                <div key={item.slot} className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-3">
-                  <p className="text-xs font-semibold uppercase tracking-wider text-[var(--tv-text-muted)]">Image {item.slot}</p>
-                  <div className="mt-2 overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)]">
+                <div key={item.slot} className="rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-3">
+                  <p className="tv-adm-label">Image {item.slot}</p>
+                  {/* Fixed 16:10 frame. The preview is a thumbnail confirming
+                      which picture is in the slot, not a viewer. */}
+                  <div className="mt-2 aspect-[16/10] overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[var(--tv-graphite)]">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
                       src={item.file ? URL.createObjectURL(item.file) : item.image || '/no-image-placeholder.svg'}
                       alt={`Gallery ${item.slot}`}
-                      className="h-24 w-full object-cover"
+                      className="h-full w-full object-cover"
                     />
                   </div>
                   <input
                     type="file"
                     accept="image/*"
                     onChange={(e) => updateGalleryFile(item.slot, e.target.files?.[0] || null)}
-                    className="mt-2 block w-full text-xs text-[var(--tv-text-muted)] file:mr-2 file:rounded-full file:border-0 file:bg-[var(--tv-patina)] file:px-3 file:py-1.5 file:font-semibold file:text-[var(--tv-text)]"
+                    className="mt-3 block w-full text-xs text-[var(--tv-text-muted)] file:mr-2 file:rounded-full file:border-0 file:bg-[var(--tv-patina)] file:px-3 file:py-1.5 file:font-semibold file:text-[var(--tv-ink)]"
                   />
                   <input
                     value={item.hoverText}
                     onChange={(e) => updateGalleryHover(item.slot, e.target.value)}
                     placeholder={`Image ${item.slot} hover text`}
-                    className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] px-3 py-2 text-sm text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]"
+                    className="tv-adm-input mt-2"
                   />
                 </div>
               ))}
             </div>
-          ) : null}
-        </div>
+          ) : (
+            <div className="tv-adm-panel-pad">
+              <p className="tv-adm-meta text-xs">Gallery is off. The profile shows no image strip.</p>
+            </div>
+          )}
+        </section>
 
-        <button type="submit" disabled={saving} className="inline-flex items-center justify-center gap-2 rounded-full bg-[var(--tv-brass)] px-5 py-3 text-sm font-semibold text-[var(--tv-ink)] transition hover:from-[var(--tv-brass)] hover:to-[var(--tv-brass)] hover:shadow-lg disabled:cursor-not-allowed disabled:opacity-70">
-          {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-          {saving ? 'Saving...' : 'Save Customer'}
-        </button>
+        {/* Actions sit on their own bar rather than floating under the last
+            field, and the save button uses the standard gilded CTA - the old
+            one carried `hover:from-*`/`hover:to-*` gradient stops on an element
+            with no gradient, so its hover state did nothing at all. */}
+        <div className="flex flex-col-reverse items-stretch gap-2.5 sm:flex-row sm:items-center sm:justify-end">
+          <Link href="/admin/customers" className="tv-btn tv-btn-secondary !min-h-[42px] !text-sm justify-center">
+            Cancel
+          </Link>
+          <button type="submit" disabled={saving} className="tv-btn tv-btn-gilded !min-h-[42px] !text-sm justify-center disabled:cursor-not-allowed disabled:opacity-70">
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+            {saving ? 'Saving...' : 'Save Customer'}
+          </button>
+        </div>
       </form>
     </main>
   );

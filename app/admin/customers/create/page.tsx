@@ -118,12 +118,12 @@ export default function CreateCustomerPage() {
    * rather than rejected on submit.
    */
   const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const cleaned = event.target.value.replace(/[^0-9+()-s]/g, '');
+    const cleaned = event.target.value.replace(/[^0-9+() -]/g, '');
     setForm((current) => ({ ...current, phone: cleaned }));
   };
 
   /** Digits only, for the slug preview under the field. */
-  const phoneDigits = form.phone.replace(/D+/g, '');
+  const phoneDigits = form.phone.replace(/[^0-9]+/g, '');
 
   const handleToggleChange = (name: string, checked: boolean) => {
     setForm((current) => ({ ...current, [name]: checked }));
