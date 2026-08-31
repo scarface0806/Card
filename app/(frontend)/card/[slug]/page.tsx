@@ -58,7 +58,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     if (customer) {
       const title = `${customer.name} | NFC Digital Profile`;
       const description = [customer.designation, customer.company].filter(Boolean).join(' at ') || customer.about || `Connect with ${customer.name}`;
-      const image = customer.profileImage || customer.logo || '/og-default.png';
+      const image = customer.profileImage || customer.logo || '/og-image.png';
       const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/card/${slug}`;
 
       return {
@@ -109,7 +109,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     // description should be designation + company
     const description = [designation, company].filter(Boolean).join(' at ');
 
-    const ogImage = details?.profileImage || details?.coverImage || '/og-default.png';
+    const ogImage = details?.profileImage || details?.coverImage || '/og-image.png';
     const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || ''}/card/${slug}`;
 
     // common title for og and twitter

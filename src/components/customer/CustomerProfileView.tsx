@@ -17,18 +17,14 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowUpRight, Globe, Mail, MapPin, Phone } from 'lucide-react';
 import {
-  ArrowUpRight,
-  Facebook,
-  Globe,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Palette,
-  Phone,
-} from 'lucide-react';
+  BehanceIcon,
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  WhatsAppIcon,
+} from '@/components/icons/BrandIcons';
 import { BRAND } from '@/lib/brand';
 import BrandLogo from '@/components/common/BrandLogo';
 import { ROUTES } from '@/utils/constants';
@@ -205,15 +201,16 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
 
   const socialLinks = useMemo(
     () => [
-      // Same channels, same enable flags, same order. Only the icon changed:
-      // a lucide component instead of a Font Awesome class name, so the page
-      // no longer pulls a CDN stylesheet to draw six glyphs. Behance has no
-      // lucide glyph, so it takes the portfolio icon.
-      { key: 'whatsapp', enabled: customer.whatsappEnabled, url: normalizeUrl(customer.whatsapp), title: 'WhatsApp', icon: MessageCircle },
-      { key: 'instagram', enabled: customer.instagramEnabled, url: normalizeUrl(customer.instagram), title: 'Instagram', icon: Instagram },
-      { key: 'facebook', enabled: customer.facebookEnabled, url: normalizeUrl(customer.facebook), title: 'Facebook', icon: Facebook },
-      { key: 'linkedin', enabled: customer.linkedinEnabled, url: normalizeUrl(customer.linkedin), title: 'LinkedIn', icon: Linkedin },
-      { key: 'behance', enabled: customer.behanceEnabled, url: normalizeUrl(customer.behance), title: 'Behance', icon: Palette },
+      // Same channels, same enable flags, same order. Each brand channel draws
+      // its own mark from BrandIcons - lucide has no WhatsApp or Behance glyph,
+      // so those two were showing a speech bubble and a paint palette, which
+      // told a visitor nothing about where the link went. Website keeps the
+      // lucide globe: it is a generic destination, not a brand.
+      { key: 'whatsapp', enabled: customer.whatsappEnabled, url: normalizeUrl(customer.whatsapp), title: 'WhatsApp', icon: WhatsAppIcon },
+      { key: 'instagram', enabled: customer.instagramEnabled, url: normalizeUrl(customer.instagram), title: 'Instagram', icon: InstagramIcon },
+      { key: 'facebook', enabled: customer.facebookEnabled, url: normalizeUrl(customer.facebook), title: 'Facebook', icon: FacebookIcon },
+      { key: 'linkedin', enabled: customer.linkedinEnabled, url: normalizeUrl(customer.linkedin), title: 'LinkedIn', icon: LinkedInIcon },
+      { key: 'behance', enabled: customer.behanceEnabled, url: normalizeUrl(customer.behance), title: 'Behance', icon: BehanceIcon },
       { key: 'website', enabled: customer.websiteEnabled, url: normalizeUrl(customer.website), title: 'Website', icon: Globe },
     ].filter((item) => item.enabled && item.url),
     [customer]
@@ -409,7 +406,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                       rel="noopener noreferrer"
                       className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
                     >
-                      <MessageCircle className="w-[18px] h-[18px]" aria-hidden="true" />
+                      <WhatsAppIcon className="w-[18px] h-[18px]" aria-hidden="true" />
                       WhatsApp
                     </a>
                   ) : null}

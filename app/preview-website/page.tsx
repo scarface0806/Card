@@ -32,17 +32,13 @@ import {
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { ArrowUpRight, Globe, Mail, MapPin, Phone } from 'lucide-react';
 import {
-  ArrowUpRight,
-  Facebook,
-  Globe,
-  Instagram,
-  Linkedin,
-  Mail,
-  MapPin,
-  MessageCircle,
-  Phone,
-} from 'lucide-react';
+  FacebookIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  WhatsAppIcon,
+} from '@/components/icons/BrandIcons';
 import BrandLogo from '@/components/common/BrandLogo';
 
 type SubmitState =
@@ -55,10 +51,10 @@ type SubmitState =
    confirmed profiles from site-config; WhatsApp and the website round out the
    row a real profile would show. */
 const CHANNELS = [
-  { name: 'WhatsApp', href: whatsappLink(), icon: MessageCircle },
-  { name: 'Instagram', href: 'https://www.instagram.com/tapvyo', icon: Instagram },
-  { name: 'Facebook', href: 'https://www.facebook.com/tapvyo', icon: Facebook },
-  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/tapvyo', icon: Linkedin },
+  { name: 'WhatsApp', href: whatsappLink(), icon: WhatsAppIcon },
+  { name: 'Instagram', href: 'https://www.instagram.com/tapvyo', icon: InstagramIcon },
+  { name: 'Facebook', href: 'https://www.facebook.com/tapvyo', icon: FacebookIcon },
+  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/tapvyo', icon: LinkedInIcon },
   { name: 'Website', href: SITE_URL, icon: Globe },
 ];
 

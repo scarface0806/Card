@@ -26,19 +26,23 @@ import {
   Mail,
   Globe,
   MapPin,
-  Linkedin,
-  Twitter,
-  Facebook,
-  Instagram,
-  Youtube,
-  Github,
-  MessageCircle,
-  Send,
   Download,
   Share2,
   ExternalLink,
   ArrowUpRight,
 } from 'lucide-react';
+import {
+  FacebookIcon,
+  GitHubIcon,
+  InstagramIcon,
+  LinkedInIcon,
+  SnapchatIcon,
+  TelegramIcon,
+  TikTokIcon,
+  WhatsAppIcon,
+  XIcon,
+  YouTubeIcon,
+} from '@/components/icons/BrandIcons';
 import CardContactForm from './CardContactForm';
 import BrandLogo from './common/BrandLogo';
 import { BRAND } from '@/lib/brand';
@@ -99,16 +103,43 @@ interface CardProfileViewProps {
   card: CardData;
 }
 
-// Social icon mapping
-const socialIcons: Record<string, React.ElementType> = {
-  linkedin: Linkedin,
-  twitter: Twitter,
-  facebook: Facebook,
-  instagram: Instagram,
-  youtube: Youtube,
-  github: Github,
-  whatsapp: MessageCircle,
-  telegram: Send,
+/**
+ * Social icon mapping - one entry per platform `socialLinks` can hold.
+ *
+ * Every key in SocialLinks is covered: tiktok and snapchat used to be absent
+ * and fell through to the generic external-link arrow below, and whatsapp and
+ * telegram were drawn with a speech bubble and a paper plane. twitter now draws
+ * the X mark, since lucide's `Twitter` export is still the retired bird.
+ */
+const socialIcons: Record<keyof SocialLinks, React.ElementType> = {
+  linkedin: LinkedInIcon,
+  twitter: XIcon,
+  facebook: FacebookIcon,
+  instagram: InstagramIcon,
+  youtube: YouTubeIcon,
+  tiktok: TikTokIcon,
+  github: GitHubIcon,
+  whatsapp: WhatsAppIcon,
+  telegram: TelegramIcon,
+  snapchat: SnapchatIcon,
+};
+
+/**
+ * The accessible name for each channel. Capitalising the key produced
+ * "Linkedin", "Youtube", "Tiktok" and "Whatsapp"; a screen reader now reads
+ * each brand the way it is written.
+ */
+const socialLabels: Record<keyof SocialLinks, string> = {
+  linkedin: 'LinkedIn',
+  twitter: 'X',
+  facebook: 'Facebook',
+  instagram: 'Instagram',
+  youtube: 'YouTube',
+  tiktok: 'TikTok',
+  github: 'GitHub',
+  whatsapp: 'WhatsApp',
+  telegram: 'Telegram',
+  snapchat: 'Snapchat',
 };
 
 const fadeInUp = {
@@ -294,8 +325,10 @@ END:VCARD`;
                 {socialEntries.length > 0 ? (
                   <ul className="flex flex-wrap gap-3">
                     {socialEntries.map(([platform, url]) => {
-                      const Icon = socialIcons[platform] || ExternalLink;
-                      const label = platform.charAt(0).toUpperCase() + platform.slice(1);
+                      const key = platform as keyof SocialLinks;
+                      const Icon = socialIcons[key] || ExternalLink;
+                      const label =
+                        socialLabels[key] || platform.charAt(0).toUpperCase() + platform.slice(1);
                       return (
                         <li key={platform}>
                           <Link

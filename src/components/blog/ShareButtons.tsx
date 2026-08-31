@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState } from 'react';
-import { Check, Link2, Linkedin, MessageCircle, Twitter } from 'lucide-react';
+import { Check, Link2 } from 'lucide-react';
+import { LinkedInIcon, WhatsAppIcon, XIcon } from '@/components/icons/BrandIcons';
 
 interface ShareButtonsProps {
   url: string;
@@ -19,19 +20,19 @@ export default function ShareButtons({ url, title }: ShareButtonsProps) {
       key: 'whatsapp',
       label: 'Share on WhatsApp',
       href: `https://wa.me/?text=${encodedTitle}%20${encodedUrl}`,
-      icon: <MessageCircle className="h-4 w-4" aria-hidden="true" />,
+      icon: <WhatsAppIcon className="h-4 w-4" aria-hidden="true" />,
     },
     {
       key: 'linkedin',
       label: 'Share on LinkedIn',
       href: `https://www.linkedin.com/sharing/share-offsite/?url=${encodedUrl}`,
-      icon: <Linkedin className="h-4 w-4" aria-hidden="true" />,
+      icon: <LinkedInIcon className="h-4 w-4" aria-hidden="true" />,
     },
     {
       key: 'x',
       label: 'Share on X',
       href: `https://x.com/intent/tweet?text=${encodedTitle}&url=${encodedUrl}`,
-      icon: <Twitter className="h-4 w-4" aria-hidden="true" />,
+      icon: <XIcon className="h-4 w-4" aria-hidden="true" />,
     },
   ];
 
