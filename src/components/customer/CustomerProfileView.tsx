@@ -220,6 +220,19 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
   );
 
   const mapEmbedSrc = useMemo(() => normalizeMapEmbedSrc(customer.mapEmbedUrl), [customer.mapEmbedUrl]);
+
+  /**
+   * The enquiry form appears only when this customer has a mail destination
+   * configured, exactly as the map appears only when a map URL is set.
+   *
+   * It is derived from the same helper the submit handler uses to pick a
+   * delivery route, so the form can never be on screen in a state where a
+   * submission would have nowhere to go.
+   */
+  const leadFormEnabled = useMemo(
+    () => getMailDeliveryMode(customer.mailApiEndpoint) !== 'internal',
+    [customer.mailApiEndpoint]
+  );
   const shopName = customer.company?.trim() || '';
   const chatHref = useMemo(() => whatsappHref(customer), [customer]);
 
@@ -512,14 +525,18 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
               <p className="tv-eyebrow mb-6">Contact</p>
               <h2 className="tv-h2 mb-4">Get in touch.</h2>
               <p className="tv-lead tv-measure-body">
-                Have a question or want to work together? Send a message and we&apos;ll
-                get back to you shortly.
+                {leadFormEnabled
+                  ? 'Have a question or want to work together? Send a message and we will get back to you shortly.'
+                  : 'Have a question or want to work together? Reach out by phone or email and we will get back to you shortly.'}
               </p>
             </motion.div>
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16">
               {/* Details + map */}
-              <motion.div {...fadeInUp} className="lg:col-span-5">
+              <motion.div
+                {...fadeInUp}
+                className={leadFormEnabled ? 'lg:col-span-5' : 'lg:col-span-12'}
+              >
                 <ul className="mb-10">
                   <li className="tv-detail-row">
                     <span className="tv-detail-ico" aria-hidden="true">
@@ -573,7 +590,10 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
               </motion.div>
 
               {/* Form. Every field gets a real label — the placeholders were
-                  doing that job and vanished the moment anyone typed. */}
+                  doing that job and vanished the moment anyone typed.
+                  Shown only when a mail destination is configured, so the form
+                  is never offered when a submission would have nowhere to go. */}
+              {leadFormEnabled ? (
               <motion.div
                 {...fadeInUp}
                 transition={{ duration: 0.6, delay: 0.1 }}
@@ -695,6 +715,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                   </form>
                 </div>
               </motion.div>
+              ) : null}
             </div>
           </div>
         </section>

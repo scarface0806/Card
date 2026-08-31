@@ -108,6 +108,23 @@ export default function CreateCustomerPage() {
     setForm((current) => ({ ...current, [name]: value }));
   };
 
+  /**
+   * The phone field was a plain text input, so it accepted letters. That is a
+   * bad field in its own right, and it now also decides the profile URL - the
+   * slug is the last five digits of this number - so a typo here produces an
+   * address the customer cannot use.
+   *
+   * Anything that is not a digit or a separator is dropped as it is typed,
+   * rather than rejected on submit.
+   */
+  const handlePhoneChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const cleaned = event.target.value.replace(/[^0-9+()-s]/g, '');
+    setForm((current) => ({ ...current, phone: cleaned }));
+  };
+
+  /** Digits only, for the slug preview under the field. */
+  const phoneDigits = form.phone.replace(/D+/g, '');
+
   const handleToggleChange = (name: string, checked: boolean) => {
     setForm((current) => ({ ...current, [name]: checked }));
   };
@@ -307,13 +324,39 @@ export default function CreateCustomerPage() {
             <input name="company" value={form.company} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
           <label className="tv-adm-field-label">Phone
-            <input name="phone" value={form.phone} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
+            <input
+              name="phone"
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={form.phone}
+              onChange={handlePhoneChange}
+              required
+              minLength={6}
+              maxLength={30}
+              placeholder="+91 78713 61025"
+              className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]"
+            />
+            <span className="tv-adm-meta mt-1.5 block text-xs normal-case tracking-normal">
+              {phoneDigits.length >= 5
+                ? `Profile URL will be /card/${phoneDigits.slice(-5)}`
+                : 'Digits only. The last 5 become the profile URL.'}
+            </span>
           </label>
           <label className="tv-adm-field-label">Email
             <input name="email" type="email" value={form.email} onChange={handleTextChange} required className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
           <label className="tv-adm-field-label">Mail API Key (Optional)
-            <input name="mailApiEndpoint" value={form.mailApiEndpoint} onChange={handleTextChange} placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3" className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
+            <input
+              name="mailApiEndpoint"
+              value={form.mailApiEndpoint}
+              onChange={handleTextChange}
+              placeholder="d494ff75-8a82-40e6-b14a-d6d7056238d3"
+              className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]"
+            />
+            <span className="tv-adm-meta mt-1.5 block text-xs normal-case tracking-normal">
+              Leave empty and the profile shows no enquiry form - only phone, email and address.
+            </span>
           </label>
           <label className="tv-adm-field-label">Address
             <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />

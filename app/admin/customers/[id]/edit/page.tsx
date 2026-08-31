@@ -312,7 +312,21 @@ export default function EditCustomerPage() {
             <input value={form.company} onChange={(e) => setText('company', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
           <label className="tv-adm-field-label">Phone
-            <input value={form.phone} onChange={(e) => setText('phone', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
+            {/* Digits and separators only - the field used to accept letters.
+                Editing this does NOT move the profile URL: the slug was fixed
+                when the customer was created and may already be written to a
+                physical NFC chip. */}
+            <input
+              type="tel"
+              inputMode="tel"
+              autoComplete="tel"
+              value={form.phone}
+              onChange={(e) => setText('phone', e.target.value.replace(/[^0-9+()-s]/g, ''))}
+              className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]"
+              required
+              minLength={6}
+              maxLength={30}
+            />
           </label>
           <label className="tv-adm-field-label">Email
             <input type="email" value={form.email} onChange={(e) => setText('email', e.target.value)} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" required />
