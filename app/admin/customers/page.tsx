@@ -7,7 +7,7 @@ import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import StatusBadge from '@/components/admin/StatusBadge';
 import RightDrawer from '@/components/ui/RightDrawer';
-import { Copy, RefreshCw, UserPlus } from 'lucide-react';
+import { Copy, ExternalLink, RefreshCw, UserPlus } from 'lucide-react';
 import { isAbortError } from '@/lib/fetch-utils';
 
 interface CustomerRow {
@@ -226,13 +226,31 @@ export default function CustomersPage() {
           {
             key: 'nfcLink',
             label: 'NFC Link',
+            width: "150px",
+            /* The full profile URL used to be printed here, truncated at
+               220px. Every row showed the same origin followed by a slug that
+               is already its own column, and it was wide enough to push the
+               Actions column off screen. It is now a link you can open, with
+               the address still available on hover and through the copy
+               button beside it. */
             render: (value: string, row: CustomerRow) => (
-              <div className="flex items-center gap-2">
-                <span className="max-w-[220px] truncate text-[var(--tv-text)]">{value}</span>
+              <div className="flex items-center gap-1">
+                <a
+                  href={value}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={value}
+                  className="tv-adm-action tv-adm-action--patina inline-flex items-center gap-1.5"
+                >
+                  Open
+                  <ExternalLink className="h-3.5 w-3.5" aria-hidden="true" />
+                  <span className="sr-only">{` NFC profile for ${row.name} (opens in a new tab)`}</span>
+                </a>
                 <button
                   type="button"
                   onClick={() => handleCopy(row.nfcLink)}
-                  className="rounded-lg p-2 text-[var(--tv-patina)] transition hover:bg-[rgba(76,174,137,0.10)]"
+                  title="Copy NFC link"
+                  className="tv-adm-action tv-adm-action--icon tv-adm-action--patina"
                   aria-label={`Copy NFC link for ${row.name}`}
                 >
                   <Copy className="h-4 w-4" />
