@@ -1803,15 +1803,25 @@ body {
 
 /* Tier 1, gilded - the marketing CTA ("Get your card") and the card-grid buy
    buttons. Same tier and same weight as .tv-btn-primary, so the arrow glyph
-   still belongs here; it swaps the solid patina fill for an animated patina
-   ring around an ink core, with a brass label.
+   still belongs here; it swaps the solid patina fill for an animated brass ring
+   around an ink core, with a brass label. Gold throughout - no patina in the
+   button itself.
 
    The ring is two background layers clipped to different boxes rather than a
-   ::before overlay. That keeps the label real text in the markup - readable by
-   screen readers and crawlers, still correct with CSS disabled - and leaves the
-   inline arrow glyph sitting naturally beside it with no z-index stack to
-   manage. Sweeping background-position on hover gives the same travel as a
-   moving gradient without animating an expensive property.
+   ::before overlay: the ink core clipped to padding-box, the brass gradient to
+   border-box, showing through a transparent border. That keeps the label real
+   text in the markup - readable by screen readers and crawlers, still correct
+   with CSS disabled - and leaves the inline arrow glyph sitting naturally
+   beside it with no z-index stack to manage.
+
+   The gradient runs deep-bright-deep twice across 250% width, so sweeping
+   background-position on hover pulls the bright band across the metal. That is
+   the whole animation: a cheap composited property rather than a gradient
+   repainted every frame.
+
+   Focus deliberately keeps the sitewide patina outline from .tv-btn rather than
+   going brass. A brass ring on a brass border would be near invisible, and the
+   focus indicator is the one thing that must not blend in.
 
    Brass on ink is 8.83:1. */
 .tv-btn-gilded {
@@ -1821,12 +1831,12 @@ body {
     linear-gradient(var(--tv-ink), var(--tv-ink)) padding-box,
     linear-gradient(
       to right,
-      var(--tv-patina-deep),
-      var(--tv-patina),
-      var(--tv-patina-deep),
-      var(--tv-patina-deep),
-      var(--tv-patina),
-      var(--tv-patina-deep)
+      var(--tv-brass-deep),
+      var(--tv-brass),
+      var(--tv-brass-deep),
+      var(--tv-brass-deep),
+      var(--tv-brass),
+      var(--tv-brass-deep)
     ) border-box;
   background-size: auto, 250% 100%;
   background-position: center, left center;
@@ -1840,9 +1850,9 @@ body {
 
 .tv-btn-gilded:hover {
   background-position: center, right center;
-  color: #E0C179;
+  color: #E4CC8A;
   transform: translateY(-2px);
-  box-shadow: 0 10px 26px rgba(76, 174, 137, 0.22);
+  box-shadow: 0 10px 26px rgba(201, 169, 97, 0.22);
 }
 
 .tv-btn-gilded:active {
@@ -1852,7 +1862,7 @@ body {
 /* On bone the ink core still reads as the darkest thing on the surface, so the
    button keeps its contrast; only the ambient shadow needs toning down. */
 .tv-surface-bone .tv-btn-gilded:hover {
-  box-shadow: 0 10px 26px rgba(20, 98, 74, 0.18);
+  box-shadow: 0 10px 26px rgba(110, 85, 24, 0.18);
 }
 
 /* Tier 2 - outline. */
