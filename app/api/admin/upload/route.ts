@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { withAdmin } from "@/lib/auth-middleware";
 import {
+  adminUploadFolders,
   isAllowedAdminUploadFolder,
   isCloudinaryConfigured,
   uploadToCloudinary,
@@ -31,7 +32,7 @@ async function handler(request: NextRequest) {
 
     if (!isAllowedAdminUploadFolder(folderValue)) {
       return NextResponse.json(
-        { error: "Invalid folder. Allowed folders are admin/products, admin/customers, admin/cards, admin/profiles, admin/orders." },
+        { error: `Invalid folder. Allowed folders are ${adminUploadFolders.join(", ")}.` },
         { status: 400 }
       );
     }
@@ -55,9 +56,9 @@ async function handler(request: NextRequest) {
     }
 
     const buffer = Buffer.from(await fileValue.arrayBuffer());
-    const { url, publicId } = await uploadToCloudinary(buffer, folderValue);
+    const { url, publicId, width, height } = await uploadToCloudinary(buffer, folderValue);
 
-    return NextResponse.json({ success: true, url, publicId }, { status: 200 });
+    return NextResponse.json({ success: true, url, publicId, width, height }, { status: 200 });
   } catch (error) {
     console.error("Admin upload error:", error);
     const providerError = error as { http_code?: number };

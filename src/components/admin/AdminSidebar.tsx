@@ -13,6 +13,7 @@ import {
   Mail,
   Target,
   Contact,
+  FileText,
   User,
   Lock,
 } from 'lucide-react';
@@ -33,6 +34,7 @@ const menuItems = [
       { label: 'Products', href: '/admin/products', icon: Package },
       { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
       { label: 'Contacts', href: '/admin/contacts', icon: Contact },
+      { label: 'Blogs', href: '/admin/blogs', icon: FileText },
       { label: 'Newsletters', href: '/admin/newsletters', icon: Mail },
     ],
   },

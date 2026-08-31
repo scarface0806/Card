@@ -62,6 +62,11 @@ export default function Footer() {
             <h2 className="tv-eyebrow mb-5">Support</h2>
             <ul className="space-y-1">
               <li>
+                <Link href={ROUTES.BLOG} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
+                  Blog
+                </Link>
+              </li>
+              <li>
                 <Link href={ROUTES.ABOUT} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
                   About Us
                 </Link>

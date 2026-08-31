@@ -434,3 +434,107 @@ model Newsletter {
 
   @@map("newsletters")
 }
+
+// ==================== BLOG ====================
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+/// A Cloudinary-backed image. `publicId` is stored so deleting the post (or
+/// replacing the image) can also delete the asset from Cloudinary — an URL
+/// alone is not enough to do that reliably. `alt` is required, not optional:
+/// an image with no alt text must never reach a published page.
+type PostImage {
+  url      String
+  publicId String
+  alt      String
+  width    Int
+  height   Int
+}
+
+model Post {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  title   String
+  slug    String @unique
+  excerpt String
+  content String // sanitized HTML — see src/lib/blog/sanitize.ts
+
+  coverImage    PostImage?
+  galleryImages PostImage[]
+
+  tags     String[]
+  category String?
+
+  authorName   String
+  authorAvatar String?
+
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+
+  // Computed server-side from `content` on every write, never sent by the
+  // client, so it cannot drift from the body it describes.
+  readingTimeMinutes Int @default(1)
+
+  // SEO overrides. Each falls back to its content field when null.
+  metaTitle       String?
+  metaDescription String?
+  ogImage         String?
+  canonicalUrl    String?
+  noindex         Boolean @default(false)
+
+  views       Int @default(0)
+  uniqueViews Int @default(0)
+
+  postViews PostView[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Public listing and tag archives read published posts newest-first.
+  @@index([status, publishedAt(sort: Desc)])
+  @@index([tags])
+  // Admin "top posts by views" sort.
+  @@index([views(sort: Desc)])
+  @@map("posts")
+}
+
+model PostView {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  postId String @db.ObjectId
+  post   Post   @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  // Both are SHA-256 digests peppered with JWT_SECRET — no raw IP is stored.
+  sessionHash String
+  ipHash      String
+
+  userAgent String?
+  referrer  String?
+  country   String?
+
+  createdAt DateTime @default(now())
+
+  // One row per view, so the daily chart sees repeat visits and not just first
+  // ones. This index is what makes the "has this session read this post
+  // before?" lookup — which decides uniqueViews, and absorbs a strict-mode
+  // double fire — a single indexed read rather than a scan.
+  @@index([postId, sessionHash, createdAt(sort: Desc)])
+  // 30-day views chart, per post and site-wide.
+  @@index([postId, createdAt(sort: Desc)])
+  @@index([createdAt(sort: Desc)])
+  @@map("post_views")
+}
+
+/// Changing a published post's slug must never strand the old URL. Every
+/// previous slug is kept here and served as a 301 to the current one.
+model PostSlugRedirect {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  oldSlug String @unique
+  postId  String @db.ObjectId
+
+  createdAt DateTime @default(now())
+
+  @@index([postId])
+  @@map("post_slug_redirects")
+}

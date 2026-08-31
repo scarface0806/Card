@@ -191,6 +191,29 @@ import PremiumButton from '@/components/PremiumButton';
 </PremiumButton>
 ```
 
+## 📝 How to publish a blog post
+
+The blog lives at `/blog` and is managed from **Admin → Blogs**.
+
+1. Sign in at `/admin/login`, open **Blogs**, click **New post**.
+2. **Content** — title (the slug fills itself in), excerpt, and the body.
+   Use **H2**/**H3** for sections; the post page builds its table of contents
+   from them. Inserting an image asks for alt text, which is required.
+3. **Media** — upload a cover image and give it alt text. A post cannot be
+   published without both.
+4. **SEO** — optional meta title and description, with live 60/160 counters
+   and a Google preview. Leave the canonical URL blank unless the article was
+   first published somewhere else.
+5. **Publish** — set the author and comma-separated tags, then **Save** for a
+   draft or **Save & Publish** to go live. A future publish date schedules the
+   post. **Preview as draft** opens a token-protected, never-indexed preview.
+
+The post appears at `/blog/<slug>` within a minute. Changing a slug later
+keeps the old URL alive with a permanent redirect.
+
+Requires `CLOUDINARY_*` and `JWT_SECRET` (see `.env.example`). Full guide,
+analytics notes and a pre-deploy test checklist: [docs/BLOG.md](docs/BLOG.md).
+
 ## 🎓 Learning Resources
 
 - [Next.js Docs](https://nextjs.org/docs)

@@ -22,6 +22,11 @@ cloudinary.config({
 export type CloudinaryUploadResult = {
   url: string;
   publicId: string;
+  // Cloudinary reports the stored dimensions on every image upload. Callers
+  // that render through next/image need them to reserve layout space; callers
+  // that do not can keep ignoring them.
+  width: number;
+  height: number;
 };
 
 export const adminUploadFolders = [
@@ -30,6 +35,7 @@ export const adminUploadFolders = [
   "admin/cards",
   "admin/profiles",
   "admin/orders",
+  "admin/blog",
 ] as const;
 
 export type AdminUploadFolder = (typeof adminUploadFolders)[number];
@@ -70,6 +76,8 @@ export async function uploadToCloudinary(
         resolve({
           url: result.secure_url,
           publicId: result.public_id,
+          width: result.width,
+          height: result.height,
         });
       }
     );

@@ -35,6 +35,7 @@ export const ROUTES = {
   CARDS: '/cards',
   CREATE_CARD: '/create-card',
   ABOUT: '/about-us',
+  BLOG: '/blog',
   HOW_TO_USE: '/how-to-use',
   PRODUCTS: '/products',
   SERVICES: '/services',

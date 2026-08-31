@@ -3374,6 +3374,169 @@ body {
   .tv-card-sheen { display: none; }
 }
 
+/* ----------------------------------------------------------------------------
+   BLOG
+   `.tv-prose` already carries the legal pages' h2/h3/p/ul/ol/a/strong. A post
+   body can also contain images, figures, quotes, code and embeds, so
+   `.tv-prose-article` adds only those — it never restates or overrides a rule
+   .tv-prose already sets. Every value resolves to a token defined above.
+   -------------------------------------------------------------------------- */
+
+.tv-prose-article {
+  /* Slightly wider than the legal measure: an article carries images and code
+     that read badly at 68ch. */
+  max-width: 72ch;
+}
+
+.tv-prose-article > h2:first-child,
+.tv-prose-article > h3:first-child { margin-top: 0; }
+
+/* Heading ids are injected server-side (see toc.ts); this keeps the anchor
+   target clear of the sticky navbar when the contents list is used. */
+.tv-prose-article h2[id],
+.tv-prose-article h3[id] { scroll-margin-top: 6rem; }
+
+.tv-prose-article h4 {
+  font-family: var(--tv-font-body);
+  font-weight: 600;
+  font-size: 0.9375rem;
+  color: var(--tv-text);
+  margin-top: 1.5rem;
+  margin-bottom: 0.375rem;
+}
+
+.tv-prose-article img {
+  display: block;
+  width: 100%;
+  height: auto;
+  margin: 2rem 0;
+  border-radius: 0.75rem;
+  border: 1px solid var(--tv-rule);
+}
+
+.tv-prose-article figure { margin: 2rem 0; }
+.tv-prose-article figure img { margin: 0; }
+
+.tv-prose-article figcaption {
+  margin-top: 0.75rem;
+  padding-top: 0.625rem;
+  border-top: 1px solid var(--tv-rule);
+  font-family: var(--tv-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.02em;
+  color: var(--tv-text-muted);
+}
+
+.tv-prose-article blockquote {
+  margin: 2rem 0;
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  border-left: 2px solid var(--tv-brass);
+}
+
+.tv-prose-article blockquote p {
+  font-size: 1.0625rem;
+  line-height: 1.65;
+  color: var(--tv-text);
+  margin-bottom: 0.5rem;
+}
+
+.tv-prose-article blockquote p:last-child { margin-bottom: 0; }
+
+.tv-prose-article code {
+  font-family: var(--tv-font-mono);
+  font-size: 0.85em;
+  padding: 0.15em 0.4em;
+  border-radius: 0.25rem;
+  background: rgba(241, 243, 241, 0.07);
+  color: var(--tv-text);
+}
+
+.tv-prose-article pre {
+  margin: 2rem 0;
+  padding: 1rem 1.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid var(--tv-rule);
+  background: var(--tv-ink);
+  overflow-x: auto;
+  font-family: var(--tv-font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  color: var(--tv-text);
+}
+
+.tv-prose-article pre code {
+  background: none;
+  padding: 0;
+  font-size: inherit;
+}
+
+.tv-prose-article hr {
+  margin: 2.5rem 0;
+  border: 0;
+  height: 1px;
+  background: var(--tv-rule);
+}
+
+.tv-prose-article iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  height: auto;
+  margin: 2rem 0;
+  border: 1px solid var(--tv-rule);
+  border-radius: 0.75rem;
+}
+
+/* A table in an article scrolls inside its own box rather than forcing the
+   page body to scroll sideways. */
+.tv-prose-article table {
+  display: block;
+  width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  margin: 2rem 0;
+  font-size: 0.9375rem;
+}
+
+.tv-prose-article th,
+.tv-prose-article td {
+  padding: 0.625rem 0.875rem;
+  border-bottom: 1px solid var(--tv-rule);
+  text-align: left;
+  color: var(--tv-text-muted);
+}
+
+.tv-prose-article th {
+  color: var(--tv-text);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* --- Table of contents ---------------------------------------------------- */
+
+.tv-toc-link {
+  display: block;
+  padding: 0.3125rem 0 0.3125rem 0.875rem;
+  margin-left: -1px;
+  border-left: 2px solid transparent;
+  font-family: var(--tv-font-body);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  color: var(--tv-text-muted);
+  transition: color 160ms var(--tv-ease), border-color 160ms var(--tv-ease);
+}
+
+.tv-toc-link[data-level="3"] { padding-left: 1.625rem; font-size: 0.78125rem; }
+
+.tv-toc-link:hover { color: var(--tv-text); }
+
+/* Hung off aria-current so the highlighted entry and the announced one are the
+   same fact, not two that can drift. */
+.tv-toc-link[aria-current="location"] {
+  color: var(--tv-patina);
+  border-left-color: var(--tv-patina);
+}
+
 /* The admin layer sits in @layer components on purpose.
    Unlayered CSS beats every Tailwind utility, so an unlayered
    .tv-adm-iconbtn{display:inline-flex} silently overrode lg:hidden and left
@@ -3946,6 +4109,179 @@ body {
     from { background-position: 100% 50%; }
     to   { background-position: 0 50%; }
   }
+
+
+  /* --- Blog: tabs, editor, chart ------------------------------------------
+     Added for the blog module. Every value below resolves to a token that was
+     already in this file — no new colour, face or radius is introduced. */
+
+  .tv-adm-tabs {
+    display: flex;
+    gap: 0.25rem;
+    overflow-x: auto;
+    border-bottom: 1px solid var(--tv-rule);
+    scrollbar-width: none;
+  }
+
+  .tv-adm-tabs::-webkit-scrollbar { display: none; }
+
+  .tv-adm-tab {
+    flex-shrink: 0;
+    padding: 0.625rem 0.875rem;
+    font-family: var(--tv-font-body);
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--tv-text-muted);
+    border-bottom: 2px solid transparent;
+    margin-bottom: -1px;
+    transition: color 160ms var(--tv-ease), border-color 160ms var(--tv-ease);
+  }
+
+  .tv-adm-tab:hover { color: var(--tv-text); }
+
+  /* Hung off aria-selected so the visible tab and the announced one cannot
+     drift apart — the same contract .tv-adm-nav-item uses for aria-current. */
+  .tv-adm-tab[aria-selected="true"] {
+    color: var(--tv-patina);
+    border-bottom-color: var(--tv-patina);
+  }
+
+  .tv-adm-editor {
+    border: 1px solid var(--tv-rule);
+    border-radius: 0.75rem;
+    background: rgba(7, 10, 9, 0.55);
+    overflow: hidden;
+  }
+
+  .tv-adm-editor-bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.125rem;
+    padding: 0.375rem;
+    border-bottom: 1px solid var(--tv-rule);
+    background: var(--tv-graphite);
+  }
+
+  .tv-adm-editor-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 0.5rem;
+    color: var(--tv-text-muted);
+    transition: background 160ms var(--tv-ease), color 160ms var(--tv-ease);
+  }
+
+  .tv-adm-editor-btn:hover:not(:disabled) {
+    background: rgba(241, 243, 241, 0.06);
+    color: var(--tv-text);
+  }
+
+  .tv-adm-editor-btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .tv-adm-editor-btn[aria-pressed="true"] {
+    background: rgba(76, 174, 137, 0.12);
+    color: var(--tv-patina);
+  }
+
+  .tv-adm-editor-sep {
+    width: 1px;
+    height: 1.25rem;
+    margin: 0 0.25rem;
+    background: var(--tv-rule);
+  }
+
+  /* The writing surface. Deliberately close to .tv-prose on the public post
+     page so what is typed here reads the way it will read once published. */
+  .tv-adm-editor-body {
+    min-height: 22rem;
+    padding: 1rem 1.25rem;
+    font-family: var(--tv-font-body);
+    font-size: 0.9375rem;
+    line-height: 1.7;
+    color: var(--tv-text);
+    outline: none;
+  }
+
+  .tv-adm-editor-body > * + * { margin-top: 0.75rem; }
+
+  .tv-adm-editor-body h2 {
+    font-family: var(--tv-font-display);
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
+    margin-top: 1.75rem;
+  }
+
+  .tv-adm-editor-body h3 {
+    font-size: 1.0625rem;
+    font-weight: 600;
+    margin-top: 1.5rem;
+  }
+
+  .tv-adm-editor-body h4 { font-size: 0.9375rem; font-weight: 600; }
+
+  .tv-adm-editor-body ul,
+  .tv-adm-editor-body ol { padding-left: 1.25rem; list-style: disc; }
+  .tv-adm-editor-body ol { list-style: decimal; }
+
+  .tv-adm-editor-body blockquote {
+    padding-left: 0.875rem;
+    border-left: 2px solid var(--tv-brass);
+    color: var(--tv-text-muted);
+  }
+
+  .tv-adm-editor-body a { color: var(--tv-patina); text-decoration: underline; }
+
+  .tv-adm-editor-body code {
+    font-family: var(--tv-font-mono);
+    font-size: 0.85em;
+    padding: 0.1em 0.35em;
+    border-radius: 0.25rem;
+    background: rgba(241, 243, 241, 0.07);
+  }
+
+  .tv-adm-editor-body pre {
+    font-family: var(--tv-font-mono);
+    font-size: 0.8125rem;
+    padding: 0.875rem 1rem;
+    border-radius: 0.5rem;
+    background: var(--tv-ink);
+    overflow-x: auto;
+  }
+
+  .tv-adm-editor-body pre code { background: none; padding: 0; }
+
+  .tv-adm-editor-body img,
+  .tv-adm-editor-body iframe {
+    max-width: 100%;
+    border-radius: 0.5rem;
+    border: 1px solid var(--tv-rule);
+  }
+
+  .tv-adm-editor-body iframe { width: 100%; aspect-ratio: 16 / 9; height: auto; }
+
+  /* Tiptap's own empty-paragraph placeholder hook. */
+  .tv-adm-editor-body p.is-editor-empty:first-child::before {
+    content: "Write the post…";
+    float: left;
+    height: 0;
+    pointer-events: none;
+    color: var(--tv-text-muted);
+  }
+
+  .tv-adm-chart-col {
+    flex: 1 1 0;
+    min-width: 0;
+    border-radius: 2px 2px 0 0;
+    background: rgba(76, 174, 137, 0.55);
+    transition: background 160ms var(--tv-ease);
+  }
+
+  .tv-adm-chart-col:hover { background: var(--tv-patina); }
 
   @media (prefers-reduced-motion: reduce) {
     .tv-adm-skeleton { animation: none; }

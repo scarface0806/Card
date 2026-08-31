@@ -5,11 +5,17 @@ import { useState } from "react";
 type UploadSuccessResponse = {
   url: string;
   publicId: string;
+  width?: number;
+  height?: number;
 };
 
 export type UseImageUploadReturn = {
   imageUrl: string | null;
   publicId: string | null;
+  // Stored dimensions, reported by Cloudinary. Callers rendering through
+  // next/image need them to reserve layout space; the rest can ignore them.
+  width: number | null;
+  height: number | null;
   isUploading: boolean;
   uploadProgress: number;
   error: string | null;
@@ -23,6 +29,8 @@ const ALLOWED_TYPES = new Set(["image/jpeg", "image/png", "image/webp", "image/g
 export function useImageUpload(folder: string): UseImageUploadReturn {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [publicId, setPublicId] = useState<string | null>(null);
+  const [width, setWidth] = useState<number | null>(null);
+  const [height, setHeight] = useState<number | null>(null);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -30,6 +38,8 @@ export function useImageUpload(folder: string): UseImageUploadReturn {
   const resetImage = () => {
     setImageUrl(null);
     setPublicId(null);
+    setWidth(null);
+    setHeight(null);
     setUploadProgress(0);
     setError(null);
   };
@@ -96,11 +106,15 @@ export function useImageUpload(folder: string): UseImageUploadReturn {
 
       setImageUrl(response.url);
       setPublicId(response.publicId);
+      setWidth(response.width ?? null);
+      setHeight(response.height ?? null);
       setUploadProgress(100);
     } catch (uploadError) {
       setError(uploadError instanceof Error ? uploadError.message : "Upload failed");
       setImageUrl(null);
       setPublicId(null);
+      setWidth(null);
+      setHeight(null);
       setUploadProgress(0);
     } finally {
       setIsUploading(false);
@@ -110,6 +124,8 @@ export function useImageUpload(folder: string): UseImageUploadReturn {
   return {
     imageUrl,
     publicId,
+    width,
+    height,
     isUploading,
     uploadProgress,
     error,

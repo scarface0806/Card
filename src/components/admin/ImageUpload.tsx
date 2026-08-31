@@ -8,7 +8,16 @@ type AspectRatio = "square" | "landscape" | "portrait";
 
 type ImageUploadProps = {
   folder: string;
-  onUploadComplete: (url: string, publicId: string) => void;
+  /**
+   * The third argument is additive: existing callers that take two
+   * parameters keep working untouched, while a caller that renders the image
+   * through next/image can read the stored dimensions from it.
+   */
+  onUploadComplete: (
+    url: string,
+    publicId: string,
+    meta?: { width: number | null; height: number | null }
+  ) => void;
   currentImageUrl?: string;
   label?: string;
   aspectRatio?: AspectRatio;
@@ -34,6 +43,8 @@ export default function ImageUpload({
   const {
     imageUrl,
     publicId,
+    width,
+    height,
     isUploading,
     uploadProgress,
     error,
@@ -48,9 +59,9 @@ export default function ImageUpload({
   useEffect(() => {
     if (imageUrl && publicId) {
       setLocalPreview(imageUrl);
-      onUploadComplete(imageUrl, publicId);
+      onUploadComplete(imageUrl, publicId, { width, height });
     }
-  }, [imageUrl, publicId, onUploadComplete]);
+  }, [imageUrl, publicId, width, height, onUploadComplete]);
 
   const dropZoneClass = useMemo(() => {
     const base = "rounded-xl border border-dashed p-4 transition-all";
