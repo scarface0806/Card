@@ -13,6 +13,8 @@
  *   or signature material
  */
 
+import { randomUUID } from "crypto";
+
 import prisma from "@/lib/prisma";
 import { getRazorpayService } from "@/lib/razorpay";
 import { razorpayDebugger } from "@/lib/razorpay-debug";
@@ -65,8 +67,13 @@ class PaymentAdapterService {
    * Flow:
    * 1. Read the internal order - the price comes from Order.total in the DB
    * 2. Convert to integer paise
-   * 3. Create the Razorpay order
-   * 4. Log the mapping in PaymentLog
+   * 3. Reserve the PaymentLog row under a placeholder key
+   * 4. Create the Razorpay order, releasing the reservation if that fails
+   * 5. Bind the reserved row to the real Razorpay order id
+   *
+   * Our own write comes first on purpose: a database that cannot be written
+   * to then fails before a real Razorpay order exists, instead of orphaning
+   * one with no local row pointing at it.
    *
    * NOTE: no `amount` is accepted from the caller. Any client-supplied amount is
    * ignored by design, so a tampered request cannot buy a 599 rupee card for 1 rupee.
@@ -123,29 +130,23 @@ class PaymentAdapterService {
       );
     }
 
-    // Step 3: Create the Razorpay order.
-    const razorpayService = getRazorpayService();
-    const razorpayOrder = await razorpayService.createOrder({
-      amount: amountInPaise,
-      currency: "INR",
-      receipt: `order_${existingOrderId}`.slice(0, 40), // Razorpay caps receipt at 40 chars
-      notes: {
-        orderId: existingOrderId,
-      },
-    });
+    // Step 3: Reserve the payment log row BEFORE anything exists at Razorpay.
+    //
+    // Ordering matters. Creating the Razorpay order first meant any database
+    // failure left a live Razorpay order with no local row pointing at it -
+    // money-side state we could neither find nor reconcile. Writing our own row
+    // first makes a broken database fail while the only state in play is ours.
+    //
+    // razorpayOrderId is required and unique, so the row is reserved under a
+    // placeholder key and rewritten with the real id once Razorpay responds.
+    const reservationKey = `pending_${randomUUID()}`;
 
-    razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createPaymentOrder', 'Razorpay order created', {
-      existingOrderId,
-      razorpayOrderId: razorpayOrder.id,
-      amount: razorpayOrder.amount,
-    });
-
-    // Step 4: Log the mapping. Contact details are stored (we need them to
-    // reconcile a payment) but are never written to the debug log.
+    // Contact details are stored (we need them to reconcile a payment) but are
+    // never written to the debug log.
     const paymentLog = await prisma.paymentLog.create({
       data: {
         existingOrderId,
-        razorpayOrderId: razorpayOrder.id,
+        razorpayOrderId: reservationKey,
         amount: order.total,
         currency: "INR",
         status: "PENDING",
@@ -155,7 +156,53 @@ class PaymentAdapterService {
       },
     });
 
-    razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createPaymentOrder', 'Payment log created', {
+    razorpayDebugger.log('INFO', 'PaymentAdapter.createPaymentOrder', 'Payment log reserved', {
+      paymentLogId: paymentLog.id,
+      existingOrderId,
+    });
+
+    // Step 4: Create the Razorpay order.
+    const razorpayService = getRazorpayService();
+    let razorpayOrder;
+
+    try {
+      razorpayOrder = await razorpayService.createOrder({
+        amount: amountInPaise,
+        currency: "INR",
+        receipt: `order_${existingOrderId}`.slice(0, 40), // Razorpay caps receipt at 40 chars
+        notes: {
+          orderId: existingOrderId,
+        },
+      });
+    } catch (error) {
+      // Nothing was charged and no Razorpay order exists, so drop the
+      // reservation rather than leave a PENDING row verify can never match.
+      await prisma.paymentLog
+        .deleteMany({ where: { id: paymentLog.id, razorpayOrderId: reservationKey } })
+        .catch(() => {
+          razorpayDebugger.log('WARN', 'PaymentAdapter.createPaymentOrder', 'Could not release reservation', {
+            paymentLogId: paymentLog.id,
+          });
+        });
+
+      throw error;
+    }
+
+    razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createPaymentOrder', 'Razorpay order created', {
+      existingOrderId,
+      razorpayOrderId: razorpayOrder.id,
+      amount: razorpayOrder.amount,
+    });
+
+    // Step 5: Bind the reservation to the Razorpay order id. verifyPayment
+    // looks the row up by this field, so it has to land before the customer
+    // can finish paying.
+    await prisma.paymentLog.update({
+      where: { id: paymentLog.id },
+      data: { razorpayOrderId: razorpayOrder.id },
+    });
+
+    razorpayDebugger.log('SUCCESS', 'PaymentAdapter.createPaymentOrder', 'Payment log bound to Razorpay order', {
       paymentLogId: paymentLog.id,
       razorpayOrderId: razorpayOrder.id,
     });
