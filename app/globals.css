@@ -3374,573 +3374,581 @@ body {
   .tv-card-sheen { display: none; }
 }
 
-/* ============================================================================
-   ADMIN — TAPVYO DESIGN SYSTEM
-   The admin ran on its own blue-slate palette (#0b1020 / #020617 / slate-800)
-   with green-500 accents and gray-400 type, sharing nothing with the public
-   site. This layer puts it on the same tokens as the front end: the
-   ink/graphite/slate grounds, patina green and brass, bone type, the serif
-   display face for headings and the mono face for labels.
-
-   Everything here is presentation. No rule below changes what a control does.
-   ============================================================================ */
-
-:root {
-  /* The one token the public palette never needed: the front end has no
-     destructive action. Terracotta rather than a pure red, so it sits with the
-     brass and patina instead of shouting over them. 4.76:1 on --tv-slate. */
-  --tv-danger:      #E07A6E;
-  --tv-danger-deep: #8A2E22;
-}
-
-/* --- Shell --------------------------------------------------------------- */
-.tv-adm-shell {
-  background: var(--tv-ink);
-  color: var(--tv-text);
-}
-
-/* The same lit ground the hero uses, at a much lower level so it reads as
-   depth behind the data rather than as a feature of it. */
-.tv-adm-ground {
-  position: relative;
-  isolation: isolate;
-}
-
-.tv-adm-ground::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    radial-gradient(70% 46% at 82% 0%, rgba(76, 174, 137, 0.10) 0%, transparent 62%),
-    radial-gradient(52% 40% at 6% 4%, rgba(201, 169, 97, 0.06) 0%, transparent 66%);
-}
-
-/* --- Sidebar ------------------------------------------------------------- */
-.tv-adm-sidebar {
-  background: var(--tv-graphite);
-  border-right: 1px solid var(--tv-rule);
-  color: var(--tv-text);
-}
-
-.tv-adm-band {
-  border-color: var(--tv-rule);
-  background: rgba(241, 243, 241, 0.02);
-}
-
-.tv-adm-nav-section {
-  font-family: var(--tv-font-mono);
-  font-weight: 600;
-  font-size: 0.625rem;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  color: var(--tv-brass);
-}
-
-.tv-adm-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 0.625rem;
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--tv-text-muted);
-  text-decoration: none;
-  transition:
-    background-color var(--duration-fast) var(--tv-ease),
-    color var(--duration-fast) var(--tv-ease);
-}
-
-.tv-adm-nav-item:hover {
-  background: rgba(241, 243, 241, 0.05);
-  color: var(--tv-text);
-}
-
-/* Active state carries exactly two signals: a patina wash and patina type.
-   No accent bar, no glow, no chevron - the restraint the old sidebar had,
-   in the site palette. */
-.tv-adm-nav-item[aria-current="page"] {
-  background: rgba(76, 174, 137, 0.12);
-  color: var(--tv-patina);
-}
-
-/* --- Header -------------------------------------------------------------- */
-.tv-adm-header {
-  background: rgba(21, 28, 26, 0.88);
-  border-bottom: 1px solid var(--tv-rule);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-}
-
-.tv-adm-iconbtn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 10px;
-  padding: 0.625rem;
-  color: var(--tv-text-muted);
-  background: transparent;
-  border: 0;
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast) var(--tv-ease),
-    color var(--duration-fast) var(--tv-ease);
-}
-
-.tv-adm-iconbtn:hover {
-  background: rgba(241, 243, 241, 0.07);
-  color: var(--tv-patina);
-}
-
-/* --- Page header --------------------------------------------------------- */
-.tv-adm-page-title {
-  font-family: var(--tv-font-display);
-  font-weight: 600;
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
-  line-height: 1.15;
-  letter-spacing: -0.01em;
-  color: var(--tv-text);
-}
-
-.tv-adm-page-sub {
-  font-size: 0.875rem;
-  line-height: 1.6;
-  color: var(--tv-text-muted);
-}
-
-/* --- Panels -------------------------------------------------------------- */
-.tv-adm-panel {
-  background: var(--tv-slate);
-  border: 1px solid var(--tv-rule);
-  border-radius: 14px;
-}
-
-.tv-adm-panel-head {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 1rem 1.25rem;
-  border-bottom: 1px solid var(--tv-rule);
-}
-
-.tv-adm-panel-title {
-  font-family: var(--tv-font-display);
-  font-size: 1.0625rem;
-  font-weight: 600;
-  color: var(--tv-text);
-}
-
-.tv-adm-panel-pad { padding: 1.25rem; }
-
-/* --- Label / meta -------------------------------------------------------- */
-.tv-adm-label {
-  font-family: var(--tv-font-mono);
-  font-weight: 600;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-}
-
-.tv-adm-meta {
-  font-size: 0.8125rem;
-  color: var(--tv-text-muted);
-}
-
-.tv-adm-count {
-  display: inline-flex;
-  align-items: center;
-  font-family: var(--tv-font-mono);
-  font-size: 0.6875rem;
-  letter-spacing: 0.08em;
-  color: var(--tv-text-muted);
-  background: rgba(241, 243, 241, 0.05);
-  border: 1px solid var(--tv-rule);
-  border-radius: 999px;
-  padding: 0.25rem 0.625rem;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-
-/* --- Stat card ----------------------------------------------------------- */
-.tv-adm-stat {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  min-width: 0;
-  background: var(--tv-slate);
-  border: 1px solid var(--tv-rule);
-  border-radius: 14px;
-  padding: 1.25rem;
-}
-
-.tv-adm-stat-value {
-  font-family: var(--tv-font-display);
-  font-size: 1.875rem;
-  font-weight: 600;
-  line-height: 1;
-  letter-spacing: -0.02em;
-  color: var(--tv-text);
-  font-variant-numeric: tabular-nums;
-}
-
-.tv-adm-stat-icon {
-  display: flex;
-  height: 2rem;
-  width: 2rem;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  border-radius: 9px;
-  border: 1px solid var(--tv-rule);
-  background: rgba(241, 243, 241, 0.05);
-  color: var(--tv-text-muted);
-}
-
-.tv-adm-stat-icon--patina {
-  border-color: rgba(76, 174, 137, 0.28);
-  background: rgba(76, 174, 137, 0.10);
-  color: var(--tv-patina);
-}
-.tv-adm-stat-icon--brass {
-  border-color: rgba(201, 169, 97, 0.30);
-  background: rgba(201, 169, 97, 0.10);
-  color: var(--tv-brass);
-}
-.tv-adm-stat-icon--danger {
-  border-color: rgba(224, 122, 110, 0.30);
-  background: rgba(224, 122, 110, 0.10);
-  color: var(--tv-danger);
-}
-
-/* --- Table --------------------------------------------------------------- */
-.tv-adm-table { width: 100%; border-collapse: collapse; }
-
-.tv-adm-table thead {
-  background: var(--tv-graphite);
-}
-
-.tv-adm-table th {
-  padding: 0.875rem 1.5rem;
-  text-align: left;
-  white-space: nowrap;
-  font-family: var(--tv-font-mono);
-  font-weight: 600;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  border-bottom: 1px solid var(--tv-rule);
-}
-
-.tv-adm-table td {
-  padding: 0.875rem 1.5rem;
-  font-size: 0.875rem;
-  color: var(--tv-text);
-  border-top: 1px solid var(--tv-rule);
-}
-
-.tv-adm-table tbody tr {
-  transition: background-color var(--duration-fast) var(--tv-ease);
-}
-
-.tv-adm-table tbody tr:hover { background: rgba(241, 243, 241, 0.035); }
-
-/* --- Form controls ------------------------------------------------------- */
-.tv-adm-field-label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-family: var(--tv-font-mono);
-  font-weight: 600;
-  font-size: 0.6875rem;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-}
-
-.tv-adm-input,
-.tv-adm-select,
-.tv-adm-textarea {
-  width: 100%;
-  background: rgba(7, 10, 9, 0.55);
-  border: 1px solid var(--tv-rule);
-  border-radius: 10px;
-  padding: 0.625rem 0.875rem;
-  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
-  font-size: 0.875rem;
-  color: var(--tv-text);
-  transition:
-    border-color var(--duration-fast) var(--tv-ease),
-    box-shadow var(--duration-fast) var(--tv-ease);
-}
-
-.tv-adm-textarea { min-height: 7rem; resize: vertical; }
-
-.tv-adm-input::placeholder,
-.tv-adm-textarea::placeholder { color: rgba(169, 181, 176, 0.7); }
-
-.tv-adm-input:focus,
-.tv-adm-select:focus,
-.tv-adm-textarea:focus {
-  outline: none;
-  border-color: rgba(76, 174, 137, 0.55);
-  box-shadow: 0 0 0 3px rgba(76, 174, 137, 0.14);
-}
-
-.tv-adm-select option { background: var(--tv-graphite); color: var(--tv-text); }
-
-.tv-adm-field-error {
-  margin-top: 0.375rem;
-  font-size: 0.75rem;
-  color: var(--tv-danger);
-}
-
-/* --- Badges -------------------------------------------------------------- */
-.tv-adm-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  border-radius: 999px;
-  padding: 0.25rem 0.625rem;
-  font-family: var(--tv-font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  border: 1px solid transparent;
-  white-space: nowrap;
-}
-
-.tv-adm-badge-dot {
-  height: 0.375rem;
-  width: 0.375rem;
-  border-radius: 999px;
-  flex-shrink: 0;
-}
-
-.tv-adm-badge--patina {
-  background: rgba(76, 174, 137, 0.12);
-  border-color: rgba(76, 174, 137, 0.30);
-  color: var(--tv-patina);
-}
-.tv-adm-badge--patina .tv-adm-badge-dot { background: var(--tv-patina); }
-
-.tv-adm-badge--brass {
-  background: rgba(201, 169, 97, 0.12);
-  border-color: rgba(201, 169, 97, 0.32);
-  color: var(--tv-brass);
-}
-.tv-adm-badge--brass .tv-adm-badge-dot { background: var(--tv-brass); }
-
-.tv-adm-badge--neutral {
-  background: rgba(241, 243, 241, 0.06);
-  border-color: var(--tv-rule);
-  color: var(--tv-text-muted);
-}
-.tv-adm-badge--neutral .tv-adm-badge-dot { background: var(--tv-text-muted); }
-
-.tv-adm-badge--danger {
-  background: rgba(224, 122, 110, 0.12);
-  border-color: rgba(224, 122, 110, 0.32);
-  color: var(--tv-danger);
-}
-.tv-adm-badge--danger .tv-adm-badge-dot { background: var(--tv-danger); }
-
-/* --- Row actions --------------------------------------------------------- */
-.tv-adm-action {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent;
-  padding: 0.3125rem 0.625rem;
-  font-family: var(--tv-font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--tv-text-muted);
-  cursor: pointer;
-  white-space: nowrap;
-  transition:
-    background-color var(--duration-fast) var(--tv-ease),
-    border-color var(--duration-fast) var(--tv-ease),
-    color var(--duration-fast) var(--tv-ease);
-}
-
-.tv-adm-action:hover:not(:disabled) {
-  background: rgba(241, 243, 241, 0.07);
-  color: var(--tv-text);
-}
-.tv-adm-action:disabled { opacity: 0.45; cursor: not-allowed; }
-
-.tv-adm-action--patina { color: var(--tv-patina); }
-.tv-adm-action--patina:hover:not(:disabled) { background: rgba(76, 174, 137, 0.12); color: var(--tv-patina); }
-.tv-adm-action--brass { color: var(--tv-brass); }
-.tv-adm-action--brass:hover:not(:disabled) { background: rgba(201, 169, 97, 0.12); color: var(--tv-brass); }
-.tv-adm-action--danger { color: var(--tv-danger); }
-.tv-adm-action--danger:hover:not(:disabled) { background: rgba(224, 122, 110, 0.12); color: var(--tv-danger); }
-
-/* --- Pagination ---------------------------------------------------------- */
-.tv-adm-page-btn {
-  min-width: 32px;
-  height: 32px;
-  padding: 0 0.5rem;
-  border-radius: 8px;
-  border: 1px solid transparent;
-  background: transparent;
-  font-family: var(--tv-font-mono);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--tv-text-muted);
-  cursor: pointer;
-  font-variant-numeric: tabular-nums;
-  transition:
-    background-color var(--duration-fast) var(--tv-ease),
-    border-color var(--duration-fast) var(--tv-ease),
-    color var(--duration-fast) var(--tv-ease);
-}
-
-.tv-adm-page-btn:hover:not(:disabled) {
-  background: rgba(241, 243, 241, 0.06);
-  color: var(--tv-text);
-}
-.tv-adm-page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
-
-.tv-adm-page-btn[aria-current="page"] {
-  background: rgba(76, 174, 137, 0.14);
-  border-color: rgba(76, 174, 137, 0.34);
-  color: var(--tv-patina);
-}
-
-/* --- Alerts / toasts ----------------------------------------------------- */
-.tv-adm-alert {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-  border-radius: 12px;
-  border: 1px solid var(--tv-rule);
-  background: var(--tv-slate);
-  padding: 0.875rem 1rem;
-  font-size: 0.875rem;
-  color: var(--tv-text);
-}
-
-.tv-adm-alert--patina { border-color: rgba(76, 174, 137, 0.32); background: rgba(76, 174, 137, 0.09); }
-.tv-adm-alert--brass  { border-color: rgba(201, 169, 97, 0.34); background: rgba(201, 169, 97, 0.09); }
-.tv-adm-alert--danger { border-color: rgba(224, 122, 110, 0.34); background: rgba(224, 122, 110, 0.09); }
-
-.tv-adm-alert--patina .tv-adm-alert-icon { color: var(--tv-patina); }
-.tv-adm-alert--brass  .tv-adm-alert-icon { color: var(--tv-brass); }
-.tv-adm-alert--danger .tv-adm-alert-icon { color: var(--tv-danger); }
-
-/* --- Empty state --------------------------------------------------------- */
-.tv-adm-empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.875rem;
-  padding: 4rem 1.5rem;
-  text-align: center;
-}
-
-.tv-adm-empty-icon {
-  display: flex;
-  height: 3rem;
-  width: 3rem;
-  align-items: center;
-  justify-content: center;
-  border-radius: 12px;
-  border: 1px solid var(--tv-rule);
-  background: rgba(241, 243, 241, 0.04);
-  color: var(--tv-text-muted);
-}
-
-/* --- Overlays: scrim, dialog, drawer ------------------------------------- */
-.tv-adm-scrim {
-  position: fixed;
-  inset: 0;
-  background: rgba(7, 10, 9, 0.72);
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
-}
-
-.tv-adm-dialog {
-  position: relative;
-  width: 100%;
-  background: var(--tv-graphite);
-  border: 1px solid rgba(241, 243, 241, 0.12);
-  border-radius: 16px;
-  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.62);
-  overflow: hidden;
-}
-
-.tv-adm-dialog-head {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 1rem;
-  padding: 1.25rem;
-  border-bottom: 1px solid var(--tv-rule);
-}
-
-.tv-adm-dialog-title {
-  font-family: var(--tv-font-display);
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--tv-text);
-}
-
-.tv-adm-dialog-body { padding: 1.25rem; }
-
-.tv-adm-dialog-foot {
-  display: flex;
-  gap: 0.625rem;
-  padding: 1rem 1.25rem;
-  border-top: 1px solid var(--tv-rule);
-  background: rgba(7, 10, 9, 0.35);
-}
-
-/* The drawer slides from the right on transform alone, so it composites. */
-.tv-adm-drawer {
-  position: fixed;
-  top: 0;
-  right: 0;
-  height: 100dvh;
-  width: min(100%, 32rem);
-  background: var(--tv-graphite);
-  border-left: 1px solid var(--tv-rule);
-  box-shadow: -24px 0 60px rgba(0, 0, 0, 0.55);
-  display: flex;
-  flex-direction: column;
-  transform: translateX(100%);
-  transition: transform var(--duration-slow) var(--tv-ease);
-}
-
-.tv-adm-drawer[data-open="true"] { transform: translateX(0); }
-
-/* --- Skeleton ------------------------------------------------------------ */
-.tv-adm-skeleton {
-  border-radius: 10px;
-  background: linear-gradient(
-    90deg,
-    rgba(241, 243, 241, 0.04) 25%,
-    rgba(241, 243, 241, 0.09) 37%,
-    rgba(241, 243, 241, 0.04) 63%
-  );
-  background-size: 400% 100%;
-  animation: tv-adm-skeleton 1.4s ease-in-out infinite;
-}
-
-@keyframes tv-adm-skeleton {
-  from { background-position: 100% 50%; }
-  to   { background-position: 0 50%; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .tv-adm-skeleton { animation: none; }
-  .tv-adm-drawer { transition: none; }
+/* The admin layer sits in @layer components on purpose.
+   Unlayered CSS beats every Tailwind utility, so an unlayered
+   .tv-adm-iconbtn{display:inline-flex} silently overrode lg:hidden and left
+   the mobile menu button on screen at desktop widths - and .tv-adm-dialog
+   overrode absolute/w-56 on the profile dropdown. Inside components, the
+   utilities layer wins, which is the behaviour every className here assumes. */
+@layer components {
+  /* ============================================================================
+     ADMIN — TAPVYO DESIGN SYSTEM
+     The admin ran on its own blue-slate palette (#0b1020 / #020617 / slate-800)
+     with green-500 accents and gray-400 type, sharing nothing with the public
+     site. This layer puts it on the same tokens as the front end: the
+     ink/graphite/slate grounds, patina green and brass, bone type, the serif
+     display face for headings and the mono face for labels.
+
+     Everything here is presentation. No rule below changes what a control does.
+     ============================================================================ */
+
+  :root {
+    /* The one token the public palette never needed: the front end has no
+       destructive action. Terracotta rather than a pure red, so it sits with the
+       brass and patina instead of shouting over them. 4.76:1 on --tv-slate. */
+    --tv-danger:      #E07A6E;
+    --tv-danger-deep: #8A2E22;
+  }
+
+  /* --- Shell --------------------------------------------------------------- */
+  .tv-adm-shell {
+    background: var(--tv-ink);
+    color: var(--tv-text);
+  }
+
+  /* The same lit ground the hero uses, at a much lower level so it reads as
+     depth behind the data rather than as a feature of it. */
+  .tv-adm-ground {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .tv-adm-ground::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      radial-gradient(70% 46% at 82% 0%, rgba(76, 174, 137, 0.10) 0%, transparent 62%),
+      radial-gradient(52% 40% at 6% 4%, rgba(201, 169, 97, 0.06) 0%, transparent 66%);
+  }
+
+  /* --- Sidebar ------------------------------------------------------------- */
+  .tv-adm-sidebar {
+    background: var(--tv-graphite);
+    border-right: 1px solid var(--tv-rule);
+    color: var(--tv-text);
+  }
+
+  .tv-adm-band {
+    border-color: var(--tv-rule);
+    background: rgba(241, 243, 241, 0.02);
+  }
+
+  .tv-adm-nav-section {
+    font-family: var(--tv-font-mono);
+    font-weight: 600;
+    font-size: 0.625rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--tv-brass);
+  }
+
+  .tv-adm-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    border-radius: 10px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--tv-text-muted);
+    text-decoration: none;
+    transition:
+      background-color var(--duration-fast) var(--tv-ease),
+      color var(--duration-fast) var(--tv-ease);
+  }
+
+  .tv-adm-nav-item:hover {
+    background: rgba(241, 243, 241, 0.05);
+    color: var(--tv-text);
+  }
+
+  /* Active state carries exactly two signals: a patina wash and patina type.
+     No accent bar, no glow, no chevron - the restraint the old sidebar had,
+     in the site palette. */
+  .tv-adm-nav-item[aria-current="page"] {
+    background: rgba(76, 174, 137, 0.12);
+    color: var(--tv-patina);
+  }
+
+  /* --- Header -------------------------------------------------------------- */
+  .tv-adm-header {
+    background: rgba(21, 28, 26, 0.88);
+    border-bottom: 1px solid var(--tv-rule);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+  }
+
+  .tv-adm-iconbtn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    padding: 0.625rem;
+    color: var(--tv-text-muted);
+    background: transparent;
+    border: 0;
+    cursor: pointer;
+    transition:
+      background-color var(--duration-fast) var(--tv-ease),
+      color var(--duration-fast) var(--tv-ease);
+  }
+
+  .tv-adm-iconbtn:hover {
+    background: rgba(241, 243, 241, 0.07);
+    color: var(--tv-patina);
+  }
+
+  /* --- Page header --------------------------------------------------------- */
+  .tv-adm-page-title {
+    font-family: var(--tv-font-display);
+    font-weight: 600;
+    font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: var(--tv-text);
+  }
+
+  .tv-adm-page-sub {
+    font-size: 0.875rem;
+    line-height: 1.6;
+    color: var(--tv-text-muted);
+  }
+
+  /* --- Panels -------------------------------------------------------------- */
+  .tv-adm-panel {
+    background: var(--tv-slate);
+    border: 1px solid var(--tv-rule);
+    border-radius: 14px;
+  }
+
+  .tv-adm-panel-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 1rem 1.25rem;
+    border-bottom: 1px solid var(--tv-rule);
+  }
+
+  .tv-adm-panel-title {
+    font-family: var(--tv-font-display);
+    font-size: 1.0625rem;
+    font-weight: 600;
+    color: var(--tv-text);
+  }
+
+  .tv-adm-panel-pad { padding: 1.25rem; }
+
+  /* --- Label / meta -------------------------------------------------------- */
+  .tv-adm-label {
+    font-family: var(--tv-font-mono);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tv-text-muted);
+  }
+
+  .tv-adm-meta {
+    font-size: 0.8125rem;
+    color: var(--tv-text-muted);
+  }
+
+  .tv-adm-count {
+    display: inline-flex;
+    align-items: center;
+    font-family: var(--tv-font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    color: var(--tv-text-muted);
+    background: rgba(241, 243, 241, 0.05);
+    border: 1px solid var(--tv-rule);
+    border-radius: 999px;
+    padding: 0.25rem 0.625rem;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* --- Stat card ----------------------------------------------------------- */
+  .tv-adm-stat {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-width: 0;
+    background: var(--tv-slate);
+    border: 1px solid var(--tv-rule);
+    border-radius: 14px;
+    padding: 1.25rem;
+  }
+
+  .tv-adm-stat-value {
+    font-family: var(--tv-font-display);
+    font-size: 1.875rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.02em;
+    color: var(--tv-text);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tv-adm-stat-icon {
+    display: flex;
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    border-radius: 9px;
+    border: 1px solid var(--tv-rule);
+    background: rgba(241, 243, 241, 0.05);
+    color: var(--tv-text-muted);
+  }
+
+  .tv-adm-stat-icon--patina {
+    border-color: rgba(76, 174, 137, 0.28);
+    background: rgba(76, 174, 137, 0.10);
+    color: var(--tv-patina);
+  }
+  .tv-adm-stat-icon--brass {
+    border-color: rgba(201, 169, 97, 0.30);
+    background: rgba(201, 169, 97, 0.10);
+    color: var(--tv-brass);
+  }
+  .tv-adm-stat-icon--danger {
+    border-color: rgba(224, 122, 110, 0.30);
+    background: rgba(224, 122, 110, 0.10);
+    color: var(--tv-danger);
+  }
+
+  /* --- Table --------------------------------------------------------------- */
+  .tv-adm-table { width: 100%; border-collapse: collapse; }
+
+  .tv-adm-table thead {
+    background: var(--tv-graphite);
+  }
+
+  .tv-adm-table th {
+    padding: 0.875rem 1.5rem;
+    text-align: left;
+    white-space: nowrap;
+    font-family: var(--tv-font-mono);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tv-text-muted);
+    border-bottom: 1px solid var(--tv-rule);
+  }
+
+  .tv-adm-table td {
+    padding: 0.875rem 1.5rem;
+    font-size: 0.875rem;
+    color: var(--tv-text);
+    border-top: 1px solid var(--tv-rule);
+  }
+
+  .tv-adm-table tbody tr {
+    transition: background-color var(--duration-fast) var(--tv-ease);
+  }
+
+  .tv-adm-table tbody tr:hover { background: rgba(241, 243, 241, 0.035); }
+
+  /* --- Form controls ------------------------------------------------------- */
+  .tv-adm-field-label {
+    display: block;
+    margin-bottom: 0.5rem;
+    font-family: var(--tv-font-mono);
+    font-weight: 600;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--tv-text-muted);
+  }
+
+  .tv-adm-input,
+  .tv-adm-select,
+  .tv-adm-textarea {
+    width: 100%;
+    background: rgba(7, 10, 9, 0.55);
+    border: 1px solid var(--tv-rule);
+    border-radius: 10px;
+    padding: 0.625rem 0.875rem;
+    font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.875rem;
+    color: var(--tv-text);
+    transition:
+      border-color var(--duration-fast) var(--tv-ease),
+      box-shadow var(--duration-fast) var(--tv-ease);
+  }
+
+  .tv-adm-textarea { min-height: 7rem; resize: vertical; }
+
+  .tv-adm-input::placeholder,
+  .tv-adm-textarea::placeholder { color: rgba(169, 181, 176, 0.7); }
+
+  .tv-adm-input:focus,
+  .tv-adm-select:focus,
+  .tv-adm-textarea:focus {
+    outline: none;
+    border-color: rgba(76, 174, 137, 0.55);
+    box-shadow: 0 0 0 3px rgba(76, 174, 137, 0.14);
+  }
+
+  .tv-adm-select option { background: var(--tv-graphite); color: var(--tv-text); }
+
+  .tv-adm-field-error {
+    margin-top: 0.375rem;
+    font-size: 0.75rem;
+    color: var(--tv-danger);
+  }
+
+  /* --- Badges -------------------------------------------------------------- */
+  .tv-adm-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    border-radius: 999px;
+    padding: 0.25rem 0.625rem;
+    font-family: var(--tv-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    border: 1px solid transparent;
+    white-space: nowrap;
+  }
+
+  .tv-adm-badge-dot {
+    height: 0.375rem;
+    width: 0.375rem;
+    border-radius: 999px;
+    flex-shrink: 0;
+  }
+
+  .tv-adm-badge--patina {
+    background: rgba(76, 174, 137, 0.12);
+    border-color: rgba(76, 174, 137, 0.30);
+    color: var(--tv-patina);
+  }
+  .tv-adm-badge--patina .tv-adm-badge-dot { background: var(--tv-patina); }
+
+  .tv-adm-badge--brass {
+    background: rgba(201, 169, 97, 0.12);
+    border-color: rgba(201, 169, 97, 0.32);
+    color: var(--tv-brass);
+  }
+  .tv-adm-badge--brass .tv-adm-badge-dot { background: var(--tv-brass); }
+
+  .tv-adm-badge--neutral {
+    background: rgba(241, 243, 241, 0.06);
+    border-color: var(--tv-rule);
+    color: var(--tv-text-muted);
+  }
+  .tv-adm-badge--neutral .tv-adm-badge-dot { background: var(--tv-text-muted); }
+
+  .tv-adm-badge--danger {
+    background: rgba(224, 122, 110, 0.12);
+    border-color: rgba(224, 122, 110, 0.32);
+    color: var(--tv-danger);
+  }
+  .tv-adm-badge--danger .tv-adm-badge-dot { background: var(--tv-danger); }
+
+  /* --- Row actions --------------------------------------------------------- */
+  .tv-adm-action {
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    padding: 0.3125rem 0.625rem;
+    font-family: var(--tv-font-mono);
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--tv-text-muted);
+    cursor: pointer;
+    white-space: nowrap;
+    transition:
+      background-color var(--duration-fast) var(--tv-ease),
+      border-color var(--duration-fast) var(--tv-ease),
+      color var(--duration-fast) var(--tv-ease);
+  }
+
+  .tv-adm-action:hover:not(:disabled) {
+    background: rgba(241, 243, 241, 0.07);
+    color: var(--tv-text);
+  }
+  .tv-adm-action:disabled { opacity: 0.45; cursor: not-allowed; }
+
+  .tv-adm-action--patina { color: var(--tv-patina); }
+  .tv-adm-action--patina:hover:not(:disabled) { background: rgba(76, 174, 137, 0.12); color: var(--tv-patina); }
+  .tv-adm-action--brass { color: var(--tv-brass); }
+  .tv-adm-action--brass:hover:not(:disabled) { background: rgba(201, 169, 97, 0.12); color: var(--tv-brass); }
+  .tv-adm-action--danger { color: var(--tv-danger); }
+  .tv-adm-action--danger:hover:not(:disabled) { background: rgba(224, 122, 110, 0.12); color: var(--tv-danger); }
+
+  /* --- Pagination ---------------------------------------------------------- */
+  .tv-adm-page-btn {
+    min-width: 32px;
+    height: 32px;
+    padding: 0 0.5rem;
+    border-radius: 8px;
+    border: 1px solid transparent;
+    background: transparent;
+    font-family: var(--tv-font-mono);
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--tv-text-muted);
+    cursor: pointer;
+    font-variant-numeric: tabular-nums;
+    transition:
+      background-color var(--duration-fast) var(--tv-ease),
+      border-color var(--duration-fast) var(--tv-ease),
+      color var(--duration-fast) var(--tv-ease);
+  }
+
+  .tv-adm-page-btn:hover:not(:disabled) {
+    background: rgba(241, 243, 241, 0.06);
+    color: var(--tv-text);
+  }
+  .tv-adm-page-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+  .tv-adm-page-btn[aria-current="page"] {
+    background: rgba(76, 174, 137, 0.14);
+    border-color: rgba(76, 174, 137, 0.34);
+    color: var(--tv-patina);
+  }
+
+  /* --- Alerts / toasts ----------------------------------------------------- */
+  .tv-adm-alert {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    border-radius: 12px;
+    border: 1px solid var(--tv-rule);
+    background: var(--tv-slate);
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    color: var(--tv-text);
+  }
+
+  .tv-adm-alert--patina { border-color: rgba(76, 174, 137, 0.32); background: rgba(76, 174, 137, 0.09); }
+  .tv-adm-alert--brass  { border-color: rgba(201, 169, 97, 0.34); background: rgba(201, 169, 97, 0.09); }
+  .tv-adm-alert--danger { border-color: rgba(224, 122, 110, 0.34); background: rgba(224, 122, 110, 0.09); }
+
+  .tv-adm-alert--patina .tv-adm-alert-icon { color: var(--tv-patina); }
+  .tv-adm-alert--brass  .tv-adm-alert-icon { color: var(--tv-brass); }
+  .tv-adm-alert--danger .tv-adm-alert-icon { color: var(--tv-danger); }
+
+  /* --- Empty state --------------------------------------------------------- */
+  .tv-adm-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.875rem;
+    padding: 4rem 1.5rem;
+    text-align: center;
+  }
+
+  .tv-adm-empty-icon {
+    display: flex;
+    height: 3rem;
+    width: 3rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    border: 1px solid var(--tv-rule);
+    background: rgba(241, 243, 241, 0.04);
+    color: var(--tv-text-muted);
+  }
+
+  /* --- Overlays: scrim, dialog, drawer ------------------------------------- */
+  .tv-adm-scrim {
+    position: fixed;
+    inset: 0;
+    background: rgba(7, 10, 9, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .tv-adm-dialog {
+    position: relative;
+    width: 100%;
+    background: var(--tv-graphite);
+    border: 1px solid rgba(241, 243, 241, 0.12);
+    border-radius: 16px;
+    box-shadow: 0 32px 80px rgba(0, 0, 0, 0.62);
+    overflow: hidden;
+  }
+
+  .tv-adm-dialog-head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1.25rem;
+    border-bottom: 1px solid var(--tv-rule);
+  }
+
+  .tv-adm-dialog-title {
+    font-family: var(--tv-font-display);
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: var(--tv-text);
+  }
+
+  .tv-adm-dialog-body { padding: 1.25rem; }
+
+  .tv-adm-dialog-foot {
+    display: flex;
+    gap: 0.625rem;
+    padding: 1rem 1.25rem;
+    border-top: 1px solid var(--tv-rule);
+    background: rgba(7, 10, 9, 0.35);
+  }
+
+  /* The drawer slides from the right on transform alone, so it composites. */
+  .tv-adm-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    height: 100dvh;
+    width: min(100%, 32rem);
+    background: var(--tv-graphite);
+    border-left: 1px solid var(--tv-rule);
+    box-shadow: -24px 0 60px rgba(0, 0, 0, 0.55);
+    display: flex;
+    flex-direction: column;
+    transform: translateX(100%);
+    transition: transform var(--duration-slow) var(--tv-ease);
+  }
+
+  .tv-adm-drawer[data-open="true"] { transform: translateX(0); }
+
+  /* --- Skeleton ------------------------------------------------------------ */
+  .tv-adm-skeleton {
+    border-radius: 10px;
+    background: linear-gradient(
+      90deg,
+      rgba(241, 243, 241, 0.04) 25%,
+      rgba(241, 243, 241, 0.09) 37%,
+      rgba(241, 243, 241, 0.04) 63%
+    );
+    background-size: 400% 100%;
+    animation: tv-adm-skeleton 1.4s ease-in-out infinite;
+  }
+
+  @keyframes tv-adm-skeleton {
+    from { background-position: 100% 50%; }
+    to   { background-position: 0 50%; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tv-adm-skeleton { animation: none; }
+    .tv-adm-drawer { transition: none; }
+  }
 }

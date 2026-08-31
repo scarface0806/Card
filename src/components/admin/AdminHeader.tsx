@@ -112,14 +112,14 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                   </div>
                   <a
                     href="/admin/account"
-                    className="tv-adm-menu-link flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--tv-text-muted)] transition-colors hover:bg-[rgba(241,243,241,0.05)] hover:text-[var(--tv-patina)]"
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--tv-text-muted)] transition-colors hover:bg-[rgba(241,243,241,0.05)] hover:text-[var(--tv-patina)]"
                   >
                     <User className="h-4 w-4" />
                     Profile
                   </a>
                   <a
                     href="/admin/security"
-                    className="tv-adm-menu-link flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--tv-text-muted)] transition-colors hover:bg-[rgba(241,243,241,0.05)] hover:text-[var(--tv-patina)]"
+                    className="flex items-center gap-3 px-4 py-2.5 text-sm text-[var(--tv-text-muted)] transition-colors hover:bg-[rgba(241,243,241,0.05)] hover:text-[var(--tv-patina)]"
                   >
                     <Settings className="h-4 w-4" />
                     Security
