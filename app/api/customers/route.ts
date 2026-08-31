@@ -5,7 +5,7 @@ import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { customerCreateSchema } from "@/lib/validators";
 import { saveUploadedImage } from "@/lib/local-upload";
-import { generateUniqueCustomerSlug } from "@/lib/customer-slug";
+import { generateUniqueCustomerSlug, resolveCustomerSlug } from "@/lib/customer-slug";
 import { ObjectId } from "mongodb";
 import { getMongoDb } from "@/lib/mongodb";
 import type { AuthUser } from "@/lib/auth";
@@ -95,14 +95,12 @@ async function createCustomerWithMongoFallback(params: {
   });
 
   const customerId = String(insertResult.insertedId);
-  const baseSlug = `tapvyonfc-${customerId.slice(-6).toLowerCase()}`;
-  let slug = baseSlug;
-  let suffix = 1;
-
-  while (await customers.findOne({ slug }, { projection: { _id: 1 } })) {
-    suffix += 1;
-    slug = `${baseSlug}-${suffix}`;
-  }
+  const slug = await resolveCustomerSlug(
+    params.parsedData.phone,
+    customerId,
+    async (candidate) =>
+      Boolean(await customers.findOne({ slug: candidate }, { projection: { _id: 1 } }))
+  );
 
   await customers.updateOne(
     { _id: insertResult.insertedId },
@@ -207,7 +205,7 @@ async function postHandler(request: NextRequest, user: AuthUser) {
         },
       });
 
-      slug = await generateUniqueCustomerSlug(customer.id);
+      slug = await generateUniqueCustomerSlug(parsed.data.phone, customer.id);
 
       const updatedCustomer = await prisma.customer.update({
         where: { id: customer.id },
