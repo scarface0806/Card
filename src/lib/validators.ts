@@ -43,9 +43,22 @@ export const loginSchema = z.object({
 });
 
 // Order creation
+/**
+ * Order creation.
+ *
+ * NOTE WHAT IS NOT HERE: there is no `price`, and no `cardType`. Both used to
+ * be accepted and `price` was written straight to Order.total, which made the
+ * amount charged a client-supplied value. They are now derived server-side from
+ * `productId`, and because the fields are absent from this schema zod strips
+ * them - so a request that sends a price cannot have it read by accident.
+ *
+ * `productId` is required: every order is for a product row that exists.
+ */
 export const createOrderSchema = z.object({
-  productId: z.string().uuid().or(z.string().min(1)).optional(),
-  quantity: z.number().int().positive().optional().default(1),
+  productId: z
+    .string({ error: "A product must be selected" })
+    .min(1, "A product must be selected"),
+  quantity: z.number().int().positive().max(50).optional().default(1),
   address: z.string().optional(),
   name: z.string().min(1).optional(),
   email: z.string().email().optional(),
@@ -53,25 +66,8 @@ export const createOrderSchema = z.object({
   designation: z.string().optional(),
   company: z.string().optional(),
   website: z.string().optional(),
-  cardType: z.string().optional(),
-  price: z.preprocess(
-    (val) => (val === undefined || val === null || val === "" ? undefined : parseFloat(String(val))),
-    z.number().nonnegative().optional()
-  ),
   paymentMethod: z.string().optional(),
-  templateSlug: z.string().optional(),
   profileData: z.unknown().optional(),
-}).superRefine((data, ctx) => {
-  const hasProductCheckout = Boolean(data.productId);
-  const hasFormCheckout = Boolean(data.name && data.email && data.phone && data.cardType && data.price !== undefined);
-
-  if (!hasProductCheckout && !hasFormCheckout) {
-    ctx.addIssue({
-      code: z.ZodIssueCode.custom,
-      message: "Either product checkout data or card purchase form data is required",
-      path: ["productId"],
-    });
-  }
 });
 
 // Card update schema allows partial details

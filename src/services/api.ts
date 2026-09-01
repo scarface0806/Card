@@ -27,9 +27,15 @@ export interface OrderData {
     coverImage?: File;
     gallery?: File[];
   };
-  template?: string;
-  templateName?: string;
-  templatePrice?: number;
+  /**
+   * The product being bought. Required.
+   *
+   * There is deliberately no price, template name or template slug on this
+   * type any more. The server reads the product row by this id and computes
+   * the amount from it, so nothing the browser sends can change what gets
+   * charged.
+   */
+  productId: string;
   payment?: {
     method?: string;
     terms?: boolean;
@@ -37,32 +43,24 @@ export interface OrderData {
 }
 
 // Mock API functions
+/**
+ * Create the order row. It lands PENDING and unpaid.
+ *
+ * The body carries the customer's details and `productId` - and NO price.
+ *
+ * It used to send `price: data.templatePrice ?? priceMap[...] ?? 599`, which
+ * the API then wrote straight to Order.total. That made the amount charged a
+ * client-supplied value: a crafted request could buy a 999 rupee card for 1
+ * rupee. The price is now looked up server-side from productId.
+ */
 export const createOrder = async (data: OrderData) => {
-  const cardType = data.templateName || (data.template
-    ? data.template
-        .split('-')
-        .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
-        .join(' ')
-    : 'NFC Digital Card');
-
-  const priceMap: Record<string, number> = {
-    basic: 599,
-    premium: 799,
-    custom: 0,
-  };
-
-  const inferredTemplateType = data.template?.includes('custom')
-    ? 'custom'
-    : data.template?.includes('gradient') || data.template?.includes('gold')
-      ? 'premium'
-      : 'basic';
-
   const response = await fetch('/api/orders', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
+      productId: data.productId,
       name: data.personalDetails.name,
       email: data.personalDetails.email,
       phone: data.personalDetails.mobile,
@@ -70,10 +68,7 @@ export const createOrder = async (data: OrderData) => {
       company: data.personalDetails.company,
       website: data.businessDetails.website,
       address: data.businessDetails.address,
-      cardType,
-      price: data.templatePrice ?? priceMap[inferredTemplateType] ?? 599,
       paymentMethod: data.payment?.method || 'card',
-      templateSlug: data.template,
       profileData: data,
     }),
   });

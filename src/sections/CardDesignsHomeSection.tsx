@@ -32,7 +32,10 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
       onContactClick('custom');
       return;
     }
-    router.push(`/create-card?template=${card.slug}`);
+    // The product ID, not the slug - same fix as /cards. A slug sent here was
+    // resolved against a hardcoded tier array on the checkout page, so every
+    // admin-created product was presented and charged at the default 599.
+    router.push(`/create-card?productId=${encodeURIComponent(card.id)}`);
   };
 
   const containerVariants = {
@@ -148,12 +151,12 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                         >
                           {card.price}
                         </p>
-                        {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
+                        {card.listPrice && (
                           <p
                             className="text-sm line-through text-[#A9B5B0]"
                             style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
                           >
-                            {card.salePrice}
+                            {card.listPrice}
                           </p>
                         )}
                       </div>

@@ -2,24 +2,34 @@
 
 import { useFormContext } from 'react-hook-form';
 import { CreditCard, ShieldCheck } from 'lucide-react';
-import { CardTemplate } from '@/utils/cardTemplates';
+import type { SelectedProduct } from '@/lib/products/selected-product';
+import { formatPrice } from '@/utils/formatPrice';
 
 interface PaymentFormProps {
-  template?: CardTemplate;
+  /**
+   * The product being bought, resolved server-side from its database row.
+   *
+   * Required, and with no default. This used to be optional with a
+   * `template?.priceValue || 599` fallback, which meant a product that failed
+   * to resolve silently showed 599 on the review step - and 599 was then the
+   * amount sent onward. The page cannot render without a real product now, so
+   * there is nothing left to fall back to.
+   */
+  product: SelectedProduct;
 }
 
-export default function PaymentForm({ template }: PaymentFormProps) {
+export default function PaymentForm({ product }: PaymentFormProps) {
   const {
     register,
     formState: { errors },
   } = useFormContext();
 
-  // Calculate pricing based on template
-  const cardPrice = template?.priceValue || 599;
-  const shippingFee = 0; // Free shipping
-  const totalPrice = cardPrice + shippingFee;
-  const templateName = template?.name || 'NFC Digital Card';
-  const templateType = template?.type || 'basic';
+  // Shipping is free, so the total is the product price. Both are formatted
+  // through the one shared helper, so the rupee sign and grouping match the
+  // catalogue, the order rail and the confirmation email.
+  const shippingFee = 0;
+  const total = product.price + shippingFee;
+
   const termsError =
     errors.payment && 'terms' in errors.payment
       ? (errors.payment.terms?.message as string)
@@ -45,17 +55,24 @@ export default function PaymentForm({ template }: PaymentFormProps) {
 
         <div className="tv-summary">
           <div className="tv-summary-row">
-            <span className="tv-summary-key">{templateName}</span>
-            <span className="tv-summary-val">₹{cardPrice}</span>
+            <span className="tv-summary-key">{product.name}</span>
+            <span className="tv-summary-val">
+              {product.priceFormatted}
+              {product.listPriceFormatted && (
+                <span className="ml-2 line-through opacity-60">
+                  {product.listPriceFormatted}
+                </span>
+              )}
+            </span>
           </div>
           <div className="tv-summary-row">
             <span className="tv-summary-key">Card type</span>
             <span
               className={`tv-tag ${
-                templateType === 'premium' ? 'tv-tag-brass' : 'tv-tag-patina'
+                product.tier === 'premium' ? 'tv-tag-brass' : 'tv-tag-patina'
               }`}
             >
-              {templateType}
+              {product.tierLabel}
             </span>
           </div>
           <div className="tv-summary-row">
@@ -70,7 +87,7 @@ export default function PaymentForm({ template }: PaymentFormProps) {
 
         <div className="tv-summary-total">
           <span className="tv-summary-total-key">Total payable</span>
-          <span className="tv-summary-total-val">₹{totalPrice}</span>
+          <span className="tv-summary-total-val">{formatPrice(total)}</span>
         </div>
 
         <p className="tv-small mt-3">One-time payment · No hidden charges · No renewals</p>

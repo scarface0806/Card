@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
@@ -21,6 +21,7 @@ import {
   MessageSquare,
 } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
+import SelectionNotice from './SelectionNotice';
 
 const includedFeatures = [
   { icon: InfinityIcon, title: 'Free hosting forever', desc: 'Your profile stays live without extra cost.' },
@@ -65,8 +66,14 @@ export default function CardsPage() {
       return;
     }
 
-    // Route to card creation with selected template
-    router.push(`/create-card?template=${card.slug}`);
+    // The product ID, not the slug.
+    //
+    // This used to push `?template=${card.slug}`, which /create-card resolved
+    // against a hardcoded array of card tiers. A database slug is never in that
+    // array, so every admin-created product fell through to the default and was
+    // presented - and charged - at 599 regardless of its real price. The
+    // checkout page now loads this exact product row.
+    router.push(`/create-card?productId=${encodeURIComponent(card.id)}`);
   };
 
   /**
@@ -74,10 +81,10 @@ export default function CardsPage() {
    *
    * This deliberately does NOT use parent-orchestrated variants
    * (container `initial="hidden" animate="visible"` + `staggerChildren`).
-   * useCardDesigns seeds with fallback designs and then swaps in the fetched
-   * products, so the grid's children remount after the parent's animation has
-   * already finished - they mounted in the "hidden" state and never received
-   * the "visible" propagation, leaving every card stuck at opacity 0.
+   * The grid's children mount only once the products have been fetched, which
+   * is after the parent's animation has finished - they mounted in the
+   * "hidden" state and never received the "visible" propagation, leaving every
+   * card stuck at opacity 0.
    *
    * Each card now animates itself on mount, with the stagger expressed as a
    * per-index delay, so a list that changes identity still reveals correctly.
@@ -127,9 +134,16 @@ export default function CardsPage() {
             they get the light surface and the dark sections frame them. */}
         <section className="tv-surface-bone tv-section">
           <div className="site-container">
-            {/* The hook seeds itself with fallback designs, so there is always
-                something to render on the server - the skeleton below only ever
-                shows if that ever stops being true. */}
+            {/* Only this subtree reads searchParams, so the rest of the page
+                still prerenders statically. */}
+            <Suspense fallback={null}>
+              <SelectionNotice />
+            </Suspense>
+
+            {/* Products are fetched client-side, so the skeleton is real: there
+                is nothing to show until they arrive. The hook no longer seeds
+                itself with invented cards, so an empty result renders the empty
+                state below rather than six products that do not exist. */}
             {loading ? (
               <div
                 className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6"
@@ -205,13 +219,7 @@ export default function CardsPage() {
                     <div className="flex flex-col grow tv-panel-pad">
                       <div className="flex items-start justify-between gap-3 mb-3">
                         <h2 className="tv-h4">{card.name}</h2>
-                        <span className="tv-mono shrink-0 pt-1">
-                          {card.type === 'custom'
-                            ? 'Custom'
-                            : card.type === 'premium'
-                            ? 'Premium'
-                            : 'Basic'}
-                        </span>
+                        <span className="tv-mono shrink-0 pt-1">{card.typeLabel}</span>
                       </div>
 
                       {/* Price */}
@@ -223,12 +231,12 @@ export default function CardsPage() {
                           >
                             {card.price}
                           </p>
-                          {card.salePrice && card.salePriceValue && card.salePriceValue < card.priceValue && (
+                          {card.listPrice && (
                             <p
                               className="text-sm line-through text-[#4C534F]"
                               style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
                             >
-                              {card.salePrice}
+                              {card.listPrice}
                             </p>
                           )}
                         </div>

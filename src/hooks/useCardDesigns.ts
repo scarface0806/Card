@@ -5,16 +5,41 @@ import { Product } from "@prisma/client";
 import productService from "@/services/products";
 import { isAbortError, logFetchError } from "@/lib/fetch-utils";
 import { formatPrice } from "@/utils/formatPrice";
+import {
+  type CardTier,
+  deriveCardColor,
+  deriveCardTier,
+  effectivePrice,
+  hasDiscount,
+  tierLabel,
+} from "@/lib/products/presentation";
 
+/**
+ * The catalogue's view of a product.
+ *
+ * `id` is the Product id and is what /cards passes to checkout, so the page a
+ * customer lands on is unambiguously the product they clicked. It used to pass
+ * `slug`, which /create-card then looked up in a hardcoded array of card tiers
+ * - no database slug was ever in that array, so every admin-created product
+ * silently fell back to "Modern Minimalist, 599".
+ *
+ * THERE ARE NO FALLBACK DESIGNS IN THIS FILE ANY MORE. It used to seed itself
+ * with six hardcoded cards at invented prices and fake ids "1".."6". When the
+ * products API failed, /cards showed six products that did not exist, at
+ * prices nobody had set, whose buy buttons led nowhere real. An honest empty
+ * state is better than a confident wrong one.
+ */
 export interface CardDesign {
   id: string;
   name: string;
   slug: string;
-  type: "basic" | "premium" | "custom";
+  type: CardTier;
+  typeLabel: string;
+  /** What the customer is charged, formatted. */
   price: string;
   priceValue: number;
-  salePrice?: string;
-  salePriceValue?: number;
+  /** List price, only when a discount is active. For struck-through display. */
+  listPrice?: string;
   color: string;
   description?: string;
   images: string[];
@@ -22,114 +47,20 @@ export interface CardDesign {
   material?: string;
 }
 
-// Fallback card designs in case API fails
-const fallbackCardDesigns: CardDesign[] = [
-  {
-    id: "1",
-    name: "Modern Minimalist",
-    slug: "modern-minimalist",
-    type: "basic",
-    price: "₹599",
-    priceValue: 599,
-    color: "linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%)",
-    images: [],
-  },
-  {
-    id: "2",
-    name: "Professional Blue",
-    slug: "professional-blue",
-    type: "basic",
-    price: "₹599",
-    priceValue: 599,
-    color: "linear-gradient(135deg, #1e88e5 0%, #1565c0 100%)",
-    images: [],
-  },
-  {
-    id: "3",
-    name: "Executive Black",
-    slug: "executive-black",
-    type: "basic",
-    price: "₹599",
-    priceValue: 599,
-    color: "linear-gradient(135deg, #424242 0%, #212121 100%)",
-    images: [],
-  },
-  {
-    id: "4",
-    name: "Creative Gradient",
-    slug: "creative-gradient",
-    type: "premium",
-    price: "₹799",
-    priceValue: 799,
-    color: "linear-gradient(135deg, #7c4dff 0%, #18ffff 100%)",
-    images: [],
-  },
-  {
-    id: "5",
-    name: "Corporate Gold",
-    slug: "corporate-gold",
-    type: "premium",
-    price: "₹799",
-    priceValue: 799,
-    color: "linear-gradient(135deg, #ffd54f 0%, #ff8f00 100%)",
-    images: [],
-  },
-  {
-    id: "6",
-    name: "Custom Design",
-    slug: "custom-design",
-    type: "custom",
-    price: "₹599",
-    priceValue: 599,
-    color: "linear-gradient(135deg, #0f2e25 0%, #14532d 100%)",
-    description: "Want a fully personalized NFC card? Contact our team.",
-    images: [],
-  },
-];
-
-// Color mapping based on card type or material
-function getCardColor(product: Product): string {
-  const colorMap: Record<string, string> = {
-    standard: "linear-gradient(135deg, #e0e0e0 0%, #9e9e9e 100%)",
-    premium: "linear-gradient(135deg, #7c4dff 0%, #18ffff 100%)",
-    metal: "linear-gradient(135deg, #424242 0%, #212121 100%)",
-    gold: "linear-gradient(135deg, #ffd54f 0%, #ff8f00 100%)",
-    blue: "linear-gradient(135deg, #1e88e5 0%, #1565c0 100%)",
-    black: "linear-gradient(135deg, #424242 0%, #212121 100%)",
-    custom: "linear-gradient(135deg, #0f2e25 0%, #14532d 100%)",
-  };
-
-  if (product.color && colorMap[product.color.toLowerCase()]) {
-    return colorMap[product.color.toLowerCase()];
-  }
-  if (product.cardType && colorMap[product.cardType.toLowerCase()]) {
-    return colorMap[product.cardType.toLowerCase()];
-  }
-  return colorMap.standard;
-}
-
-// Determine card type from product
-function getCardType(product: Product): "basic" | "premium" | "custom" {
-  const cardType = product.cardType?.toLowerCase() || "";
-  if (cardType === "custom") return "custom";
-  if (cardType === "premium" || cardType === "metal" || product.price >= 700) {
-    return "premium";
-  }
-  return "basic";
-}
-
-// Convert Product to CardDesign
 function productToCardDesign(product: Product): CardDesign {
+  const tier = deriveCardTier(product);
+  const price = effectivePrice(product);
+
   return {
     id: product.id,
     name: product.name,
     slug: product.slug,
-    type: getCardType(product),
-    price: formatPrice(product.price),
-    priceValue: product.price,
-    salePrice: product.salePrice ? formatPrice(product.salePrice) : undefined,
-    salePriceValue: product.salePrice || undefined,
-    color: getCardColor(product),
+    type: tier,
+    typeLabel: tierLabel(tier),
+    price: formatPrice(price),
+    priceValue: price,
+    listPrice: hasDiscount(product) ? formatPrice(product.price) : undefined,
+    color: deriveCardColor(product),
     description: product.description || undefined,
     images: product.images || [],
     cardType: product.cardType || undefined,
@@ -141,18 +72,16 @@ interface UseCardDesignsReturn {
   cardDesigns: CardDesign[];
   loading: boolean;
   error: string | null;
-  getDesignBySlug: (slug: string) => CardDesign | undefined;
+  getDesignById: (id: string) => CardDesign | undefined;
   refresh: () => Promise<void>;
 }
 
 export function useCardDesigns(): UseCardDesignsReturn {
-  const [cardDesigns, setCardDesigns] = useState<CardDesign[]>(fallbackCardDesigns);
-  // Starts false, not true. The state is already seeded with the fallback
-  // designs, so there is real content to render immediately - gating the grid
-  // behind a spinner meant the server HTML shipped a spinner over data it
-  // already had, and /cards rendered zero card designs. `loading` now means
-  // "the initial render has nothing to show", which is never the case here.
-  const [loading, setLoading] = useState(false);
+  const [cardDesigns, setCardDesigns] = useState<CardDesign[]>([]);
+  // Starts true and means what it says: there is genuinely nothing to render
+  // until the fetch resolves, because the state is no longer pre-seeded with
+  // invented products.
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCardDesigns = useCallback(async (signal?: AbortSignal) => {
@@ -169,17 +98,14 @@ export function useCardDesigns(): UseCardDesignsReturn {
 
       if (signal?.aborted) return;
 
-      if (response.products.length > 0) {
-        const designs = response.products.map(productToCardDesign);
-        setCardDesigns(designs);
-      }
-      // If no products, keep fallback
+      setCardDesigns(response.products.map(productToCardDesign));
     } catch (err) {
       if (signal?.aborted || isAbortError(err)) return;
 
       logFetchError("Failed to fetch card designs:", err);
       setError(err instanceof Error ? err.message : "Failed to fetch designs");
-      // Keep fallback designs on error
+      // No substitute catalogue. /cards renders its empty state instead.
+      setCardDesigns([]);
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
@@ -196,8 +122,8 @@ export function useCardDesigns(): UseCardDesignsReturn {
   // React event into the AbortSignal parameter.
   const refresh = useCallback(() => fetchCardDesigns(), [fetchCardDesigns]);
 
-  const getDesignBySlug = useCallback(
-    (slug: string) => cardDesigns.find((d) => d.slug === slug),
+  const getDesignById = useCallback(
+    (id: string) => cardDesigns.find((d) => d.id === id),
     [cardDesigns]
   );
 
@@ -205,10 +131,7 @@ export function useCardDesigns(): UseCardDesignsReturn {
     cardDesigns,
     loading,
     error,
-    getDesignBySlug,
+    getDesignById,
     refresh,
   };
 }
-
-// Export fallback for SSR/initial render
-export { fallbackCardDesigns };

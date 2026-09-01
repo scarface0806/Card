@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
-import { errorResponse, successResponse } from "@/lib/responses";
+import { errorResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
 import { OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
-import { MongoClient } from "mongodb";
 import { getMongoDb } from "@/lib/mongodb";
-import { ObjectId } from "mongodb";
+import {
+  SELECTED_PRODUCT_MESSAGES,
+  getPurchasableProduct,
+} from "@/lib/products/selected-product";
 
 // Generate unique order number
 function generateOrderNumber(): string {
@@ -27,16 +29,6 @@ function isReplicaSetRequiredError(error: unknown) {
     "code" in error &&
     (error as { code?: string }).code === "P2031"
   );
-}
-
-function getDatabaseNameFromUri(uri: string) {
-  try {
-    const parsed = new URL(uri);
-    const pathname = parsed.pathname.replace(/^\//, "").trim();
-    return pathname || "tapvyo-nfc";
-  } catch {
-    return "tapvyo-nfc";
-  }
 }
 
 // GET /api/orders - Get user's orders
@@ -97,7 +89,25 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/orders - Create new order
+/**
+ * POST /api/orders - create an order.
+ *
+ * PRICING IS SERVER-SIDE, ALWAYS.
+ *
+ * The request body carries `productId` and the customer's details, and nothing
+ * else that affects money. The product row is read here and the name, price,
+ * slug and line items all come from it.
+ *
+ * This route used to accept `price` and `cardType` in the body and write them
+ * straight into Order.total / Order.cardType. Because the payment adapter reads
+ * its amount from Order.total, that made the charged amount a client-supplied
+ * value: a crafted POST could buy a 999 rupee card for 1 rupee. `price` and
+ * `cardType` are no longer in createOrderSchema at all, so zod strips them and
+ * there is nothing for this handler to read even by accident.
+ *
+ * The order lands PENDING / unpaid. No email is sent here - the confirmation is
+ * fired from the server-side payment-success path once payment is verified.
+ */
 export async function POST(request: NextRequest) {
   try {
     const { user } = await authenticate(request);
@@ -105,8 +115,9 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const parsed = createOrderSchema.safeParse(body);
     if (!parsed.success) {
-      return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
+      return errorResponse(parsed.error.issues.map((e) => e.message).join(", "), 400);
     }
+
     const {
       productId,
       quantity,
@@ -117,218 +128,120 @@ export async function POST(request: NextRequest) {
       designation,
       company,
       website,
-      cardType,
-      price,
       paymentMethod,
-      templateSlug,
       profileData,
     } = parsed.data;
 
-    if (!productId) {
-      const submittedPrice = price ?? 0;
-      const submittedCardType = cardType || templateSlug || "NFC Digital Card";
-
-        const validUserId = toValidObjectIdOrNull(user?.id);
-
-        const guestOrderData = {
-          orderNumber: generateOrderNumber(),
-          userId: validUserId,
-          guestName: name || null,
-          guestEmail: email || user?.email || null,
-          guestPhone: phone || null,
-          // The checkout form address, with NO fallback to the account email.
-          // Transactional order mail is sent to this and only this - see
-          // src/lib/emails/send-order-email.ts.
-          recipientEmail: email || null,
-          designation: designation || null,
-          company: company || null,
-          website: website || null,
-          address: address || null,
-          cardType: submittedCardType,
-          price: submittedPrice,
-          templateSlug: templateSlug || null,
-          profileData: profileData ?? body,
-          items: [],
-          subtotal: submittedPrice,
-          discount: 0,
-          shipping: 0,
-          tax: 0,
-          total: submittedPrice,
-          status: OrderStatus.PENDING,
-          paymentStatus: PaymentStatus.PENDING,
-          paymentMethod: paymentMethod || null,
-          paymentId: null,
-          shippingAddress: null,
-          billingAddress: null,
-          notes: company || designation
-            ? `Company: ${company || '-'} | Designation: ${designation || '-'}`
-            : null,
-      } as Prisma.OrderUncheckedCreateInput;
-
-      const order = await (async () => {
-        try {
-          return await prisma.order.create({
-            data: guestOrderData,
-          });
-        } catch (error) {
-          if (!isReplicaSetRequiredError(error)) {
-            throw error;
-          }
-
-          const client = getMongoDb();
-          const dbName = "taxiapp"; // Use consistent database name
-
-          try {
-            const db = await client;
-            const orders = db.collection("orders");
-
-            const now = new Date();
-            const insertResult = await orders.insertOne({
-              ...guestOrderData,
-              createdAt: now,
-              updatedAt: now,
-            });
-
-            return {
-              id: String(insertResult.insertedId),
-              orderNumber: String(guestOrderData.orderNumber),
-              total: Number(guestOrderData.total || 0),
-              status: guestOrderData.status || OrderStatus.PENDING,
-              createdAt: now,
-            };
-          } catch (mongoError) {
-            console.error("MongoDB fallback error:", mongoError);
-            throw mongoError;
-          }
-        }
-      })();
-
-      // No email is sent here on purpose. The order is still PENDING and
-      // unpaid at this point; the customer's order confirmation is fired from
-      // the server-side payment-success path once the payment is verified.
-      // See src/lib/payment-adapter.ts and src/lib/emails/send-order-email.ts.
-
-      return NextResponse.json(
-        {
-          success: true,
-          message: "Order created successfully",
-          orderId: order.id,
-          order: {
-            id: order.id,
-            orderNumber: order.orderNumber,
-            total: order.total,
-            status: order.status,
-            createdAt: order.createdAt,
-          },
-        },
-        { status: 201 }
+    // Either the checkout form supplied contact details, or the caller is a
+    // logged-in customer we already have details for. Without one of the two
+    // there is no way to reach the buyer about the order.
+    const hasContactDetails = Boolean(name && email && phone);
+    if (!hasContactDetails && !user) {
+      return errorResponse(
+        "Your name, email and mobile number are required to place an order.",
+        401
       );
     }
 
-    if (!user) {
-      return errorResponse("Authentication required. Please login.", 401);
-    }
+    // THE authoritative read. Everything money-related below comes from this.
+    const productResult = await getPurchasableProduct(productId);
 
-    const qty = quantity || 1;
-
-    // Fetch product from database (SECURITY: price comes from DB, not client)
-    const product = await prisma.product.findUnique({
-      where: { id: productId },
-    });
-
-    let mongoProduct: Record<string, unknown> | null = null;
-
-    if (!product && ObjectId.isValid(productId)) {
-      const db = await getMongoDb();
-      mongoProduct = (await db
-        .collection("products")
-        .findOne({ _id: new ObjectId(productId) })) as Record<string, unknown> | null;
-    }
-
-    if (!product && !mongoProduct) {
-      return NextResponse.json(
-        { error: "Product not found" },
-        { status: 404 }
+    if (!productResult.ok) {
+      return errorResponse(
+        SELECTED_PRODUCT_MESSAGES[productResult.reason],
+        productResult.reason === "not-found" ? 404 : 400
       );
     }
 
-    // Validate product is active
-    const isActive = product ? product.isActive : (mongoProduct?.isActive ?? true);
-    if (!isActive) {
-      return NextResponse.json(
-        { error: "Product is not available for purchase" },
-        { status: 400 }
-      );
-    }
+    const product = productResult.product;
 
-    const productName = product
-      ? product.name
-      : String(mongoProduct?.name || "Product");
-
-    const resolvedCardType = product
-      ? product.cardType || cardType || product.name
-      : cardType || productName;
-
-    // Calculate totals using DB prices (SECURITY: never trust client prices)
-    const itemPrice = product
-      ? product.salePrice || product.price
-      : Number(mongoProduct?.price || 0);
-    const subtotal = itemPrice * qty;
-    const shipping = 0; // Can be calculated based on address
-    const tax = 0; // Can be calculated based on address
+    const qty = quantity ?? 1;
+    const unitPrice = product.price;
+    const subtotal = unitPrice * qty;
+    const shipping = 0; // Free shipping
+    const tax = 0;
     const total = subtotal + shipping + tax;
 
-    // Create order item
     const orderItem = {
-      productId: product ? product.id : String(mongoProduct?._id || productId),
-      productName,
+      productId: product.id,
+      productName: product.name,
       quantity: qty,
-      price: itemPrice,
-      total: itemPrice * qty,
+      price: unitPrice,
+      total: subtotal,
     };
 
-    // Create order with PENDING status
-    // Note: shippingAddress expects an Address object with required fields, so we set it to null for now
-    const validUserId = toValidObjectIdOrNull(user.id);
-
-    const productOrderData = {
-        orderNumber: generateOrderNumber(),
-      userId: validUserId,
-        guestName: null,
-        guestEmail: user.email || null,
-        guestPhone: null,
-        // Checkout-form address only, never the account email. Null here
-        // makes the email layer log a failed row rather than guess.
-        recipientEmail: email || null,
-        designation: designation || null,
-        company: company || null,
-        website: website || null,
-        address: address || null,
-        cardType: resolvedCardType,
-        price: itemPrice,
-        templateSlug: templateSlug || null,
-        profileData: profileData ?? null,
-        items: [orderItem],
-        subtotal,
-        discount: 0,
-        shipping,
-        tax,
-        total,
-        status: OrderStatus.PENDING, // Default status
-        paymentStatus: PaymentStatus.PENDING,
-        paymentMethod: null,
-        paymentId: null,
-        shippingAddress: null,
-        billingAddress: null,
-        notes: address ? `Address: ${address}` : null,
+    const orderData = {
+      orderNumber: generateOrderNumber(),
+      userId: toValidObjectIdOrNull(user?.id),
+      guestName: name || null,
+      guestEmail: email || user?.email || null,
+      guestPhone: phone || null,
+      // The checkout form address, with NO fallback to the account email.
+      // Transactional order mail is sent to this and only this - see
+      // src/lib/emails/send-order-email.ts.
+      recipientEmail: email || null,
+      designation: designation || null,
+      company: company || null,
+      website: website || null,
+      address: address || null,
+      // Product identity and price, straight from the product row.
+      cardType: product.name,
+      price: unitPrice,
+      templateSlug: product.slug,
+      profileData: profileData ?? null,
+      items: [orderItem],
+      subtotal,
+      discount: 0,
+      shipping,
+      tax,
+      total,
+      status: OrderStatus.PENDING,
+      paymentStatus: PaymentStatus.PENDING,
+      paymentMethod: paymentMethod || null,
+      paymentId: null,
+      shippingAddress: null,
+      billingAddress: null,
+      notes:
+        company || designation
+          ? `Company: ${company || "-"} | Designation: ${designation || "-"}`
+          : null,
     } as Prisma.OrderUncheckedCreateInput;
 
-    const order = await prisma.order.create({
-      data: productOrderData,
-    });
+    // Prisma's MongoDB connector needs a replica set to write. The raw-driver
+    // fallback keeps local single-node development working; production runs on
+    // Atlas, where the first path is taken.
+    const order = await (async () => {
+      try {
+        return await prisma.order.create({ data: orderData });
+      } catch (error) {
+        if (!isReplicaSetRequiredError(error)) {
+          throw error;
+        }
 
-    // No email is sent here on purpose - the order is unpaid at this point.
-    // The confirmation is fired from the server-side payment-success path.
+        const db = await getMongoDb();
+        const now = new Date();
+        const insertResult = await db.collection("orders").insertOne({
+          ...orderData,
+          createdAt: now,
+          updatedAt: now,
+        });
+
+        return {
+          id: String(insertResult.insertedId),
+          orderNumber: String(orderData.orderNumber),
+          total: Number(orderData.total || 0),
+          status: orderData.status || OrderStatus.PENDING,
+          paymentStatus: orderData.paymentStatus || PaymentStatus.PENDING,
+          items: [orderItem],
+          createdAt: now,
+        };
+      }
+    })();
+
+    // No email is sent here on purpose. The order is still PENDING and unpaid;
+    // the customer's order confirmation is fired from the server-side
+    // payment-success path once the payment is verified. See
+    // src/lib/payment-adapter.ts and src/lib/emails/send-order-email.ts.
 
     return NextResponse.json(
       {
@@ -350,7 +263,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Create order error:", error);
     return NextResponse.json(
-      { error: "Failed to create order" },
+      { success: false, error: "Failed to create order" },
       { status: 500 }
     );
   }

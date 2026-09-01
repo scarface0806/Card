@@ -16,7 +16,7 @@ import PaymentForm from '@/forms/PaymentForm';
 import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
-import { CardTemplate } from '@/utils/cardTemplates';
+import type { SelectedProduct } from '@/lib/products/selected-product';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';
@@ -32,13 +32,6 @@ const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   ),
 });
 
-const CARD_FACTS = [
-  'Free digital profile, hosted forever',
-  'NFC chip encoded and ready to tap',
-  'QR code for phones without NFC',
-  'Edit your details any time',
-];
-
 type FormData = CreateCardFormValues;
 
 /** Which step renders each schema section, in step order. */
@@ -51,17 +44,20 @@ const SECTION_STEPS: ReadonlyArray<[keyof FormData, number]> = [
 ];
 
 export default function CreateCardClient({
-  template,
+  product,
 }: {
-  /** Resolved on the server from ?template= so the first paint is correct. */
-  template: CardTemplate;
+  /**
+   * Resolved on the server from ?productId= by reading the product row, so the
+   * first paint is correct and the price shown is the price in the database.
+   *
+   * This is display data only. The amount actually charged is recomputed
+   * server-side from `product.id` in POST /api/orders - see placeOrder below.
+   */
+  product: SelectedProduct;
 }) {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
-  // Server already resolved the template, so this renders correctly on first
-  // paint instead of flashing the default and swapping in an effect.
-  const selectedTemplate = template;
   const router = useRouter();
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
 
@@ -149,14 +145,16 @@ export default function CreateCardClient({
 
       // Step 1: Create the order in the database. It lands as PENDING/unpaid -
       // this call is NOT a payment and must never redirect to the success page.
+      //
+      // Only the product ID is sent. No price and no product name leave the
+      // browser: the server reads the product row and computes the total from
+      // it, so a tampered request cannot buy a 999 rupee card for 1 rupee.
       const result = await createOrder({
+        productId: product.id,
         personalDetails: data.personalDetails,
         businessDetails: data.businessDetails,
         socialLinks: data.socialLinks,
         uploads,
-        template: selectedTemplate.slug,
-        templateName: selectedTemplate.name,
-        templatePrice: selectedTemplate.priceValue,
         payment: data.payment,
       });
 
@@ -245,8 +243,8 @@ export default function CreateCardClient({
             <h1 className="tv-h2 mt-4 tv-measure-display">Create your card</h1>
             <p className="tv-lead mt-4 tv-measure-lead">
               Five short steps. You are ordering the{' '}
-              <span className="text-[#F1F3F1] font-semibold">{selectedTemplate.name}</span>{' '}
-              card — {selectedTemplate.price}, shipping included.
+              <span className="text-[#F1F3F1] font-semibold">{product.name}</span>{' '}
+              card — {product.priceFormatted}, shipping included.
             </p>
           </motion.header>
 
@@ -263,7 +261,7 @@ export default function CreateCardClient({
                     {currentStep === 2 && <BusinessDetailsForm />}
                     {currentStep === 3 && <SocialLinksForm />}
                     {currentStep === 4 && <UploadForm />}
-                    {currentStep === 5 && <PaymentForm template={selectedTemplate} />}
+                    {currentStep === 5 && <PaymentForm product={product} />}
                   </FormProvider>
 
                   {paymentError && (
@@ -318,7 +316,7 @@ export default function CreateCardClient({
                       ) : (
                         <>
                           {currentStep === 5
-                            ? `Pay ${selectedTemplate.price} and place order`
+                            ? `Pay ${product.priceFormatted} and place order`
                             : 'Continue'}
                           <ArrowRight className="w-4 h-4" aria-hidden="true" />
                         </>
@@ -337,10 +335,10 @@ export default function CreateCardClient({
                   <h2 className="tv-mono">Your card</h2>
                   <span
                     className={`tv-tag ${
-                      selectedTemplate.type === 'premium' ? 'tv-tag-brass' : 'tv-tag-patina'
+                      product.tier === 'premium' ? 'tv-tag-brass' : 'tv-tag-patina'
                     }`}
                   >
-                    {selectedTemplate.type}
+                    {product.tierLabel}
                   </span>
                 </div>
 
@@ -348,20 +346,32 @@ export default function CreateCardClient({
                   fullName={fullName}
                   designation={designation}
                   company={company}
-                  template={selectedTemplate}
+                  product={product}
                 />
 
                 <div className="mt-5 flex items-baseline justify-between gap-3">
-                  <p className="tv-h4">{selectedTemplate.name}</p>
-                  <p className="tv-summary-total-val !text-2xl">{selectedTemplate.price}</p>
+                  <p className="tv-h4">{product.name}</p>
+                  <p className="tv-summary-total-val !text-2xl">
+                    {product.priceFormatted}
+                  </p>
                 </div>
+
+                {product.listPriceFormatted && (
+                  <p className="tv-small mt-1 text-right line-through">
+                    {product.listPriceFormatted}
+                  </p>
+                )}
+
+                {product.description && (
+                  <p className="tv-small mt-3">{product.description}</p>
+                )}
 
                 <hr className="tv-rule my-5" />
 
                 <ul className="tv-spec">
-                  {CARD_FACTS.map((fact) => (
-                    <li key={fact} className="tv-spec-row">
-                      {fact}
+                  {product.features.map((feature) => (
+                    <li key={feature} className="tv-spec-row">
+                      {feature}
                     </li>
                   ))}
                 </ul>

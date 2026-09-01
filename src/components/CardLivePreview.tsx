@@ -2,20 +2,21 @@
 
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wifi } from 'lucide-react';
-import { CardTemplate } from '@/utils/cardTemplates';
+import type { SelectedProduct } from '@/lib/products/selected-product';
 
 interface CardLivePreviewProps {
   fullName: string;
   designation: string;
   company: string;
-  template: CardTemplate;
+  /** The product being bought, from its database row. */
+  product: SelectedProduct;
 }
 
 export default function CardLivePreview({
   fullName,
   designation,
   company,
-  template,
+  product,
 }: CardLivePreviewProps) {
   return (
     <div
@@ -23,8 +24,20 @@ export default function CardLivePreview({
       // card edge reads as part of the dark shell instead of a light-mode
       // leftover sitting on it.
       className="relative overflow-hidden rounded-xl pt-[63%] border border-[rgba(241,243,241,0.14)] shadow-[0_18px_44px_rgba(0,0,0,0.45)]"
-      style={{ background: template.color }}
+      // The product's own gradient, drawn behind the photograph so a slow or
+      // broken image still leaves the card looking like a card.
+      style={{ background: product.color }}
     >
+      {/* The product photograph the admin uploaded, when there is one. */}
+      {product.imageUrl && (
+        <img
+          src={product.imageUrl}
+          alt={`${product.name} NFC card`}
+          width={480}
+          height={300}
+          className="absolute inset-0 h-full w-full object-cover"
+        />
+      )}
       {/* NFC mark */}
       <div className="absolute top-4 right-4">
         <Wifi className="w-6 h-6 text-white/60 rotate-45" aria-hidden="true" />
