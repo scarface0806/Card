@@ -4,6 +4,8 @@ import { authenticate } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
+import { sendOrderStatusEmail } from "@/lib/emails/send-order-email";
+import { orderShippingSchema } from "@/lib/validators";
 import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
 import { getMongoDb } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
@@ -31,6 +33,20 @@ function normalizeOrderStatus(status: unknown): OrderStatus | undefined {
     : undefined;
 }
 
+/**
+ * Lifecycle timestamp a status change should stamp, if any. Kept identical to
+ * the copy in app/api/orders/[id]/route.ts - both routes write order status,
+ * and the public tracking timeline reads these columns.
+ */
+function stageTimestampField(
+  status: OrderStatus
+): "printingAt" | "shippedAt" | "deliveredAt" | null {
+  if (status === OrderStatus.PROCESSING) return "printingAt";
+  if (status === OrderStatus.SHIPPED) return "shippedAt";
+  if (status === OrderStatus.DELIVERED) return "deliveredAt";
+  return null;
+}
+
 // GET /api/admin/orders/:id - Get single order details (Admin only)
 export async function GET(request: NextRequest) {
   try {
@@ -52,6 +68,15 @@ export async function GET(request: NextRequest) {
             name: true,
             phone: true,
             createdAt: true,
+          },
+        },
+        emailLogs: {
+          select: {
+            type: true,
+            status: true,
+            error: true,
+            sentAt: true,
+            providerId: true,
           },
         },
       },
@@ -84,6 +109,28 @@ export async function PATCH(request: NextRequest) {
     const body = await request.json();
     const normalizedStatus = normalizeOrderStatus(body?.status);
     const { paymentStatus, notes } = body;
+
+    // Courier / tracking is edited from the same drawer as the status, so it
+    // shares this handler. Validated separately because the rest of this body
+    // predates any schema.
+    const shippingFields = orderShippingSchema.safeParse({
+      ...(body?.courierName !== undefined && { courierName: body.courierName }),
+      ...(body?.trackingNumber !== undefined && { trackingNumber: body.trackingNumber }),
+      ...(body?.trackingUrl !== undefined && { trackingUrl: body.trackingUrl }),
+      ...(body?.expectedDeliveryFrom !== undefined && {
+        expectedDeliveryFrom: body.expectedDeliveryFrom,
+      }),
+      ...(body?.expectedDeliveryTo !== undefined && {
+        expectedDeliveryTo: body.expectedDeliveryTo,
+      }),
+    });
+
+    if (!shippingFields.success) {
+      return errorResponse(
+        shippingFields.error.issues.map((e) => e.message).join(", "),
+        400
+      );
+    }
 
     // Check if order exists
     const existingOrder = await prisma.order.findUnique({
@@ -132,6 +179,18 @@ export async function PATCH(request: NextRequest) {
 
     if (notes !== undefined) {
       updateData.notes = notes;
+    }
+
+    // An empty string means "clear it", which is stored as null so the shipped
+    // email's "is this blank?" check has one thing to test rather than two.
+    for (const [key, value] of Object.entries(shippingFields.data)) {
+      if (value === undefined) continue;
+      updateData[key] = value === "" ? null : value;
+    }
+
+    const stageField = normalizedStatus ? stageTimestampField(normalizedStatus) : null;
+    if (stageField && !existingOrder[stageField]) {
+      updateData[stageField] = new Date();
     }
 
     // Auto-create card when status is updated to CONFIRMED
@@ -282,6 +341,12 @@ export async function PATCH(request: NextRequest) {
         },
       },
     });
+
+    // Shipped / delivered notice, after the write. sendOrderStatusEmail never
+    // throws, so a provider outage cannot turn a saved status into a 500.
+    if (normalizedStatus) {
+      await sendOrderStatusEmail(id, normalizedStatus);
+    }
 
     return NextResponse.json({
       message: "Order updated successfully",

@@ -24,6 +24,16 @@ interface OrderRow {
   rawStatus: string;
 }
 
+type EmailType = 'confirmation' | 'shipped' | 'delivered';
+
+interface OrderEmailLog {
+  type: string;
+  status: string;
+  error?: string | null;
+  sentAt?: string | null;
+  providerId?: string | null;
+}
+
 interface OrderDetails {
   id: string;
   orderNumber: string;
@@ -40,11 +50,46 @@ interface OrderDetails {
   status: string;
   createdAt: string;
   notes?: string | null;
+  recipientEmail?: string | null;
+  courierName?: string | null;
+  trackingNumber?: string | null;
+  trackingUrl?: string | null;
+  expectedDeliveryFrom?: string | null;
+  expectedDeliveryTo?: string | null;
+  printingAt?: string | null;
+  shippedAt?: string | null;
+  deliveredAt?: string | null;
+  emailLogs?: OrderEmailLog[];
   user?: {
     name?: string | null;
     email?: string | null;
     phone?: string | null;
   } | null;
+}
+
+const EMAIL_TYPES: { key: EmailType; label: string; note: string }[] = [
+  {
+    key: 'confirmation',
+    label: 'Order confirmation',
+    note: 'Sent automatically once payment is verified.',
+  },
+  {
+    key: 'shipped',
+    label: 'Shipped',
+    note: 'Needs courier name and tracking number on the order.',
+  },
+  {
+    key: 'delivered',
+    label: 'Delivered',
+    note: 'Sent automatically when the order is marked delivered.',
+  },
+];
+
+/** ISO timestamp -> value for an <input type="date">, or '' when unset. */
+function toDateInputValue(iso?: string | null): string {
+  if (!iso) return '';
+  const date = new Date(iso);
+  return Number.isNaN(date.getTime()) ? '' : date.toISOString().slice(0, 10);
 }
 
 interface ToastState {
@@ -83,11 +128,11 @@ function getStatusPresentation(rawStatus: string): {
     return { tone: 'completed', label: 'Completed' };
   }
 
-  if (
-    normalized === 'CONFIRMED' ||
-    normalized === 'SHIPPED' ||
-    normalized === 'ACCEPTED'
-  ) {
+  if (normalized === 'SHIPPED') {
+    return { tone: 'completed', label: 'Shipped' };
+  }
+
+  if (normalized === 'CONFIRMED' || normalized === 'ACCEPTED') {
     return { tone: 'completed', label: 'Accepted' };
   }
 
@@ -134,10 +179,35 @@ export default function OrdersPage() {
     address: '',
     notes: '',
   });
+  const [shippingForm, setShippingForm] = useState({
+    courierName: '',
+    trackingNumber: '',
+    trackingUrl: '',
+    expectedDeliveryFrom: '',
+    expectedDeliveryTo: '',
+  });
+  const [shippingSaving, setShippingSaving] = useState(false);
+  const [resendingType, setResendingType] = useState<EmailType | null>(null);
 
   const closeDrawer = useCallback(() => {
     setSelectedOrder(null);
   }, []);
+
+  const openedOrderId = selectedOrder?.id ?? null;
+
+  useEffect(() => {
+    if (!selectedOrder) return;
+
+    setShippingForm({
+      courierName: selectedOrder.courierName || '',
+      trackingNumber: selectedOrder.trackingNumber || '',
+      trackingUrl: selectedOrder.trackingUrl || '',
+      expectedDeliveryFrom: toDateInputValue(selectedOrder.expectedDeliveryFrom),
+      expectedDeliveryTo: toDateInputValue(selectedOrder.expectedDeliveryTo),
+    });
+    // Only when the opened order changes - see the comment above.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openedOrderId]);
 
   const lifecycleActionLabel = useCallback((rawStatus: string): string | null => {
     const normalized = rawStatus?.toUpperCase();
@@ -151,7 +221,11 @@ export default function OrdersPage() {
     }
 
     if (normalized === 'PROCESSING') {
-      return 'Complete';
+      return 'Mark Shipped';
+    }
+
+    if (normalized === 'SHIPPED') {
+      return 'Mark Delivered';
     }
 
     return null;
@@ -214,24 +288,99 @@ export default function OrdersPage() {
     return () => controller.abort();
   }, [fetchOrders]);
 
+  /** Re-read one order, including its per-type email log. */
+  const refreshOrderDetails = useCallback(async (id: string) => {
+    const response = await fetch(`/api/admin/orders/${id}`, {
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      const data = await response.json().catch(() => ({}));
+      throw new Error(data.error || 'Failed to fetch order details');
+    }
+
+    const order: OrderDetails = await response.json();
+    setSelectedOrder(order);
+    return order;
+  }, []);
+
   const handleView = async (row: OrderRow) => {
     try {
       setDetailLoading(true);
-      const response = await fetch(`/api/admin/orders/${row.id}`, {
-        credentials: 'include',
-      });
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || 'Failed to fetch order details');
-      }
-
-      const order = await response.json();
-      setSelectedOrder(order);
+      await refreshOrderDetails(row.id);
     } catch (err) {
       setToast({ variant: 'error', message: err instanceof Error ? err.message : 'Failed to fetch order details' });
     } finally {
       setDetailLoading(false);
+    }
+  };
+
+  /**
+   * Save courier / tracking. Separate from the status buttons on purpose: the
+   * shipped email refuses to send without a courier and a tracking number, so
+   * these get filled in BEFORE the order is marked shipped.
+   */
+  const saveShipping = async () => {
+    if (!selectedOrder) return;
+
+    try {
+      setShippingSaving(true);
+      const response = await fetch(`/api/admin/orders/${selectedOrder.id}`, {
+        method: 'PATCH',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(shippingForm),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        throw new Error(payload.error || payload.message || 'Failed to save shipping details');
+      }
+
+      await refreshOrderDetails(selectedOrder.id);
+      setToast({ variant: 'success', message: 'Shipping details saved' });
+    } catch (error) {
+      setToast({
+        variant: 'error',
+        message: error instanceof Error ? error.message : 'Failed to save shipping details',
+      });
+    } finally {
+      setShippingSaving(false);
+    }
+  };
+
+  /** Resend one transactional email. Admin-only route; see its own file. */
+  const resendEmail = async (type: EmailType) => {
+    if (!selectedOrder) return;
+
+    try {
+      setResendingType(type);
+      const response = await fetch(`/api/admin/orders/${selectedOrder.id}/emails`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ type }),
+      });
+
+      const payload = await response.json().catch(() => ({}));
+      await refreshOrderDetails(selectedOrder.id).catch(() => undefined);
+
+      if (!response.ok) {
+        throw new Error(payload.error || payload.message || 'Failed to resend email');
+      }
+
+      setToast({
+        // A refused send is not an HTTP failure - the reason is on the row.
+        variant: payload.success ? 'success' : 'error',
+        message: payload.message || 'Email sent',
+      });
+    } catch (error) {
+      setToast({
+        variant: 'error',
+        message: error instanceof Error ? error.message : 'Failed to resend email',
+      });
+    } finally {
+      setResendingType(null);
     }
   };
 
@@ -243,8 +392,10 @@ export default function OrdersPage() {
         : normalized === 'CONFIRMED' || normalized === 'ACCEPTED'
           ? 'processing'
           : normalized === 'PROCESSING'
-            ? 'completed'
-            : null;
+            ? 'shipped'
+            : normalized === 'SHIPPED'
+              ? 'completed'
+              : null;
 
     if (!nextStatus) {
       setToast({ variant: 'info', message: `No lifecycle action available for ${row.orderID}` });
@@ -273,9 +424,15 @@ export default function OrdersPage() {
             ? 'CONFIRMED'
             : nextStatus === 'processing'
               ? 'PROCESSING'
-              : nextStatus === 'completed'
-                ? 'DELIVERED'
-                : null;
+              : nextStatus === 'shipped'
+                ? 'SHIPPED'
+                : nextStatus === 'completed'
+                  ? 'DELIVERED'
+                  : null;
+        // Re-read the order so the email panel shows what the status change
+        // just did to the shipped / delivered send. Non-fatal: the status
+        // write has already committed.
+        await refreshOrderDetails(row.id).catch(() => undefined);
         setSelectedOrder((prev) => (prev ? { ...prev, status: nextDetailStatus || prev.status } : prev));
       }
       setToast({ variant: 'success', message: `Order ${row.orderID} updated successfully` });
@@ -641,6 +798,145 @@ export default function OrdersPage() {
                       <span>₹{(selectedOrder.total ?? selectedOrder.price ?? 0).toLocaleString()}</span>
                     </div>
                   </div>
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <h3 className="tv-adm-label">Shipping &amp; Tracking</h3>
+                <p className="text-xs text-[var(--tv-text-muted)]">
+                  Fill in the courier and tracking number before marking the order
+                  shipped. Without them the shipped email is not sent - it is
+                  recorded as failed instead of going out half empty.
+                </p>
+                <div className="bg-[var(--tv-slate)] rounded-lg p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <label className="block">
+                    <span className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Courier</span>
+                    <input
+                      type="text"
+                      value={shippingForm.courierName}
+                      onChange={(event) =>
+                        setShippingForm((prev) => ({ ...prev, courierName: event.target.value }))
+                      }
+                      placeholder="Delhivery"
+                      className="mt-1 w-full bg-transparent border border-[var(--tv-rule)] rounded-lg px-3 py-2 text-[var(--tv-text)]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Tracking number</span>
+                    <input
+                      type="text"
+                      value={shippingForm.trackingNumber}
+                      onChange={(event) =>
+                        setShippingForm((prev) => ({ ...prev, trackingNumber: event.target.value }))
+                      }
+                      placeholder="1234567890"
+                      className="mt-1 w-full bg-transparent border border-[var(--tv-rule)] rounded-lg px-3 py-2 text-[var(--tv-text)]"
+                    />
+                  </label>
+                  <label className="block md:col-span-2">
+                    <span className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Tracking URL</span>
+                    <input
+                      type="url"
+                      value={shippingForm.trackingUrl}
+                      onChange={(event) =>
+                        setShippingForm((prev) => ({ ...prev, trackingUrl: event.target.value }))
+                      }
+                      placeholder="https://..."
+                      className="mt-1 w-full bg-transparent border border-[var(--tv-rule)] rounded-lg px-3 py-2 text-[var(--tv-text)]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Delivery from</span>
+                    <input
+                      type="date"
+                      value={shippingForm.expectedDeliveryFrom}
+                      onChange={(event) =>
+                        setShippingForm((prev) => ({ ...prev, expectedDeliveryFrom: event.target.value }))
+                      }
+                      className="mt-1 w-full bg-transparent border border-[var(--tv-rule)] rounded-lg px-3 py-2 text-[var(--tv-text)]"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs uppercase tracking-wide text-[var(--tv-text-muted)]">Delivery by</span>
+                    <input
+                      type="date"
+                      value={shippingForm.expectedDeliveryTo}
+                      onChange={(event) =>
+                        setShippingForm((prev) => ({ ...prev, expectedDeliveryTo: event.target.value }))
+                      }
+                      className="mt-1 w-full bg-transparent border border-[var(--tv-rule)] rounded-lg px-3 py-2 text-[var(--tv-text)]"
+                    />
+                  </label>
+                  <div className="md:col-span-2 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={saveShipping}
+                      disabled={shippingSaving}
+                      className="px-4 py-2 rounded-xl bg-[var(--tv-patina)] text-[var(--tv-text)] disabled:opacity-60"
+                    >
+                      {shippingSaving ? 'Saving...' : 'Save shipping details'}
+                    </button>
+                  </div>
+                </div>
+              </section>
+
+              <section className="space-y-3">
+                <h3 className="tv-adm-label">Customer Emails</h3>
+                <p className="text-xs text-[var(--tv-text-muted)]">
+                  Sent to{' '}
+                  <span className="text-[var(--tv-text)] break-all">
+                    {selectedOrder.recipientEmail || 'no recipient address on this order'}
+                  </span>
+                  . Resending updates the existing log entry rather than adding
+                  another one.
+                </p>
+                <div className="bg-[var(--tv-slate)] rounded-lg divide-y divide-[var(--tv-rule)]">
+                  {EMAIL_TYPES.map(({ key, label, note }) => {
+                    const log = selectedOrder.emailLogs?.find((entry) => entry.type === key);
+                    const status = log?.status ?? 'not_sent';
+                    const sentAt = log?.sentAt ? new Date(log.sentAt).toLocaleString() : null;
+
+                    return (
+                      <div key={key} className="p-4 flex flex-col sm:flex-row sm:items-start gap-3">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-[var(--tv-text)] font-medium">{label}</p>
+                          {status === 'sent' && (
+                            <p className="text-xs text-[var(--tv-text-muted)] mt-1">
+                              Sent{sentAt ? ` ${sentAt}` : ''}
+                              {log?.providerId ? ` (${log.providerId})` : ''}
+                            </p>
+                          )}
+                          {status === 'pending' && (
+                            <p className="text-xs text-[var(--tv-text-muted)] mt-1">
+                              Send in progress...
+                            </p>
+                          )}
+                          {status === 'failed' && (
+                            <p className="text-xs text-[rgba(224,122,110,0.95)] mt-1 break-words">
+                              Failed: {log?.error || 'no reason recorded'}
+                            </p>
+                          )}
+                          {status === 'not_sent' && (
+                            <p className="text-xs text-[var(--tv-text-muted)] mt-1">
+                              Not sent yet. {note}
+                            </p>
+                          )}
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => resendEmail(key)}
+                          disabled={resendingType !== null}
+                          className="shrink-0 px-3 py-2 rounded-xl border border-[var(--tv-rule)] text-[var(--tv-text)] hover:bg-[rgba(241,243,241,0.09)] disabled:opacity-60"
+                        >
+                          {resendingType === key
+                            ? 'Sending...'
+                            : status === 'sent'
+                              ? 'Send again'
+                              : 'Send now'}
+                        </button>
+                      </div>
+                    );
+                  })}
                 </div>
               </section>
 

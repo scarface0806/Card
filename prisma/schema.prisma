@@ -106,6 +106,11 @@ model Order {
   guestName  String?
   guestPhone String?
 
+  // The address typed into the checkout form. Transactional order mail goes
+  // here and ONLY here - never to the logged-in account email, which may be a
+  // different person from the one whose name gets printed on the card.
+  recipientEmail String?
+
   // Purchase form details
   designation String?
   company     String?
@@ -141,6 +146,25 @@ model Order {
 
   // NFC link email tracking
   nfcLinkEmailSent Boolean @default(false)
+
+  // Courier / tracking, set by admin before the order is marked SHIPPED. The
+  // shipped email refuses to send while courier or tracking number is blank
+  // rather than mail a half-empty tracking notice.
+  courierName          String?
+  trackingNumber       String?
+  trackingUrl          String?
+  expectedDeliveryFrom DateTime?
+  expectedDeliveryTo   DateTime?
+
+  // Lifecycle timestamps for the public /track-order timeline. createdAt
+  // already covers Placed, so only the later stages need their own column.
+  paidAt      DateTime?
+  printingAt  DateTime?
+  shippedAt   DateTime?
+  deliveredAt DateTime?
+
+  // Transactional email send log - one row per (order, type).
+  emailLogs EmailLog[]
 
   notes String?
 
@@ -357,6 +381,43 @@ model PaymentLog {
   @@index([existingOrderId])
   @@index([status])
   @@map("payments_log")
+}
+
+// ==================== TRANSACTIONAL EMAIL ====================
+
+// One row per (order, email type). The unique index IS the idempotency
+// mechanism: a send claims its row by inserting it with status "pending", and
+// a duplicate insert fails with P2002 instead of producing a second email. An
+// application-level read-then-write check would race webhook retries.
+//
+// Because the constraint is on (orderId, type) alone, a permanently failed
+// send leaves a row in the way of a retry - the admin resend action therefore
+// UPDATES the existing row back to "pending" rather than inserting a new one.
+// The constraint is never dropped to work around this.
+model EmailLog {
+  id String @id @default(auto()) @map("_id") @db.ObjectId
+
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  /// "confirmation" | "shipped" | "delivered" - see EMAIL_TYPES in src/lib/emails/types.ts
+  type String
+
+  /// "pending" | "sent" | "failed"
+  status String
+
+  /// Resend message id, once the provider has accepted the send.
+  providerId String?
+
+  /// Provider or validation error text for a failed send.
+  error  String?
+  sentAt DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@unique([orderId, type])
+  @@index([orderId])
+  @@map("email_log")
 }
 
 model Gallery {

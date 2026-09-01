@@ -4,8 +4,6 @@ import { authenticate } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
 import { OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
-import { sendEmail } from "@/lib/email";
-import { APP_NAME, APP_URL, SUPPORT_EMAIL, SUPPORT_PHONE } from "@/utils/constants";
 import { MongoClient } from "mongodb";
 import { getMongoDb } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
@@ -138,6 +136,10 @@ export async function POST(request: NextRequest) {
           guestName: name || null,
           guestEmail: email || user?.email || null,
           guestPhone: phone || null,
+          // The checkout form address, with NO fallback to the account email.
+          // Transactional order mail is sent to this and only this - see
+          // src/lib/emails/send-order-email.ts.
+          recipientEmail: email || null,
           designation: designation || null,
           company: company || null,
           website: website || null,
@@ -201,22 +203,10 @@ export async function POST(request: NextRequest) {
         }
       })();
 
-      const recipientEmail = email || user?.email;
-      if (recipientEmail) {
-        const supportEmail = SUPPORT_EMAIL || "support@tapvyo-nfc.com";
-        const supportPhone = SUPPORT_PHONE || "+91 9999999999";
-        const siteUrl = APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com";
-        const orderLink = `${siteUrl}/order-success?orderId=${encodeURIComponent(order.id)}`;
-
-        sendEmail({
-          to: recipientEmail,
-          subject: `Order received - ${order.orderNumber}`,
-          html: `<p>Hi ${name || "there"},</p><p>Your order for <strong>${submittedCardType}</strong> has been received.</p><p>Order ID: <strong>${order.orderNumber}</strong></p><p>Total: <strong>₹${submittedPrice.toLocaleString()}</strong></p><p>You can track it here: <a href="${orderLink}">${orderLink}</a></p><p>Support: ${supportEmail} | ${supportPhone}</p>`,
-          text: `Your order has been received. Order ID: ${order.orderNumber}. Card Type: ${submittedCardType}. Total: ₹${submittedPrice}. Track here: ${orderLink}. Support: ${supportEmail} | ${supportPhone}`,
-        }).catch((emailError) => {
-          console.error("Guest order confirmation email failed:", emailError);
-        });
-      }
+      // No email is sent here on purpose. The order is still PENDING and
+      // unpaid at this point; the customer's order confirmation is fired from
+      // the server-side payment-success path once the payment is verified.
+      // See src/lib/payment-adapter.ts and src/lib/emails/send-order-email.ts.
 
       return NextResponse.json(
         {
@@ -307,6 +297,9 @@ export async function POST(request: NextRequest) {
         guestName: null,
         guestEmail: user.email || null,
         guestPhone: null,
+        // Checkout-form address only, never the account email. Null here
+        // makes the email layer log a failed row rather than guess.
+        recipientEmail: email || null,
         designation: designation || null,
         company: company || null,
         website: website || null,
@@ -334,79 +327,8 @@ export async function POST(request: NextRequest) {
       data: productOrderData,
     });
 
-    // Send confirmation email (best-effort)
-    if (user.email) {
-      const supportEmail = SUPPORT_EMAIL || "support@tapvyo-nfc.com";
-      const supportPhone = SUPPORT_PHONE || "+91 9999999999";
-      const siteUrl = APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com";
-      const orderLink = `${siteUrl}/order-success?orderId=${encodeURIComponent(order.id)}`;
-
-      const subject = `Your order is confirmed - ${order.orderNumber}`;
-      const html = `
-<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Order Confirmation</title>
-</head>
-<body style="margin: 0; padding: 0; background-color: #f4f4f5; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;">
-  <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" width="100%" style="max-width: 600px; margin: 0 auto;">
-    <tr>
-      <td style="padding: 40px 20px;">
-        <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #ffffff; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
-          <tr>
-            <td style="background: linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%); padding: 30px 40px; text-align: center;">
-              <h1 style="margin: 0; color: #ffffff; font-size: 24px; font-weight: 600;">Thank you for your order!</h1>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 32px 40px;">
-              <p style="margin: 0 0 16px; color: #374151; font-size: 16px; line-height: 1.6;">
-                Your order has been received and is now pending. We will notify you when it moves to the next stage.
-              </p>
-              <table role="presentation" cellspacing="0" cellpadding="0" border="0" width="100%" style="background-color: #f8fafc; border-radius: 8px; margin: 24px 0;">
-                <tr>
-                  <td style="padding: 20px;">
-                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Order ID</p>
-                    <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 600;">${order.orderNumber}</p>
-                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Product</p>
-                    <p style="margin: 0 0 16px; color: #111827; font-size: 16px; font-weight: 600;">${productName}</p>
-                    <p style="margin: 0 0 8px; color: #6b7280; font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Status</p>
-                    <p style="margin: 0; color: #111827; font-size: 16px; font-weight: 600;">Pending</p>
-                  </td>
-                </tr>
-              </table>
-              <p style="margin: 0 0 24px; color: #374151; font-size: 14px; line-height: 1.6;">
-                Need help? Contact our support team at ${supportEmail} or call ${supportPhone}.
-              </p>
-              <a href="${orderLink}" style="display: inline-block; padding: 12px 20px; background: #06b6d4; color: #ffffff; text-decoration: none; border-radius: 8px; font-weight: 600;">View Order</a>
-            </td>
-          </tr>
-          <tr>
-            <td style="padding: 20px 40px; background-color: #f8fafc; text-align: center; border-top: 1px solid #e5e7eb;">
-              <p style="margin: 0; color: #9ca3af; font-size: 12px;">Powered by ${APP_NAME || "Tapvyo"}</p>
-            </td>
-          </tr>
-        </table>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>
-`;
-
-      const text = `Thank you for your order!\n\nOrder ID: ${order.orderNumber}\nProduct: ${productName}\nStatus: Pending\n\nNeed help? ${supportEmail} | ${supportPhone}\n\nView order: ${orderLink}`;
-
-      sendEmail({
-        to: user.email,
-        subject,
-        html,
-        text,
-      }).catch((emailError) => {
-        console.error("Order confirmation email failed:", emailError);
-      });
-    }
+    // No email is sent here on purpose - the order is unpaid at this point.
+    // The confirmation is fired from the server-side payment-success path.
 
     return NextResponse.json(
       {

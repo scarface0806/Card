@@ -200,6 +200,7 @@ async function createOrderHandler(request: NextRequest, user: AuthUser) {
       userId: null,
       guestName: customer ? String(customer.name || "Guest") : "Guest",
       guestEmail: customer ? String(customer.email || "") || null : null,
+      recipientEmail: customer ? String(customer.email || "") || null : null,
       guestPhone: customer ? String(customer.phone || "") || null : null,
       designation: customer ? String(customer.designation || "") || null : null,
       company: customer ? String(customer.company || "") || null : null,

@@ -4,6 +4,7 @@ import { authenticate } from "@/lib/auth-middleware";
 import { Role, OrderStatus } from "@prisma/client";
 
 import { orderStatusSchema } from "@/lib/validators";
+import { sendOrderStatusEmail } from "@/lib/emails/send-order-email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { MongoClient, ObjectId } from "mongodb";
@@ -66,7 +67,7 @@ function canTransitionOrderStatus(from: OrderStatus, to: OrderStatus): boolean {
   const transitions: Record<OrderStatus, OrderStatus[]> = {
     [OrderStatus.PENDING]: [OrderStatus.CONFIRMED, OrderStatus.CANCELLED],
     [OrderStatus.CONFIRMED]: [OrderStatus.PROCESSING],
-    [OrderStatus.PROCESSING]: [OrderStatus.DELIVERED],
+    [OrderStatus.PROCESSING]: [OrderStatus.SHIPPED, OrderStatus.DELIVERED],
     [OrderStatus.SHIPPED]: [OrderStatus.DELIVERED],
     [OrderStatus.DELIVERED]: [],
     [OrderStatus.CANCELLED]: [],
@@ -79,9 +80,24 @@ function canTransitionOrderStatus(from: OrderStatus, to: OrderStatus): boolean {
 function statusSuccessMessage(status: OrderStatus): string {
   if (status === OrderStatus.CONFIRMED) return "Order accepted";
   if (status === OrderStatus.PROCESSING) return "Order moved to processing";
+  if (status === OrderStatus.SHIPPED) return "Order marked shipped";
   if (status === OrderStatus.DELIVERED) return "Order completed";
   if (status === OrderStatus.CANCELLED) return "Order cancelled";
   return "Order status updated successfully";
+}
+
+/**
+ * Lifecycle timestamp a status change should stamp, if any. Written alongside
+ * the status so the public tracking timeline has real dates rather than
+ * inferring them from updatedAt.
+ */
+function stageTimestampField(
+  status: OrderStatus
+): "printingAt" | "shippedAt" | "deliveredAt" | null {
+  if (status === OrderStatus.PROCESSING) return "printingAt";
+  if (status === OrderStatus.SHIPPED) return "shippedAt";
+  if (status === OrderStatus.DELIVERED) return "deliveredAt";
+  return null;
 }
 
 function isReplicaSetRequiredError(error: unknown) {
@@ -269,6 +285,7 @@ export async function PATCH(
           );
         }
 
+        const stageField = stageTimestampField(normalizedStatus);
         const mongoResult = await db.collection("orders").findOneAndUpdate(
           { _id: orderObjectId },
           {
@@ -276,10 +293,20 @@ export async function PATCH(
               status: normalizedStatus,
               updatedAt: new Date(),
               createdAt: existingMongoOrder.createdAt || new Date(),
+              // Stamp the stage the first time it is entered only, so
+              // re-applying a status cannot rewrite the tracking timeline.
+              ...(stageField && !existingMongoOrder[stageField]
+                ? { [stageField]: new Date() }
+                : {}),
             },
           },
           { returnDocument: "after" }
         );
+
+        // The status write has committed, so the email can no longer affect it.
+        // sendOrderStatusEmail never throws and never rejects: a failed send
+        // becomes an email_log row, and the admin still sees a saved status.
+        await sendOrderStatusEmail(id, normalizedStatus);
 
         return NextResponse.json({
           success: true,
@@ -312,10 +339,14 @@ export async function PATCH(
 
     let updatedOrder: unknown;
 
+    const stageField = stageTimestampField(normalizedStatus);
+    const stageStamp =
+      stageField && !existingOrder[stageField] ? { [stageField]: new Date() } : {};
+
     try {
       updatedOrder = await prisma.order.update({
         where: { id },
-        data: { status: normalizedStatus },
+        data: { status: normalizedStatus, ...stageStamp },
       });
     } catch (error) {
       if (!isReplicaSetRequiredError(error)) {
@@ -336,7 +367,7 @@ export async function PATCH(
 
         const result = await orders.findOneAndUpdate(
           { _id: orderObjectId },
-          { $set: { status: normalizedStatus, updatedAt: new Date() } },
+          { $set: { status: normalizedStatus, updatedAt: new Date(), ...stageStamp } },
           { returnDocument: "after" }
         );
 
@@ -356,6 +387,9 @@ export async function PATCH(
         throw mongoError;
       }
     }
+
+    // Same rule as the branch above: fire only after the write has committed.
+    await sendOrderStatusEmail(id, normalizedStatus);
 
     return NextResponse.json({
       success: true,

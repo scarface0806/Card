@@ -1,0 +1,47 @@
+/**
+ * Resend client and envelope configuration.
+ *
+ * SERVER-ONLY. RESEND_API_KEY is read here and nowhere else. This module must
+ * never be imported from a client component - it is used only by route
+ * handlers and by the send orchestration in ./send-order-email.ts. The key is
+ * never returned in a response body and must never be given a NEXT_PUBLIC_
+ * prefix.
+ *
+ * Every getter throws when misconfigured. That is deliberate: the callers all
+ * run inside the send orchestration's try/catch, which turns the throw into a
+ * `failed` email_log row instead of a broken order.
+ */
+
+import { Resend } from "resend";
+
+import { getRequiredEnv } from "@/lib/env";
+import { SITE_NAME } from "@/lib/site-config";
+
+let client: Resend | null = null;
+
+export function getResendClient(): Resend {
+  if (!client) {
+    client = new Resend(getRequiredEnv("RESEND_API_KEY"));
+  }
+  return client;
+}
+
+/**
+ * From address. EMAIL_FROM may be a bare address ("orders@tapvyo.com") or an
+ * addressed form ("Tapvyo Orders <orders@tapvyo.com>"); a bare address gets a
+ * display name so inboxes show the brand rather than the mailbox.
+ *
+ * Sending from orders@tapvyo.com requires the ROOT domain tapvyo.com to be
+ * verified in Resend - a subdomain verification will not cover it.
+ */
+export function getEmailFrom(): string {
+  const configured = getRequiredEnv("EMAIL_FROM").trim();
+  return configured.includes("<")
+    ? configured
+    : `${SITE_NAME} Orders <${configured}>`;
+}
+
+/** Reply-to. A real, monitored mailbox - there is no noreply address anywhere. */
+export function getEmailReplyTo(): string {
+  return getRequiredEnv("EMAIL_REPLY_TO").trim();
+}

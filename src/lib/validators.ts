@@ -193,4 +193,40 @@ export const verifyPaymentSchema = z.object({
   razorpaySignature: z.string().min(1, "Signature is required"),
 });
 
+const optionalDate = z
+  .union([z.literal(""), z.coerce.date()])
+  .optional()
+  .nullable();
+
+// Courier / tracking fields, set by an admin before an order is marked SHIPPED.
+// Every field is optional so the admin can save progressively, but an empty
+// string clears the field rather than storing "" - the shipped email treats
+// null and "" the same and refuses to send either way.
+export const orderShippingSchema = z.object({
+  courierName: z.string().max(120).optional().nullable(),
+  trackingNumber: z.string().max(120).optional().nullable(),
+  trackingUrl: z
+    .union([z.string().url("Tracking URL must be a full URL"), z.literal("")])
+    .optional()
+    .nullable(),
+  // "" comes from an emptied <input type="date">, and means "clear this".
+  // Anything else is coerced, so both "2026-09-12" and a full ISO string work.
+  expectedDeliveryFrom: optionalDate,
+  expectedDeliveryTo: optionalDate,
+});
+
+// Public order tracking lookup. Both fields are required and both must match
+// the same order - see src/lib/track-order.ts. Lengths are capped so a huge
+// body cannot be used to burn rate-limit budget cheaply.
+export const trackOrderSchema = z.object({
+  ref: z.string().min(1, "Order reference is required").max(64),
+  mobile: z.string().min(1, "Mobile number is required").max(24),
+});
+
+// Admin transactional email resend. The type must be one of the three known
+// email types; see src/lib/emails/types.ts.
+export const resendOrderEmailSchema = z.object({
+  type: z.enum(["confirmation", "shipped", "delivered"]),
+});
+
 // Add additional schemas as needed for other endpoints

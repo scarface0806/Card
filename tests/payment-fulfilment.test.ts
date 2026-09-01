@@ -52,6 +52,19 @@ vi.mock('@/lib/prisma', () => ({
   },
 }));
 
+/**
+ * The confirmation email now fires from this path. Mocked so this suite keeps
+ * testing fulfilment only - and so "one fulfilment means exactly one
+ * confirmation email" becomes an assertion rather than an assumption.
+ */
+const sendOrderConfirmationEmail = vi.fn(async (_orderId: string) => ({
+  ok: true as const,
+  providerId: 'msg_test',
+}));
+vi.mock('@/lib/emails/send-order-email', () => ({
+  sendOrderConfirmationEmail: (orderId: string) => sendOrderConfirmationEmail(orderId),
+}));
+
 const { getPaymentAdapterService } = await import('@/lib/payment-adapter');
 
 const INTERNAL_ORDER_ID = '507f1f77bcf86cd799439011';
@@ -78,6 +91,7 @@ function seed() {
     { id: INTERNAL_ORDER_ID, total: 599, paymentStatus: 'PENDING', paymentId: null },
   ];
   fulfilmentCount = 0;
+  sendOrderConfirmationEmail.mockClear();
 }
 
 const verify = (overrides: Partial<Record<string, string>> = {}) =>
@@ -101,6 +115,8 @@ describe('verifyPayment', () => {
     expect(db.orders[0].paymentId).toBe(PAYMENT_ID);
     expect(db.paymentLogs[0].status).toBe('SUCCESS');
     expect(fulfilmentCount).toBe(1);
+    expect(sendOrderConfirmationEmail).toHaveBeenCalledTimes(1);
+    expect(sendOrderConfirmationEmail).toHaveBeenCalledWith(INTERNAL_ORDER_ID);
   });
 
   it('does not mark the order paid on a tampered signature', async () => {
@@ -110,6 +126,8 @@ describe('verifyPayment', () => {
     expect(db.orders[0].paymentStatus).toBe('PENDING');
     expect(db.paymentLogs[0].status).toBe('FAILED');
     expect(fulfilmentCount).toBe(0);
+    // No payment, no confirmation email.
+    expect(sendOrderConfirmationEmail).not.toHaveBeenCalled();
   });
 
   it('does not mark the order paid when the signature is signed with another secret', async () => {
@@ -134,12 +152,16 @@ describe('verifyPayment', () => {
     expect(second.success).toBe(true);
     expect(second.alreadyFulfilled).toBe(true);
     expect(fulfilmentCount).toBe(1);
+    // The replay returns at the idempotency check, before the email trigger.
+    expect(sendOrderConfirmationEmail).toHaveBeenCalledTimes(1);
   });
 
   it('stays idempotent across many replays', async () => {
     await Promise.all([verify(), verify(), verify(), verify(), verify()]);
     expect(fulfilmentCount).toBe(1);
     expect(db.orders[0].paymentStatus).toBe('PAID');
+    // Only the caller that won the fulfilment claim triggers the email.
+    expect(sendOrderConfirmationEmail).toHaveBeenCalledTimes(1);
   });
 
   it('rejects a different payment_id against an already-paid order', async () => {

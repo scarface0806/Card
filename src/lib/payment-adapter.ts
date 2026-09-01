@@ -16,6 +16,7 @@
 import { randomUUID } from "crypto";
 
 import prisma from "@/lib/prisma";
+import { sendOrderConfirmationEmail } from "@/lib/emails/send-order-email";
 import { getRazorpayService } from "@/lib/razorpay";
 import { razorpayDebugger } from "@/lib/razorpay-debug";
 import { toPaise, InvalidAmountError } from "@/lib/payment-amount";
@@ -337,6 +338,7 @@ class PaymentAdapterService {
         paymentStatus: "PAID",
         paymentMethod: "razorpay",
         paymentId: razorpayPaymentId,
+        paidAt: new Date(),
       },
     });
 
@@ -345,6 +347,18 @@ class PaymentAdapterService {
       razorpayOrderId,
       razorpayPaymentId,
     });
+
+    // Step 6: Order confirmation email.
+    //
+    // This is the server-side payment-success moment, and it runs only for the
+    // call that WON the fulfilment claim above - a replayed verify returns at
+    // step 2 and never reaches here, so the customer cannot be mailed twice.
+    // The email layer is additionally idempotent at the database level.
+    //
+    // Fired after the order write has committed, and it cannot throw: a
+    // provider outage records a failed email_log row and the customer still
+    // gets a successful payment response.
+    await sendOrderConfirmationEmail(existingOrderId);
 
     return {
       success: true,
@@ -419,8 +433,17 @@ class PaymentAdapterService {
         paymentStatus: "PAID",
         paymentMethod: "razorpay_upi",
         paymentId: capturedPayment.id,
+        paidAt: new Date(),
       },
     });
+
+    // Same server-side payment-success moment for the UPI QR flow. This
+    // endpoint is polled, so it is reached repeatedly for one order - only the
+    // caller that won the claim above sends, and the email_log unique index
+    // catches anything that slips past it.
+    if (claimed.count) {
+      await sendOrderConfirmationEmail(params.existingOrderId);
+    }
 
     return {
       success: true,
