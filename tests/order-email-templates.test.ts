@@ -143,7 +143,7 @@ describe('confirmation email content', () => {
   it('gives both support channels, with no noreply address', async () => {
     const text = await render(confirmation, { plainText: true });
 
-    expect(text).toContain('hello@tapvyo.com');
+    expect(text).toContain('tapvyo@gmail.com');
     expect(text).toContain('+91 78713 61025');
     expect(text.toLowerCase()).not.toContain('noreply');
     expect(text.toLowerCase()).not.toContain('no-reply');

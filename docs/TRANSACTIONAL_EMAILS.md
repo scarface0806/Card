@@ -46,7 +46,7 @@ Set these in Vercel for **Production, Preview and Development**:
 | --- | --- | --- |
 | `RESEND_API_KEY` | **yes — secret** | from the Resend dashboard |
 | `EMAIL_FROM` | yes | `orders@tapvyo.com` |
-| `EMAIL_REPLY_TO` | yes | `hello@tapvyo.com` |
+| `EMAIL_REPLY_TO` | yes | `tapvyo@gmail.com` |
 | `NEXT_PUBLIC_SITE_URL` | no (already used) | `https://tapvyo.com` |
 
 `RESEND_API_KEY` is read in `src/lib/emails/resend.ts` and nowhere else. It must
