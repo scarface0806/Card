@@ -47,16 +47,17 @@ Set these in Vercel for **Production, Preview and Development**:
 | `RESEND_API_KEY` | **yes — secret** | from the Resend dashboard |
 | `EMAIL_FROM` | yes | `orders@tapvyo.com` |
 | `EMAIL_REPLY_TO` | yes | `hello@tapvyo.com` |
-| `UPSTASH_REDIS_REST_URL` | yes | from Upstash |
-| `UPSTASH_REDIS_REST_TOKEN` | **yes — secret** | from Upstash |
 | `NEXT_PUBLIC_SITE_URL` | no (already used) | `https://tapvyo.com` |
 
 `RESEND_API_KEY` is read in `src/lib/emails/resend.ts` and nowhere else. It must
 never be given a `NEXT_PUBLIC_` prefix.
 
-Without both Upstash variables, `/track-order` **refuses every lookup** (503)
-and logs a loud error. That is intentional: an unlimited public lookup lets
-anyone enumerate order references.
+`/track-order` needs no extra service: its rate-limit counters live in the
+`rate_limits` collection of the same Atlas cluster, which every serverless
+instance shares (the in-process limiter in `src/lib/rate-limit.ts` would give
+each instance its own budget, so an enumerator could just spread requests).
+With `DATABASE_URL` unset or the cluster unreachable, `/track-order` **refuses
+every lookup** (503) rather than running unlimited.
 
 ### 3. Verify the domain in Resend
 
