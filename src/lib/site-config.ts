@@ -57,8 +57,12 @@ export const WHATSAPP_NUMBER = '917871361025';
 /** Human-readable form for display only. Never use this in an href. */
 export const PHONE_DISPLAY = '+91 78713 61025';
 
-/** @needs-verification two different addresses existed; this one matches the domain. */
-export const SUPPORT_EMAIL = 'hello@tapvyo.com';
+/**
+ * Confirmed by the business owner. Was hello@tapvyo.com, which is not a real
+ * mailbox - order confirmations tell customers to reply within 24 hours to
+ * correct what gets printed, so this has to be an address someone reads.
+ */
+export const SUPPORT_EMAIL = 'tapvyo@gmail.com';
 
 export const ADDRESS = {
   city: 'Tiruchirappalli',
