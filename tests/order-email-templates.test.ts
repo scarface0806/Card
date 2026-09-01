@@ -1,7 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { render } from '@react-email/render';
 
-import { OrderConfirmationEmail } from '@/lib/emails/templates/OrderConfirmationEmail';
+import {
+  OrderConfirmationEmail,
+  orderConfirmationSubject,
+} from '@/lib/emails/templates/OrderConfirmationEmail';
 import { OrderDeliveredEmail } from '@/lib/emails/templates/OrderDeliveredEmail';
 import { OrderShippedEmail } from '@/lib/emails/templates/OrderShippedEmail';
 
@@ -19,13 +22,46 @@ import { OrderShippedEmail } from '@/lib/emails/templates/OrderShippedEmail';
 const ORDER_REF = 'ORD-ABC123-XY9Z';
 const TRACK_URL = 'https://tapvyo.com/track-order?ref=ORD-ABC123-XY9Z';
 
+const PRODUCT_IMAGE =
+  'https://res.cloudinary.com/demo/image/upload/v1/admin/products/black-card.jpg';
+
 const confirmation = OrderConfirmationEmail({
   orderRef: ORDER_REF,
   trackUrl: TRACK_URL,
-  templateName: 'Premium Metal',
+  productName: 'Premium Metal',
+  productTier: 'Premium',
+  productImageUrl: PRODUCT_IMAGE,
   quantity: 2,
-  amountPaid: '₹1,598.00 INR',
-  proof: { name: 'Jane Doe', designation: 'Founder', company: 'Acme Pvt Ltd' },
+  // Exactly what src/utils/formatPrice.ts produces, so the email figure and
+  // the checkout figure cannot diverge.
+  amountPaid: '₹1,598',
+  proof: {
+    name: 'Jane Doe',
+    designation: 'Founder',
+    company: 'Acme Pvt Ltd',
+    mobile: '+91 90800 86908',
+    email: 'buyer@example.com',
+  },
+  profileUrl: null,
+});
+
+/** Same order, but the product has no usable image. */
+const confirmationNoImage = OrderConfirmationEmail({
+  orderRef: ORDER_REF,
+  trackUrl: TRACK_URL,
+  productName: 'Premium Metal',
+  productTier: 'Premium',
+  productImageUrl: null,
+  quantity: 2,
+  amountPaid: '₹1,598',
+  proof: {
+    name: 'Jane Doe',
+    designation: 'Founder',
+    company: 'Acme Pvt Ltd',
+    mobile: '+91 90800 86908',
+    email: 'buyer@example.com',
+  },
+  profileUrl: 'https://tapvyo.com/card/jane-doe',
 });
 
 const shipped = OrderShippedEmail({
@@ -125,8 +161,79 @@ describe('confirmation email content', () => {
     expect(text).toContain('Jane Doe');
     expect(text).toContain('Founder');
     expect(text).toContain('Acme Pvt Ltd');
+    expect(text).toContain('+91 90800 86908');
+    expect(text).toContain('buyer@example.com');
+  });
+
+  it('shows the real product name, tier and amount charged', async () => {
+    const text = await render(confirmation, { plainText: true });
+
     expect(text).toContain('Premium Metal');
-    expect(text).toContain('1,598.00');
+    expect(text).toContain('Premium');
+    // The shared formatPrice output, not a second currency formatter.
+    expect(text).toContain('₹1,598');
+    expect(text).not.toContain('1,598.00');
+    // The old hardcoded default must never appear.
+    expect(text).not.toContain('Modern Minimalist');
+    expect(text).not.toContain('₹599');
+  });
+
+  it('names the product in the subject line', () => {
+    const subject = orderConfirmationSubject({
+      orderRef: ORDER_REF,
+      trackUrl: TRACK_URL,
+      productName: 'Premium Metal',
+      productTier: 'Premium',
+      productImageUrl: null,
+      quantity: 1,
+      amountPaid: '₹1,598',
+      proof: {
+        name: 'Jane Doe',
+        designation: null,
+        company: null,
+        mobile: null,
+        email: null,
+      },
+      profileUrl: null,
+    });
+
+    expect(subject).toContain('Premium Metal');
+    expect(subject).toContain(ORDER_REF);
+  });
+
+  it('embeds the product artwork as an absolute https image with alt text', async () => {
+    const html = await render(confirmation);
+
+    const img = html.match(/<img[^>]*black-card[^>]*>/i)?.[0];
+    expect(img).toBeDefined();
+    expect(img).toContain('src="https://res.cloudinary.com/');
+    expect(img).toMatch(/alt="Premium Metal NFC card"/);
+    // Explicit dimensions so a blocked image still reserves sensible space.
+    expect(img).toMatch(/width="552"/);
+    expect(img).toMatch(/height="348"/);
+  });
+
+  it('stays complete when the product has no image', async () => {
+    const html = await render(confirmationNoImage);
+    const text = await render(confirmationNoImage, { plainText: true });
+
+    // No broken image placeholder at all.
+    expect(html).not.toMatch(/<img/i);
+    // And nothing informational was lost with it.
+    expect(text).toContain('Premium Metal');
+    expect(text).toContain('₹1,598');
+    expect(text).toContain(ORDER_REF);
+  });
+
+  it('links the digital profile when the card exists, and explains when it does not', async () => {
+    const withCard = await render(confirmationNoImage, { plainText: true });
+    expect(withCard).toContain('https://tapvyo.com/card/jane-doe');
+
+    // Fresh order: the card is created when an admin confirms it, so there is
+    // no link yet - and the email says so rather than printing a dead one.
+    const withoutCard = await render(confirmation, { plainText: true });
+    expect(withoutCard).not.toContain('/card/');
+    expect(withoutCard).toContain('Your free lifetime profile is created');
   });
 
   it('offers the tracking page as a button AND as bare visible text', async () => {

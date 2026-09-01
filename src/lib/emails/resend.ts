@@ -45,3 +45,18 @@ export function getEmailFrom(): string {
 export function getEmailReplyTo(): string {
   return getRequiredEnv("EMAIL_REPLY_TO").trim();
 }
+
+/**
+ * Optional blind copy of every order email, so the business sees what the
+ * customer saw.
+ *
+ * Optional on purpose: while the sending domain is unverified, Resend only
+ * delivers to the account owner, and a bcc to anything else would fail the
+ * whole send - taking the customer's copy down with it. Unset means no bcc.
+ *
+ * Blind rather than cc so the customer never sees an internal address.
+ */
+export function getEmailBcc(): string | null {
+  const configured = process.env.EMAIL_BCC?.trim();
+  return configured ? configured : null;
+}

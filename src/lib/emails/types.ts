@@ -58,16 +58,39 @@ export interface OrderEmailBase {
 }
 
 export interface OrderConfirmationEmailData extends OrderEmailBase {
-  templateName: string;
+  /** Product name exactly as set in admin, snapshotted on the order. */
+  productName: string;
+  /** Tier badge - "Basic" / "Premium" / "Custom". Null on pre-snapshot orders. */
+  productTier: string | null;
+  /**
+   * Absolute https URL of the product artwork, or null.
+   *
+   * Null whenever an absolute https URL cannot be produced - a relative upload
+   * path on a local dev origin, for instance. The template must stay complete
+   * without it: mail clients block images by default.
+   */
+  productImageUrl: string | null;
   quantity: number;
-  /** Already formatted for display, e.g. "Rs 599.00 INR". */
+  /**
+   * The amount actually charged, formatted with the SAME helper the UI uses
+   * (src/utils/formatPrice.ts), so the email cannot show a different figure
+   * from the checkout page.
+   */
   amountPaid: string;
   /** Exactly as submitted on the checkout form - this is what gets printed. */
   proof: {
     name: string;
     designation: string | null;
     company: string | null;
+    mobile: string | null;
+    email: string | null;
   };
+  /**
+   * Public URL of the customer's digital profile, when the card has been
+   * created. Null at payment time - the card is created when an admin confirms
+   * the order - and the template says so rather than showing a dead link.
+   */
+  profileUrl: string | null;
 }
 
 export interface OrderShippedEmailData extends OrderEmailBase {

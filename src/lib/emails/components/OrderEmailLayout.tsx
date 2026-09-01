@@ -16,6 +16,7 @@ import {
   Container,
   Head,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -135,6 +136,47 @@ export function TrackOrderCallToAction({ trackUrl }: { trackUrl: string }) {
       <Text style={s.smallParagraph}>
         You will be asked for the mobile number you gave at checkout.
       </Text>
+    </Section>
+  );
+}
+
+/**
+ * The product artwork, as sold.
+ *
+ * Renders nothing at all when there is no absolute https URL - a broken image
+ * icon is worse than no image. When it does render, every surrounding element
+ * still carries the product name and price as text, so a client with images
+ * blocked (which is the default in Outlook and in Gmail for unknown senders)
+ * loses decoration and no information.
+ *
+ * Explicit width and height, and a real alt, because both are required for the
+ * blocked-image case to lay out sensibly. 552 = the 600px container less its
+ * 2x24px padding, at the 1.586:1 card ratio.
+ */
+export function ProductImage({
+  src,
+  productName,
+}: {
+  src: string | null;
+  productName: string;
+}) {
+  if (!src) return null;
+
+  return (
+    <Section style={{ margin: "0 0 20px" }}>
+      <Img
+        src={src}
+        alt={`${productName} NFC card`}
+        width="552"
+        height="348"
+        style={{
+          borderRadius: "8px",
+          display: "block",
+          height: "auto",
+          maxWidth: "100%",
+          width: "100%",
+        }}
+      />
     </Section>
   );
 }

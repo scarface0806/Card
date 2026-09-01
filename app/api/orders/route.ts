@@ -184,10 +184,15 @@ export async function POST(request: NextRequest) {
       company: company || null,
       website: website || null,
       address: address || null,
-      // Product identity and price, straight from the product row.
+      // Product identity and price, straight from the product row. Snapshotted
+      // rather than joined, so the confirmation email for this order keeps
+      // showing what was actually bought even if the product is later renamed,
+      // re-priced or given new artwork.
       cardType: product.name,
       price: unitPrice,
       templateSlug: product.slug,
+      productTier: product.tierLabel,
+      productImageUrl: product.imageUrl,
       profileData: profileData ?? null,
       items: [orderItem],
       subtotal,

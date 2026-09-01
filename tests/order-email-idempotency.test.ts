@@ -23,6 +23,7 @@ import { Prisma } from '@prisma/client';
 const db = {
   orders: [] as any[],
   emailLogs: [] as any[],
+  cards: [] as any[],
 };
 
 function uniqueViolation() {
@@ -45,6 +46,11 @@ vi.mock('@/lib/prisma', () => ({
     order: {
       findUnique: vi.fn(async ({ where }: any) =>
         db.orders.find((o) => o.id === where.id) ?? null
+      ),
+    },
+    card: {
+      findUnique: vi.fn(async ({ where }: any) =>
+        db.cards.find((c) => c.id === where.id) ?? null
       ),
     },
     emailLog: {
@@ -87,7 +93,9 @@ const send = vi.fn(async () => {
 vi.mock('@/lib/emails/resend', () => ({
   getResendClient: () => ({ emails: { send } }),
   getEmailFrom: () => 'Tapvyo Orders <orders@tapvyo.com>',
-  getEmailReplyTo: () => 'hello@tapvyo.com',
+  getEmailReplyTo: () => 'tapvyo@gmail.com',
+  // Business copy. Null here so these tests assert the customer path only.
+  getEmailBcc: () => null,
 }));
 
 const {
@@ -109,6 +117,11 @@ function seed(overrides: Record<string, unknown> = {}) {
       designation: 'Founder',
       company: 'Acme Pvt Ltd',
       cardType: 'Premium Metal',
+      productTier: 'Premium',
+      productImageUrl:
+        'https://res.cloudinary.com/demo/image/upload/v1/admin/products/metal.jpg',
+      guestPhone: '+91 90800 86908',
+      cardId: null,
       items: [{ productName: 'Premium Metal', quantity: 2, price: 799, total: 1598 }],
       total: 1598,
       courierName: 'Delhivery',
@@ -120,6 +133,7 @@ function seed(overrides: Record<string, unknown> = {}) {
     },
   ];
   db.emailLogs = [];
+  db.cards = [{ id: 'card_1', slug: 'jane-doe' }];
   mode = 'ok';
   send.mockClear();
 }

@@ -16,7 +16,7 @@ import PaymentForm from '@/forms/PaymentForm';
 import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
-import type { SelectedProduct } from '@/lib/products/selected-product';
+import type { SelectedProduct } from '@/lib/products/selection';
 import { useRazorpayPayment } from '@/hooks/useRazorpayPayment';
 import dynamic from 'next/dynamic';
 import { ArrowLeft, ArrowRight, AlertTriangle } from 'lucide-react';

@@ -24,8 +24,14 @@ import { render } from "@react-email/render";
 
 import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site-config";
+import { formatPrice } from "@/utils/formatPrice";
 
-import { getEmailFrom, getEmailReplyTo, getResendClient } from "./resend";
+import {
+  getEmailBcc,
+  getEmailFrom,
+  getEmailReplyTo,
+  getResendClient,
+} from "./resend";
 import {
   OrderConfirmationEmail,
   orderConfirmationSubject,
@@ -70,11 +76,17 @@ const ORDER_EMAIL_SELECT = {
   orderNumber: true,
   recipientEmail: true,
   guestName: true,
+  guestPhone: true,
   designation: true,
   company: true,
+  // Product snapshot as sold. cardType is the name.
   cardType: true,
+  productTier: true,
+  productImageUrl: true,
   items: true,
   total: true,
+  // Resolved to the public profile URL when the card already exists.
+  cardId: true,
   courierName: true,
   trackingNumber: true,
   trackingUrl: true,
@@ -180,7 +192,7 @@ async function dispatch(
       };
     }
 
-    const built = buildEmail(order, type);
+    const built = await buildEmail(order, type);
     if (!built.ok) {
       await settleFailed(orderId, type, built.reason);
       return { ok: false, skipped: false, reason: built.reason };
@@ -319,11 +331,17 @@ async function sendViaResend({
   text: string;
   idempotencyKey?: string;
 }): Promise<string | null> {
+  const bcc = getEmailBcc();
+
   const { data, error } = await withTimeout(
     getResendClient().emails.send(
       {
         from: getEmailFrom(),
         to,
+        // One send with a blind copy, not two sends: the business gets the
+        // customer's exact email, and there is still a single email_log row so
+        // the idempotency guarantee is unchanged.
+        ...(bcc ? { bcc } : {}),
         replyTo: getEmailReplyTo(),
         subject,
         html,
@@ -372,23 +390,66 @@ type BuildResult =
   | { ok: true; subject: string; element: React.ReactElement }
   | { ok: false; reason: string };
 
-function buildEmail(order: OrderForEmail, type: EmailType): BuildResult {
+/**
+ * Public URL of the customer's digital profile, or null.
+ *
+ * The Card row is created when an admin moves the order to CONFIRMED, which is
+ * AFTER payment - so this is null in the confirmation email for a fresh order,
+ * and the template says the link will follow rather than printing a dead one.
+ * A resend after confirmation picks the link up.
+ */
+async function resolveProfileUrl(cardId: string | null): Promise<string | null> {
+  if (!cardId) return null;
+
+  try {
+    const card = await prisma.card.findUnique({
+      where: { id: cardId },
+      select: { slug: true },
+    });
+    return card?.slug ? SITE_URL + "/card/" + card.slug : null;
+  } catch (error) {
+    // A missing profile link must not stop the confirmation going out.
+    console.warn(
+      "[order-email] could not resolve the profile URL for card " +
+        cardId +
+        ": " +
+        describeError(error)
+    );
+    return null;
+  }
+}
+
+async function buildEmail(
+  order: OrderForEmail,
+  type: EmailType
+): Promise<BuildResult> {
   const orderRef = order.orderNumber;
   const trackUrl = SITE_URL + "/track-order?ref=" + encodeURIComponent(orderRef);
+  const profileUrl = await resolveProfileUrl(order.cardId);
 
   if (type === EMAIL_TYPES.CONFIRMATION) {
     const data: OrderConfirmationEmailData = {
       orderRef,
       trackUrl,
-      templateName:
+      // Every field below comes from the order row, which was itself built
+      // from productId server-side. Nothing is read from a request body or a
+      // query string, so the email cannot disagree with what was charged.
+      productName:
         order.cardType || order.items[0]?.productName || "NFC Digital Card",
+      productTier: order.productTier,
+      productImageUrl: toAbsoluteHttpsUrl(order.productImageUrl),
       quantity: order.items[0]?.quantity ?? 1,
-      amountPaid: formatAmount(order.total),
+      // formatPrice is the same helper the catalogue and checkout use, so the
+      // figure here is identical to the one on the payment step.
+      amountPaid: formatPrice(order.total ?? 0),
       proof: {
         name: order.guestName || "Not given",
         designation: order.designation,
         company: order.company,
+        mobile: order.guestPhone,
+        email: order.recipientEmail,
       },
+      profileUrl,
     };
     return {
       ok: true,
@@ -471,14 +532,26 @@ function validateRecipient(
   return { ok: true, email };
 }
 
-function formatAmount(total: number): string {
-  const amount = new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 2,
-  }).format(total ?? 0);
+/**
+ * Absolute https URL, or null.
+ *
+ * Mail clients will not load a relative path and will not load http, so an
+ * image that cannot be expressed as an absolute https URL is dropped rather
+ * than embedded as a broken one. On a local dev origin
+ * (NEXT_PUBLIC_SITE_URL=http://localhost:3000) that means product artwork
+ * stored as a relative upload path is omitted from the email - Cloudinary URLs,
+ * which is what the admin uploader produces, are already absolute https.
+ */
+function toAbsoluteHttpsUrl(url: string | null): string | null {
+  const raw = url?.trim();
+  if (!raw) return null;
 
-  return amount + " INR";
+  try {
+    const resolved = new URL(raw, SITE_URL);
+    return resolved.protocol === "https:" ? resolved.toString() : null;
+  } catch {
+    return null;
+  }
 }
 
 function formatDeliveryWindow(

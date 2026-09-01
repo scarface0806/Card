@@ -6,7 +6,7 @@ import { AlertTriangle } from 'lucide-react';
 import {
   SELECTED_PRODUCT_MESSAGES,
   type SelectedProductFailure,
-} from '@/lib/products/selected-product';
+} from '@/lib/products/selection';
 
 /**
  * The message /create-card redirects here with when it cannot resolve a

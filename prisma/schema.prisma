@@ -121,6 +121,14 @@ model Order {
   templateSlug String?
   profileData Json?
 
+  // Snapshot of the product AS SOLD, written from the product row at checkout.
+  // Deliberately a copy rather than a join: if the admin later renames the
+  // product, changes its artwork or moves its tier, the confirmation email for
+  // an old order must still show what that customer actually bought at the
+  // price they actually paid. cardType above is the name snapshot.
+  productTier     String?
+  productImageUrl String?
+
   // Order details
   items    OrderItem[]
   subtotal Float

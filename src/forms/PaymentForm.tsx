@@ -2,7 +2,7 @@
 
 import { useFormContext } from 'react-hook-form';
 import { CreditCard, ShieldCheck } from 'lucide-react';
-import type { SelectedProduct } from '@/lib/products/selected-product';
+import type { SelectedProduct } from '@/lib/products/selection';
 import { formatPrice } from '@/utils/formatPrice';
 
 interface PaymentFormProps {

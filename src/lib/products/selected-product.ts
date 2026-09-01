@@ -1,10 +1,15 @@
 /**
  * Loads the product a customer is checking out with.
  *
- * SERVER-ONLY. This is the single source of truth for the checkout page and for
- * the order row: name, price, tier, image, description and feature bullets all
- * come from the product record the admin panel writes to, read fresh from the
- * database on every request.
+ * SERVER-ONLY - this module imports Prisma. A client component that imports a
+ * VALUE from here pulls PrismaClient into the browser bundle and the page dies
+ * with "PrismaClient is unable to run in this browser environment". Client
+ * components must import the types and the failure messages from
+ * ./selection.ts instead, which is deliberately Prisma-free.
+ *
+ * This is the single source of truth for the checkout page and for the order
+ * row: name, price, tier, image, description and feature bullets all come from
+ * the product record the admin panel writes to, read fresh on every request.
  *
  * WHY THIS FILE EXISTS
  * /create-card used to resolve its product from a hardcoded array of card
@@ -22,7 +27,6 @@ import prisma from "@/lib/prisma";
 import { formatPrice } from "@/utils/formatPrice";
 
 import {
-  type CardTier,
   deriveCardColor,
   deriveCardTier,
   deriveFeatureBullets,
@@ -30,47 +34,19 @@ import {
   hasDiscount,
   tierLabel,
 } from "./presentation";
+import type { SelectedProduct, SelectedProductResult } from "./selection";
+
+// Re-exported so server-side callers can keep importing everything from one
+// place. Client components must import these from ./selection directly.
+export {
+  SELECTED_PRODUCT_MESSAGES,
+  type SelectedProduct,
+  type SelectedProductFailure,
+  type SelectedProductResult,
+} from "./selection";
 
 /** Razorpay rejects anything under 1 rupee, so a 0-priced row is not sellable. */
 const MIN_SELLABLE_PRICE = 1;
-
-export interface SelectedProduct {
-  id: string;
-  name: string;
-  slug: string;
-  tier: CardTier;
-  tierLabel: string;
-  /** What the customer is charged, in rupees. Authoritative. */
-  price: number;
-  /** `price`, formatted through the one shared helper. */
-  priceFormatted: string;
-  /** List price, only when a discount is active. For struck-through display. */
-  listPriceFormatted: string | null;
-  description: string | null;
-  imageUrl: string | null;
-  /** Gradient for the live preview when the product has no photograph. */
-  color: string;
-  features: string[];
-}
-
-export type SelectedProductFailure =
-  | "missing"
-  | "not-found"
-  | "inactive"
-  | "not-purchasable";
-
-export type SelectedProductResult =
-  | { ok: true; product: SelectedProduct }
-  | { ok: false; reason: SelectedProductFailure };
-
-/** Message shown on /cards for each failure. Never mentions a price. */
-export const SELECTED_PRODUCT_MESSAGES: Record<SelectedProductFailure, string> = {
-  missing: "Choose a card to get started.",
-  "not-found": "That card is no longer available. Please pick another one.",
-  inactive: "That card is not available right now. Please pick another one.",
-  "not-purchasable":
-    "That card cannot be ordered online. Talk to our team and we will sort it out.",
-};
 
 const PRODUCT_SELECT = {
   id: true,
