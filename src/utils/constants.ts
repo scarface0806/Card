@@ -46,6 +46,8 @@ export const ROUTES = {
   CONTACT: '/contact-us',
   PRIVACY: '/privacy-policy',
   TERMS: '/terms-conditions',
+  REFUND: '/refund-policy',
+  SHIPPING: '/shipping-policy',
   LOGIN: '/login',
   SIGNUP: '/signup',
 };

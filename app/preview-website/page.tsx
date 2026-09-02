@@ -22,13 +22,20 @@
  */
 
 import {
+  ACTIVE_SOCIAL_PROFILES,
   ADDRESS,
   PHONE_DISPLAY,
   PHONE_E164,
+  SITE_NAME,
   SUPPORT_EMAIL,
   SITE_URL,
   whatsappLink,
 } from '@/lib/site-config';
+import {
+  SaveContactButton,
+  ShareProfileButton,
+} from '@/components/profile/SaveContactButton';
+import type { VCardContact } from '@/lib/vcard';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -47,16 +54,49 @@ type SubmitState =
   | { status: 'success' }
   | { status: 'error'; message: string };
 
-/* Channels the demo profile exposes. Instagram, Facebook and LinkedIn are the
-   confirmed profiles from site-config; WhatsApp and the website round out the
-   row a real profile would show. */
+/* The glyph for each brand channel this row can draw. A profile with no icon
+   here is simply not rendered, so adding a channel to site-config cannot
+   produce an unlabelled link. */
+const BRAND_CHANNEL_ICONS: Record<string, typeof InstagramIcon> = {
+  Instagram: InstagramIcon,
+  Facebook: FacebookIcon,
+  LinkedIn: LinkedInIcon,
+};
+
+/* Channels the demo profile exposes. The brand profiles are read from
+   site-config rather than re-typed here - the three URLs used to be hardcoded
+   copies of ACTIVE_SOCIAL_PROFILES, which is exactly the drift this row's own
+   comment claimed it avoided. WhatsApp and the website round out the row a
+   real profile would show. */
 const CHANNELS = [
   { name: 'WhatsApp', href: whatsappLink(), icon: WhatsAppIcon },
-  { name: 'Instagram', href: 'https://www.instagram.com/tapvyo', icon: InstagramIcon },
-  { name: 'Facebook', href: 'https://www.facebook.com/tapvyo', icon: FacebookIcon },
-  { name: 'LinkedIn', href: 'https://www.linkedin.com/company/tapvyo', icon: LinkedInIcon },
+  ...ACTIVE_SOCIAL_PROFILES.filter(
+    (profile) => profile.name in BRAND_CHANNEL_ICONS
+  ).map((profile) => ({
+    name: profile.name,
+    href: profile.url,
+    icon: BRAND_CHANNEL_ICONS[profile.name],
+  })),
   { name: 'Website', href: SITE_URL, icon: Globe },
 ];
+
+/* The demo profile's own contact card. Uses the real Tapvyo contact details
+   from site-config, so downloading it from the demo saves a working contact
+   rather than placeholder data. A real profile builds this from its own
+   record - see CustomerProfileView and CardProfileView. */
+const DEMO_VCARD_CONTACT: VCardContact = {
+  fullName: 'Tapvyo Admin',
+  firstName: 'Tapvyo',
+  lastName: 'Admin',
+  title: 'NFC Digital Solutions',
+  organization: SITE_NAME,
+  phone: PHONE_E164,
+  email: SUPPORT_EMAIL,
+  url: `${SITE_URL}/preview-website`,
+  address: ADDRESS.full,
+  note: 'NFC smart cards, digital profiles and custom portfolios.',
+  photoUrl: null,
+};
 
 const WORKS = [
   {
@@ -225,7 +265,9 @@ export default function PreviewWebsitePage() {
                     decoding="async"
                   />
                 </div>
-                <p className="tv-mono mt-4">Tiruchirappalli · Tamil Nadu · India</p>
+                <p className="tv-mono mt-4">
+                  {[ADDRESS.city, ADDRESS.state, ADDRESS.country].join(' · ')}
+                </p>
               </motion.div>
 
               <motion.div
@@ -259,6 +301,22 @@ export default function PreviewWebsitePage() {
                   >
                     Chat on WhatsApp
                   </a>
+                </div>
+
+                {/* Save contact / Share, on their own row directly above the
+                    channel icons - the same placement as a real profile, so
+                    the demo shows what a customer actually gets. */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-9">
+                  <SaveContactButton
+                    contact={DEMO_VCARD_CONTACT}
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  />
+                  <ShareProfileButton
+                    title="Tapvyo Admin - Digital Profile"
+                    text="Connect with Tapvyo - NFC Digital Solutions"
+                    url={`${SITE_URL}/preview-website`}
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  />
                 </div>
 
                 <ul className="flex flex-wrap gap-3">

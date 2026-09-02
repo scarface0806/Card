@@ -19,6 +19,8 @@ const routes: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: '/preview-website', priority: 0.5, changeFrequency: 'monthly' },
   { path: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/terms-conditions', priority: 0.3, changeFrequency: 'yearly' },
+  { path: '/refund-policy', priority: 0.3, changeFrequency: 'yearly' },
+  { path: '/shipping-policy', priority: 0.3, changeFrequency: 'yearly' },
 ];
 
 /** Re-read at the same cadence as the blog pages themselves. */

@@ -26,8 +26,6 @@ import {
   Mail,
   Globe,
   MapPin,
-  Download,
-  Share2,
   ExternalLink,
   ArrowUpRight,
 } from 'lucide-react';
@@ -47,6 +45,12 @@ import CardContactForm from './CardContactForm';
 import BrandLogo from './common/BrandLogo';
 import { BRAND } from '@/lib/brand';
 import { ROUTES } from '@/utils/constants';
+import { SITE_URL } from '@/lib/site-config';
+import {
+  SaveContactButton,
+  ShareProfileButton,
+} from '@/components/profile/SaveContactButton';
+import type { VCardContact } from '@/lib/vcard';
 
 // Card detail types matching Prisma schema
 interface SocialLinks {
@@ -171,47 +175,46 @@ export default function CardProfileView({ card }: CardProfileViewProps) {
     ([, url]) => Boolean(url)
   ) as [string, string][];
 
-  // Generate vCard for download
-  const generateVCard = () => {
-    const vcard = `BEGIN:VCARD
-VERSION:3.0
-N:${details.lastName || ''};${details.firstName || ''};;;
-FN:${fullName}
-TITLE:${details.title || ''}
-ORG:${details.company || ''}
-TEL;TYPE=CELL:${details.phone || ''}
-EMAIL:${details.email || ''}
-URL:${details.website || ''}
-NOTE:${details.bio || ''}
-END:VCARD`;
+  /**
+   * The card's own public URL - what a saved contact should reopen, and what
+   * the share sheet should hand on. Built from SITE_URL rather than
+   * window.location so it is correct during server rendering and is never a
+   * localhost URL in a shared message.
+   */
+  const profileUrl = `${SITE_URL}/card/${card.slug}`;
 
-    const blob = new Blob([vcard], { type: 'text/vcard' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `${fullName.replace(/\s+/g, '_')}.vcf`;
-    link.click();
-    URL.revokeObjectURL(url);
+  /**
+   * Contact data for the .vcf. Assembled here, serialised by src/lib/vcard.ts.
+   *
+   * This replaced a hand-built template literal that had four real defects: no
+   * escaping at all (an ORG of "Acme Pvt Ltd, Chennai" silently split the
+   * field), LF line endings where the format requires CRLF, no ADR or PHOTO,
+   * and URL set to the personal website rather than the profile. The builder
+   * now handles all of that and is unit tested in tests/vcard.test.ts.
+   *
+   * `address` is null because the Card model's CardDetail has no plain-text
+   * address field - only `googleLocation`, which is a Maps link and not an
+   * address. buildVCard omits ADR entirely rather than writing an empty one.
+   */
+  const vcardContact: VCardContact = {
+    fullName,
+    firstName: details.firstName,
+    lastName: details.lastName,
+    title: details.title,
+    organization: details.company,
+    phone: details.phone,
+    email: details.email,
+    url: profileUrl,
+    address: null,
+    note: details.bio,
+    // PHOTO must be a resolvable absolute URL; a relative path would import as
+    // a broken image, so anything else is dropped.
+    photoUrl: details.profileImage?.startsWith('http')
+      ? details.profileImage
+      : null,
   };
 
-  // Share card
-  const handleShare = async () => {
-    if (navigator.share) {
-      try {
-        await navigator.share({
-          title: `${fullName} - Digital Business Card`,
-          text: `Connect with ${fullName}${details.title ? ` - ${details.title}` : ''}`,
-          url: window.location.href,
-        });
-      } catch {
-        // User cancelled or share failed
-      }
-    } else {
-      // Fallback: copy to clipboard
-      await navigator.clipboard.writeText(window.location.href);
-      alert('Link copied to clipboard!');
-    }
-  };
+  const shareText = `Connect with ${fullName}${details.title ? ` - ${details.title}` : ''}`;
 
   return (
     <div className="min-h-screen bg-[#070A09]">
@@ -233,10 +236,10 @@ END:VCARD`;
               </Link>
             </div>
 
-            <button onClick={generateVCard} className="tv-btn tv-btn-gilded shrink-0">
-              <Download className="w-[18px] h-[18px]" aria-hidden="true" />
-              Save contact
-            </button>
+            <SaveContactButton
+              contact={vcardContact}
+              className="tv-btn tv-btn-gilded shrink-0"
+            />
           </div>
         </div>
       </div>
@@ -293,20 +296,19 @@ END:VCARD`;
                 </p>
 
                 <div className="flex flex-col sm:flex-row gap-3 mb-6">
-                  <button
-                    onClick={generateVCard}
+                  <SaveContactButton
+                    contact={vcardContact}
                     className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
                   >
-                    Save contact
                     <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
-                  </button>
-                  <button
-                    onClick={handleShare}
+                  </SaveContactButton>
+                  <ShareProfileButton
+                    title={`${fullName} - Digital Business Card`}
+                    text={shareText}
+                    url={profileUrl}
                     className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
-                  >
-                    <Share2 className="w-[18px] h-[18px]" aria-hidden="true" />
-                    Share
-                  </button>
+                    label="Share profile"
+                  />
                 </div>
 
                 {details.googleLocation ? (

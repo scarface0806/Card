@@ -71,9 +71,12 @@ export const ADDRESS = {
   full: 'Tiruchirappalli, Tamil Nadu, India',
 } as const;
 
+/** Default enquiry text prefilled into every WhatsApp deep link. */
+export const WHATSAPP_DEFAULT_MESSAGE = 'Hi, I want a NFC digital business card';
+
 /** Prefilled WhatsApp enquiry link. */
 export function whatsappLink(
-  message = 'Hi, I want a NFC digital business card'
+  message: string = WHATSAPP_DEFAULT_MESSAGE
 ): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
@@ -97,3 +100,35 @@ export const SOCIAL_PROFILES: { name: string; url: string | null }[] = [
 export const ACTIVE_SOCIAL_PROFILES = SOCIAL_PROFILES.filter(
   (s): s is { name: string; url: string } => Boolean(s.url)
 );
+
+/** Look up one profile's URL by name. `null` when unconfirmed. */
+function socialUrl(name: string): string | null {
+  return SOCIAL_PROFILES.find((profile) => profile.name === name)?.url ?? null;
+}
+
+export const INSTAGRAM_URL = socialUrl('Instagram');
+export const FACEBOOK_URL = socialUrl('Facebook');
+export const LINKEDIN_URL = socialUrl('LinkedIn');
+
+/**
+ * Flat, camelCase view of everything above.
+ *
+ * Every value here is a REFERENCE to the constant that defines it, never a
+ * second copy of the literal - so this object cannot drift from the exports it
+ * mirrors. Both shapes exist on purpose: the named exports are what the
+ * existing pages already import, this is the documented single-object form.
+ */
+export const siteConfig = {
+  brandName: SITE_NAME,
+  email: SUPPORT_EMAIL,
+  phoneDisplay: PHONE_DISPLAY,
+  phoneRaw: PHONE_E164,
+  whatsapp: WHATSAPP_NUMBER,
+  whatsappDefaultMessage: WHATSAPP_DEFAULT_MESSAGE,
+  address: ADDRESS.full,
+  social: {
+    instagram: INSTAGRAM_URL,
+    facebook: FACEBOOK_URL,
+    linkedin: LINKEDIN_URL,
+  },
+} as const;

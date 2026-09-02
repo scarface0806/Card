@@ -28,7 +28,13 @@ import {
 import { BRAND } from '@/lib/brand';
 import BrandLogo from '@/components/common/BrandLogo';
 import { ROUTES } from '@/utils/constants';
+import { SITE_URL } from '@/lib/site-config';
 import { isAbortError, logFetchError } from '@/lib/fetch-utils';
+import {
+  SaveContactButton,
+  ShareProfileButton,
+} from '@/components/profile/SaveContactButton';
+import type { VCardContact } from '@/lib/vcard';
 
 type GalleryItem = {
   id: string;
@@ -233,6 +239,44 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
   const shopName = customer.company?.trim() || '';
   const chatHref = useMemo(() => whatsappHref(customer), [customer]);
 
+  /**
+   * The profile's own public URL. Built from SITE_URL rather than
+   * window.location so it is correct during server rendering and never a
+   * localhost link inside a shared message or a saved contact.
+   */
+  const profileUrl = `${SITE_URL}/card/${customer.slug}`;
+
+  const shareText = `Connect with ${customer.name}${
+    customer.designation ? ` - ${customer.designation}` : ''
+  }`;
+
+  /** Contact data for the .vcf; serialised by src/lib/vcard.ts. */
+  const vcardContact: VCardContact = useMemo(
+    () => ({
+      fullName: customer.name,
+      // This model stores one display name rather than given/family parts, so
+      // N is derived: everything before the last space is the given name. It
+      // is a guess, which is why FN - the authoritative display name - is set
+      // from the stored value and never from these parts.
+      firstName: customer.name.trim().split(/\s+/).slice(0, -1).join(' ') || customer.name,
+      lastName: customer.name.trim().split(/\s+/).length > 1
+        ? customer.name.trim().split(/\s+/).slice(-1)[0]
+        : '',
+      title: customer.designation,
+      organization: customer.company,
+      phone: customer.phone,
+      email: customer.email,
+      url: profileUrl,
+      address: customer.address,
+      note: customer.about,
+      // PHOTO must resolve absolutely or it imports as a broken image.
+      photoUrl: customer.profileImage?.startsWith('http')
+        ? customer.profileImage
+        : null,
+    }),
+    [customer, profileUrl]
+  );
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitting(true);
@@ -410,6 +454,23 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                       WhatsApp
                     </a>
                   ) : null}
+                </div>
+
+                {/* Save contact / Share, on their own row directly above the
+                    channel icons. Kept out of the row above on purpose: that
+                    row already carries the two conversion actions, and four
+                    buttons abreast collapses badly at 320px. */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-9">
+                  <SaveContactButton
+                    contact={vcardContact}
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  />
+                  <ShareProfileButton
+                    title={`${customer.name} - Digital Profile`}
+                    text={shareText}
+                    url={profileUrl}
+                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                  />
                 </div>
 
                 {socialLinks.length > 0 ? (

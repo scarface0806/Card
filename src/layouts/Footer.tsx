@@ -86,6 +86,16 @@ export default function Footer() {
                   Terms & Conditions
                 </Link>
               </li>
+              <li>
+                <Link href={ROUTES.REFUND} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
+                  Refund Policy
+                </Link>
+              </li>
+              <li>
+                <Link href={ROUTES.SHIPPING} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
+                  Shipping Policy
+                </Link>
+              </li>
             </ul>
           </div>
 

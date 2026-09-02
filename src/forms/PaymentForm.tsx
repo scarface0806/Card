@@ -4,6 +4,7 @@ import { useFormContext } from 'react-hook-form';
 import { CreditCard, ShieldCheck } from 'lucide-react';
 import type { SelectedProduct } from '@/lib/products/selection';
 import { formatPrice } from '@/utils/formatPrice';
+import { ROUTES } from '@/utils/constants';
 
 interface PaymentFormProps {
   /**
@@ -149,6 +150,27 @@ export default function PaymentForm({ product }: PaymentFormProps) {
           to or stored by Tapvyo.
         </p>
       </div>
+
+      {/* Sits last in the step, so it renders directly above the pay button in
+          CreateCardClient. Separate from the checkbox above on purpose: the
+          checkbox is the explicit consent Razorpay requires, this is the
+          disclosure of the refund and shipping terms that a gateway's merchant
+          review looks for at the point of payment. */}
+      <p className="tv-small">
+        By placing this order you agree to our{' '}
+        <a href={ROUTES.TERMS} className="tv-btn-tertiary !min-h-0 !text-sm">
+          Terms
+        </a>
+        ,{' '}
+        <a href={ROUTES.REFUND} className="tv-btn-tertiary !min-h-0 !text-sm">
+          Refund Policy
+        </a>{' '}
+        and{' '}
+        <a href={ROUTES.SHIPPING} className="tv-btn-tertiary !min-h-0 !text-sm">
+          Shipping Policy
+        </a>
+        .
+      </p>
     </div>
   );
 }
