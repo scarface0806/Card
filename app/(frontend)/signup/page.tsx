@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
+import { Suspense, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { User, Mail, Phone, Lock, Eye, EyeOff, Loader } from 'lucide-react';
 import { registerUser } from '@/services/auth';
 import { ROUTES } from '@/utils/constants';
 import GoogleAuthButton from '@/components/GoogleAuthButton';
+import { safeRedirect, withRedirect } from '@/lib/safe-redirect';
 
 interface SignupFormData {
   fullName: string;
@@ -18,8 +19,12 @@ interface SignupFormData {
   agreeToTerms: boolean;
 }
 
-export default function SignupPage() {
+function SignupForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  // Google returns through /api/auth/google-complete, which honours ?next=.
+  // Default to "/" so behaviour is unchanged when nobody was gated.
+  const googleCallbackUrl = safeRedirect(searchParams.get('redirect'), '/');
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -66,10 +71,13 @@ export default function SignupPage() {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
 
-        // A guest checkout under the same email is backfilled onto the new
-        // account by the register route, so send someone straight to their
-        // orders when there is already something there to look at.
-        const destination = response.attachedOrders ? '/my-orders' : '/';
+        // If they were gated out of somewhere (checkout, most often), go
+        // back there. Otherwise keep the previous behaviour: a guest checkout
+        // under the same email is backfilled onto the new account by the
+        // register route, so send them straight to their orders when there is
+        // already something there to look at.
+        const fallback = response.attachedOrders ? '/my-orders' : '/';
+        const destination = safeRedirect(searchParams.get('redirect'), fallback);
 
         setTimeout(() => {
           router.push(destination);
@@ -324,14 +332,14 @@ export default function SignupPage() {
             </div>
 
             {/* Google Signup Button */}
-            <GoogleAuthButton text="Continue with Google" callbackUrl="/" />
+            <GoogleAuthButton text="Continue with Google" callbackUrl={googleCallbackUrl} />
           </form>
 
           {/* Login Link */}
           <p className="tv-small text-center mt-8">
             Already have an account?{' '}
             <Link
-              href={ROUTES.LOGIN}
+              href={withRedirect(ROUTES.LOGIN, searchParams.get('redirect'))}
               className="tv-btn-tertiary !min-h-0 !text-sm"
             >
               Login
@@ -343,3 +351,33 @@ export default function SignupPage() {
   );
 }
 
+/**
+ * useSearchParams() forces a client-side-rendering bailout, which fails
+ * `next build` on a prerendered route unless it sits inside a Suspense
+ * boundary. The shell below is static so the page still paints instantly.
+ */
+function SignupFallback() {
+  return (
+    <main className="tv-hero min-h-screen flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-md">
+        <div className="tv-modal-panel !bg-[#151C1A] p-8 md:p-10">
+          <div className="text-center mb-8">
+            <h1 className="tv-h3 mb-2">Create Your Account</h1>
+            <p className="tv-small">Join Tapvyo and start with your NFC business card</p>
+          </div>
+          <div className="flex justify-center py-6" role="status" aria-label="Loading">
+            <Loader className="h-6 w-6 animate-spin" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function SignupPage() {
+  return (
+    <Suspense fallback={<SignupFallback />}>
+      <SignupForm />
+    </Suspense>
+  );
+}

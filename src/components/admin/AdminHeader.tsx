@@ -3,6 +3,8 @@
 import React, { useState } from 'react';
 import { Search, Bell, User, LogOut, Settings, Menu, ChevronDown } from 'lucide-react';
 
+import { SUPPORT_EMAIL } from '@/lib/site-config';
+
 interface AdminHeaderProps {
   onMenuClick?: () => void;
 }
@@ -108,7 +110,7 @@ export default function AdminHeader({ onMenuClick }: AdminHeaderProps) {
                 <div className="tv-adm-dialog absolute right-0 z-40 mt-2 w-56 py-2">
                   <div className="mb-1 border-b border-[var(--tv-rule)] px-4 py-3">
                     <p className="text-sm font-semibold text-[var(--tv-text)]">Admin User</p>
-                    <p className="mt-0.5 truncate text-xs text-[var(--tv-text-muted)]">santhosh@tapvyo.com</p>
+                    <p className="mt-0.5 truncate text-xs text-[var(--tv-text-muted)]">{SUPPORT_EMAIL}</p>
                   </div>
                   <a
                     href="/admin/account"

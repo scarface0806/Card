@@ -132,14 +132,29 @@ export async function POST(request: NextRequest) {
       profileData,
     } = parsed.data;
 
-    // Either the checkout form supplied contact details, or the caller is a
-    // logged-in customer we already have details for. Without one of the two
-    // there is no way to reach the buyer about the order.
+    // A SIGNED-IN CUSTOMER IS NOW REQUIRED TO PLACE AN ORDER.
+    //
+    // This route used to accept an anonymous caller as long as the checkout
+    // form carried name + email + phone (guest checkout). That is no longer
+    // allowed: hiding the CTA or gating /create-card in proxy.ts stops a
+    // browser, but anyone can POST here directly, so the refusal has to live
+    // in the handler as well as the middleware.
+    //
+    // The guest columns (guestName/guestEmail/guestPhone) and
+    // attachGuestOrders() are intentionally LEFT IN PLACE: historical guest
+    // orders still need to read back and still get backfilled onto an account
+    // at signup. Only NEW anonymous orders are refused.
+    if (!user) {
+      return errorResponse("You must be signed in to place an order.", 401);
+    }
+
+    // Contact details are still required - a signed-in customer can be
+    // ordering a card for someone else, so we cannot just read their account.
     const hasContactDetails = Boolean(name && email && phone);
-    if (!hasContactDetails && !user) {
+    if (!hasContactDetails) {
       return errorResponse(
         "Your name, email and mobile number are required to place an order.",
-        401
+        400
       );
     }
 

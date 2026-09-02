@@ -28,7 +28,7 @@ import {
 import { BRAND } from '@/lib/brand';
 import BrandLogo from '@/components/common/BrandLogo';
 import { ROUTES } from '@/utils/constants';
-import { SITE_URL } from '@/lib/site-config';
+import { SITE_NAME, SITE_URL } from '@/lib/site-config';
 import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 import {
   SaveContactButton,
@@ -833,12 +833,12 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           <p className="tv-small">
             © {new Date().getFullYear()} All rights reserved. Designed &amp; developed by{' '}
             <a
-              href="https://tapvyo.com"
+              href={SITE_URL}
               target="_blank"
               rel="noopener noreferrer"
               className="tv-btn-tertiary !min-h-0"
             >
-              Tapvyo
+              {SITE_NAME}
             </a>
             .
           </p>

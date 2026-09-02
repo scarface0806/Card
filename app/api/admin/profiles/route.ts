@@ -98,7 +98,7 @@ async function createProfileHandler(request: NextRequest) {
 
     // Send notification email
     if (email) {
-      const profileUrl = `${APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com"}/card/${slug}`;
+      const profileUrl = `${APP_URL}/card/${slug}`;
 
       const subject = `Your NFC Profile is Ready! - ${order.orderNumber}`;
       const html = `
@@ -147,7 +147,7 @@ async function createProfileHandler(request: NextRequest) {
           <tr>
             <td style="padding: 20px 40px; background-color: #f8fafc; text-align: center; border-top: 1px solid #e5e7eb;">
               <p style="margin: 0; color: #9ca3af; font-size: 12px;">
-                Need help? Contact us at ${SUPPORT_EMAIL || "support@tapvyo.com"}
+                Need help? Contact us at ${SUPPORT_EMAIL}
               </p>
               <p style="margin: 8px 0 0; color: #9ca3af; font-size: 12px;">
                 © ${new Date().getFullYear()} Tapvyo NFC Business Cards
@@ -175,7 +175,7 @@ This link will be programmed into your NFC card. Anyone who taps your card will 
 Order ID: ${order.orderNumber}
 Total Paid: $${order.total}
 
-Need help? Contact us at ${SUPPORT_EMAIL || "support@tapvyo.com"}
+Need help? Contact us at ${SUPPORT_EMAIL}
 
 © ${new Date().getFullYear()} Tapvyo NFC Business Cards
       `;
@@ -195,7 +195,7 @@ Need help? Contact us at ${SUPPORT_EMAIL || "support@tapvyo.com"}
       profile: {
         id: profile.id,
         slug,
-        profileUrl: `${APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com"}/card/${slug}`,
+        profileUrl: `${APP_URL}/card/${slug}`,
       },
     }, 201);
   } catch (error) {

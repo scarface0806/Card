@@ -14,11 +14,23 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPaymentOrderSchema } from "@/lib/validators";
 import { errorResponse } from "@/lib/responses";
+import { authenticate } from "@/lib/auth-middleware";
 import { getPaymentAdapterService } from "@/lib/payment-adapter";
 import { razorpayDebugger } from "@/lib/razorpay-debug";
 
 export async function POST(request: NextRequest) {
   try {
+    // MONEY ROUTE - a verified session is mandatory.
+    //
+    // proxy.ts gates this path too, but the matcher is a list that can drift.
+    // The handler must refuse on its own so the guarantee does not depend on
+    // a config file staying in step with this directory.
+    const { user } = await authenticate(request);
+    if (!user) {
+      razorpayDebugger.log('WARN', 'POST /api/payment/create-razorpay-order', 'Rejected: no session');
+      return errorResponse("You must be signed in to pay for an order.", 401);
+    }
+
     const body = await request.json();
     const parsed = createPaymentOrderSchema.safeParse(body);
 

@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 
+import { SITE_HOST } from '@/lib/site-config';
+
 /**
  * NFC CARD — the one drawn card face. Every place a card is shown flat uses
  * this: the hero, the finishes section, the Quick-view modal, the catalogue
@@ -60,7 +62,7 @@ const GLOW_TINTS: Record<NFCCardVariant, { a: string; b: string }> = {
 export const NFC_CARD_DEMO = {
   name: 'Ananya Rao',
   role: 'Design Lead',
-  handle: 'tapvyo.com/ananya',
+  handle: `${SITE_HOST}/ananya`,
 } as const;
 
 /**
@@ -130,7 +132,7 @@ interface NFCCardProps {
   name: string;
   /** Job title. Personal card only. */
   role?: string;
-  /** Profile URL, e.g. `tapvyo.com/ananya`. Personal card only. */
+  /** Profile URL, e.g. `example.com/ananya`. Personal card only. */
   handle?: string;
   /** Mono uppercase line — the finish, the tier, or the material. */
   label?: string;

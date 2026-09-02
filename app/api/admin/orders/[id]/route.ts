@@ -256,10 +256,10 @@ export async function PATCH(request: NextRequest) {
         : null);
 
       if (recipientEmail && cardSlug) {
-        const siteUrl = APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com";
+        const siteUrl = APP_URL;
         const cardLink = `${siteUrl}/card/${cardSlug}`;
-        const supportEmail = SUPPORT_EMAIL || "support@tapvyo-nfc.com";
-        const supportPhone = SUPPORT_PHONE || "+91 9999999999";
+        const supportEmail = SUPPORT_EMAIL;
+        const supportPhone = SUPPORT_PHONE;
 
         const subject = `Your NFC card is ready - ${existingOrder.orderNumber}`;
         const html = `

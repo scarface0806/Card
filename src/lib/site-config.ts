@@ -39,6 +39,20 @@ function resolveSiteUrl(): string {
 
 export const SITE_URL = resolveSiteUrl();
 
+/**
+ * Bare host of SITE_URL ("example.com"), for places that show a domain as text
+ * rather than link to it - card artwork, demo data, printed handles.
+ * Derived, never a second copy of the literal, so it cannot drift from SITE_URL.
+ */
+export const SITE_HOST = (() => {
+  try {
+    const host = new URL(SITE_URL).host;
+    return host.startsWith("www.") ? host.slice(4) : host;
+  } catch {
+    return SITE_URL;
+  }
+})();
+
 export const SITE_NAME = 'Tapvyo';
 export const SITE_TAGLINE = 'Modern NFC Digital Business Cards';
 export const SITE_DESCRIPTION =
@@ -58,9 +72,10 @@ export const WHATSAPP_NUMBER = '917871361025';
 export const PHONE_DISPLAY = '+91 78713 61025';
 
 /**
- * Confirmed by the business owner. Was hello@tapvyo.com, which is not a real
- * mailbox - order confirmations tell customers to reply within 24 hours to
- * correct what gets printed, so this has to be an address someone reads.
+ * Confirmed by the business owner. Was hello@tapvyo.com - not a real mailbox,
+ * and tapvyo.com is not even a registered domain. Order confirmations tell
+ * customers to reply within 24 hours to correct what gets printed, so this
+ * has to be an address someone actually reads.
  */
 export const SUPPORT_EMAIL = 'tapvyo@gmail.com';
 

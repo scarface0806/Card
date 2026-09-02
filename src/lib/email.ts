@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/site-config";
+
 /**
  * Email utility for sending notifications
  * 
@@ -96,7 +98,7 @@ export async function sendEmail(options: EmailOptions): Promise<boolean> {
 export async function sendLeadNotificationEmail(
   data: LeadNotificationData
 ): Promise<boolean> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com";
+  const siteUrl = SITE_URL;
   const cardUrl = `${siteUrl}/card/${data.cardSlug}`;
 
   const subject = `New Contact from Your Digital Card - ${data.leadName}`;
@@ -330,7 +332,7 @@ export async function sendNewsletterEmail(
   to: string,
   data: NewsletterEmailData
 ): Promise<boolean> {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com";
+  const siteUrl = SITE_URL;
   const unsubscribeUrl = `${siteUrl}/api/newsletter/subscribe?email=${encodeURIComponent(to)}`;
 
   const html = `

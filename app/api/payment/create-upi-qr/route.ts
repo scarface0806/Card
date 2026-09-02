@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createPaymentOrderSchema } from "@/lib/validators";
 import { errorResponse } from "@/lib/responses";
+import { authenticate } from "@/lib/auth-middleware";
 import { getPaymentAdapterService } from "@/lib/payment-adapter";
 import { getRazorpayService } from "@/lib/razorpay";
 
 export async function POST(request: NextRequest) {
   try {
+    // MONEY ROUTE - a verified session is mandatory. proxy.ts gates this path
+    // too, but the handler must refuse on its own so the guarantee does not
+    // depend on a matcher list staying in step with this directory.
+    const { user } = await authenticate(request);
+    if (!user) {
+      return errorResponse("You must be signed in to pay for an order.", 401);
+    }
+
     const parsed = createPaymentOrderSchema.safeParse(await request.json());
     if (!parsed.success) return errorResponse("Order ID is required", 400);
 

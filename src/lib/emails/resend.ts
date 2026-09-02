@@ -27,12 +27,13 @@ export function getResendClient(): Resend {
 }
 
 /**
- * From address. EMAIL_FROM may be a bare address ("orders@tapvyo.com") or an
- * addressed form ("Tapvyo Orders <orders@tapvyo.com>"); a bare address gets a
+ * From address. EMAIL_FROM may be a bare address ("orders@tricomakes.in") or an
+ * addressed form ("Tapvyo Orders <orders@tricomakes.in>"); a bare address gets a
  * display name so inboxes show the brand rather than the mailbox.
  *
- * Sending from orders@tapvyo.com requires the ROOT domain tapvyo.com to be
- * verified in Resend - a subdomain verification will not cover it.
+ * The sending domain must be verified in Resend. tricomakes.in is verified;
+ * tapvyo.com is not registered at all, so it can never be. A subdomain
+ * verification does not cover a root domain (or the reverse).
  */
 export function getEmailFrom(): string {
   const configured = getRequiredEnv("EMAIL_FROM").trim();

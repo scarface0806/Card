@@ -2,11 +2,38 @@ import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
 
-// Routes that require authentication
-const protectedRoutes = ["/dashboard", "/profile", "/cards/create", "/my-orders"];
+// Routes that require authentication.
+//
+// "/create-card" is the purchase flow. This list previously said
+// "/cards/create", which is not a route in this app - the real page is
+// app/(frontend)/create-card - so the entire buy flow was reachable while
+// logged out even though the intent here was clearly to gate it.
+const protectedRoutes = ["/dashboard", "/profile", "/create-card", "/my-orders"];
 
 // Routes that require admin role
 const adminRoutes = ["/admin"];
+
+/**
+ * API routes that create an order or move money. An anonymous caller gets
+ * 401 JSON here rather than a redirect, because these are fetch targets.
+ *
+ * This is belt-and-braces: each handler ALSO verifies the session itself, so
+ * the gate does not depend on the matcher below staying correct.
+ *
+ * DELIBERATELY ABSENT, do not add:
+ *   /api/payment/webhook - Razorpay calls it server-to-server and it
+ *     authorises with an X-Razorpay-Signature HMAC. There is no session.
+ *   /api/payment/verify  - same, recomputes the HMAC with timingSafeEqual.
+ *   /api/track-order     - public order lookup by reference, rate limited.
+ * Gating any of those breaks payment confirmation or public tracking.
+ */
+const protectedApiRoutes = [
+  "/api/orders",
+  "/api/payment/create-razorpay-order",
+  "/api/payment/order",
+  "/api/payment/create-upi-qr",
+  "/api/payment/check-upi-status",
+];
 
 // Routes that should redirect to dashboard if already logged in
 const authRoutes = ["/login", "/signup"];
@@ -69,16 +96,33 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith(route)
   );
 
+  const isProtectedApiRoute = protectedApiRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + "/")
+  );
+
   const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
   const isAdminProtectedRoute = isAdminRoute && !isAdminLoginRoute;
 
   const isAuthRoute = authRoutes.some((route) => pathname.startsWith(route));
 
+  // API gate first: these are fetch targets, so they must answer 401 JSON
+  // rather than 307 to an HTML page.
+  if (isProtectedApiRoute) {
+    const payload = token ? await verifyJWT(token) : null;
+    if (!payload) {
+      return NextResponse.json(
+        { success: false, message: "You must be signed in to do this." },
+        { status: 401 }
+      );
+    }
+    return NextResponse.next();
+  }
+
   // If accessing protected or admin route without token, redirect to login
   if ((isProtectedRoute || isAdminProtectedRoute) && !token) {
     const loginPath = isAdminProtectedRoute ? "/admin/login" : "/login";
     const loginUrl = new URL(loginPath, request.url);
-    loginUrl.searchParams.set("redirect", pathname);
+    loginUrl.searchParams.set("redirect", pathname + request.nextUrl.search);
     return NextResponse.redirect(loginUrl);
   }
 
@@ -105,9 +149,12 @@ export async function proxy(request: NextRequest) {
   if (isProtectedRoute && token) {
     const payload = await verifyJWT(token);
 
-    // Invalid or expired token - redirect to login
+    // Invalid or expired token - redirect to login, keeping the destination
+    // so an expired session does not also lose the page they wanted.
     if (!payload) {
-      const response = NextResponse.redirect(new URL("/login", request.url));
+      const loginUrl = new URL("/login", request.url);
+      loginUrl.searchParams.set("redirect", pathname + request.nextUrl.search);
+      const response = NextResponse.redirect(loginUrl);
       response.cookies.delete("auth-token");
       return response;
     }
@@ -130,12 +177,18 @@ export const config = {
   matcher: [
     /*
      * Match all request paths except:
-     * - api routes (they have their own auth)
+     * - api routes EXCEPT the order/payment ones in protectedApiRoutes,
+     *   which MUST reach this proxy to be gated at all
      * - _next/static (static files)
      * - _next/image (image optimization files)
      * - favicon.ico (favicon file)
      * - public files (public folder)
      */
     "/((?!api|_next/static|_next/image|favicon.ico|.*\\..*|public).*)",
+    "/api/orders/:path*",
+    "/api/payment/create-razorpay-order",
+    "/api/payment/order",
+    "/api/payment/create-upi-qr",
+    "/api/payment/check-upi-status",
   ],
 };

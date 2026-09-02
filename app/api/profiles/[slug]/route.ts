@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { errorResponse, successResponse } from "@/lib/responses";
+import { SITE_URL } from "@/lib/site-config";
 
 // GET /api/profiles/[slug] - Get profile by slug
 export async function GET(
@@ -123,7 +124,7 @@ export async function POST(
 
     if (ownerEmail) {
       const { sendEmail } = await import("@/lib/email");
-      const profileUrl = `${process.env.NEXT_PUBLIC_SITE_URL || "https://tapvyo.com"}/card/${slug}`;
+      const profileUrl = `${SITE_URL}/card/${slug}`;
       
       const subject = `New Message from Your NFC Profile - ${name}`;
       const html = `

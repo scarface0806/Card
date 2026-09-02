@@ -1,13 +1,14 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { Suspense, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Loader } from 'lucide-react';
 import { loginUser } from '@/services/auth';
 import { ROUTES } from '@/utils/constants';
 import GoogleAuthButton from '@/components/GoogleAuthButton';
+import { safeRedirect, withRedirect } from '@/lib/safe-redirect';
 
 interface LoginFormData {
   email: string;
@@ -37,8 +38,10 @@ const SIGN_IN_ERRORS: Record<string, string> = {
     'Google sign-in is not configured correctly. Please use your email and password.',
 };
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = safeRedirect(searchParams.get('redirect'));
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState('');
@@ -98,9 +101,9 @@ export default function LoginPage() {
           localStorage.setItem('userEmail', data.email);
         }
 
-        // Redirect to dashboard
+        // Back to whatever they were trying to reach, not always /dashboard.
         setTimeout(() => {
-          router.push('/dashboard');
+          router.push(redirectTo);
         }, 500);
       } else {
         setServerError(response.message || 'Login failed. Please try again.');
@@ -236,14 +239,14 @@ export default function LoginPage() {
             </div>
 
             {/* Google Login Button */}
-            <GoogleAuthButton text="Continue with Google" callbackUrl="/" />
+            <GoogleAuthButton text="Continue with Google" callbackUrl={redirectTo} />
           </form>
 
           {/* Signup Link */}
           <p className="tv-small text-center mt-8">
             Don't have an account?{' '}
             <Link
-              href={ROUTES.SIGNUP}
+              href={withRedirect(ROUTES.SIGNUP, searchParams.get('redirect'))}
               className="tv-btn-tertiary !min-h-0 !text-sm"
             >
               Sign up
@@ -252,5 +255,36 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+/**
+ * useSearchParams() forces a client-side-rendering bailout, which fails
+ * `next build` on a prerendered route unless it sits inside a Suspense
+ * boundary. The shell below is static so the page still paints instantly.
+ */
+function LoginFallback() {
+  return (
+    <main className="tv-hero min-h-screen flex items-center justify-center py-12 px-4">
+      <div className="w-full max-w-md">
+        <div className="tv-modal-panel !bg-[#151C1A] p-8 md:p-10">
+          <div className="text-center mb-8">
+            <h1 className="tv-h3 mb-2">Welcome Back</h1>
+            <p className="tv-small">Login to manage your NFC profile</p>
+          </div>
+          <div className="flex justify-center py-6" role="status" aria-label="Loading">
+            <Loader className="h-6 w-6 animate-spin" aria-hidden="true" />
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<LoginFallback />}>
+      <LoginForm />
+    </Suspense>
   );
 }

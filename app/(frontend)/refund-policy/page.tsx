@@ -48,7 +48,7 @@ export default function RefundPolicyPage() {
     {
       title: '1. Overview',
       content:
-        'Every Tapvyo NFC card is personalised and made to order. Your name, designation, company, artwork and the unique profile link written to the card\'s chip are applied to that specific card for you alone, which means a finished card cannot be resold or restocked. This policy explains exactly when an order can be cancelled, when a refund is available, and when we replace a card instead of refunding it. It applies to all orders placed through tapvyo.com.',
+        'Every Tapvyo NFC card is personalised and made to order. Your name, designation, company, artwork and the unique profile link written to the card\'s chip are applied to that specific card for you alone, which means a finished card cannot be resold or restocked. This policy explains exactly when an order can be cancelled, when a refund is available, and when we replace a card instead of refunding it. It applies to all orders placed through our website.',
     },
     {
       title: '2. Cancellation window',

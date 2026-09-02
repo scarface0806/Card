@@ -140,7 +140,7 @@ export default function ContactUsPage() {
   const faqs = [
     { q: 'What is the typical response time?', a: 'We respond to all inquiries within 24 hours during business days. Urgent support requests get priority.' },
     { q: 'Do you provide customer support outside business hours?', a: 'Yes, our Enterprise plan includes 24/7 dedicated support. Basic plans have support available Monday-Friday.' },
-    { q: 'How can I report a bug or issue?', a: 'You can report issues directly through our support form above, or email support@tapvyo.com with detailed information.' },
+    { q: 'How can I report a bug or issue?', a: `You can report issues directly through our support form above, or email ${SUPPORT_EMAIL} with detailed information.` },
     { q: 'Do you offer custom enterprise solutions?', a: 'Absolutely! Contact our team to discuss white-label, API, or custom integration requirements.' },
   ];
 
