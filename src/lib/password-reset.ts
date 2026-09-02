@@ -30,25 +30,9 @@ import { ObjectId } from "mongodb";
 import prisma from "@/lib/prisma";
 import { getMongoDb } from "@/lib/mongodb";
 import { getJwtSecretOrThrow } from "@/lib/env";
-
-/**
- * Prisma's MongoDB connector wraps a `create` in a transaction, which requires
- * a replica set. Production runs on Atlas, where that is fine; a single-node
- * local MongoDB rejects it with P2031.
- *
- * The same fallback already exists for order creation - see the note in
- * app/api/orders/route.ts - so this follows the established pattern rather
- * than inventing a second one. Reads, `update` and `updateMany` need no
- * transaction and are left on Prisma throughout.
- */
-function isReplicaSetRequiredError(error: unknown): boolean {
-  return (
-    typeof error === "object" &&
-    error !== null &&
-    "code" in error &&
-    (error as { code?: string }).code === "P2031"
-  );
-}
+// Shared predicate. Reads need no transaction and stay on Prisma throughout;
+// only the writes below carry a raw-driver fallback. See src/lib/replica-set.ts.
+import { isReplicaSetRequiredError } from "@/lib/replica-set";
 
 /**
  * How long a reset link stays valid.

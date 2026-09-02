@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -15,11 +15,50 @@ interface LoginFormData {
   rememberMe: boolean;
 }
 
+/**
+ * `?error=` codes this page can be redirected back with.
+ *
+ * The first three come from /api/auth/google-complete. The rest are next-auth's
+ * own, which land here because authOptions sets `pages.error: '/login'` -
+ * AccessDenied in particular is what the signIn callback produces when it
+ * refuses an unverified Google email.
+ */
+const SIGN_IN_ERRORS: Record<string, string> = {
+  google_not_configured:
+    'Google sign-in is not available right now. Please use your email and password.',
+  google_failed: 'We could not complete your Google sign-in. Please try again.',
+  account_deactivated:
+    'This account has been deactivated. Please contact us if that is unexpected.',
+  AccessDenied:
+    'Your Google account email is not verified, so we cannot sign you in with it.',
+  OAuthAccountNotLinked:
+    'That email is already registered. Please log in with your password instead.',
+  Configuration:
+    'Google sign-in is not configured correctly. Please use your email and password.',
+};
+
 export default function LoginPage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState('');
+
+  /**
+   * Show why a Google sign-in bounced back here.
+   *
+   * Read from window.location rather than useSearchParams(): this route is
+   * prerendered, and useSearchParams() forces a client-side-rendering bailout
+   * for the whole page unless it sits inside a <Suspense> boundary. A
+   * transient error banner does not justify restructuring a working login
+   * page, and the value is only ever needed in the browser anyway.
+   */
+  useEffect(() => {
+    const code = new URLSearchParams(window.location.search).get('error');
+    if (!code) return;
+    setServerError(
+      SIGN_IN_ERRORS[code] || 'Sign-in failed. Please try again.'
+    );
+  }, []);
 
   const {
     register,

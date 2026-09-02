@@ -23,6 +23,31 @@ export const authOptions: NextAuthOptions = {
     error: '/login',
   },
   callbacks: {
+    /**
+     * Gate on a VERIFIED Google email.
+     *
+     * /api/auth/google-complete links a Google identity to an existing account
+     * with the same email address. That is only safe if Google has actually
+     * verified the address - otherwise someone could create a Google account
+     * claiming an email they do not control and inherit the matching Tapvyo
+     * account. Google sets `email_verified` on the profile; anything other
+     * than true is refused here, before a token is ever issued.
+     */
+    async signIn({ account, profile }) {
+      if (account?.provider !== 'google') return true;
+
+      const verified = (profile as { email_verified?: boolean } | undefined)
+        ?.email_verified;
+
+      if (verified !== true) {
+        console.warn(
+          '[Auth] Refused Google sign-in for an unverified email address'
+        );
+        return false;
+      }
+
+      return Boolean(profile?.email);
+    },
     async session({ session, token }) {
       if (session.user) {
         (session.user as { id?: string }).id = token.sub;

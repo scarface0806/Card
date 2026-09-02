@@ -6,7 +6,6 @@ import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
-import { whatsappLink } from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
 import AccountMenu from '@/components/common/AccountMenu';
 
@@ -101,22 +100,14 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Actions. Two button tiers only: the outline enquiry and the one
-              primary action. The arrow glyph belongs to the primary tier
-              alone. The account control sits BEFORE both and is drawn as a
-              navlink or an avatar, never as a third button - adding a third
-              tier here is what would flatten the CTA hierarchy. */}
+          {/* Actions. Two tiers: the outline account action and the one
+              primary CTA. The arrow glyph belongs to the primary tier alone.
+              The WhatsApp "Talk to our team" button that used to sit here was
+              removed; Login now occupies that slot, styled as the outline
+              tier so the CTA hierarchy is unchanged. WhatsApp is still
+              reachable from the footer and every profile page. */}
           <div className="hidden lg:flex items-center gap-3">
             <AccountMenu />
-            <a
-              href={whatsappLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="tv-btn tv-btn-secondary"
-            >
-              Talk to our team
-              <span className="sr-only"> (opens WhatsApp in a new tab)</span>
-            </a>
             <Link href={ROUTES.CREATE_CARD} className="tv-btn tv-btn-gilded">
               Get your card
               <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
@@ -193,19 +184,9 @@ export default function Navbar() {
                     Get your card
                     <ArrowUpRight className="w-4 h-4" aria-hidden="true" />
                   </Link>
-                  <a
-                    href={whatsappLink()}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={() => setIsOpen(false)}
-                    className="tv-btn tv-btn-secondary w-full"
-                  >
-                    Talk to our team
-                    <span className="sr-only"> (opens WhatsApp in a new tab)</span>
-                  </a>
                 </div>
 
-                {/* Account, below the two CTAs so the primary action stays the
+                {/* Account, below the primary CTA so "Get your card" stays the
                     first thing in the panel. */}
                 <AccountMenu variant="mobile" onNavigate={() => setIsOpen(false)} />
               </div>

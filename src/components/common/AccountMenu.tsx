@@ -140,7 +140,9 @@ export default function AccountMenu({
   if (state.status === 'signed-out') {
     if (variant === 'mobile') {
       return (
-        <div className="mt-6 border-t border-[#F1F3F1]/10 pt-6">
+        // No separator rule: with the WhatsApp button gone this is simply the
+        // second item in the panel's CTA stack, so it keeps that rhythm.
+        <div className="mt-3">
           <Link
             href={ROUTES.LOGIN}
             onClick={onNavigate}
@@ -153,8 +155,11 @@ export default function AccountMenu({
       );
     }
 
+    // Outline button, not a navlink: this sits in the actions row where the
+    // "Talk to our team" button used to be, and inherits that exact look
+    // (border, padding, hover lift) from .tv-btn + .tv-btn-secondary.
     return (
-      <Link href={ROUTES.LOGIN} className="tv-navlink tv-focus">
+      <Link href={ROUTES.LOGIN} className="tv-btn tv-btn-secondary">
         Login
       </Link>
     );
