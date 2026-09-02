@@ -20,6 +20,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,6 +37,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
         result = await registerUser({
           fullName: name,
           email,
+          mobile,
           password,
           confirmPassword: password // Simple case for now
         });
@@ -131,6 +133,28 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="John Doe"
+                      className="tv-input"
+                      required
+                    />
+                  </div>
+                )}
+
+                {/* Mobile Field (Signup only). Added because registration now
+                    requires a mobile number - the account exists so we can
+                    reach the customer about their order. Without this field
+                    this modal's signup would be rejected by the API. */}
+                {mode === 'signup' && (
+                  <div>
+                    <label className="tv-label">
+                      Mobile Number
+                    </label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel"
+                      value={mobile}
+                      onChange={(e) => setMobile(e.target.value)}
+                      placeholder="9876543210"
                       className="tv-input"
                       required
                     />

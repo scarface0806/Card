@@ -6,6 +6,8 @@ export interface LoginPayload {
 export interface RegisterPayload {
   fullName: string;
   email: string;
+  /** Bare 10-digit Indian mobile; the API re-validates and normalises it. */
+  mobile: string;
   password: string;
   confirmPassword: string;
 }
@@ -13,6 +15,12 @@ export interface RegisterPayload {
 export interface AuthResponse {
   success: boolean;
   message: string;
+  /**
+   * How many guest orders the register route attached to the new account by
+   * matching the signup email. Lets the signup page route someone with
+   * existing orders straight to /my-orders. Absent on login.
+   */
+  attachedOrders?: number;
   data?: {
     token: string;
     user: {
@@ -79,6 +87,7 @@ export const registerUser = async (payload: RegisterPayload): Promise<AuthRespon
         email: payload.email,
         password: payload.password,
         name: payload.fullName,
+        phone: payload.mobile,
       }),
     });
 
@@ -94,6 +103,7 @@ export const registerUser = async (payload: RegisterPayload): Promise<AuthRespon
     return {
       success: true,
       message: data.message || 'Account created successfully',
+      attachedOrders: typeof data.attachedOrders === 'number' ? data.attachedOrders : 0,
       data: {
         token: data.token,
         user: {

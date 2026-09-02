@@ -163,7 +163,7 @@ export default function LoginPage() {
                 <span className="tv-small">Remember me</span>
               </label>
               <Link
-                href="/contact-us"
+                href="/forgot-password"
                 className="tv-btn-tertiary !min-h-0 !text-sm"
               >
                 Forgot password?

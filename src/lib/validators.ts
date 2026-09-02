@@ -1,12 +1,51 @@
 import { z } from "zod";
 import { OrderStatus } from "@prisma/client";
+import { sanitizePhoneValue } from "@/lib/validations/common";
 
-// User registration validation
+/**
+ * Indian mobile number, normalised to the bare 10 digits we store.
+ *
+ * The rules are copied from personalDetails.mobile in
+ * src/lib/validations/createCardFormSchema.ts on purpose: an account created at
+ * signup and an order placed at checkout must agree on what a valid number is,
+ * or guest orders stop matching accounts by phone. sanitizePhoneValue strips a
+ * +91 / 91 / 0 prefix and every separator first, so "+91 78713 61025",
+ * "078713 61025" and "7871361025" all normalise to the same stored value.
+ */
+const mobileRegex = /^[6-9]\d{9}$/;
+
+export const indianMobileSchema = z
+  .string()
+  .transform((value) => sanitizePhoneValue(value))
+  .pipe(
+    z
+      .string()
+      .min(1, "Mobile number is required")
+      .refine((value) => value.length === 10, {
+        message: "Enter a valid 10-digit mobile number",
+      })
+      .refine((value) => mobileRegex.test(value), {
+        message: "Mobile number must start with 6, 7, 8 or 9",
+      })
+      // 1111111111 and friends pass the two checks above but are never real.
+      .refine((value) => !/^([0-9])\1{9}$/.test(value), {
+        message: "Enter a valid mobile number",
+      })
+  );
+
+/**
+ * User registration.
+ *
+ * `phone` is REQUIRED. The whole point of an account here is that the business
+ * can reach the customer about their order - primarily on WhatsApp - so an
+ * account with no mobile number cannot do the one job it exists for. It used
+ * to be `z.string().optional()` with no format check at all.
+ */
 export const registerSchema = z.object({
   email: z.string().email(),
   password: z.string().min(8),
-  name: z.string().optional(),
-  phone: z.string().optional(),
+  name: z.string().min(2, "Please enter your full name"),
+  phone: indianMobileSchema,
   role: z.enum(["CUSTOMER"]).optional(), // ✅ Only CUSTOMER allowed for public registration
 });
 

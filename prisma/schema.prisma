@@ -607,3 +607,40 @@ model PostSlugRedirect {
   @@index([postId])
   @@map("post_slug_redirects")
 }
+
+// ==================== PASSWORD RESET ====================
+
+/// One row per issued password-reset link.
+///
+/// THE RAW TOKEN IS NEVER STORED. `tokenHash` is a SHA-256 digest of the token
+/// that went out in the email, so a dump of this collection cannot be replayed
+/// to reset anybody's password - the same reasoning as PostView's ipHash.
+///
+/// Deliberately NOT a relation field on User: adding `resetTokens` to User
+/// would mean editing a model the rest of the app already depends on, and this
+/// table only ever needs to look up by userId, which the index below covers.
+///
+/// `usedAt` makes a link single-use. It is set rather than the row deleted so
+/// a replayed link can be told apart from one that never existed, and both can
+/// be answered with the same generic message.
+model PasswordResetToken {
+  id     String @id @default(auto()) @map("_id") @db.ObjectId
+  userId String @db.ObjectId
+
+  /// SHA-256 hex digest of the emailed token, peppered with JWT_SECRET.
+  tokenHash String @unique
+
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  /// Coarse request metadata, for spotting abuse. No raw IP is kept.
+  requestedFromHash String?
+
+  createdAt DateTime @default(now())
+
+  // Lookup by user (to invalidate outstanding links on a successful reset)
+  // and by expiry (for pruning).
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("password_reset_tokens")
+}

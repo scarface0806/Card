@@ -8,6 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ROUTES } from '@/utils/constants';
 import { whatsappLink } from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
+import AccountMenu from '@/components/common/AccountMenu';
 
 const NAV_LINKS = [
   { label: 'Features', href: '/#features' },
@@ -100,9 +101,13 @@ export default function Navbar() {
             ))}
           </ul>
 
-          {/* Actions. Two tiers only: the outline enquiry and the one primary
-              action. The arrow glyph belongs to the primary tier alone. */}
+          {/* Actions. Two button tiers only: the outline enquiry and the one
+              primary action. The arrow glyph belongs to the primary tier
+              alone. The account control sits BEFORE both and is drawn as a
+              navlink or an avatar, never as a third button - adding a third
+              tier here is what would flatten the CTA hierarchy. */}
           <div className="hidden lg:flex items-center gap-3">
+            <AccountMenu />
             <a
               href={whatsappLink()}
               target="_blank"
@@ -199,6 +204,10 @@ export default function Navbar() {
                     <span className="sr-only"> (opens WhatsApp in a new tab)</span>
                   </a>
                 </div>
+
+                {/* Account, below the two CTAs so the primary action stays the
+                    first thing in the panel. */}
+                <AccountMenu variant="mobile" onNavigate={() => setIsOpen(false)} />
               </div>
             </motion.div>
           </>

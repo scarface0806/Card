@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { User, Mail, Lock, Eye, EyeOff, Loader } from 'lucide-react';
+import { User, Mail, Phone, Lock, Eye, EyeOff, Loader } from 'lucide-react';
 import { registerUser } from '@/services/auth';
 import { ROUTES } from '@/utils/constants';
 import GoogleAuthButton from '@/components/GoogleAuthButton';
@@ -12,6 +12,7 @@ import GoogleAuthButton from '@/components/GoogleAuthButton';
 interface SignupFormData {
   fullName: string;
   email: string;
+  mobile: string;
   password: string;
   confirmPassword: string;
   agreeToTerms: boolean;
@@ -33,6 +34,7 @@ export default function SignupPage() {
     defaultValues: {
       fullName: '',
       email: '',
+      mobile: '',
       password: '',
       confirmPassword: '',
       agreeToTerms: false,
@@ -54,6 +56,7 @@ export default function SignupPage() {
       const response = await registerUser({
         fullName: data.fullName,
         email: data.email,
+        mobile: data.mobile,
         password: data.password,
         confirmPassword: data.confirmPassword,
       });
@@ -63,9 +66,13 @@ export default function SignupPage() {
         localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('user', JSON.stringify(response.data.user));
 
-        // Simulate redirect to dashboard or onboarding
+        // A guest checkout under the same email is backfilled onto the new
+        // account by the register route, so send someone straight to their
+        // orders when there is already something there to look at.
+        const destination = response.attachedOrders ? '/my-orders' : '/';
+
         setTimeout(() => {
-          router.push('/');
+          router.push(destination);
         }, 500);
       } else {
         setServerError(response.message || 'Signup failed. Please try again.');
@@ -149,6 +156,56 @@ export default function SignupPage() {
               )}
             </div>
 
+            {/* Mobile Field. Required: the account exists so we can reach the
+                customer about their order, mostly on WhatsApp, and an account
+                with no number cannot do that. Validation mirrors the checkout
+                form's mobile rule exactly - see indianMobileSchema in
+                src/lib/validators.ts - so signup and checkout agree on what a
+                valid number is. */}
+            <div>
+              <label htmlFor="mobile" className="tv-label">
+                Mobile Number
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#C9A961] pointer-events-none" />
+                <input
+                  {...register('mobile', {
+                    required: 'Mobile number is required',
+                    validate: (value) => {
+                      // Strip +91 / 91 / 0 and separators the same way the
+                      // server does before judging the length.
+                      const digits = value.replace(/\D+/g, '');
+                      const local = digits.startsWith('91')
+                        ? digits.slice(2)
+                        : digits.startsWith('0')
+                          ? digits.slice(1)
+                          : digits;
+
+                      if (local.length !== 10) {
+                        return 'Enter a valid 10-digit mobile number';
+                      }
+                      if (!/^[6-9]/.test(local)) {
+                        return 'Mobile number must start with 6, 7, 8 or 9';
+                      }
+                      if (/^([0-9])\1{9}$/.test(local)) {
+                        return 'Enter a valid mobile number';
+                      }
+                      return true;
+                    },
+                  })}
+                  id="mobile"
+                  type="tel"
+                  inputMode="numeric"
+                  autoComplete="tel"
+                  placeholder="9876543210"
+                  className={`tv-input !pl-10 ${errors.mobile ? '!border-[#FF8A80]' : ''}`}
+                />
+              </div>
+              {errors.mobile && (
+                <p className="tv-form-error mt-2">{errors.mobile.message}</p>
+              )}
+            </div>
+
             {/* Password Field */}
             <div>
               <label htmlFor="password" className="tv-label">
@@ -159,9 +216,12 @@ export default function SignupPage() {
                 <input
                   {...register('password', {
                     required: 'Password is required',
+                    // 8, not 6. registerSchema on the server enforces min(8),
+                    // so a 6-character password used to pass client validation
+                    // and then come back as a raw zod message.
                     minLength: {
-                      value: 6,
-                      message: 'Password must be at least 6 characters',
+                      value: 8,
+                      message: 'Password must be at least 8 characters',
                     },
                   })}
                   id="password"
