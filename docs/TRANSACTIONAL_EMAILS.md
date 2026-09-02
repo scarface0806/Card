@@ -45,9 +45,16 @@ Set these in Vercel for **Production, Preview and Development**:
 | Variable | Server-only | Value |
 | --- | --- | --- |
 | `RESEND_API_KEY` | **yes — secret** | from the Resend dashboard |
-| `EMAIL_FROM` | yes | `orders@tapvyo.com` |
+| `RESEND_FROM_EMAIL` | yes | `Tapvyo <noreply@tricomakes.in>` |
 | `EMAIL_REPLY_TO` | yes | `tapvyo@gmail.com` |
 | `NEXT_PUBLIC_SITE_URL` | no (already used) | `https://tapvyo.com` |
+
+`RESEND_FROM_EMAIL` replaces the older `EMAIL_FROM`, which is still read as a
+fallback so nothing breaks mid-migration. **Delete any `EMAIL_FROM` that still
+says `orders@tapvyo.com`** — that value is what produced *"The tapvyo.com
+domain is not verified"* on every send. The domain in this address must be
+verified in Resend; only `tricomakes.in` is. The brand stays in the display
+name, so inboxes still show "Tapvyo".
 
 `RESEND_API_KEY` is read in `src/lib/emails/resend.ts` and nowhere else. It must
 never be given a `NEXT_PUBLIC_` prefix.
@@ -68,7 +75,7 @@ Sending as `orders@tapvyo.com` requires verifying the **root** domain
 > **Status check:** as of the last look, the only verified domain on this Resend
 > account is `tricomakes.in` (region `ap-northeast-1`). **`tapvyo.com` is not on
 > the account at all.** Add it under Domains -> Add Domain, choosing the **root**
-> domain. Until it is verified, `EMAIL_FROM=orders@tapvyo.com` is rejected with a
+> domain. Until it is verified, `RESEND_FROM_EMAIL=orders@tapvyo.com` is rejected with a
 > 403 and every send lands as a `failed` row in `email_log`.
 
 DNS records, exactly as Resend issues them for your region. `tapvyo.com` will

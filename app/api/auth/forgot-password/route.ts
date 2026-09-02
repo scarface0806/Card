@@ -38,10 +38,13 @@ function clientIp(request: NextRequest): string | null {
   return (forwarded.split(",")[0] || realIp || "").trim() || null;
 }
 
+/**
+ * RESEND_API_KEY is the only value that has to be present. The From address
+ * falls back to a verified default in src/lib/emails/resend.ts, so it is no
+ * longer part of the "configured" test.
+ */
 function isResendConfigured(): boolean {
-  return Boolean(
-    process.env.RESEND_API_KEY?.trim() && process.env.EMAIL_FROM?.trim()
-  );
+  return Boolean(process.env.RESEND_API_KEY?.trim());
 }
 
 /**
@@ -61,7 +64,7 @@ async function sendResetEmail(to: string, resetUrl: string): Promise<void> {
       );
     } else {
       console.error(
-        "[Auth] Password reset requested but email is not configured. Set RESEND_API_KEY and EMAIL_FROM."
+        "[Auth] Password reset requested but email is not configured. Set RESEND_API_KEY (and RESEND_FROM_EMAIL) in the environment."
       );
     }
     return;
@@ -104,7 +107,7 @@ async function sendResetEmail(to: string, resetUrl: string): Promise<void> {
       `- The ${SITE_NAME} team`,
     ].join("\n");
 
-    await getResendClient().emails.send({
+    const { error } = await getResendClient().emails.send({
       from: getEmailFrom(),
       to,
       replyTo: getEmailReplyTo(),
@@ -112,13 +115,21 @@ async function sendResetEmail(to: string, resetUrl: string): Promise<void> {
       html,
       text,
     });
+
+    // The SDK returns provider failures in the payload instead of throwing, so
+    // without this check an unverified sending domain looked like a success.
+    // The response the caller gets still must not change - see the note at the
+    // top of this file - so this is a log, not a different reply.
+    if (error) {
+      console.error(
+        "[Auth] Resend rejected the password reset email (the reset link is NOT in this log):",
+        error
+      );
+    }
   } catch (error) {
     // Logged without the URL: the log must not become a place to harvest live
     // reset tokens.
-    console.error(
-      "[Auth] Failed to send password reset email:",
-      error instanceof Error ? error.message : String(error)
-    );
+    console.error("[Auth] Failed to send password reset email:", error);
   }
 }
 

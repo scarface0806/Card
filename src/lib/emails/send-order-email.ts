@@ -242,8 +242,11 @@ async function dispatch(
     return { ok: true, providerId };
   } catch (error) {
     const reason = describeError(error);
+    // Second argument carries the original object: the one-line `reason` is for
+    // the admin drawer, the object is for whoever has to debug the provider.
     console.error(
-      "[order-email] " + type + " for order " + orderId + " failed: " + reason
+      "[order-email] " + type + " for order " + orderId + " failed: " + reason,
+      error
     );
     await settleFailed(orderId, type, reason);
     return { ok: false, skipped: false, reason };
@@ -352,12 +355,43 @@ async function sendViaResend({
     SEND_TIMEOUT_MS
   );
 
-  // The SDK reports API failures in the payload rather than by throwing.
+  // The SDK reports API failures in the payload rather than by throwing, so an
+  // unhandled `error` here is how a send fails silently. Log the whole object -
+  // Resend puts the actionable part (statusCode, and which domain it rejected)
+  // in fields that a bare `error.message` drops.
   if (error) {
-    throw new Error("Resend rejected the send: " + (error.message || error.name));
+    console.error("[order-email] Resend rejected the send:", error);
+    throw new Error(describeResendError(error));
   }
 
   return data?.id ?? null;
+}
+
+/**
+ * Turn a Resend error payload into one line an admin can act on.
+ *
+ * This string is what the admin drawer shows and what lands in
+ * email_log.error, so "The tapvyo.com domain is not verified" becomes a
+ * sentence that names the variable to change rather than a provider message
+ * with no next step.
+ */
+function describeResendError(error: {
+  name?: string;
+  message?: string;
+  statusCode?: number | null;
+}): string {
+  const detail = error.message || error.name || "unknown provider error";
+
+  if (/domain is not verified/i.test(detail)) {
+    return (
+      "Not sent: " +
+      detail +
+      " The From address must use a domain verified in Resend - set RESEND_FROM_EMAIL to an address on the verified domain and redeploy."
+    );
+  }
+
+  const status = error.statusCode ? " (HTTP " + error.statusCode + ")" : "";
+  return "Resend rejected the send" + status + ": " + detail;
 }
 
 function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
