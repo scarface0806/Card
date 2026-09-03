@@ -57,6 +57,12 @@ export function resolveCardBackImage(
   const source = front?.trim();
   if (!source) return null;
 
+  // Inline and object URLs have no sibling to derive - there is no directory
+  // to look in. Appending "-back" to a base64 payload produces a megabyte-long
+  // string that is guaranteed to fail, which is how the flip control ended up
+  // being offered for cards that never had a back face.
+  if (/^(data:|blob:)/i.test(source)) return null;
+
   // Split the URL so `?v=2` / `#frag` survive the rename and are not treated
   // as part of the filename.
   const suffixStart = source.search(/[?#]/);

@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Wifi } from 'lucide-react';
 import NFCCard from '@/components/ui/NFCCard';
 import CardFlipImage from '@/components/ui/CardFlipImage';
+import CardArtwork from '@/components/ui/CardArtwork';
 
 interface CardPreviewModalProps {
   isOpen: boolean;
@@ -91,12 +92,15 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                     front={
                       card.images?.[0] || card.image ? (
                         <>
-                          <img
+                          {/* CardArtwork, not a bare <img>: a URL that 404s
+                              used to leave an empty box with the gradient
+                              showing through and no explanation. */}
+                          <CardArtwork
                             src={card.images?.[0] || card.image}
                             alt={`${card.name} NFC card`}
+                            name={card.name}
                             width={480}
                             height={300}
-                            className="h-full w-full object-cover"
                           />
 
                           <div className="absolute right-4 top-4">

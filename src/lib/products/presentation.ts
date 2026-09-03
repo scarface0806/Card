@@ -104,6 +104,46 @@ export function deriveFeatureBullets(tier: CardTier): string[] {
   return [...CARD_FEATURES];
 }
 
+/**
+ * A product description, split into the lines it was written as.
+ *
+ * RENDER-LAYER ONLY. The stored value is not touched.
+ *
+ * The admin description field is a plain <textarea>, so a description entered
+ * as a list of features keeps its newlines in the database. Rendering that
+ * value inside a single <p> collapses every newline to a space, which is how
+ * "Premium Digital Profile / Direct Contact Form Access / Google Maps Location"
+ * arrived on screen as one run-together sentence. Splitting it back out here
+ * restores what the admin actually typed.
+ *
+ * Newlines first, then the bullet characters people reach for when a field
+ * looks single-line. Leading list markers are stripped so a line does not end
+ * up with two bullets once `.tv-spec-row` adds its own.
+ *
+ * A description with no separator at all returns a single entry, and the
+ * caller renders it as an ordinary paragraph - a real sentence is never
+ * chopped up on guesswork.
+ */
+export function descriptionLines(description?: string | null): string[] {
+  const value = description?.trim();
+  if (!value) return [];
+
+  const byNewline = value
+    .split(/\r?\n+/)
+    .map((line) => line.trim())
+    .filter(Boolean);
+
+  const parts =
+    byNewline.length > 1
+      ? byNewline
+      : value
+          .split(/\s*[•|;]\s*/)
+          .map((line) => line.trim())
+          .filter(Boolean);
+
+  return parts.map((line) => line.replace(/^[-–—*•]\s*/, "").trim()).filter(Boolean);
+}
+
 /** Human label for the tier badge. */
 export function tierLabel(tier: CardTier): string {
   if (tier === "premium") return "Premium";

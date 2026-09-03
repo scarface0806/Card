@@ -8,6 +8,7 @@ import { Eye, ArrowUpRight, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
 import NFCCard from '@/components/ui/NFCCard';
 import CardFlipImage from '@/components/ui/CardFlipImage';
+import CardArtwork from '@/components/ui/CardArtwork';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
 import { ContactSource } from '@/components/ContactModal';
@@ -116,13 +117,14 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       /* Photograph where there is one, the drawn finish
                          otherwise — same rule as the /cards catalogue. */
                       card.images?.[0] ? (
-                        <img
+                        <CardArtwork
                           src={card.images[0]}
                           alt={`${card.name} NFC card`}
+                          name={card.name}
+                          label={card.material || undefined}
                           width={480}
                           height={300}
                           loading="lazy"
-                          className="h-full w-full object-cover"
                         />
                       ) : (
                         <NFCCard

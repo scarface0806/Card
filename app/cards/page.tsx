@@ -7,6 +7,7 @@ import Footer from '@/layouts/Footer';
 import CardPreviewModal from '@/components/CardPreviewModal';
 import NFCCard from '@/components/ui/NFCCard';
 import CardFlipImage from '@/components/ui/CardFlipImage';
+import CardArtwork from '@/components/ui/CardArtwork';
 import ContactModal, { ContactSource } from '@/components/ContactModal';
 import AuthModal from '@/components/AuthModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
@@ -194,13 +195,14 @@ export default function CardsPage() {
                            finish is drawn. Every design carries a gradient, so
                            nothing needs to fall back to a grey placeholder. */
                         card.images?.[0] ? (
-                          <img
+                          <CardArtwork
                             src={card.images[0]}
                             alt={`${card.name} NFC card`}
+                            name={card.name}
+                            label={card.material || undefined}
                             width={480}
                             height={300}
                             loading="lazy"
-                            className="h-full w-full object-cover"
                           />
                         ) : (
                           <NFCCard

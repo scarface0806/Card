@@ -3,7 +3,8 @@
 import { useState, type ReactNode } from 'react';
 import { RotateCw } from 'lucide-react';
 
-import { resolveCardBackImage } from '@/lib/cardImages';
+import { useCardBackImage } from '@/hooks/useCardBackImage';
+import CardArtwork from '@/components/ui/CardArtwork';
 
 /**
  * CARD FLIP IMAGE — the image area of a card, with a back face behind it.
@@ -20,10 +21,18 @@ import { resolveCardBackImage } from '@/lib/cardImages';
  * the control.
  *
  * DEGRADES TO NOTHING
- * When there is no derivable back image, or the back image 404s, the control
- * is not rendered and the markup collapses to the front face inside its box —
- * byte-for-byte what the caller had before. There is deliberately no grey
- * placeholder and no broken <img>: a card with no back simply has no back.
+ * The back face is only offered once its URL has actually been fetched - see
+ * useCardBackImage, which probes it off-DOM rather than waiting for an
+ * `onError` from a lazy, rotated-away <img> that the browser may never load.
+ * With no back face the markup collapses to the front inside its box, which is
+ * byte-for-byte what the caller had before.
+ *
+ * CONTROLLED OR NOT
+ * Left alone it owns its own flip state and draws its own corner control -
+ * that is what the catalogue tiles want. Pass `flipped` + `onFlipChange` and
+ * it becomes controlled, so a parent (the Quick-view lightbox, with its
+ * segmented Front/Back buttons and arrow keys) can drive it; pass
+ * `showControl={false}` to suppress the corner button in that case.
  *
  * MOTION
  * A 3D rotateY, 560ms, on the compositor only. Under
@@ -56,6 +65,12 @@ interface CardFlipImageProps {
   imageClassName?: string;
   /** Corner the control sits in. Defaults to top-left, clear of the NFC mark. */
   controlClassName?: string;
+  /** Controlled flip state. Omit to let the component own it. */
+  flipped?: boolean;
+  /** Required for controlled use. */
+  onFlipChange?: (next: boolean) => void;
+  /** Draw the built-in corner control. Off when a parent supplies its own. */
+  showControl?: boolean;
 }
 
 export default function CardFlipImage({
@@ -68,32 +83,37 @@ export default function CardFlipImage({
   style,
   imageClassName = 'h-full w-full object-cover',
   controlClassName = 'left-3 top-3',
+  flipped: flippedProp,
+  onFlipChange,
+  showControl = true,
 }: CardFlipImageProps) {
-  const backSrc = resolveCardBackImage(frontSrc, backImage);
+  // Probed, not guessed: `available` only turns true once the bytes arrive.
+  const { backSrc, available } = useCardBackImage(frontSrc, backImage);
 
-  const [flipped, setFlipped] = useState(false);
-  // Set when the derived URL turns out not to exist. Once true the control and
-  // the back face are gone for good, for this URL.
-  const [backFailed, setBackFailed] = useState(false);
+  const [uncontrolledFlipped, setUncontrolledFlipped] = useState(false);
+  const isControlled = flippedProp !== undefined;
+  const flipped = isControlled ? flippedProp : uncontrolledFlipped;
 
-  // A new product in the same slot is a different card: drop both bits of
-  // state, or a tile could stay flipped onto a back face that is not its own,
-  // and one card's 404 would suppress the control on the card that replaced
-  // it. Adjusted during render rather than in an effect - React re-runs this
-  // component immediately, before touching the DOM, so there is no flash of
-  // the previous card's back face and no cascading second paint.
+  const setFlipped = (next: boolean) => {
+    if (!isControlled) setUncontrolledFlipped(next);
+    onFlipChange?.(next);
+  };
+
+  // A new product in the same slot is a different card: drop the flip, or a
+  // tile could stay turned over onto a back face that is not its own. Adjusted
+  // during render rather than in an effect - React re-runs this component
+  // immediately, before touching the DOM, so there is no flash of the previous
+  // card's back face and no cascading second paint.
   const [renderedFor, setRenderedFor] = useState(backSrc);
   if (renderedFor !== backSrc) {
     setRenderedFor(backSrc);
-    setFlipped(false);
-    setBackFailed(false);
+    if (!isControlled) setUncontrolledFlipped(false);
   }
 
-  const hasBack = Boolean(backSrc) && !backFailed;
-  const showingBack = hasBack && flipped;
+  const showingBack = available && flipped;
 
   // No back face: render exactly what the caller would have rendered alone.
-  if (!hasBack) {
+  if (!available) {
     return (
       <div className={`relative ${className}`} style={style}>
         {front}
@@ -116,18 +136,12 @@ export default function CardFlipImage({
           className="tv-flip-face tv-flip-face-back"
           aria-hidden={!showingBack || undefined}
         >
-          <img
-            src={backSrc ?? undefined}
+          <CardArtwork
+            src={backSrc}
             alt={`${name} NFC card, back`}
-            loading="lazy"
+            name={name}
+            label="Back"
             className={imageClassName}
-            // The derived URL is a guess until the browser proves otherwise.
-            // A miss retires the whole feature for this card rather than
-            // leaving a broken image behind the front face.
-            onError={() => {
-              setBackFailed(true);
-              setFlipped(false);
-            }}
           />
         </div>
       </div>
@@ -136,17 +150,20 @@ export default function CardFlipImage({
         Click anywhere on the artwork to flip. Deliberately inert to assistive
         tech and to the keyboard: the labelled control below is the accessible
         path, and exposing this as a second tab stop would announce the same
-        action twice.
+        action twice. Suppressed alongside the control when a parent owns the
+        interaction.
       */}
-      <button
-        type="button"
-        tabIndex={-1}
-        aria-hidden="true"
-        onClick={() => setFlipped((current) => !current)}
-        className="absolute inset-0 z-10 cursor-pointer"
-      >
-        <span className="sr-only">Flip card</span>
-      </button>
+      {showControl ? (
+        <button
+          type="button"
+          tabIndex={-1}
+          aria-hidden="true"
+          onClick={() => setFlipped(!flipped)}
+          className="absolute inset-0 z-10 cursor-pointer"
+        >
+          <span className="sr-only">Flip card</span>
+        </button>
+      ) : null}
 
       {/* Above the click target, so a scrim can still hold its own buttons. */}
       {overlay}
@@ -156,27 +173,29 @@ export default function CardFlipImage({
         card face itself (0.625rem, 600, uppercase, wide tracking) so it reads
         as part of the card rather than as chrome dropped on top of it.
       */}
-      <button
-        type="button"
-        onClick={() => setFlipped((current) => !current)}
-        aria-pressed={showingBack}
-        aria-label={
-          showingBack
-            ? `Show the front of the ${name} card`
-            : `Show the back of the ${name} card`
-        }
-        className={`tv-focus absolute z-30 inline-flex items-center gap-1.5 rounded-full border border-[#F1F3F1]/40 bg-[#070A09]/72 px-2.5 py-1.5 text-[#F1F3F1] backdrop-blur-[2px] transition-colors duration-200 hover:bg-[#070A09]/88 hover:border-[#F1F3F1]/60 ${controlClassName}`}
-        style={{
-          fontFamily: 'var(--font-mono), ui-monospace, monospace',
-          fontSize: '0.625rem',
-          fontWeight: 600,
-          letterSpacing: '0.14em',
-          textTransform: 'uppercase',
-        }}
-      >
-        <RotateCw className="h-3 w-3" strokeWidth={1.8} aria-hidden="true" />
-        <span aria-hidden="true">{showingBack ? 'View front' : 'View back'}</span>
-      </button>
+      {showControl ? (
+        <button
+          type="button"
+          onClick={() => setFlipped(!flipped)}
+          aria-pressed={showingBack}
+          aria-label={
+            showingBack
+              ? `Show the front of the ${name} card`
+              : `Show the back of the ${name} card`
+          }
+          className={`tv-focus absolute z-30 inline-flex items-center gap-1.5 rounded-full border border-[#F1F3F1]/40 bg-[#070A09]/72 px-2.5 py-1.5 text-[#F1F3F1] backdrop-blur-[2px] transition-colors duration-200 hover:bg-[#070A09]/88 hover:border-[#F1F3F1]/60 ${controlClassName}`}
+          style={{
+            fontFamily: 'var(--font-mono), ui-monospace, monospace',
+            fontSize: '0.625rem',
+            fontWeight: 600,
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+          }}
+        >
+          <RotateCw className="h-3 w-3" strokeWidth={1.8} aria-hidden="true" />
+          <span aria-hidden="true">{showingBack ? 'View front' : 'View back'}</span>
+        </button>
+      ) : null}
     </div>
   );
 }

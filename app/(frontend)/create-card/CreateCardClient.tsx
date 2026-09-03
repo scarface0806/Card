@@ -25,6 +25,7 @@ import {
   getStepFieldNames,
   type CreateCardFormValues,
 } from '@/lib/validations/createCardFormSchema';
+import { descriptionLines } from '@/lib/products/presentation';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   loading: () => (
@@ -97,7 +98,7 @@ export default function CreateCardClient({
     },
   });
 
-  const { handleSubmit, watch } = methods;
+  const { handleSubmit } = methods;
 
   // One flag for every "do not let them click again" state - form submit,
   // order creation, the Checkout modal being open, and verification.
@@ -109,10 +110,11 @@ export default function CreateCardClient({
         ? 'Confirming payment...'
         : 'Placing order...';
 
-  // Watch specific fields for live preview - real-time updates
-  const fullName = watch('personalDetails.name') ?? '';
-  const designation = watch('personalDetails.designation') ?? '';
-  const company = watch('personalDetails.company') ?? '';
+  // The name/designation/company watchers that used to live here fed the
+  // typed-details overlay on the card preview. That overlay is gone, so the
+  // subscriptions went with it - the checkout page no longer re-renders on
+  // every keystroke. The FIELDS THEMSELVES ARE UNCHANGED: still registered,
+  // still validated, still submitted.
 
   /**
    * Advance one step, validating only the fields that step actually renders.
@@ -342,12 +344,7 @@ export default function CreateCardClient({
                   </span>
                 </div>
 
-                <CardLivePreview
-                  fullName={fullName}
-                  designation={designation}
-                  company={company}
-                  product={product}
-                />
+                <CardLivePreview product={product} />
 
                 <div className="mt-5 flex items-baseline justify-between gap-3">
                   <p className="tv-h4">{product.name}</p>
@@ -362,9 +359,23 @@ export default function CreateCardClient({
                   </p>
                 )}
 
-                {product.description && (
+                {/* A description written as a list of features keeps its
+                    newlines in the database, and a single <p> collapsed every
+                    one of them into a space - which is why four features
+                    arrived as one run-together sentence. Split at the render
+                    layer only; the stored value is untouched. A genuine
+                    one-sentence description still renders as a paragraph. */}
+                {descriptionLines(product.description).length > 1 ? (
+                  <ul className="tv-spec mt-3">
+                    {descriptionLines(product.description).map((line) => (
+                      <li key={line} className="tv-spec-row">
+                        {line}
+                      </li>
+                    ))}
+                  </ul>
+                ) : product.description ? (
                   <p className="tv-small mt-3">{product.description}</p>
-                )}
+                ) : null}
 
                 <hr className="tv-rule my-5" />
 
