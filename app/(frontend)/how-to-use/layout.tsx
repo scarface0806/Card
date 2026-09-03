@@ -8,7 +8,7 @@ import { pageMetadata } from '@/lib/page-metadata';
 export const metadata = pageMetadata({
   title: "How It Works",
   description:
-    "How a Tapvyo NFC card works - tap to share, edit your profile any time, no app needed for the person you tap.",
+    "How a Tapvyo NFC card works - tap to share, no app needed for the person you tap, and profile updates handled by our team.",
   path: "/how-to-use",
 });
 

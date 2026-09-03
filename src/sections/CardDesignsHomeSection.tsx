@@ -78,8 +78,11 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
               </p>
             </div>
 
+            {/* "No hidden charges" was dropped: profile updates cost ₹49, so
+                the blanket claim is no longer true. "One-time payment" says the
+                same thing about the card without overreaching. */}
             <ul className="flex flex-wrap gap-x-6 gap-y-2 lg:justify-end shrink-0">
-              <li className="tv-mono">No hidden charges</li>
+              <li className="tv-mono">One-time payment</li>
               <li className="tv-mono">No renewal fees</li>
             </ul>
           </motion.div>
@@ -244,7 +247,9 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                   </a>
                   , not just a card.
                 </h3>
-                <p className="tv-body tv-measure-body">No hidden charges. No renewal fees.</p>
+                <p className="tv-body tv-measure-body">
+                  One-time payment. No renewal fees. Profile updates ₹49 each.
+                </p>
               </div>
 
               <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end items-start sm:items-center gap-x-6 gap-y-4">

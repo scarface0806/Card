@@ -235,7 +235,7 @@ export default function ProductsPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="tv-lead max-w-2xl mx-auto"
             >
-              Find the perfect plan for your professional needs. No hidden fees, cancel anytime.
+              Find the perfect plan for your professional needs. One-time payment, no renewal fees.
             </motion.p>
           </div>
         </section>

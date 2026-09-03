@@ -7,9 +7,9 @@ import { ROUTES } from '@/utils/constants';
 
 const steps = [
   {
-    title: 'Build your profile',
+    title: 'Send us your details',
     description:
-      'Add your details, links and photo. It takes a few minutes, and you can change any of it later.',
+      'Your details, links and photo. It takes a few minutes, and we build the profile from there.',
     number: '01',
   },
   {

@@ -128,7 +128,12 @@ export default function RefundPolicyPage() {
         'Every Tapvyo card includes a free lifetime digital profile. It is bundled with the card at no separate charge, so there is no separate amount to refund for it and no subscription to cancel. If your card order is cancelled and refunded before production, the associated profile is deactivated at the same time. A refund of a card does not entitle you to a separate refund for the profile, because nothing was charged for it.',
     },
     {
-      title: '11. Changes to this policy',
+      title: '11. Profile update charges',
+      content:
+        'Profile updates are made by our team on request and are charged ₹49 per request. Because the work is carried out as soon as the request is paid for, an update charge is not refundable once the change has been made to your profile. If we make a mistake carrying out your request, we will correct it at no further charge. If you pay an update charge and we are unable to make the change, the ₹49 is refunded in full by the method described in section 8. Update charges are separate from the price of the card and do not affect your rights over the card order itself.',
+    },
+    {
+      title: '12. Changes to this policy',
       content:
         'We may update this policy from time to time. The version published on this page at the moment you place your order is the version that applies to that order. The last updated date is shown at the top of this page.',
     },

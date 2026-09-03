@@ -86,12 +86,15 @@ export function deriveCardColor(product: ProductPresentationInput): string {
 /**
  * What every card includes, regardless of tier. Shown on the checkout rail and
  * in the catalogue spec block, so the two cannot drift.
+ *
+ * There is deliberately no "edit your details" bullet here. Profile updates are
+ * not self-service - they are a WhatsApp request handled by the team, and they
+ * are charged, so listing them as an included feature would be untrue.
  */
 export const CARD_FEATURES: readonly string[] = [
   "Free digital profile, hosted forever",
   "NFC chip encoded and ready to tap",
   "QR code for phones without NFC",
-  "Edit your details any time",
 ] as const;
 
 export function deriveFeatureBullets(tier: CardTier): string[] {

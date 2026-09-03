@@ -43,7 +43,7 @@ const features = [
   {
     icon: Lock,
     title: 'You choose what shows',
-    description: 'Every field is yours to publish or keep private, and you can change it anytime.',
+    description: 'Every field is yours to publish or keep private. You tell us what the tap should show.',
     span: 'md:col-span-2',
   },
 ];
@@ -128,7 +128,12 @@ export default function FeaturesSection() {
             Get your card
             <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
           </MotionLink>
-          <p className="tv-small">No hidden charges. No renewal fees.</p>
+          {/* The old line read "No hidden charges. No renewal fees." Profile
+              updates are ₹49 each, so the fee is stated here rather than left
+              for the customer to discover later. */}
+          <p className="tv-small">
+            One-time payment. No renewal fees. Profile updates ₹49 each.
+          </p>
         </motion.div>
       </div>
     </section>

@@ -30,9 +30,11 @@ const itemVariants = {
 // leaving a single small object floating in empty space.
 // Every value here restates a claim that already exists elsewhere in the
 // codebase (FAQ answers / the "No Renewal Fees" chip). Nothing new is asserted.
+// "Hosted forever" replaced "Edit anytime": the profile is not self-editable,
+// updates are a paid WhatsApp request handled by the team.
 const cardSpecs = [
   { label: 'Works with', value: 'iPhone & Android' },
-  { label: 'Profile', value: 'Edit anytime' },
+  { label: 'Profile', value: 'Hosted forever' },
   { label: 'Renewal fees', value: 'None' },
 ];
 

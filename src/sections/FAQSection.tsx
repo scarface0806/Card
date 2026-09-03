@@ -5,8 +5,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/utils/constants';
+import { whatsappLink } from '@/lib/site-config';
 
-const faqItems = [
+// `content` is usually a plain string. The update answer needs a real WhatsApp
+// link inside the prose, so the field is a ReactNode and the panel renders it
+// as-is. An <a> is inline, so the surrounding <p> stays valid.
+const faqItems: { id: string; title: string; content: React.ReactNode }[] = [
   {
     id: 'q1',
     title: 'What is NFC technology?',
@@ -22,8 +26,21 @@ const faqItems = [
   {
     id: 'q3',
     title: 'How do I update my information?',
-    content:
-      'You can update your information anytime from your dashboard. Changes are reflected instantly. No need to reorder cards or worry about outdated contact details.',
+    content: (
+      <>
+        Updates are done by our team, not from a dashboard. Send us the change on{' '}
+        <a
+          href={whatsappLink('Hi, I want to update my Tapvyo profile details')}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="tv-btn-tertiary !min-h-0 !text-inherit"
+        >
+          WhatsApp
+        </a>{' '}
+        and we make it for you. Each update request is ₹49. Your card never needs
+        reprinting - the link on the chip stays the same.
+      </>
+    ),
   },
   {
     id: 'q4',

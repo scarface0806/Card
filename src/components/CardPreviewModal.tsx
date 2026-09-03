@@ -88,7 +88,14 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                     frontSrc={card.images?.[0] || card.image}
                     backImage={card.backImage}
                     name={card.name}
-                    className="absolute inset-0"
+                    /* NOT "absolute inset-0". CardFlipImage puts `relative` on
+                       its own box, and Tailwind emits .relative after .absolute,
+                       so the caller's `absolute` lost and `inset-0` stopped
+                       sizing anything - the box collapsed to zero height and the
+                       card face vanished, leaving only the flip control and the
+                       parent gradient. The parent already carries the aspect
+                       ratio, so filling it is all this needs to do. */
+                    className="h-full w-full"
                     front={
                       card.images?.[0] || card.image ? (
                         <>

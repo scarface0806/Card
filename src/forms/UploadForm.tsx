@@ -36,8 +36,8 @@ export default function UploadForm() {
         <span className="tv-eyebrow">Step 04</span>
         <h2 className="tv-h3 mt-3">Your photo</h2>
         <p className="tv-small mt-2 tv-measure-body">
-          Shown at the top of your digital profile. You can change it later from your
-          dashboard.
+          Shown at the top of your digital profile. Pick the one you want us to
+          publish — changing it later is a ₹49 update request on WhatsApp.
         </p>
       </header>
 

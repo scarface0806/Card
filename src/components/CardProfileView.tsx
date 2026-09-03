@@ -531,8 +531,8 @@ export default function CardProfileView({ card }: CardProfileViewProps) {
                 <h2 className="tv-h2 mb-4">Want a profile like this one?</h2>
                 <p className="tv-body tv-measure-body">
                   This page came free with a {BRAND.name} NFC card. Set up yours in under
-                  two minutes — one tap shares your details, and you can edit them
-                  whenever they change.
+                  two minutes — send us your details and one tap shares them from
+                  then on.
                 </p>
               </div>
 

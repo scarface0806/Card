@@ -333,7 +333,7 @@ export default function CardsPage() {
               , not just a card.
             </h2>
             <p className="tv-lead tv-measure-body">
-              No subscriptions. No hidden costs. Built to scale with you.
+              No subscriptions. No renewal fees. Built to scale with you.
             </p>
           </motion.div>
 

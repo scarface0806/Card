@@ -3,9 +3,10 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { User, Globe, Wifi, ArrowUpRight } from 'lucide-react';
+import { User, Globe, Wifi, ArrowUpRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/utils/constants';
+import { PHONE_DISPLAY, whatsappLink } from '@/lib/site-config';
 
 export default function HowToUsePage() {
   const steps = [
@@ -74,7 +75,7 @@ export default function HowToUsePage() {
               >
                 <p className="tv-lead">
                   A modern way to share your professional identity instantly — and a
-                  profile you can edit long after the card is printed.
+                  profile we keep online long after the card is printed.
                 </p>
               </motion.div>
             </div>
@@ -147,6 +148,57 @@ export default function HowToUsePage() {
           </div>
         </section>
 
+        {/* PROFILE UPDATES — sits directly after the three steps because it is
+            what happens next. Deliberately explicit: there is no self-serve
+            editor, and an update is a paid request. */}
+        <section className="tv-surface-ink tv-section-tight">
+          <div className="site-container">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-start">
+              <motion.div {...fadeInUp} className="lg:col-span-5">
+                <p className="tv-eyebrow mb-6">Profile updates</p>
+                <h2 className="tv-h2 mb-4">Changed a detail? We update it for you.</h2>
+                <p className="tv-body tv-measure-body">
+                  Updates are handled by the Tapvyo team, not from a dashboard. Your
+                  card is never reprinted — the link encoded on the chip stays the
+                  same, so only the page behind it changes.
+                </p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="lg:col-span-7"
+              >
+                <ul className="tv-spec">
+                  <li className="tv-spec-row">
+                    Send your change request on WhatsApp ({PHONE_DISPLAY}) — tell us
+                    which fields to change and what they should say
+                  </li>
+                  <li className="tv-spec-row">Each update request is ₹49</li>
+                  {/* TODO: confirm the real turnaround before launch. The
+                      wording below is a placeholder - do not ship unverified. */}
+                  <li className="tv-spec-row">
+                    Your profile is updated within 1 working day [CONFIRM]
+                  </li>
+                </ul>
+
+                <a
+                  href={whatsappLink('Hi, I want to update my Tapvyo profile details')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block sm:!w-auto mt-8"
+                >
+                  <MessageCircle className="w-[18px] h-[18px]" aria-hidden="true" />
+                  Request an update
+                  <span className="sr-only"> (opens WhatsApp in a new tab)</span>
+                </a>
+              </motion.div>
+            </div>
+          </div>
+        </section>
+
         {/* WHO IT IS FOR — a quiet spec row. The four emoji tiles are gone. */}
         <section className="tv-surface-graphite tv-section-tight">
           <div className="site-container">
@@ -185,8 +237,8 @@ export default function HowToUsePage() {
               <div className="lg:col-span-7">
                 <h2 className="tv-h2 mb-4">Ready when you are.</h2>
                 <p className="tv-body tv-measure-body">
-                  Order your NFC card today. You can upgrade or customise your digital
-                  profile at any time afterwards.
+                  Order your NFC card today. Send us your details and we build the
+                  profile for you.
                 </p>
               </div>
 

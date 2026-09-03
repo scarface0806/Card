@@ -91,7 +91,12 @@ export default function PaymentForm({ product }: PaymentFormProps) {
           <span className="tv-summary-total-val">{formatPrice(total)}</span>
         </div>
 
-        <p className="tv-small mt-3">One-time payment · No hidden charges · No renewals</p>
+        {/* "No hidden charges" removed - profile updates are ₹49 each, and
+            checkout is the right place to say so rather than the first place a
+            customer finds out. */}
+        <p className="tv-small mt-3">
+          One-time payment · No renewals · Profile updates ₹49 each
+        </p>
       </section>
 
       {/* Payment method — Razorpay Checkout covers every method natively,

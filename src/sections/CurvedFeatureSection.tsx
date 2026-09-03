@@ -104,7 +104,7 @@ export default function CurvedFeatureSection() {
     {
       icon: <Shield className="w-5 h-5 text-white" />,
       title: 'Full Control Over Your Profile',
-      description: 'Update your digital card anytime with real-time changes.',
+      description: 'You decide what your profile shows. We keep it live and hosted.',
     },
     {
       icon: <Users className="w-5 h-5 text-white" />,
@@ -197,7 +197,7 @@ export default function CurvedFeatureSection() {
           <FeatureCard
             icon={<Shield className="w-5 h-5 text-white" />}
             title="Full Control Over Your Profile"
-            description="Update your digital card anytime with real-time changes."
+            description="You decide what your profile shows. We keep it live and hosted."
             className="top-10 right-[8%]"
             floatVariant="medium"
             delay={0.3}

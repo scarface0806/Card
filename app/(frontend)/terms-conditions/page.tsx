@@ -37,12 +37,17 @@ export default function TermsPage() {
         'Tapvyo has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Tapvyo of the site. Use of any such linked website is at the user\'s own risk.',
     },
     {
-      title: '7. Modifications',
+      title: '7. Profile Updates',
+      content:
+        'Your digital profile is maintained by Tapvyo. It is not self-service: there is no customer-facing editor, and changes to a published profile are made by our team on request. To request a change, message us on WhatsApp at +91 78713 61025 with your Order ID and the details you want changed. Each update request is charged ₹49, payable before the update is made. A single request may cover more than one field. The charge applies to changes you ask for; correcting an error made by us in transcribing details you originally supplied is free. Updating a profile does not require reprinting your card, as the link encoded on the NFC chip does not change.',
+    },
+    {
+      title: '8. Modifications',
       content:
         'Tapvyo may revise these terms and conditions for its Site at any time without notice. By using this Site, you are agreeing to be bound by the then current version of these terms and conditions.',
     },
     {
-      title: '8. Governing Law',
+      title: '9. Governing Law',
       content:
         'These terms and conditions are governed by and construed in accordance with the laws of India, and you irrevocably submit to the exclusive jurisdiction of the courts in that location.',
     },

@@ -371,7 +371,7 @@ export default function PreviewWebsitePage() {
 
                 <div className="tv-spec">
                   <p className="tv-spec-row">Programmed NFC chip — works on any modern phone</p>
-                  <p className="tv-spec-row">Profile you can edit long after the card is printed</p>
+                  <p className="tv-spec-row">Profile hosted for you long after the card is printed</p>
                   <p className="tv-spec-row">Shareable link and QR code for anyone without NFC</p>
                 </div>
               </motion.div>
@@ -611,8 +611,8 @@ export default function PreviewWebsitePage() {
               <div className="lg:col-span-7">
                 <h2 className="tv-h2 mb-4">This profile comes free with your card.</h2>
                 <p className="tv-body tv-measure-body">
-                  Every Tapvyo NFC card includes a profile like this one — yours to edit
-                  whenever your details change.
+                  Every Tapvyo NFC card includes a profile like this one — built by our
+                  team from the details you send us.
                 </p>
               </div>
 
