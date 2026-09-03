@@ -6,12 +6,38 @@ import prisma from "@/lib/prisma";
 
 export const runtime = "nodejs";
 
+/** Every field the API returns for a product. Kept in one place so the GET,
+ *  the POST and the mapper cannot drift apart. */
+const PRODUCT_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  price: true,
+  salePrice: true,
+  images: true,
+  backImage: true,
+  cardType: true,
+  material: true,
+  color: true,
+  isActive: true,
+  isFeatured: true,
+  createdAt: true,
+} as const;
+
 type ProductInput = {
   name: string;
   description: string;
   price: number;
   image: string;
   imageUrl?: string;
+  /**
+   * The back of the card. OPTIONAL, unlike `image` - a product with no back
+   * image is entirely normal, and the catalogue just does not offer the flip.
+   * `null` means "no back image", and is written as such so that clearing the
+   * field in the admin form actually clears it.
+   */
+  backImage: string | null;
 };
 
 function normalizeProductInput(payload: unknown): ProductInput {
@@ -23,6 +49,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
   const name = String(input.name || "").trim();
   const description = String(input.description || "").trim();
   const image = String(input.image || input.imageUrl || "").trim();
+  const backImage = String(input.backImage || input.backImageUrl || "").trim();
   const priceNumber = Number(input.price);
 
   if (!name) {
@@ -47,6 +74,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
     price: priceNumber,
     image,
     imageUrl: String(input.imageUrl || "").trim() || undefined,
+    backImage: backImage || null,
   };
 }
 
@@ -58,6 +86,7 @@ function mapProduct(p: {
   price: number;
   salePrice: number | null;
   images: string[];
+  backImage: string | null;
   cardType: string | null;
   material: string | null;
   color: string | null;
@@ -74,6 +103,8 @@ function mapProduct(p: {
     salePrice: p.salePrice,
     images: p.images || [],
     image: p.images[0] || "",
+    // Nullable, not "": the client treats absent as "this card has no back".
+    backImage: p.backImage || null,
     cardType: p.cardType,
     material: p.material,
     color: p.color,
@@ -94,21 +125,7 @@ export async function GET(request: NextRequest) {
       where: { isActive: true },
       orderBy: { createdAt: "desc" },
       take: limit > 0 ? limit : undefined,
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        price: true,
-        salePrice: true,
-        images: true,
-        cardType: true,
-        material: true,
-        color: true,
-        isActive: true,
-        isFeatured: true,
-        createdAt: true,
-      },
+      select: PRODUCT_SELECT,
     });
 
     return successResponse({
@@ -147,27 +164,14 @@ async function createProductHandler(request: NextRequest, _user: AuthUser) {
         description: parsed.description,
         price: parsed.price,
         images: [parsed.image],
+        backImage: parsed.backImage,
         slug: `product-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
         isActive: true,
         tags: [],
         stock: 0,
         isFeatured: false,
       },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        price: true,
-        salePrice: true,
-        images: true,
-        cardType: true,
-        material: true,
-        color: true,
-        isActive: true,
-        isFeatured: true,
-        createdAt: true,
-      },
+      select: PRODUCT_SELECT,
     });
 
     return successResponse(

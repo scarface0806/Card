@@ -28,6 +28,8 @@ export interface SelectedProduct {
   description: string | null;
   /** Absolute URL of the artwork the admin uploaded, or null. */
   imageUrl: string | null;
+  /** The back of the card, or null when the admin did not upload one. */
+  backImageUrl: string | null;
   /** Gradient for the live preview when the product has no photograph. */
   color: string;
   features: string[];

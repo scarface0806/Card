@@ -39,6 +39,8 @@ export interface CreateProductData {
   price: number;
   salePrice?: number;
   images?: string[];
+  /** The back of the card. Optional - a product without one does not flip. */
+  backImage?: string | null;
   category?: string;
   tags?: string[];
   sku?: string;

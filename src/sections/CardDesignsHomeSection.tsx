@@ -7,6 +7,7 @@ import { motion } from 'framer-motion';
 import { Eye, ArrowUpRight, Loader2 } from 'lucide-react';
 import CardPreviewModal from '@/components/CardPreviewModal';
 import NFCCard from '@/components/ui/NFCCard';
+import CardFlipImage from '@/components/ui/CardFlipImage';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
 import { ContactSource } from '@/components/ContactModal';
@@ -102,41 +103,55 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                   variants={itemVariants}
                   className="group tv-panel flex flex-col h-full overflow-hidden"
                 >
-                  {/* Card Preview */}
-                  <div className="relative aspect-[1.6/1] overflow-hidden bg-[#151C1A]">
-                    {/* Photograph where there is one, the drawn finish
-                        otherwise — same rule as the /cards catalogue. */}
-                    {card.images?.[0] ? (
-                      <img
-                        src={card.images[0]}
-                        alt={`${card.name} NFC card`}
-                        width={480}
-                        height={300}
-                        loading="lazy"
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <NFCCard
-                        name={card.name}
-                        color={card.color}
-                        label={card.material || undefined}
-                      />
-                    )}
+                  {/* Card Preview. The front face is unchanged; CardFlipImage
+                      adds the back behind it and the control to turn it over,
+                      and collapses back to exactly this markup when the card
+                      has no back image. */}
+                  <CardFlipImage
+                    frontSrc={card.images?.[0]}
+                    backImage={card.backImage}
+                    name={card.name}
+                    className="aspect-[1.6/1] overflow-hidden bg-[#151C1A]"
+                    front={
+                      /* Photograph where there is one, the drawn finish
+                         otherwise — same rule as the /cards catalogue. */
+                      card.images?.[0] ? (
+                        <img
+                          src={card.images[0]}
+                          alt={`${card.name} NFC card`}
+                          width={480}
+                          height={300}
+                          loading="lazy"
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <NFCCard
+                          name={card.name}
+                          color={card.color}
+                          label={card.material || undefined}
+                        />
+                      )
+                    }
+                    overlay={
+                      /* Quick view overlay. Also reachable on keyboard: the
+                         button stays focusable and the overlay reveals on
+                         focus-within, not hover alone.
 
-                    {/* Quick view overlay. Also reachable on keyboard: the
-                        button stays focusable and the overlay reveals on
-                        focus-within, not hover alone. */}
-                    <div className="absolute inset-0 flex items-center justify-center bg-[#070A09]/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
-                      <button
-                        onClick={() => handlePreview(card)}
-                        className="tv-btn tv-btn-secondary !text-[#F1F3F1] !border-[#F1F3F1]/40 !bg-[#070A09]/70"
-                      >
-                        <Eye className="w-4 h-4" aria-hidden="true" />
-                        Quick view
-                        <span className="sr-only"> of {card.name}</span>
-                      </button>
-                    </div>
-                  </div>
+                         The scrim is pointer-transparent so that clicking the
+                         artwork flips it; only the button itself takes the
+                         pointer, so Quick view behaves as it always has. */
+                      <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#070A09]/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
+                        <button
+                          onClick={() => handlePreview(card)}
+                          className="tv-btn tv-btn-secondary pointer-events-auto !text-[#F1F3F1] !border-[#F1F3F1]/40 !bg-[#070A09]/70"
+                        >
+                          <Eye className="w-4 h-4" aria-hidden="true" />
+                          Quick view
+                          <span className="sr-only"> of {card.name}</span>
+                        </button>
+                      </div>
+                    }
+                  />
 
                   {/* Card Details */}
                   <div className="flex flex-col grow tv-panel-pad">
@@ -171,25 +186,12 @@ export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHo
                       </p>
                     </div>
 
-                    {/* Spec */}
-                    <div className="min-h-[76px] mb-6">
-                      {card.type === 'custom' ? (
-                        <div className="tv-spec">
-                          <p className="tv-spec-row">
-                            Free if you provide your own design
-                          </p>
-                          <p className="tv-spec-row">
-                            Design service available at additional cost
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="tv-spec">
-                          <p className="tv-spec-row">
-                            Contact form included in your digital profile
-                          </p>
-                        </div>
-                      )}
-                    </div>
+                    {/* The per-card spec bullets used to sit here. Removed from
+                        the tile on purpose: the same claims are made once, in
+                        the lifetime-website band below the grid, and repeating
+                        them on every card only added height. `product.features`
+                        still carries them on the checkout rail — the data is
+                        intact, it is just not printed here. */}
 
                     {/* Action. Custom designs open the enquiry modal, so they
                         take the tertiary contact label, not the buy label. */}

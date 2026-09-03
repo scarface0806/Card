@@ -56,6 +56,7 @@ const PRODUCT_SELECT = {
   price: true,
   salePrice: true,
   images: true,
+  backImage: true,
   cardType: true,
   material: true,
   color: true,
@@ -70,6 +71,7 @@ function toSelectedProduct(row: {
   price: number;
   salePrice: number | null;
   images: string[];
+  backImage: string | null;
   cardType: string | null;
   material: string | null;
   color: string | null;
@@ -88,6 +90,7 @@ function toSelectedProduct(row: {
     listPriceFormatted: hasDiscount(row) ? formatPrice(row.price) : null,
     description: row.description,
     imageUrl: row.images?.[0] || null,
+    backImageUrl: row.backImage || null,
     color: deriveCardColor(row),
     features: deriveFeatureBullets(tier),
   };

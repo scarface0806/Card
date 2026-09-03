@@ -3,6 +3,7 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Wifi } from 'lucide-react';
 import NFCCard from '@/components/ui/NFCCard';
+import CardFlipImage from '@/components/ui/CardFlipImage';
 
 interface CardPreviewModalProps {
   isOpen: boolean;
@@ -15,6 +16,8 @@ interface CardPreviewModalProps {
     color: string;
     images?: string[];
     image?: string;
+    /** A real back-image field, if one is ever added. Optional by design. */
+    backImage?: string;
   } | null;
 }
 
@@ -76,33 +79,45 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                 >
                   {/* The photograph, or the finish drawn from the design's own
                       gradient. NFCCard brings its own NFC mark and name
-                      plate, so the overlay below is only for the photo case. */}
-                  {card.images?.[0] || card.image ? (
-                    <>
-                      <img
-                        src={card.images?.[0] || card.image}
-                        alt={`${card.name} NFC card`}
-                        width={480}
-                        height={300}
-                        className="h-full w-full object-cover"
-                      />
+                      plate, so the overlay below is only for the photo case.
 
-                      <div className="absolute right-4 top-4">
-                        <div className="w-9 h-9 rounded-full bg-[#070A09]/45 flex items-center justify-center">
-                          <Wifi className="w-4 h-4 text-white rotate-45" aria-hidden="true" />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <NFCCard name={card.name} color={card.color} />
-                  )}
+                      This is the fullest view of the card a customer gets, so
+                      it is also where turning it over matters most. */}
+                  <CardFlipImage
+                    frontSrc={card.images?.[0] || card.image}
+                    backImage={card.backImage}
+                    name={card.name}
+                    className="absolute inset-0"
+                    front={
+                      card.images?.[0] || card.image ? (
+                        <>
+                          <img
+                            src={card.images?.[0] || card.image}
+                            alt={`${card.name} NFC card`}
+                            width={480}
+                            height={300}
+                            className="h-full w-full object-cover"
+                          />
 
-                  {/* Shine sweep */}
+                          <div className="absolute right-4 top-4">
+                            <div className="w-9 h-9 rounded-full bg-[#070A09]/45 flex items-center justify-center">
+                              <Wifi className="w-4 h-4 text-white rotate-45" aria-hidden="true" />
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <NFCCard name={card.name} color={card.color} />
+                      )
+                    }
+                  />
+
+                  {/* Shine sweep. Pointer-transparent so it cannot intercept a
+                      click meant for the card underneath it. */}
                   <motion.div
                     initial={{ x: '-100%' }}
                     animate={{ x: '200%' }}
                     transition={{ duration: 1.5, delay: 0.4, ease: 'easeInOut' }}
-                    className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 motion-reduce:hidden"
+                    className="pointer-events-none absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/25 to-transparent skew-x-12 motion-reduce:hidden"
                   />
                 </motion.div>
 

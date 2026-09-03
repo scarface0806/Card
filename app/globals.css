@@ -3375,6 +3375,78 @@ body {
 }
 
 /* ----------------------------------------------------------------------------
+   CARD FLIP
+
+   The back of a purchasable card. Used by the catalogue tiles, the Quick-view
+   modal and the checkout live preview, all through <CardFlipImage>.
+
+   Both faces are absolutely positioned in the same box, so the front and the
+   back occupy identical space and flipping cannot shift the layout. Only
+   `transform` animates — no width, height or position is touched.
+
+   This is the one rotation in the product. The ambient card above is static on
+   purpose; this turns only in direct response to a click, and only through
+   180deg about Y.
+   ---------------------------------------------------------------------------- */
+
+.tv-flip-scene {
+  perspective: 1200px;
+}
+
+.tv-flip {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  transition: transform 560ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  will-change: transform;
+}
+
+.tv-flip[data-flipped='true'] {
+  transform: rotateY(180deg);
+}
+
+.tv-flip-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  /* Safari needs the face itself to establish 3D context, or the back face
+     bleeds through the front mid-turn. */
+  transform: rotateY(0deg);
+  transform-style: preserve-3d;
+}
+
+.tv-flip-face-back {
+  transform: rotateY(180deg);
+}
+
+/* Reduced motion: the same state change, expressed as a cross-fade. The card
+   still turns over conceptually — it just does not rotate through space. */
+@media (prefers-reduced-motion: reduce) {
+  .tv-flip,
+  .tv-flip[data-flipped='true'] {
+    transition: none;
+    transform: none;
+    will-change: auto;
+  }
+
+  .tv-flip-face {
+    backface-visibility: visible;
+    -webkit-backface-visibility: visible;
+    transform: none;
+    transition: opacity var(--duration-standard) ease;
+  }
+
+  .tv-flip-face-back {
+    transform: none;
+    opacity: 0;
+  }
+
+  .tv-flip[data-flipped='true'] .tv-flip-face-front { opacity: 0; }
+  .tv-flip[data-flipped='true'] .tv-flip-face-back { opacity: 1; }
+}
+
+/* ----------------------------------------------------------------------------
    BLOG
    `.tv-prose` already carries the legal pages' h2/h3/p/ul/ol/a/strong. A post
    body can also contain images, figures, quotes, code and embeds, so

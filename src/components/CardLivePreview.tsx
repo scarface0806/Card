@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Wifi } from 'lucide-react';
 import type { SelectedProduct } from '@/lib/products/selection';
+import CardFlipImage from '@/components/ui/CardFlipImage';
 
 interface CardLivePreviewProps {
   fullName: string;
@@ -34,17 +35,11 @@ export default function CardLivePreview({
   company,
   product,
 }: CardLivePreviewProps) {
-  return (
-    <div
-      // A hairline in the system's rule colour, not border-gray-200, so the
-      // card edge reads as part of the dark shell instead of a light-mode
-      // leftover sitting on it.
-      className="relative overflow-hidden rounded-xl pt-[63%] border border-[rgba(241,243,241,0.14)] shadow-[0_18px_44px_rgba(0,0,0,0.45)]"
-      // The product's own finish, drawn behind the artwork. It shows through
-      // while the image loads, and it IS the card when the product has no
-      // image at all - the only case in which the placeholder is used.
-      style={{ background: product.color }}
-    >
+  // The live-typed name, designation and company belong to the FRONT of the
+  // card, so they travel with it when it turns over rather than sitting on top
+  // of the back artwork.
+  const front = (
+    <>
       {product.imageUrl && (
         // next/image so the Cloudinary original is resized and served as
         // AVIF/WebP rather than shipping a multi-megabyte JPEG into a 320px
@@ -113,6 +108,25 @@ export default function CardLivePreview({
           )}
         </AnimatePresence>
       </div>
-    </div>
+    </>
+  );
+
+  return (
+    <CardFlipImage
+      frontSrc={product.imageUrl}
+      backImage={product.backImageUrl}
+      name={product.name}
+      front={front}
+      // A hairline in the system's rule colour, not border-gray-200, so the
+      // card edge reads as part of the dark shell instead of a light-mode
+      // leftover sitting on it. `pt-[63%]` still holds the ISO/IEC 7810 ratio,
+      // and both faces are pinned to that same box, so turning the card cannot
+      // move the rail beneath it.
+      className="overflow-hidden rounded-xl pt-[63%] border border-[rgba(241,243,241,0.14)] shadow-[0_18px_44px_rgba(0,0,0,0.45)]"
+      // The product's own finish, drawn behind the artwork. It shows through
+      // while the image loads, and it IS the card when the product has no
+      // image at all - the only case in which the placeholder is used.
+      style={{ background: product.color }}
+    />
   );
 }

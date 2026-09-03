@@ -9,12 +9,36 @@ export const runtime = "nodejs";
 
 type RouteParams = { params: Promise<{ id: string }> };
 
+/** Every field the API returns for a product. Mirrors the list route. */
+const PRODUCT_SELECT = {
+  id: true,
+  name: true,
+  slug: true,
+  description: true,
+  price: true,
+  salePrice: true,
+  images: true,
+  backImage: true,
+  cardType: true,
+  material: true,
+  color: true,
+  isActive: true,
+  isFeatured: true,
+  createdAt: true,
+} as const;
+
 type ProductInput = {
   name: string;
   description: string;
   price: number;
   image: string;
   imageUrl?: string;
+  /**
+   * The back of the card. OPTIONAL, unlike `image`. `null` means "no back
+   * image" and is written as such, so clearing it in the admin form clears it
+   * in the database rather than silently keeping the old one.
+   */
+  backImage: string | null;
 };
 
 function normalizeProductInput(payload: unknown): ProductInput {
@@ -26,6 +50,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
   const name = String(input.name || "").trim();
   const description = String(input.description || "").trim();
   const image = String(input.image || input.imageUrl || "").trim();
+  const backImage = String(input.backImage || input.backImageUrl || "").trim();
   const priceNumber = Number(input.price);
 
   if (!name) {
@@ -50,7 +75,29 @@ function normalizeProductInput(payload: unknown): ProductInput {
     price: priceNumber,
     image,
     imageUrl: String(input.imageUrl || "").trim() || undefined,
+    backImage: backImage || null,
   };
+}
+
+/**
+ * Cloudinary assets this product no longer references.
+ *
+ * A URL is only orphaned when it appears in NEITHER slot afterwards. Comparing
+ * one slot against itself - which is what this route used to do - deletes the
+ * wrong asset the moment the two images are swapped, or the old front is
+ * promoted to the back: the URL is still in use, but the front-to-front
+ * comparison says it changed, and the asset is destroyed out from under the
+ * product that is still pointing at it.
+ */
+function orphanedImageUrls(
+  before: ReadonlyArray<string | null | undefined>,
+  after: ReadonlyArray<string | null | undefined>
+): string[] {
+  const stillUsed = new Set(after.filter((url): url is string => Boolean(url)));
+  const orphans = new Set(
+    before.filter((url): url is string => Boolean(url) && !stillUsed.has(url as string))
+  );
+  return [...orphans];
 }
 
 function mapProduct(p: {
@@ -61,6 +108,7 @@ function mapProduct(p: {
   price: number;
   salePrice: number | null;
   images: string[];
+  backImage: string | null;
   cardType: string | null;
   material: string | null;
   color: string | null;
@@ -77,6 +125,8 @@ function mapProduct(p: {
     salePrice: p.salePrice,
     images: p.images || [],
     image: p.images[0] || "",
+    // Nullable, not "": the client treats absent as "this card has no back".
+    backImage: p.backImage || null,
     cardType: p.cardType,
     material: p.material,
     color: p.color,
@@ -104,6 +154,7 @@ export async function GET(
         price: true,
         salePrice: true,
         images: true,
+        backImage: true,
         cardType: true,
         material: true,
         color: true,
@@ -137,14 +188,14 @@ async function updateProductHandler(
 
     const existing = await prisma.product.findUnique({
       where: { id },
-      select: { images: true },
+      select: { images: true, backImage: true },
     });
 
     if (!existing) {
       return errorResponse("Product not found", 404);
     }
 
-    const previousImage = existing.images?.[0] || "";
+    const previousImages = [existing.images?.[0], existing.backImage];
 
     const updated = await prisma.product.update({
       where: { id },
@@ -153,22 +204,9 @@ async function updateProductHandler(
         description: parsed.description,
         price: parsed.price,
         images: [parsed.image],
+        backImage: parsed.backImage,
       },
-      select: {
-        id: true,
-        name: true,
-        slug: true,
-        description: true,
-        price: true,
-        salePrice: true,
-        images: true,
-        cardType: true,
-        material: true,
-        color: true,
-        isActive: true,
-        isFeatured: true,
-        createdAt: true,
-      },
+      select: PRODUCT_SELECT,
     }).catch((e: { code?: string }) => {
       if (e?.code === "P2025") return null;
       throw e;
@@ -178,8 +216,14 @@ async function updateProductHandler(
       return errorResponse("Product not found", 404);
     }
 
-    if (previousImage && previousImage !== parsed.image) {
-      const oldPublicId = extractCloudinaryPublicIdFromUrl(previousImage);
+    // Only assets that survive in neither slot. A front/back swap therefore
+    // deletes nothing, which is the whole point of going through
+    // orphanedImageUrls rather than comparing slot to slot.
+    for (const orphan of orphanedImageUrls(previousImages, [
+      parsed.image,
+      parsed.backImage,
+    ])) {
+      const oldPublicId = extractCloudinaryPublicIdFromUrl(orphan);
       if (oldPublicId) {
         void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
           console.error("Failed to cleanup old product image:", cleanupError);
@@ -212,7 +256,7 @@ async function deleteProductHandler(
 
     const existing = await prisma.product.findUnique({
       where: { id },
-      select: { images: true },
+      select: { images: true, backImage: true },
     });
 
     if (!existing) {
@@ -224,12 +268,17 @@ async function deleteProductHandler(
       throw e;
     });
 
-    const previousImage = existing.images?.[0] || "";
-    const oldPublicId = extractCloudinaryPublicIdFromUrl(previousImage);
-    if (oldPublicId) {
-      void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
-        console.error("Failed to cleanup deleted product image:", cleanupError);
-      });
+    // The product is gone, so both faces are orphaned - nothing survives.
+    for (const orphan of orphanedImageUrls(
+      [existing.images?.[0], existing.backImage],
+      []
+    )) {
+      const oldPublicId = extractCloudinaryPublicIdFromUrl(orphan);
+      if (oldPublicId) {
+        void deleteCloudinaryImage(oldPublicId).catch((cleanupError) => {
+          console.error("Failed to cleanup deleted product image:", cleanupError);
+        });
+      }
     }
 
     return successResponse({ message: "Product deleted successfully" });

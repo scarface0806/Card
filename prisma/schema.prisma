@@ -72,6 +72,12 @@ model Product {
   price       Float
   salePrice   Float?
   images      String[]
+  // The back of the card. Deliberately its own field rather than images[1]:
+  // both product write paths set `images` to a single-element array, so a
+  // second entry there would be destroyed by the next save, and nothing in the
+  // catalogue reads past images[0]. Optional - a product with no back image
+  // simply does not flip.
+  backImage   String?
   category    String?
   tags        String[]
   sku         String?  @unique

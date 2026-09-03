@@ -13,6 +13,8 @@ interface ProductItem {
   price: number;
   images?: string[];
   image: string;
+  /** The back of the card. Empty string when the product has none. */
+  backImage: string;
   createdAt: string;
 }
 
@@ -55,6 +57,7 @@ export default function ProductsPage() {
         price: Number(product.price || 0),
         images: Array.isArray(product.images) ? product.images : [],
         image: product.image || '',
+        backImage: product.backImage || '',
         createdAt: product.createdAt,
       }));
 
@@ -189,6 +192,7 @@ export default function ProductsPage() {
                     description: activeProduct.description,
                     price: activeProduct.price,
                     image: activeProduct.image,
+                    backImage: activeProduct.backImage,
                   }
                 : undefined
             }

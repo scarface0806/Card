@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import ImageUpload from '@/components/admin/ImageUpload';
 
 export type ProductFormValues = {
@@ -8,6 +8,12 @@ export type ProductFormValues = {
   description: string;
   price: number;
   image: string;
+  /**
+   * The back of the card. Optional, unlike the front: a product without one
+   * simply does not offer the flip on the storefront. Empty string means
+   * "none", and the API writes that through as null.
+   */
+  backImage: string;
 };
 
 type ProductFormProps = {
@@ -23,12 +29,14 @@ const DEFAULT_VALUES: ProductFormValues = {
   description: '',
   price: 0,
   image: '',
+  backImage: '',
 };
 
 export default function ProductForm({ initialValues, onSubmit, submitLabel, submitting = false, onCancel }: ProductFormProps) {
   const [values, setValues] = useState<ProductFormValues>(initialValues || DEFAULT_VALUES);
   const [localError, setLocalError] = useState<string | null>(null);
   const [productImagePublicId, setProductImagePublicId] = useState<string | null>(null);
+  const [backImagePublicId, setBackImagePublicId] = useState<string | null>(null);
 
   useEffect(() => {
     setValues(initialValues || DEFAULT_VALUES);
@@ -38,6 +46,25 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
   const handleChange = (key: keyof ProductFormValues, value: string | number) => {
     setValues((prev) => ({ ...prev, [key]: value }));
   };
+
+  /**
+   * ImageUpload calls this from an effect that lists `onUploadComplete` in its
+   * dependency array, so the callback has to be referentially stable AND has
+   * to leave state untouched when the URL has not actually changed. An inline
+   * arrow that always built a fresh object re-rendered the form, handed
+   * ImageUpload a new function identity, re-ran its effect, and looped. Two
+   * uploaders on this form made that twice as easy to hit.
+   */
+  const handleFrontUpload = useCallback((url: string, publicId: string) => {
+    setValues((prev) => (prev.image === url ? prev : { ...prev, image: url }));
+    setProductImagePublicId(publicId);
+    setLocalError(null);
+  }, []);
+
+  const handleBackUpload = useCallback((url: string, publicId: string) => {
+    setValues((prev) => (prev.backImage === url ? prev : { ...prev, backImage: url }));
+    setBackImagePublicId(publicId);
+  }, []);
 
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -62,12 +89,15 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
       return;
     }
 
+    // Deliberately no validation on backImage: it is optional, and an empty
+    // string is a legitimate value meaning "this card has no back".
     setLocalError(null);
     await onSubmit({
       name: values.name.trim(),
       description: values.description.trim(),
       price: Number(values.price),
       image: values.image,
+      backImage: values.backImage.trim(),
     });
   };
 
@@ -115,14 +145,40 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
           label="Product Image"
           aspectRatio="landscape"
           currentImageUrl={values.image || undefined}
-          onUploadComplete={(url, publicId) => {
-            setValues((prev) => ({ ...prev, image: url }));
-            setProductImagePublicId(publicId);
-            setLocalError(null);
-          }}
+          onUploadComplete={handleFrontUpload}
         />
         {productImagePublicId ? (
           <p className="mt-2 text-xs text-gray-500">Cloudinary ID: {productImagePublicId}</p>
+        ) : null}
+      </div>
+
+      <div>
+        <ImageUpload
+          folder="admin/products"
+          label="Back Image (optional)"
+          aspectRatio="landscape"
+          currentImageUrl={values.backImage || undefined}
+          onUploadComplete={handleBackUpload}
+        />
+        <p className="mt-2 text-xs text-gray-500">
+          Shown when a customer flips the card on the storefront. Leave empty and
+          the card simply does not flip.
+        </p>
+        {values.backImage ? (
+          <button
+            type="button"
+            onClick={() => {
+              setValues((prev) => ({ ...prev, backImage: '' }));
+              setBackImagePublicId(null);
+            }}
+            disabled={submitting}
+            className="mt-2 rounded-lg border border-white/20 px-3 py-1.5 text-xs text-gray-200 hover:bg-white/5 disabled:opacity-50"
+          >
+            Remove back image
+          </button>
+        ) : null}
+        {backImagePublicId ? (
+          <p className="mt-2 text-xs text-gray-500">Cloudinary ID: {backImagePublicId}</p>
         ) : null}
       </div>
 

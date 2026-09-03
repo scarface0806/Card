@@ -43,6 +43,15 @@ export interface CardDesign {
   color: string;
   description?: string;
   images: string[];
+  /**
+   * The card's back face, straight from `Product.backImage`.
+   *
+   * Optional: a product with no back image simply does not offer the flip.
+   * When it is absent, resolveCardBackImage() still tries the `-back` naming
+   * convention against `images[0]`, so artwork that predates the field keeps
+   * working.
+   */
+  backImage?: string;
   cardType?: string;
   material?: string;
 }
@@ -63,6 +72,7 @@ function productToCardDesign(product: Product): CardDesign {
     color: deriveCardColor(product),
     description: product.description || undefined,
     images: product.images || [],
+    backImage: product.backImage || undefined,
     cardType: product.cardType || undefined,
     material: product.material || undefined,
   };
