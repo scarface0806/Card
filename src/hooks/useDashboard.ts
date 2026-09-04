@@ -15,8 +15,12 @@ const INR_FORMATTER = new Intl.NumberFormat("en-IN", {
  * Module-level cache so navigating away from the dashboard and back paints
  * instantly from memory instead of showing a spinner. Same idea as React
  * Query's staleTime + stale-while-revalidate, without adding a dependency.
+ *
+ * The TTL is intentionally short and is also invalidated when the browser
+ * tab regains focus, so an admin who creates an order, switches to Gmail,
+ * and comes back does not see yesterday's number.
  */
-const STALE_TIME_MS = 30_000;
+const STALE_TIME_MS = 15_000;
 
 type CacheState = {
   data: DashboardMetrics | null;
@@ -57,6 +61,8 @@ function loadMetrics(force: boolean): Promise<DashboardMetrics> {
  *
  * Renders cached data immediately when available and revalidates in the
  * background, so `loading` is only true on a genuinely cold first load.
+ * The cache is also revalidated on every window-focus and visibility-change
+ * event so a returning admin does not see a stale number.
  */
 export function useDashboard(autoRefresh: boolean = false, refreshInterval: number = 60000) {
   // Seed straight from the cache so a revisit has data on the very first render.
@@ -93,6 +99,19 @@ export function useDashboard(autoRefresh: boolean = false, refreshInterval: numb
       fetchMetrics(false);
     }
 
+    // Revalidate on tab focus / visibility return, so a stale cache from a
+    // prior session cannot be displayed as if it were current.
+    const onFocus = () => {
+      if (Date.now() - cache.fetchedAt > 2_000) fetchMetrics(true);
+    };
+    const onVisibility = () => {
+      if (document.visibilityState === "visible" && Date.now() - cache.fetchedAt > 2_000) {
+        fetchMetrics(true);
+      }
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
+
     let interval: ReturnType<typeof setInterval> | undefined;
     if (autoRefresh && refreshInterval > 0) {
       interval = setInterval(() => fetchMetrics(true), refreshInterval);
@@ -100,6 +119,8 @@ export function useDashboard(autoRefresh: boolean = false, refreshInterval: numb
 
     return () => {
       mounted.current = false;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
       if (interval) clearInterval(interval);
     };
   }, [fetchMetrics, autoRefresh, refreshInterval]);

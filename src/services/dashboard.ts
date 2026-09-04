@@ -1,5 +1,14 @@
 // Dashboard Service - API functions for dashboard metrics
 
+export interface DashboardRevenueWindows {
+  /** The timezone used for the today / month windows. */
+  timezone: "Asia/Kolkata";
+  /** YYYY-MM-DD in the dashboard timezone, the start of "today". */
+  today: string;
+  /** YYYY-MM in the dashboard timezone, the start of "this month". */
+  month: string;
+}
+
 export interface DashboardMetrics {
   customers: {
     total: number;
@@ -21,6 +30,10 @@ export interface DashboardMetrics {
     /** Today's revenue. Previously required a second request to /api/dashboard. */
     today: number;
   };
+  /** IST day/month window used for the today and thisMonth revenue cards.
+   *  Returned by the server so the UI can label the cards with the same
+   *  boundary the aggregation used. */
+  windows: DashboardRevenueWindows;
   leads: {
     total: number;
     unread: number;

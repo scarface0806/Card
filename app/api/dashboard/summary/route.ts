@@ -9,6 +9,10 @@ import {
   readCache,
   writeCache,
 } from "@/lib/dashboard-cache";
+import {
+  istStartOfToday,
+  istStartOfMonth,
+} from "@/lib/ist-date-windows";
 
 /**
  * GET /api/dashboard/summary
@@ -20,14 +24,25 @@ import {
  * All aggregates are computed by the database ($group / $sum / $count inside a
  * $facet). Nothing is counted in JavaScript, and no collection is loaded into
  * memory. The only documents that cross the wire are the 5 recent orders.
+ *
+ * Date windows
+ * ------------
+ * "Today" and "this month" are computed in Asia/Kolkata (IST, UTC+05:30), not
+ * in the server's local timezone. The server runs in UTC on Vercel, so a naive
+ * `new Date().setHours(0,0,0,0)` would put the day boundary at 05:30 IST and
+ * silently drop every order placed between 00:00 and 05:30 IST. Windows are
+ * derived from `Intl.DateTimeFormat` (see src/lib/ist-date-windows.ts) so the
+ * offset is read from the runtime and not hard-coded.
+ *
+ * Revenue predicate
+ * -----------------
+ * Total / month / today all filter on `paymentStatus: "PAID"`. The previous
+ * implementation used a hand-maintained list of "completed" order-status
+ * strings for the today facet, which meant a freshly-paid order that the
+ * admin had not yet moved to DELIVERED was counted in total and month but not
+ * in today. That inconsistency is removed: the same predicate is used for all
+ * three revenue cards.
  */
-
-// Statuses treated as "completed" for today's revenue. Kept identical to the
-// previous /api/dashboard implementation so the displayed figure does not change.
-const COMPLETED_STATUSES = ["DELIVERED", "COMPLETED", "completed"];
-
-// Today's-revenue amount field, also preserved from the previous implementation.
-const TODAY_REVENUE_FIELD = { $ifNull: ["$totalAmount", { $ifNull: ["$total", 0] }] };
 
 // `_id` is the grouped value: a status string for orders, a boolean for the
 // customers isActive split.
@@ -96,12 +111,14 @@ function firstCount(rows: { n: number }[] | undefined): number {
 
 async function buildSummary() {
   const now = new Date();
-  const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
-  const todayStart = new Date(now);
-  todayStart.setHours(0, 0, 0, 0);
+  // IST (Asia/Kolkata) day and month starts, expressed as real UTC instants
+  // so the $match stages in the aggregation pipeline are timezone-correct
+  // even though the server itself runs in UTC.
+  const todayIst = istStartOfToday(now);
+  const monthIst = istStartOfMonth(now);
 
-  const monthStartFilter = { $gte: { $date: monthStart.toISOString() } };
-  const todayStartFilter = { $gte: { $date: todayStart.toISOString() } };
+  const todayStartFilter = { $gte: { $date: todayIst.startUtc.toISOString() } };
+  const monthStartFilter = { $gte: { $date: monthIst.startUtc.toISOString() } };
 
   // 4 independent aggregations, issued concurrently. Each is one round trip.
   const [orderAgg, recentAgg, customerAgg, leadAgg] = await Promise.all([
@@ -125,9 +142,19 @@ async function buildSummary() {
               { $match: { paymentStatus: "PAID", createdAt: monthStartFilter } },
               { $group: { _id: null, t: { $sum: "$total" } } },
             ],
+            // Same predicate as total and month so a freshly-paid order
+            // counts in all three cards, including today's. The previous
+            // implementation filtered on a hand-maintained list of
+            // "completed" order-status strings, which excluded any order the
+            // admin had not yet moved to DELIVERED.
             revenueToday: [
-              { $match: { status: { $in: COMPLETED_STATUSES }, createdAt: todayStartFilter } },
-              { $group: { _id: null, t: { $sum: TODAY_REVENUE_FIELD } } },
+              {
+                $match: {
+                  paymentStatus: "PAID",
+                  createdAt: todayStartFilter,
+                },
+              },
+              { $group: { _id: null, t: { $sum: "$total" } } },
             ],
           },
         },
@@ -241,6 +268,14 @@ async function buildSummary() {
       thisMonth: firstSum(facets.revenueMonth),
       today: firstSum(facets.revenueToday),
     },
+    // The two revenue windows expressed in IST, so the UI can display
+    // "showing IST 2026-09-05" and any timezone regression is visible in
+    // the rendered number, not only in a server log.
+    windows: {
+      timezone: "Asia/Kolkata",
+      today: todayIst.startYmd,
+      month: monthIst.startYm,
+    },
     leads: {
       total: firstCount(leadFacets.totalCount),
       unread: 0,
@@ -286,7 +321,11 @@ export async function GET(request: NextRequest) {
     const totalMs = Date.now() - startedAt;
 
     writeCache(cacheKey, summary);
-    console.info(`[dashboard/summary] cache MISS db=${queryMs}ms total=${totalMs}ms roundTrips=4`);
+    console.info(
+      `[dashboard/summary] cache MISS db=${queryMs}ms total=${totalMs}ms roundTrips=4 ` +
+        `tz=${summary.windows.timezone} today=${summary.windows.today} month=${summary.windows.month} ` +
+        `revenue.total=${summary.revenue.total} revenue.month=${summary.revenue.thisMonth} revenue.today=${summary.revenue.today}`
+    );
 
     return NextResponse.json(
       { success: true, message: "OK", data: summary, ...summary },

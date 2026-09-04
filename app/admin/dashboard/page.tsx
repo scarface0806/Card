@@ -206,7 +206,18 @@ export default function Dashboard() {
 
       {/* Revenue */}
       <section className="space-y-3">
-        <h2 className={SECTION_TITLE}>Revenue</h2>
+        <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+          <h2 className={SECTION_TITLE}>Revenue</h2>
+          {/* Surface the day/month window the server used. Prevents a future
+              timezone regression from going unnoticed. */}
+          {metrics.windows ? (
+            <p className="text-xs text-[var(--tv-text-muted)]">
+              Showing {metrics.windows.timezone === 'Asia/Kolkata' ? 'IST' : metrics.windows.timezone}{' '}
+              {metrics.windows.month}
+              {metrics.windows.today ? ` · day ${metrics.windows.today}` : ''}
+            </p>
+          ) : null}
+        </div>
         <div className={STAT_GRID}>
           <StatCard
             label="Total Revenue"
