@@ -20,7 +20,7 @@
 const SLASH = 47;
 const BACKSLASH = 92;
 
-export function safeRedirect(raw: string | null, fallback = '/dashboard'): string {
+export function safeRedirect(raw: string | null, fallback = '/cards'): string {
   if (!raw) return fallback;
 
   // Must be a rooted relative path. "https://evil.com" and "evil.com" both fail.

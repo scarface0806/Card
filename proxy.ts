@@ -160,12 +160,12 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // If accessing auth routes with valid token, redirect to dashboard
+  // If accessing auth routes with valid token, redirect to the appropriate home page
   if (isAuthRoute && token) {
     const payload = await verifyJWT(token);
     if (payload) {
-      // Redirect admins to admin dashboard, customers to regular dashboard
-      const redirectUrl = payload.role === "ADMIN" ? "/admin" : "/dashboard";
+      // Redirect admins to admin dashboard, customers to /cards (browse / purchase)
+      const redirectUrl = payload.role === "ADMIN" ? "/admin" : "/cards";
       return NextResponse.redirect(new URL(redirectUrl, request.url));
     }
   }
