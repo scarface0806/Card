@@ -233,7 +233,7 @@ describe('confirmation email content', () => {
     // no link yet - and the email says so rather than printing a dead one.
     const withoutCard = await render(confirmation, { plainText: true });
     expect(withoutCard).not.toContain('/card/');
-    expect(withoutCard).toContain('Your free lifetime profile is created');
+    expect(withoutCard).toContain('Your digital profile is created');
   });
 
   it('offers the tracking page as a button AND as bare visible text', async () => {
