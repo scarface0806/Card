@@ -361,6 +361,7 @@ class PaymentAdapterService {
     // gets a successful payment response.
     await sendOrderConfirmationEmail(existingOrderId);
 
+    console.log("[admin-notification] Triggering admin notification after customer email");
     try {
       await sendAdminOrderNotification(existingOrderId, razorpayPaymentId);
     } catch (err) {

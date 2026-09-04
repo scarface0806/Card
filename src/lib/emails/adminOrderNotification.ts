@@ -655,6 +655,10 @@ export async function sendAdminOrderNotification(
 	orderId: string,
 	paymentRef?: string | null
 ): Promise<void> {
+	console.log(
+		`[admin-notification] sendAdminOrderNotification called for order ${orderId}`
+	);
+
 	try {
 		const order = await prisma.order.findUnique({
 			where: { id: orderId },
@@ -671,11 +675,18 @@ export async function sendAdminOrderNotification(
 		const data = transformOrder(order, paymentRef || null);
 		const { subject, html, text } = buildAdminOrderNotification(data);
 
-		const { error } = await withTimeout(
+		const fromAddress = getEmailFrom();
+		const replyTo = getEmailReplyTo();
+
+		console.log(
+			`[admin-notification] Sending to ${ADMIN_NOTIFICATION_EMAIL} | from: ${fromAddress} | subject: ${subject}`
+		);
+
+		const result = await withTimeout(
 			getResendClient().emails.send({
-				from: getEmailFrom(),
+				from: fromAddress,
 				to: ADMIN_NOTIFICATION_EMAIL,
-				replyTo: getEmailReplyTo(),
+				replyTo,
 				subject,
 				html,
 				text,
@@ -683,14 +694,18 @@ export async function sendAdminOrderNotification(
 			SEND_TIMEOUT_MS
 		);
 
-		if (error) {
+		if (result.error) {
 			console.error(
 				`[admin-notification] Resend rejected admin notification for order ${orderId}:`,
 				JSON.stringify({
-					name: error.name,
-					message: error.message,
-					statusCode: error.statusCode,
+					name: result.error.name,
+					message: result.error.message,
+					statusCode: result.error.statusCode,
 				})
+			);
+		} else {
+			console.log(
+				`[admin-notification] Admin notification sent OK. Resend id: ${result.data?.id ?? "unknown"}`
 			);
 		}
 	} catch (error) {
