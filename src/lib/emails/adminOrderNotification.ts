@@ -28,7 +28,7 @@ import {
  * Single, one-line change to retarget the admin notification.
  * Not in .env — a code constant so the recipient is visible and version-controlled.
  */
-export const ADMIN_NOTIFICATION_EMAIL = "tapvyo@gmail.com";
+export const ADMIN_NOTIFICATION_EMAIL = "tapvyonfc@gmail.com";
 
 const SEND_TIMEOUT_MS = 12_000;
 
