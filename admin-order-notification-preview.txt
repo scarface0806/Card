@@ -1,0 +1,35 @@
+NEW ORDER NOTIFICATION
+
+Subject: New order — Jane Doe — Premium Metal NFC Card — ₹7,999 — ORD-7K2P-QM9X
+
+--- Order summary ---
+Order ref:    ORD-7K2P-QM9X
+Order ID:     671234567890abcdef123456
+Placed:       4 Sept 2026, 12:48:11 pm IST
+Paid:         4 Sept 2026, 12:50:33 pm IST
+Card design:  Premium Metal NFC Card [Premium]
+Price:        ₹7,999
+Payment ref:  pay_R9zK3mQ8nL2vP4
+Payment status: PAID [razorpay]
+
+--- Items ---
+Premium Metal NFC Card ×1  ₹7,999  →  ₹7,999
+
+--- Customer details ---
+Name:    Jane Doe
+Designation: Founder & CEO
+Company: Acme Pvt Ltd
+Mobile:  +91 90800 86908
+Email:   jane.doe@acme.in
+Website: https://acme.in
+
+--- Social links ---
+Instagram: https://instagram.com/janedoe
+LinkedIn: https://linkedin.com/in/janedoe
+Profile URL: —
+
+--- Uploaded files ---
+ProfileImage: https://res.cloudinary.com/demo/image/upload/v1/profile.jpg
+Logo: —
+
+Contact: tel · mailto · wa.me

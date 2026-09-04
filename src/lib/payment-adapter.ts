@@ -17,6 +17,7 @@ import { randomUUID } from "crypto";
 
 import prisma from "@/lib/prisma";
 import { sendOrderConfirmationEmail } from "@/lib/emails/send-order-email";
+import { sendAdminOrderNotification } from "@/lib/emails/adminOrderNotification";
 import { getRazorpayService } from "@/lib/razorpay";
 import { razorpayDebugger } from "@/lib/razorpay-debug";
 import { toPaise, InvalidAmountError } from "@/lib/payment-amount";
@@ -359,6 +360,15 @@ class PaymentAdapterService {
     // provider outage records a failed email_log row and the customer still
     // gets a successful payment response.
     await sendOrderConfirmationEmail(existingOrderId);
+
+    try {
+      await sendAdminOrderNotification(existingOrderId, razorpayPaymentId);
+    } catch (err) {
+      console.error(
+        "[admin-notification] order " + existingOrderId + " notification threw: " +
+          (err instanceof Error ? err.message : String(err))
+      );
+    }
 
     return {
       success: true,
