@@ -4,6 +4,7 @@ import { cache } from 'react';
 import prisma from '@/lib/prisma';
 import CardProfileView from '@/components/CardProfileView';
 import CustomerProfileView from '@/components/customer/CustomerProfileView';
+import CardInactiveScreen from '@/components/CardInactiveScreen';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -56,6 +57,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const customer = await getCustomerProfile(slug);
 
     if (customer) {
+      if (!customer.isActive) {
+        return {
+          metadataBase,
+          title: 'Card Inactive | Tapvyo',
+          description: 'This profile is inactive. Contact the Tapvyo team to reactivate.',
+          robots: {
+            index: false,
+            follow: false,
+          },
+        };
+      }
       const title = `${customer.name} | NFC Digital Profile`;
       const description = [customer.designation, customer.company].filter(Boolean).join(' at ') || customer.about || `Connect with ${customer.name}`;
       const image = customer.profileImage || customer.logo || '/og-image.png';
@@ -87,11 +99,23 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
     const card = await getCard(slug);
 
-    if (!card || !card.isActive) {
+    if (!card) {
       return {
         metadataBase,
         title: 'Card Not Found | Tapvyo',
         description: 'The requested digital business card could not be found.',
+        robots: {
+          index: false,
+          follow: false,
+        },
+      };
+    }
+
+    if (!card.isActive || card.status !== 'ACTIVE') {
+      return {
+        metadataBase,
+        title: 'Card Inactive | Tapvyo',
+        description: 'This card is inactive. Contact the Tapvyo team to reactivate.',
         robots: {
           index: false,
           follow: false,
@@ -170,16 +194,16 @@ export const revalidate = 60;
 export default async function CardPage({ params }: PageProps) {
   const { slug } = await params;
 
-  const customer = await getCustomerProfile(slug);
+  let customer: Awaited<ReturnType<typeof getCustomerProfile>>;
+  try {
+    customer = await getCustomerProfile(slug);
+  } catch (error) {
+    console.error('[card-page] Failed to load customer profile:', error);
+    customer = null;
+  }
+
   if (customer && !customer.isActive) {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-center text-white">
-        <div className="max-w-md space-y-3">
-          <h1 className="text-2xl font-semibold">This profile is deactivated</h1>
-          <p className="text-gray-400">Please contact the profile owner for an active NFC link.</p>
-        </div>
-      </main>
-    );
+    return <CardInactiveScreen slug={slug} />;
   }
 
   if (customer) {
@@ -187,22 +211,22 @@ export default async function CardPage({ params }: PageProps) {
   }
 
   // Fetch card from database (cached)
-  const card = await getCard(slug);
+  let card: Awaited<ReturnType<typeof getCard>>;
+  try {
+    card = await getCard(slug);
+  } catch (error) {
+    console.error('[card-page] Failed to load card:', error);
+    return <CardInactiveScreen slug={slug} />;
+  }
 
-  // Handle not found or inactive
+  // Handle not found
   if (!card) {
     notFound();
   }
 
+  // Handle not found or inactive
   if (!card.isActive || card.status !== 'ACTIVE') {
-    return (
-      <main className="flex min-h-screen items-center justify-center bg-[#020617] px-6 text-center text-white">
-        <div className="max-w-md space-y-3">
-          <h1 className="text-2xl font-semibold">This NFC card is deactivated</h1>
-          <p className="text-gray-400">Please contact the card owner for more information.</p>
-        </div>
-      </main>
-    );
+    return <CardInactiveScreen slug={slug} />;
   }
 
   // Handle expired card
