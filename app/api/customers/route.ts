@@ -275,8 +275,7 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
       });
     }
 
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return errorResponse("Failed to create customer", 500, { message });
+        return errorResponse("Failed to create customer", 500);
   }
 }
 

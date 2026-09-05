@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/responses';
+import { checkRateLimit } from '@/lib/rate-limit';
 import { Role } from '@prisma/client';
 
 const REQUIRED_AUTH_ENV_VARS = ['DATABASE_URL', 'JWT_SECRET'] as const;
@@ -89,6 +90,27 @@ export async function POST(request: NextRequest) {
         'Authentication service misconfigured. Please check environment variables.',
         500
       );
+    }
+
+    /**
+     * BRUTE-FORCE GUARD. This route had none.
+     *
+     * /api/auth/login (the customer one) has been rate limited all along, but
+     * this endpoint - the one that grants ADMIN role and the whole dashboard -
+     * accepted unlimited password attempts from a single IP. That is the most
+     * valuable door on the site and it was the only unlocked one.
+     *
+     * The limit is 5 per minute, tighter than the customer login's 10: nobody
+     * legitimately mistypes an admin password five times a minute, and the
+     * cost of a wrong guess here is the entire database.
+     *
+     * Checked BEFORE the body is parsed, so a flood cannot make us do work.
+     */
+    const rateCheck = checkRateLimit(request, 5);
+    if (!rateCheck.ok) {
+      const res = errorResponse('Too many login attempts. Please try again later.', 429);
+      if (rateCheck.retryAfter) res.headers.set('Retry-After', String(rateCheck.retryAfter));
+      return res;
     }
 
     let body: { email?: unknown; password?: unknown } = {};

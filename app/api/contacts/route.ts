@@ -3,6 +3,8 @@ import { errorResponse, successResponse } from "@/lib/responses";
 import { getMongoDb } from "@/lib/mongodb";
 import { ObjectId } from "mongodb";
 import { authenticate } from "@/lib/auth-middleware";
+import { checkRateLimit } from "@/lib/rate-limit";
+import { Role } from "@prisma/client";
 import { contactFormSchema } from "@/lib/validations/contactFormSchema";
 
 // Contact document type from MongoDB
@@ -22,6 +24,17 @@ export const runtime = "nodejs";
 
 export async function POST(request: NextRequest) {
   try {
+    // Unauthenticated write endpoint, so it needs a ceiling. The honeypot
+    // below stops naive bots, but nothing stopped a script from writing
+    // thousands of rows into the contacts table. 10/minute per IP is far above
+    // any real person and far below an automated flood.
+    const rateCheck = checkRateLimit(request, 10);
+    if (!rateCheck.ok) {
+      const res = errorResponse("Too many requests. Please try again later.", 429);
+      if (rateCheck.retryAfter) res.headers.set("Retry-After", String(rateCheck.retryAfter));
+      return res;
+    }
+
     const body = await request.json();
 
     if (body.website || (typeof body.website === 'string' && body.website.trim().length > 0)) {
@@ -61,19 +74,33 @@ export async function POST(request: NextRequest) {
     );
   } catch (error) {
     console.error("Create contact error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return errorResponse("Failed to submit contact form", 500, { message });
+    return errorResponse("Failed to submit contact form", 500);
   }
 }
 
 export async function GET(request: NextRequest) {
   try {
-    // ✅ Require authentication to view all contacts
+    /**
+     * ADMIN ONLY.
+     *
+     * This previously accepted ANY authenticated user - the old comment said
+     * so outright ("Allow admin users (ADMIN role) or regular authenticated
+     * users"). It returns every contact submission ever made: names, emails,
+     * phone numbers and message bodies, 500 rows at a time, with paging.
+     *
+     * So any customer who signed up could read the business's entire contact
+     * list. Signing up is free and self-service, which made this an open
+     * personal-data export to anyone who wanted one - and personal data under
+     * the DPDP Act.
+     */
     const { user, error } = await authenticate(request);
-    
-    // Allow admin users (ADMIN role) or regular authenticated users
+
     if (!user) {
       return errorResponse(error || "Unauthorized. Please log in to view contacts.", 401);
+    }
+
+    if (user.role !== Role.ADMIN) {
+      return errorResponse("Forbidden", 403);
     }
 
     // Get MongoDB connection
@@ -123,7 +150,6 @@ export async function GET(request: NextRequest) {
     );
   } catch (error) {
     console.error("Fetch contacts error:", error);
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return errorResponse("Failed to fetch contacts", 500, { message });
+    return errorResponse("Failed to fetch contacts", 500);
   }
 }

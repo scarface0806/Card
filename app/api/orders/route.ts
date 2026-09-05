@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendAdminOrderNotification } from "@/lib/emails/adminOrderNotification";
 import { authenticate } from "@/lib/auth-middleware";
+import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
 import { OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
@@ -111,6 +112,17 @@ export async function GET(request: NextRequest) {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Order creation is reachable by guests (guest checkout), so an
+    // unauthenticated caller could previously create unlimited PENDING order
+    // rows - each one now also firing an admin notification email. 20/minute
+    // per IP leaves a real checkout untouched.
+    const rateCheck = checkRateLimit(request, 20);
+    if (!rateCheck.ok) {
+      const res = errorResponse("Too many requests. Please try again later.", 429);
+      if (rateCheck.retryAfter) res.headers.set("Retry-After", String(rateCheck.retryAfter));
+      return res;
+    }
+
     const { user } = await authenticate(request);
 
     const body = await request.json();

@@ -170,8 +170,7 @@ async function deleteHandler(request: NextRequest, user: AuthUser, context: Rout
       return errorResponse("Customer not found", 404);
     }
 
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return errorResponse("Failed to delete customer", 500, { message });
+        return errorResponse("Failed to delete customer", 500);
   }
 }
 
@@ -558,8 +557,7 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
       return errorResponse("Customer not found", 404);
     }
 
-    const message = error instanceof Error ? error.message : "Unknown error";
-    return errorResponse("Failed to update customer", 500, { message });
+        return errorResponse("Failed to update customer", 500);
   }
 }
 
