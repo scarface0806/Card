@@ -44,13 +44,14 @@ describe('createCardFormSchema', () => {
       'personalDetails.email',
     ]);
 
-    // Step 2 renders address, about and services, and the schema makes all
-    // three required - so all three have to be gated here, or the customer
-    // reaches step 5 with a form the full schema will reject.
+    // Step 2 renders address and about, and the schema makes both required -
+    // so both have to be gated here, or the customer reaches step 5 with a
+    // form the full schema will reject. The Services Offered field that used
+    // to sit between them was removed: it was required, yet nothing on the
+    // profile or in the admin email ever rendered what it collected.
     expect(getStepFieldNames(2)).toEqual([
       'businessDetails.address',
       'businessDetails.about',
-      'businessDetails.services',
     ]);
     expect(getStepFieldNames(5)).toEqual(['payment.terms']);
   });
@@ -68,7 +69,6 @@ describe('createCardFormSchema', () => {
         address: '123 MG Road, Bengaluru',
         website: 'https://acme.com',
         about: 'We build digital experiences',
-        services: 'Branding and web design',
       },
       socialLinks: {
         instagram: '@janedoe',
@@ -96,7 +96,6 @@ describe('createCardFormSchema', () => {
         address: '123 MG Road, Bengaluru',
         website: 'https://acme.com',
         about: 'We build digital experiences',
-        services: 'Branding and web design',
       },
       socialLinks: {},
       uploads: { profileImage: null },

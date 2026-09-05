@@ -52,14 +52,6 @@ export default function BusinessDetailsForm() {
         error={errors.businessDetails && 'about' in errors.businessDetails ? (errors.businessDetails?.about?.message as string) : ''}
       />
 
-      <TextArea
-        label="Services Offered"
-        placeholder="List your services or products"
-        rows={4}
-        {...register('businessDetails.services')}
-        error={errors.businessDetails && 'services' in errors.businessDetails ? (errors.businessDetails?.services?.message as string) : ''}
-      />
-
       <Input
         label="Google Location Link"
         placeholder="https://maps.google.com/..."

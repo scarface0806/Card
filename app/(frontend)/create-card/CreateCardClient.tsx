@@ -78,7 +78,6 @@ export default function CreateCardClient({
         address: '',
         website: '',
         about: '',
-        services: '',
         googleLocation: '',
       },
       socialLinks: {

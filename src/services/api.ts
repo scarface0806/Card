@@ -13,7 +13,6 @@ export interface OrderData {
     address: string;
     website: string;
     about: string;
-    services: string;
   };
   socialLinks: {
     instagram?: string;

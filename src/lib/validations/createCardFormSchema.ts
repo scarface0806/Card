@@ -26,7 +26,6 @@ export const createCardFormSchema = z.object({
     address: z.string().trim().min(5, 'Address is required').max(120, 'Address is too long'),
     website: urlOrHandleSchema,
     about: z.string().trim().min(10, 'Please enter a short business description').max(500, 'Description too long').default(''),
-    services: z.string().trim().min(3, 'Please list your services').max(500, 'Services too long').default(''),
     googleLocation: urlOrHandleSchema,
   }),
   socialLinks: z.object({
@@ -63,7 +62,6 @@ export const getStepFieldNames = (step: number): Path<CreateCardFormValues>[] =>
       return [
         'businessDetails.address',
         'businessDetails.about',
-        'businessDetails.services',
       ];
     case 3:
       return [];
