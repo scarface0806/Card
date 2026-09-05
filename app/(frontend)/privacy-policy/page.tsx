@@ -6,6 +6,19 @@ import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 
+/**
+ * Hardcoded, NOT `new Date()`. Same reasoning as the other three policy pages:
+ * a last-updated date has to be the date the policy actually changed, not the
+ * date the visitor loaded it, and `new Date()` in a client component is a
+ * hydration mismatch whenever server and browser disagree on timezone.
+ *
+ * This page's wording is unchanged by the profile-update rule; the date below
+ * is simply the value the old `new Date()` was already rendering.
+ *
+ * BUMP THIS whenever the wording below changes.
+ */
+const LAST_UPDATED = 'September 5, 2026';
+
 export default function PrivacyPolicyPage() {
   const sections = [
     {
@@ -55,11 +68,7 @@ export default function PrivacyPolicyPage() {
               Privacy Policy
             </h1>
             <p className="tv-mono">
-              Last updated: {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              Last updated: {LAST_UPDATED}
             </p>
           </motion.div>
 

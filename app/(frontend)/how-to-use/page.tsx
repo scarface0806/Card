@@ -177,10 +177,11 @@ export default function HowToUsePage() {
                     which fields to change and what they should say
                   </li>
                   <li className="tv-spec-row">Each update request is ₹49</li>
-                  {/* TODO: confirm the real turnaround before launch. The
-                      wording below is a placeholder - do not ship unverified. */}
+                  {/* Turnaround confirmed by the owner on 5 September 2026 and
+                      published as a term in section 7 of /terms-conditions.
+                      Keep the two in step. */}
                   <li className="tv-spec-row">
-                    Your profile is updated within 1 working day [CONFIRM]
+                    Your profile is updated within 1 working day
                   </li>
                 </ul>
 

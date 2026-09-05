@@ -14,6 +14,14 @@ const bulkSolutions: {
   accentColor: 'blue' | 'gray' | 'green';
   description: string;
 }[] = [
+  // The "updated 3 times free" bullet on all three products is a deliberate
+  // exemption from the ₹49-per-update rule that applies to single-card orders,
+  // confirmed by the owner on 5 September 2026 and written into section 7 of
+  // /terms-conditions. It is NOT a leftover from before that rule.
+  //
+  // If bulk ever moves onto the ₹49 terms, these three bullets and the bulk
+  // bullet in Terms section 7 have to change together, or the site contradicts
+  // its own published terms.
   {
     id: 'school',
     icon: GraduationCap,

@@ -4,8 +4,31 @@ import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 
+/**
+ * Hardcoded, NOT `new Date()`. A policy's last-updated date has to be the date
+ * the terms actually changed, not the date the visitor happened to load the
+ * page - and rendering today's date inside a client component is a hydration
+ * mismatch waiting to happen when server and browser disagree on timezone.
+ * Same reasoning, and the same constant, as /refund-policy and /shipping-policy.
+ *
+ * BUMP THIS whenever the wording below changes.
+ */
+const LAST_UPDATED = 'September 5, 2026';
+
+/**
+ * `bullets` mirrors the shape /refund-policy and /shipping-policy already use,
+ * so the three policy pages stay one object. `.tv-prose li` is defined in
+ * globals.css, so the list inherits this page's typography and introduces no
+ * new styling.
+ */
+type Section = {
+  title: string;
+  content?: string;
+  bullets?: string[];
+};
+
 export default function TermsPage() {
-  const sections = [
+  const sections: Section[] = [
     {
       title: '1. Agreement to Terms',
       content:
@@ -37,9 +60,27 @@ export default function TermsPage() {
         'Tapvyo has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Tapvyo of the site. Use of any such linked website is at the user\'s own risk.',
     },
     {
-      title: '7. Profile Updates',
+      // The turnaround (1 working day), the error-correction window (7 days)
+      // and the bulk exemption (3 free updates) were all confirmed by the
+      // owner on 5 September 2026. These are published terms now, not
+      // placeholders - do not change them without the same sign-off.
+      //
+      // The bulk bullet must stay in step with the three "updated 3 times
+      // free" bullets in src/sections/OtherCardsSolutionsSection.tsx. If one
+      // changes, change the other.
+      title: '7. Profile Updates and Edit Charges',
       content:
-        'Your digital profile is maintained by Tapvyo. It is not self-service: there is no customer-facing editor, and changes to a published profile are made by our team on request. To request a change, message us on WhatsApp at +91 78713 61025 with your Order ID and the details you want changed. Each update request is charged ₹49, payable before the update is made. A single request may cover more than one field. The charge applies to changes you ask for; correcting an error made by us in transcribing details you originally supplied is free. Updating a profile does not require reprinting your card, as the link encoded on the NFC chip does not change.',
+        'Your digital profile is created by Tapvyo using the details you submit at the time of ordering. Updating a profile does not require reprinting your card, as the link encoded on the NFC chip does not change.',
+      bullets: [
+        'Profiles are not self-editable. There is no customer-facing editor, and changes to a published profile are made by our team on request.',
+        'Any change to your profile after the order is placed must be requested from Tapvyo directly. Update requests are accepted on WhatsApp at +91 78713 61025. Please include your Order ID and the details you want changed.',
+        'Each update request is charged ₹49 (inclusive of applicable taxes), payable before the update is made. One request covers the set of changes submitted in that single message.',
+        'Update requests are processed within 1 working day of payment being received.',
+        'The ₹49 charge applies per request, not per field. If further changes are requested later, a fresh ₹49 charge applies.',
+        'Tapvyo may decline an update request that involves unlawful, misleading, offensive or third-party-infringing content.',
+        'Corrections to errors caused by Tapvyo during profile creation are made free of charge, provided they are reported within 7 days of your profile link being delivered.',
+        'Bulk and institutional orders (school, corporate and team cards) include 3 free update requests. Further updates are charged ₹49 each. Any different terms stated in your order confirmation take precedence.',
+      ],
     },
     {
       title: '8. Modifications',
@@ -68,11 +109,7 @@ export default function TermsPage() {
               Terms &amp; Conditions
             </h1>
             <p className="tv-mono">
-              Last updated: {new Date().toLocaleDateString('en-US', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-              })}
+              Last updated: {LAST_UPDATED}
             </p>
           </motion.div>
 
@@ -88,9 +125,18 @@ export default function TermsPage() {
                 <h2 className="tv-h3 mb-3">
                   {section.title}
                 </h2>
-                <p className="tv-body">
-                  {section.content}
-                </p>
+                {section.content && (
+                  <p className="tv-body">
+                    {section.content}
+                  </p>
+                )}
+                {section.bullets && (
+                  <ul>
+                    {section.bullets.map((bullet) => (
+                      <li key={bullet}>{bullet}</li>
+                    ))}
+                  </ul>
+                )}
               </motion.div>
             ))}
           </div>

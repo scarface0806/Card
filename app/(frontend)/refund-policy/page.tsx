@@ -34,7 +34,7 @@ import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 
-const LAST_UPDATED = 'September 2, 2026';
+const LAST_UPDATED = 'September 5, 2026';
 
 type Section = {
   title: string;
@@ -130,7 +130,13 @@ export default function RefundPolicyPage() {
     {
       title: '11. Profile update charges',
       content:
-        'Profile updates are made by our team on request and are charged ₹49 per request. Because the work is carried out as soon as the request is paid for, an update charge is not refundable once the change has been made to your profile. If we make a mistake carrying out your request, we will correct it at no further charge. If you pay an update charge and we are unable to make the change, the ₹49 is refunded in full by the method described in section 8. Update charges are separate from the price of the card and do not affect your rights over the card order itself.',
+        'Profiles are not self-editable. Updates are made by our team on request via WhatsApp and are charged ₹49 per request, as set out in section 7 of our Terms & Conditions.',
+      bullets: [
+        'The ₹49 profile update charge is a service fee and is non-refundable once the requested update has been applied to your profile.',
+        'If Tapvyo is unable to complete a requested update, the ₹49 charge for that request is refunded in full, by the method described in section 8.',
+        'If we make a mistake carrying out your request, we will correct it at no further charge.',
+        'The update charge is separate from the card price and does not affect any refund or replacement entitlement relating to the physical card itself.',
+      ],
     },
     {
       title: '12. Changes to this policy',
