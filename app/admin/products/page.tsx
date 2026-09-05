@@ -156,13 +156,18 @@ export default function ProductsPage() {
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
           <h1 className="tv-adm-page-title">Products</h1>
-          <p className="text-[var(--tv-text-muted)] text-sm mt-1">Create, edit and delete frontend product cards from admin</p>
+          {/* tv-adm-page-sub, not a hand-rolled size/colour pair - this is the
+              subtitle treatment every other admin page header uses. */}
+          <p className="tv-adm-page-sub mt-1">Create, edit and delete frontend product cards from admin</p>
         </div>
         <div className="flex flex-col sm:flex-row sm:flex-wrap items-stretch sm:items-center gap-2.5">
+          {/* Was a bespoke button with its own background, border, padding and
+              radius, sitting next to a .tv-btn - so the two controls in this
+              one row did not match each other, let alone the rest of admin. */}
           <button
             type="button"
             onClick={() => fetchProducts()}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[var(--tv-slate)] hover:bg-[rgba(241,243,241,0.09)] text-[var(--tv-text)] px-4 py-2.5 rounded-xl transition-all font-medium border border-[var(--tv-rule)]"
+            className="tv-btn tv-btn-secondary w-full sm:w-auto"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
@@ -181,37 +186,63 @@ export default function ProductsPage() {
       {error && <AdminToast variant="error" message={error} onClose={() => setError(null)} />}
       {toast && <AdminToast variant={toast.variant} message={toast.message} onClose={() => setToast(null)} />}
 
+      {/* tv-adm-panel + panel-head + panel-pad: the same three-part panel every
+          other admin page builds with, instead of a one-off rounded box with
+          its own radius, border colour and translucent fill. */}
       {formOpen ? (
-        <section className="rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-5">
-          <h2 className="tv-adm-panel-title mb-4">{formMode === 'create' ? 'Create Product' : 'Edit Product'}</h2>
-          <ProductForm
-            initialValues={
-              activeProduct
-                ? {
-                    name: activeProduct.name,
-                    description: activeProduct.description,
-                    price: activeProduct.price,
-                    image: activeProduct.image,
-                    backImage: activeProduct.backImage,
-                  }
-                : undefined
-            }
-            onSubmit={saveProduct}
-            submitLabel={formMode === 'create' ? 'Create Product' : 'Update Product'}
-            submitting={saving}
-            onCancel={closeForm}
-          />
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">
+              {formMode === 'create' ? 'Create Product' : 'Edit Product'}
+            </h2>
+          </div>
+          <div className="tv-adm-panel-pad">
+            <ProductForm
+              initialValues={
+                activeProduct
+                  ? {
+                      name: activeProduct.name,
+                      description: activeProduct.description,
+                      price: activeProduct.price,
+                      image: activeProduct.image,
+                      backImage: activeProduct.backImage,
+                    }
+                  : undefined
+              }
+              onSubmit={saveProduct}
+              submitLabel={formMode === 'create' ? 'Create Product' : 'Update Product'}
+              submitting={saving}
+              onCancel={closeForm}
+            />
+          </div>
         </section>
       ) : null}
 
-      <section className="rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4 sm:p-5">
+      <section className="tv-adm-panel tv-adm-panel-pad">
         {loading ? (
-          <p className="text-[var(--tv-text-muted)]">Loading products...</p>
+          /* Skeleton cards in the grid's own shape, rather than the single
+             line of "Loading products..." text that used to sit here - the
+             layout no longer jumps from one line to a three-column grid when
+             the fetch lands. */
+          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3" aria-hidden="true">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-4">
+                <div className="tv-adm-skeleton aspect-video w-full" />
+                <div className="tv-adm-skeleton mt-3 h-4 w-2/3" />
+                <div className="tv-adm-skeleton mt-2 h-3 w-full" />
+                <div className="tv-adm-skeleton mt-3 h-4 w-1/4" />
+              </div>
+            ))}
+          </div>
         ) : products.length === 0 ? (
-          <div className="rounded-xl border border-dashed border-[rgba(241,243,241,0.18)] bg-[var(--tv-graphite)] p-8 text-center">
-            <Package className="mx-auto mb-3 h-8 w-8 text-[var(--tv-text-muted)]" />
+          /* tv-adm-empty is the shared empty state - same padding, centring
+             and icon treatment as the other admin lists. */
+          <div className="tv-adm-empty">
+            <span className="tv-adm-empty-icon">
+              <Package className="h-6 w-6" aria-hidden="true" />
+            </span>
             <p className="text-[var(--tv-text)] font-medium">No products found</p>
-            <p className="text-sm text-[var(--tv-text-muted)] mt-1">Create your first product to display cards on the frontend.</p>
+            <p className="tv-adm-page-sub">Create your first product to display cards on the frontend.</p>
           </div>
         ) : (
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
