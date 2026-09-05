@@ -17,6 +17,7 @@ const PRODUCT_SELECT = {
   salePrice: true,
   images: true,
   backImage: true,
+  orientation: true,
   cardType: true,
   material: true,
   color: true,
@@ -38,6 +39,12 @@ type ProductInput = {
    * field in the admin form actually clears it.
    */
   backImage: string | null;
+  /**
+   * Card shape: "horizontal" | "vertical". Always a concrete string here even
+   * though the column is nullable - the parser below resolves absence to
+   * "horizontal" so nothing downstream has to. See lib/products/orientation.ts.
+   */
+  orientation: string;
 };
 
 function normalizeProductInput(payload: unknown): ProductInput {
@@ -50,6 +57,9 @@ function normalizeProductInput(payload: unknown): ProductInput {
   const description = String(input.description || "").trim();
   const image = String(input.image || input.imageUrl || "").trim();
   const backImage = String(input.backImage || input.backImageUrl || "").trim();
+  // Anything that is not the literal "vertical" is stored as horizontal, so a
+  // missing or unexpected value can never produce a third shape.
+  const orientation = input.orientation === "vertical" ? "vertical" : "horizontal";
   const priceNumber = Number(input.price);
 
   if (!name) {
@@ -75,6 +85,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
     image,
     imageUrl: String(input.imageUrl || "").trim() || undefined,
     backImage: backImage || null,
+    orientation,
   };
 }
 
@@ -87,6 +98,7 @@ function mapProduct(p: {
   salePrice: number | null;
   images: string[];
   backImage: string | null;
+  orientation: string | null;
   cardType: string | null;
   material: string | null;
   color: string | null;
@@ -105,6 +117,7 @@ function mapProduct(p: {
     image: p.images[0] || "",
     // Nullable, not "": the client treats absent as "this card has no back".
     backImage: p.backImage || null,
+    orientation: p.orientation || "horizontal",
     cardType: p.cardType,
     material: p.material,
     color: p.color,
@@ -165,6 +178,7 @@ async function createProductHandler(request: NextRequest, _user: AuthUser) {
         price: parsed.price,
         images: [parsed.image],
         backImage: parsed.backImage,
+        orientation: parsed.orientation,
         slug: `product-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
         isActive: true,
         tags: [],

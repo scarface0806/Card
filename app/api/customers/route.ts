@@ -128,7 +128,7 @@ async function createCustomerWithMongoFallback(params: {
   };
 }
 
-async function postHandler(request: NextRequest, user: AuthUser) {
+async function postHandler(request: NextRequest, _user: AuthUser) {
   try {
     const formData = await request.formData();
     const enableGallery = parseBoolean(formData.get("enableGallery"));
@@ -280,7 +280,7 @@ async function postHandler(request: NextRequest, user: AuthUser) {
   }
 }
 
-async function getHandler(request: NextRequest, user: AuthUser) {
+async function getHandler(_request: NextRequest, _user: AuthUser) {
   try {
     const customerDelegate = (prisma as unknown as {
       customer: {

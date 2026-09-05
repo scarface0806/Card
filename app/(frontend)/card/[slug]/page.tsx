@@ -184,7 +184,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         canonical: canonicalUrl,
       },
     };
-  } catch (error) {
+  } catch {
     return {
       metadataBase,
       title: 'Digital Business Card | Tapvyo',
@@ -264,7 +264,7 @@ export default async function CardPage({ params }: PageProps) {
         where: { id: card.id },
         data: { views: { increment: 1 } },
       });
-    } catch (error) {
+    } catch {
       // Silently fail - don't block rendering
     }
   });

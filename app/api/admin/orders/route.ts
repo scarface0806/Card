@@ -15,7 +15,7 @@ function generateOrderNumber(): string {
 }
 
 // GET /api/admin/orders - Get all orders (Admin only)
-async function getOrdersHandler(request: NextRequest, user: AuthUser) {
+async function getOrdersHandler(request: NextRequest, _user: AuthUser) {
   const rl = checkRateLimit(request, 50);
   if (!rl.ok) {
     const res = errorResponse("Too many requests", 429);
@@ -133,7 +133,7 @@ async function getOrdersHandler(request: NextRequest, user: AuthUser) {
 }
 
 // POST /api/admin/orders - Create order manually (Admin only)
-async function createOrderHandler(request: NextRequest, user: AuthUser) {
+async function createOrderHandler(request: NextRequest, _user: AuthUser) {
   const rl = checkRateLimit(request, 30);
   if (!rl.ok) {
     const res = errorResponse("Too many requests", 429);

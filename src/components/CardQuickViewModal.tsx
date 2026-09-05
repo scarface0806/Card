@@ -8,6 +8,11 @@ import { X } from 'lucide-react';
 import CardFlipImage from '@/components/ui/CardFlipImage';
 import CardArtwork from '@/components/ui/CardArtwork';
 import { useCardBackImage } from '@/hooks/useCardBackImage';
+import {
+  cardAspectClass,
+  normalizeOrientation,
+  type CardOrientation,
+} from '@/lib/products/orientation';
 
 /**
  * QUICK VIEW — the card, large, front and back.
@@ -46,6 +51,8 @@ interface CardQuickViewModalProps {
   eyebrow?: string;
   /** Formatted price, shown under the title when given. */
   price?: string;
+  /** Card shape. Absent is read as horizontal. */
+  orientation?: CardOrientation;
 }
 
 export default function CardQuickViewModal({
@@ -57,6 +64,7 @@ export default function CardQuickViewModal({
   color,
   eyebrow,
   price,
+  orientation,
 }: CardQuickViewModalProps) {
   const titleId = useId();
   const panelRef = useRef<HTMLDivElement | null>(null);
@@ -209,7 +217,7 @@ export default function CardQuickViewModal({
                       frontSrc={frontSrc}
                       backImage={backImage}
                       name={name}
-                      className="aspect-[1.6/1]"
+                      className={cardAspectClass(normalizeOrientation(orientation))}
                       flipped={flipped}
                       onFlipChange={setFlipped}
                       showControl={false}

@@ -4,12 +4,11 @@ import { PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-config';
 
 import { Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
-import Link from 'next/link';
 import MotionLink from '@/components/MotionLink';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
-import { CheckCircle, Mail, Phone, ArrowRight, Home, Layout } from 'lucide-react';
+import { CheckCircle, Mail, Phone, Home, Layout } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
 
 function OrderSuccessContent() {

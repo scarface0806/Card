@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { errorResponse, successResponse } from "@/lib/responses";
+import { errorResponse } from "@/lib/responses";
 
 // Helper to extract slug from URL
 function getSlugFromUrl(url: string): string {

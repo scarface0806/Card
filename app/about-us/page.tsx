@@ -4,7 +4,6 @@ import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 import { ArrowUpRight, Users, Zap, Target } from 'lucide-react';
-import Link from 'next/link';
 import MotionLink from '@/components/MotionLink';
 import { ROUTES } from '@/utils/constants';
 

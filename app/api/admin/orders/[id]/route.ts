@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
-import { errorResponse, successResponse } from "@/lib/responses";
+import { errorResponse } from "@/lib/responses";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
 import { sendOrderStatusEmail } from "@/lib/emails/send-order-email";
@@ -239,7 +239,7 @@ export async function PATCH(request: NextRequest) {
 
         // Update order with cardId
         updateData.cardId = createdCard.id;
-      } catch (cardError) {
+      } catch {
         // Don't fail the order update if card creation fails
         // Admin can manually create card later
       }

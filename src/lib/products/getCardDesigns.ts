@@ -34,6 +34,7 @@ import { unstable_cache } from "next/cache";
 import prisma from "@/lib/prisma";
 
 import { productToCardDesign, type CardDesign } from "./cardDesign";
+import { byOrientation } from "./orientation";
 
 /** Matches the `limit=50` the client used to request. */
 const CATALOGUE_LIMIT = 50;
@@ -61,6 +62,7 @@ const CATALOGUE_SELECT = {
   cardType: true,
   material: true,
   color: true,
+  orientation: true,
 } as const;
 
 /**
@@ -81,7 +83,9 @@ export const getCardDesigns = unstable_cache(
         select: CATALOGUE_SELECT,
       });
 
-      return products.map(productToCardDesign);
+      // Horizontal cards first, then vertical - see byOrientation. The sort
+      // is stable, so createdAt desc still decides the order within each group.
+      return products.map(productToCardDesign).sort(byOrientation);
     } catch (error) {
       console.error("[catalogue] Failed to load card designs:", error);
       return [];

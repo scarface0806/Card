@@ -6,7 +6,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
 import ImageUpload from '@/components/admin/ImageUpload';
-import { isAbortError, logFetchError } from '@/lib/fetch-utils';
+import { isAbortError } from '@/lib/fetch-utils';
 
 interface GalleryItem {
   id: string;

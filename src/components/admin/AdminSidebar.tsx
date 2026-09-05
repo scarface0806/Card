@@ -7,7 +7,6 @@ import BrandLogo from '@/components/common/BrandLogo';
 import {
   BarChart3,
   Users,
-  CreditCard,
   Package,
   ShoppingCart,
   Mail,
@@ -30,7 +29,6 @@ const menuItems = [
     items: [
       { label: 'Customers', href: '/admin/customers', icon: Users },
       { label: 'Leads', href: '/admin/leads', icon: Target },
-      { label: 'Cards', href: '/admin/cards', icon: CreditCard },
       { label: 'Products', href: '/admin/products', icon: Package },
       { label: 'Orders', href: '/admin/orders', icon: ShoppingCart },
       { label: 'Contacts', href: '/admin/contacts', icon: Contact },

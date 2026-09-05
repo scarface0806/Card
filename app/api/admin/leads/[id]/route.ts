@@ -3,7 +3,6 @@ import prisma from "@/lib/prisma";
 import { withAdmin } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import type { AuthUser } from "@/lib/auth";
-import { ObjectId } from "mongodb";
 
 function isValidObjectId(id: string) {
   return /^[a-fA-F0-9]{24}$/.test(id);

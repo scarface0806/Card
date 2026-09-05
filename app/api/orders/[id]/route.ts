@@ -7,7 +7,7 @@ import { orderStatusSchema } from "@/lib/validators";
 import { sendOrderStatusEmail } from "@/lib/emails/send-order-email";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
-import { MongoClient, ObjectId } from "mongodb";
+import { ObjectId } from "mongodb";
 import { getMongoDb } from "@/lib/mongodb";
 
 type RouteParams = { params: Promise<{ id: string }> };

@@ -5,7 +5,6 @@ import { AuthUser } from '@/lib/auth';
 import { sendEmail } from '@/lib/email';
 
 import { z } from 'zod';
-import { withRateLimit } from '@/lib/rate-limit';
 import { errorResponse, successResponse } from '@/lib/responses';
 
 const newsletterSchema = z.object({
@@ -126,7 +125,7 @@ async function sendNewsletterEmails(
 }
 
 // POST /api/admin/newsletters/send - Send newsletter (non-blocking)
-async function handler(request: NextRequest, user: AuthUser) {
+async function handler(request: NextRequest, _user: AuthUser) {
   try {
     const parsed = newsletterSchema.safeParse(await request.json());
     if (!parsed.success) {

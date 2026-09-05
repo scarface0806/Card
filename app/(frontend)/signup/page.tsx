@@ -85,7 +85,7 @@ function SignupForm() {
       } else {
         setServerError(response.message || 'Signup failed. Please try again.');
       }
-    } catch (error) {
+    } catch {
       setServerError('An error occurred. Please try again later.');
     } finally {
       setIsLoading(false);

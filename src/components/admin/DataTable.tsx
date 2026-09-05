@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState } from 'react';
-import StatusBadge from './StatusBadge';
 import {
   ArrowRight,
   Ban,

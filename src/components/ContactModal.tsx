@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, User, Building2, Phone, MessageSquare, Palette } from 'lucide-react';
+import { X, User, Building2, Phone, Palette } from 'lucide-react';
 
 export type ContactSource = 'custom' | 'school' | 'business' | 'corporate' | 'general';
 

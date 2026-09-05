@@ -19,6 +19,7 @@ const PRODUCT_SELECT = {
   salePrice: true,
   images: true,
   backImage: true,
+  orientation: true,
   cardType: true,
   material: true,
   color: true,
@@ -39,6 +40,8 @@ type ProductInput = {
    * in the database rather than silently keeping the old one.
    */
   backImage: string | null;
+  /** "horizontal" | "vertical". See src/lib/products/orientation.ts. */
+  orientation: string;
 };
 
 function normalizeProductInput(payload: unknown): ProductInput {
@@ -51,6 +54,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
   const description = String(input.description || "").trim();
   const image = String(input.image || input.imageUrl || "").trim();
   const backImage = String(input.backImage || input.backImageUrl || "").trim();
+  const orientation = input.orientation === "vertical" ? "vertical" : "horizontal";
   const priceNumber = Number(input.price);
 
   if (!name) {
@@ -76,6 +80,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
     image,
     imageUrl: String(input.imageUrl || "").trim() || undefined,
     backImage: backImage || null,
+    orientation,
   };
 }
 
@@ -109,6 +114,7 @@ function mapProduct(p: {
   salePrice: number | null;
   images: string[];
   backImage: string | null;
+  orientation: string | null;
   cardType: string | null;
   material: string | null;
   color: string | null;
@@ -127,6 +133,7 @@ function mapProduct(p: {
     image: p.images[0] || "",
     // Nullable, not "": the client treats absent as "this card has no back".
     backImage: p.backImage || null,
+    orientation: p.orientation || "horizontal",
     cardType: p.cardType,
     material: p.material,
     color: p.color,
@@ -155,6 +162,7 @@ export async function GET(
         salePrice: true,
         images: true,
         backImage: true,
+        orientation: true,
         cardType: true,
         material: true,
         color: true,
@@ -204,6 +212,7 @@ async function updateProductHandler(
         description: parsed.description,
         price: parsed.price,
         images: [parsed.image],
+        orientation: parsed.orientation,
         backImage: parsed.backImage,
       },
       select: PRODUCT_SELECT,

@@ -11,6 +11,7 @@ import CardFlipImage from '@/components/ui/CardFlipImage';
 import CardArtwork from '@/components/ui/CardArtwork';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
+import { cardAspectClass } from '@/lib/products/orientation';
 import { ContactSource } from '@/components/ContactModal';
 
 interface CardDesignsHomeSectionProps {
@@ -121,7 +122,7 @@ export default function CardDesignsHomeSection({ onContactClick, initialDesigns 
                     frontSrc={card.images?.[0]}
                     backImage={card.backImage}
                     name={card.name}
-                    className="aspect-[1.6/1] overflow-hidden bg-[#151C1A]"
+                    className={`${cardAspectClass(card.orientation)} overflow-hidden bg-[#151C1A]`}
                     front={
                       /* Photograph where there is one, the drawn finish
                          otherwise — same rule as the /cards catalogue. */

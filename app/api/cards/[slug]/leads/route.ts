@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
-import { isValidEmail } from "@/lib/auth";
 import { sendLeadNotificationEmail } from "@/lib/email";
 
 import { leadSchema } from "@/lib/validators";

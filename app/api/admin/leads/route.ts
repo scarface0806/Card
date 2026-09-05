@@ -48,7 +48,7 @@ function isMongoConnectivityError(error: unknown): boolean {
   );
 }
 
-async function getHandler(request: NextRequest, user: AuthUser) {
+async function getHandler(request: NextRequest, _user: AuthUser) {
   try {
     const { searchParams } = new URL(request.url);
     const rawPage = parseInt(searchParams.get("page") || "1", 10);

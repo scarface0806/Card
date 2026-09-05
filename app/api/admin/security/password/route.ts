@@ -67,7 +67,7 @@ export async function POST(request: NextRequest) {
     });
 
     return successResponse({ message: "Password changed successfully" });
-  } catch (error) {
+  } catch {
     return errorResponse("Failed to update password", 500);
   }
 }

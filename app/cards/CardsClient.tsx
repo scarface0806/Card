@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import SelectionNotice from './SelectionNotice';
+import { cardAspectClass } from '@/lib/products/orientation';
 
 /**
  * The three modals are code-split and mounted only while open.
@@ -215,7 +216,7 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
                       frontSrc={card.images?.[0]}
                       backImage={card.backImage}
                       name={card.name}
-                      className="aspect-[1.6/1] overflow-hidden bg-[#E8E3D8]"
+                      className={`${cardAspectClass(card.orientation)} overflow-hidden bg-[#E8E3D8]`}
                       front={
                         /* A photograph if the design has one; otherwise the
                            finish is drawn. Every design carries a gradient, so

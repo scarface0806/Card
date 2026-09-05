@@ -6,7 +6,7 @@ import { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
 
 // GET /api/admin/contacts - List contact leads (admin only)
-async function getContactsHandler(request: NextRequest, user: AuthUser) {
+async function getContactsHandler(request: NextRequest, _user: AuthUser) {
   try {
     const { searchParams } = new URL(request.url);
 
@@ -63,13 +63,13 @@ async function getContactsHandler(request: NextRequest, user: AuthUser) {
         totalPages: Math.ceil(total / limit),
       },
     });
-  } catch (error) {
+  } catch {
     return errorResponse("Failed to fetch contacts", 500);
   }
 }
 
 // PATCH /api/admin/contacts - Update read/unread state (admin only)
-async function patchContactsHandler(request: NextRequest, user: AuthUser) {
+async function patchContactsHandler(request: NextRequest, _user: AuthUser) {
   try {
     const body = await request.json();
     const id = typeof body?.id === "string" ? body.id : "";
@@ -89,13 +89,13 @@ async function patchContactsHandler(request: NextRequest, user: AuthUser) {
       message: `Contact marked as ${isRead ? "read" : "unread"}`,
       contact,
     });
-  } catch (error) {
+  } catch {
     return errorResponse("Failed to update contact", 500);
   }
 }
 
 // DELETE /api/admin/contacts?id=... - Remove contact lead (admin only)
-async function deleteContactsHandler(request: NextRequest, user: AuthUser) {
+async function deleteContactsHandler(request: NextRequest, _user: AuthUser) {
   try {
     const { searchParams } = new URL(request.url);
     const id = searchParams.get("id");
@@ -107,7 +107,7 @@ async function deleteContactsHandler(request: NextRequest, user: AuthUser) {
     await prisma.cardLead.delete({ where: { id } });
 
     return successResponse({ message: "Contact deleted successfully" });
-  } catch (error) {
+  } catch {
     return errorResponse("Failed to delete contact", 500);
   }
 }

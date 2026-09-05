@@ -54,7 +54,7 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
       } else {
         setError(result.message);
       }
-    } catch (err) {
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);

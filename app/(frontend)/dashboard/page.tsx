@@ -44,7 +44,7 @@ export default function DashboardPage() {
     if (storedUser) {
       try {
         setUser(JSON.parse(storedUser));
-      } catch (e) {
+      } catch {
         // If user data is not available, use mock data
         setUser({
           id: 'mock-admin-id',

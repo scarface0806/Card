@@ -65,7 +65,7 @@ export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> =>
         },
       },
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: 'An error occurred during login. Please try again.',
@@ -113,7 +113,7 @@ export const registerUser = async (payload: RegisterPayload): Promise<AuthRespon
         },
       },
     };
-  } catch (error) {
+  } catch {
     return {
       success: false,
       message: 'An error occurred during registration. Please try again.',
@@ -128,7 +128,7 @@ export const logoutUser = (): void => {
   try {
     localStorage.removeItem('authToken');
     localStorage.removeItem('user');
-  } catch (error) {
+  } catch {
     // Silently fail
   }
 };
@@ -139,7 +139,7 @@ export const logoutUser = (): void => {
 export const getAuthToken = (): string | null => {
   try {
     return localStorage.getItem('authToken');
-  } catch (error) {
+  } catch {
     return null;
   }
 };
@@ -150,7 +150,7 @@ export const getAuthToken = (): string | null => {
 export const setAuthToken = (token: string): void => {
   try {
     localStorage.setItem('authToken', token);
-  } catch (error) {
+  } catch {
     // Silently fail
   }
 };

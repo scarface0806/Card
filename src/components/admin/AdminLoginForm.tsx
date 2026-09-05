@@ -60,7 +60,7 @@ export default function AdminLoginForm({ redirectTo = '/admin/dashboard' }: Admi
       } else {
         setServerError(result.error || result.message || 'Invalid email or password.');
       }
-    } catch (error) {
+    } catch {
       setServerError('An error occurred. Please try again.');
     } finally {
       setIsLoading(false);

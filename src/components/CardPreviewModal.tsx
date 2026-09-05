@@ -4,6 +4,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Wifi } from 'lucide-react';
 import NFCCard from '@/components/ui/NFCCard';
 import CardFlipImage from '@/components/ui/CardFlipImage';
+import {
+  cardAspectClass,
+  normalizeOrientation,
+  type CardOrientation,
+} from '@/lib/products/orientation';
 import CardArtwork from '@/components/ui/CardArtwork';
 
 interface CardPreviewModalProps {
@@ -19,6 +24,12 @@ interface CardPreviewModalProps {
     image?: string;
     /** A real back-image field, if one is ever added. Optional by design. */
     backImage?: string;
+    /**
+     * Card shape. Optional so any caller that predates the field still
+     * compiles; absent is normalised to horizontal, which is what those
+     * products are.
+     */
+    orientation?: CardOrientation;
   } | null;
 }
 
@@ -72,7 +83,7 @@ export default function CardPreviewModal({ isOpen, onClose, card }: CardPreviewM
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.4, ease: 'easeOut' }}
-                  className="relative aspect-[1.6/1] rounded-2xl overflow-hidden mx-auto max-w-sm mb-7"
+                  className={`relative ${cardAspectClass(normalizeOrientation(card.orientation))} rounded-2xl overflow-hidden mx-auto max-w-sm mb-7`}
                   style={{
                     background: card.color,
                     boxShadow: '0 30px 60px rgba(0,0,0,0.5)',

@@ -4,7 +4,7 @@ import { withAdmin } from '@/lib/auth-middleware';
 import { AuthUser } from '@/lib/auth';
 
 // GET /api/admin/newsletter/history - Get sent newsletters
-async function handler(request: NextRequest, user: AuthUser) {
+async function handler(request: NextRequest, _user: AuthUser) {
   try {
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get('page') || '1');

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     }
 
     return successResponse({ user: dbUser });
-  } catch (error) {
+  } catch {
     return errorResponse("Failed to fetch account details", 500);
   }
 }
@@ -106,7 +106,7 @@ export async function PUT(request: NextRequest) {
       message: "Account updated successfully",
       user: updated,
     });
-  } catch (error) {
+  } catch {
     return errorResponse("Failed to update account", 500);
   }
 }

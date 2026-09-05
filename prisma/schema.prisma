@@ -90,6 +90,16 @@ model Product {
   material String?
   color    String?
 
+  // Card shape: "horizontal" (landscape, the default) or "vertical" (portrait).
+  //
+  // OPTIONAL so every product that predates this field keeps working - null is
+  // read as "horizontal" everywhere, which is what those products already are.
+  // Nothing needs backfilling.
+  //
+  // It drives the aspect ratio the artwork is rendered in, and the catalogue
+  // groups horizontal cards ahead of vertical ones.
+  orientation String?
+
   // Relations
   orderItems OrderItem[]
 

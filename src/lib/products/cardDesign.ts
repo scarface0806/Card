@@ -22,6 +22,10 @@ import {
   hasDiscount,
   tierLabel,
 } from "@/lib/products/presentation";
+import {
+  normalizeOrientation,
+  type CardOrientation,
+} from "@/lib/products/orientation";
 
 /**
  * The catalogue's view of a product.
@@ -51,6 +55,9 @@ export interface CardDesign {
   backImage?: string;
   cardType?: string;
   material?: string;
+  /** Card shape. Never undefined on a CardDesign - null in the database is
+   *  normalised to "horizontal" here so no consumer has to handle absence. */
+  orientation: CardOrientation;
 }
 
 /**
@@ -70,6 +77,7 @@ export interface CardDesignSource {
   cardType?: string | null;
   material?: string | null;
   color?: string | null;
+  orientation?: string | null;
 }
 
 export function productToCardDesign(product: CardDesignSource): CardDesign {
@@ -96,5 +104,6 @@ export function productToCardDesign(product: CardDesignSource): CardDesign {
     backImage: product.backImage || undefined,
     cardType: product.cardType || undefined,
     material: product.material || undefined,
+    orientation: normalizeOrientation(product.orientation),
   };
 }

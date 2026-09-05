@@ -4,7 +4,7 @@ import { withAdmin } from '@/lib/auth-middleware';
 import { AuthUser } from '@/lib/auth';
 
 // GET /api/admin/newsletter/subscribers - Get subscriber count
-async function handler(request: NextRequest, user: AuthUser) {
+async function handler(_request: NextRequest, _user: AuthUser) {
   try {
     // Get total and active subscriber counts
     const [totalCount, activeCount] = await Promise.all([

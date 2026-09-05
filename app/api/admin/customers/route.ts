@@ -1,12 +1,11 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { withAdmin } from "@/lib/auth-middleware";
 import { AuthUser } from "@/lib/auth";
 import { successResponse, errorResponse } from "@/lib/responses";
-import { Prisma } from "@prisma/client";
 
 // GET /api/admin/customers - Get all customers (admin only)
-async function handler(request: NextRequest, user: AuthUser) {
+async function handler(request: NextRequest, _user: AuthUser) {
   try {
     const origin = request.nextUrl.origin;
     const { searchParams } = new URL(request.url);

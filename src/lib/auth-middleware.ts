@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken, extractTokenFromHeader, AuthUser, JWTPayload } from "@/lib/auth";
+import { verifyToken, extractTokenFromHeader, AuthUser } from "@/lib/auth";
 import { Role } from "@prisma/client";
 
 /**

@@ -5,6 +5,7 @@ import AdminToast from '@/components/admin/AdminToast';
 import ProductForm, { ProductFormValues } from '@/components/ProductForm';
 import { Package, Pencil, Plus, RefreshCw, Trash2 } from 'lucide-react';
 import { isAbortError } from '@/lib/fetch-utils';
+import type { CardOrientation } from '@/lib/products/orientation';
 
 interface ProductItem {
   id: string;
@@ -15,6 +16,8 @@ interface ProductItem {
   image: string;
   /** The back of the card. Empty string when the product has none. */
   backImage: string;
+  /** Card shape. Absent on products that predate the field, read as horizontal. */
+  orientation: CardOrientation;
   createdAt: string;
 }
 
@@ -57,6 +60,7 @@ export default function ProductsPage() {
         price: Number(product.price || 0),
         images: Array.isArray(product.images) ? product.images : [],
         image: product.image || '',
+        orientation: product.orientation === 'vertical' ? 'vertical' : 'horizontal',
         backImage: product.backImage || '',
         createdAt: product.createdAt,
       }));
@@ -205,6 +209,7 @@ export default function ProductsPage() {
                       description: activeProduct.description,
                       price: activeProduct.price,
                       image: activeProduct.image,
+                      orientation: activeProduct.orientation,
                       backImage: activeProduct.backImage,
                     }
                   : undefined

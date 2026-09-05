@@ -13,6 +13,30 @@ const eslintConfig = defineConfig([
   {
     plugins: { react: reactPlugin, "react-hooks": reactHooksPlugin },
     rules: {
+      /**
+       * Underscore means "deliberately unused".
+       *
+       * Most of the unused-variable warnings in this codebase were not dead
+       * code at all: a positional handler parameter that a signature requires
+       * but the body does not read (`withAdmin((request, user) => ...)` where
+       * only `request` is used), and `catch (error)` blocks that intentionally
+       * swallow. Neither can simply be deleted, so without a convention for
+       * marking intent they stayed as permanent noise that hid the real dead
+       * code among them.
+       *
+       * `caughtErrors: "all"` keeps genuinely unused catch bindings reported,
+       * so `catch (_e)` is an explicit choice rather than an accident.
+       */
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+          caughtErrors: "all",
+          caughtErrorsIgnorePattern: "^_",
+          ignoreRestSiblings: true,
+        },
+      ],
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/no-require-imports": "warn",
       "@typescript-eslint/no-unsafe-function-type": "warn",

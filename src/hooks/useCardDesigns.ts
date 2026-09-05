@@ -7,6 +7,7 @@ import {
   productToCardDesign,
   type CardDesign,
 } from "@/lib/products/cardDesign";
+import { byOrientation } from "@/lib/products/orientation";
 
 /**
  * Re-exported so the many components that already import CardDesign from this
@@ -61,7 +62,10 @@ export function useCardDesigns(
 
       if (signal?.aborted) return;
 
-      setCardDesigns(response.products.map(productToCardDesign));
+      // Same grouping the server loader applies - horizontal cards first, then
+      // vertical. Without this a client-side refresh would reorder the grid
+      // relative to the server-rendered one.
+      setCardDesigns(response.products.map(productToCardDesign).sort(byOrientation));
     } catch (err) {
       if (signal?.aborted || isAbortError(err)) return;
 

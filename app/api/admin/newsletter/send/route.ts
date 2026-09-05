@@ -18,7 +18,7 @@ function generateSlug(subject: string): string {
 }
 
 // POST /api/admin/newsletter/send - Send newsletter to all active subscribers
-async function handler(request: NextRequest, user: AuthUser) {
+async function handler(request: NextRequest, _user: AuthUser) {
   try {
     const body = await request.json();
     const { subject, content, previewText } = body;
