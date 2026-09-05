@@ -1,5 +1,6 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
+import { sendAdminOrderNotification } from "@/lib/emails/adminOrderNotification";
 import { authenticate } from "@/lib/auth-middleware";
 import { errorResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
@@ -258,10 +259,31 @@ export async function POST(request: NextRequest) {
       }
     })();
 
-    // No email is sent here on purpose. The order is still PENDING and unpaid;
-    // the customer's order confirmation is fired from the server-side
+    // No CUSTOMER email is sent here on purpose. The order is still PENDING and
+    // unpaid; the customer's order confirmation is fired from the server-side
     // payment-success path once the payment is verified. See
     // src/lib/payment-adapter.ts and src/lib/emails/send-order-email.ts.
+    //
+    // The ADMIN alert is different: the business wants to know an order was
+    // placed even if the customer never completes payment, because an abandoned
+    // checkout is exactly the one worth chasing. Payment-success sends its own
+    // alert later, distinguished by the "(unpaid)" subject prefix.
+    //
+    // after() rather than await: the send runs once the 201 below has already
+    // gone to the browser, so checkout is not held up by an email, and unlike a
+    // floating promise Vercel keeps the function alive until it finishes.
+    // sendAdminOrderNotification never throws on its own; the catch is a second
+    // guard so a rejection can never surface as an unhandled rejection.
+    after(async () => {
+      try {
+        await sendAdminOrderNotification(order.id);
+      } catch (err) {
+        console.error(
+          "[admin-notification] order " + order.id + " placement alert threw: " +
+            (err instanceof Error ? err.message : String(err))
+        );
+      }
+    });
 
     return NextResponse.json(
       {

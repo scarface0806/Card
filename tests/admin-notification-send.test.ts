@@ -150,4 +150,39 @@ describe('sendAdminOrderNotification', () => {
     expect(html).not.toContain('undefined');
     expect(html).toContain('—');
   });
+
+  // One order can generate two alerts - one when it is placed, one when payment
+  // clears. If both carried the same subject the inbox would be unreadable, so
+  // the prefix is the thing that has to stay distinct.
+  it('marks an unpaid order in the subject, and leaves a paid one unmarked', async () => {
+    const prismaMock = vi.mocked((await import('@/lib/prisma')).default.order.findUnique);
+
+    mocks.mockResendSend.mockResolvedValue({ data: { id: 'email_1' }, error: null });
+
+    // Placed but not yet paid - the alert fired from the order-creation route.
+    prismaMock.mockResolvedValueOnce({
+      ...mockOrder,
+      paymentStatus: 'PENDING',
+      paidAt: null,
+      paymentId: null,
+    } as any);
+    await sendAdminOrderNotification('ord_123', null);
+
+    const unpaidSubject = (mocks.mockResendSend.mock.calls[0][0] as Record<string, unknown>)
+      .subject as string;
+    expect(unpaidSubject).toContain('New order (unpaid)');
+    expect(unpaidSubject).toContain('Jane Doe');
+    expect(unpaidSubject).toContain('ORD-7K2P-QM9X');
+
+    mocks.mockResendSend.mockClear();
+
+    // Same order after payment clears - the alert fired from payment-adapter.
+    prismaMock.mockResolvedValueOnce(mockOrder as any);
+    await sendAdminOrderNotification('ord_123', 'pay_R9zK3mQ8nL2vP4');
+
+    const paidSubject = (mocks.mockResendSend.mock.calls[0][0] as Record<string, unknown>)
+      .subject as string;
+    expect(paidSubject).toContain('New order —');
+    expect(paidSubject).not.toContain('unpaid');
+  });
 });

@@ -48,8 +48,12 @@ export default function CardInactiveScreen({ slug }: CardInactiveScreenProps) {
 					<span className="sr-only"> (opens WhatsApp in a new tab)</span>
 				</a>
 
+				{/* The full URL, not the bare slug: a visitor without WhatsApp
+				    reads this out or types it into an email, and the slug alone
+				    does not identify the card without the origin. Same cardUrl
+				    string the WhatsApp message carries, so the two cannot drift. */}
 				<p className="text-xs text-[#6b7280] break-all">
-					Card link: {slug}
+					Card link: {cardUrl}
 				</p>
 
 				<Link

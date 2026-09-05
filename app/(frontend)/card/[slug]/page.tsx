@@ -5,6 +5,7 @@ import prisma from '@/lib/prisma';
 import CardProfileView from '@/components/CardProfileView';
 import CustomerProfileView from '@/components/customer/CustomerProfileView';
 import CardInactiveScreen from '@/components/CardInactiveScreen';
+import { SITE_URL } from '@/lib/site-config';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -50,9 +51,13 @@ const getCard = cache(async (slug: string) => {
 // Generate dynamic metadata for SEO
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
-  const metadataBase = new URL(siteUrl);
-  
+  // SITE_URL, not NEXT_PUBLIC_APP_URL. That variable is "http://localhost:3000"
+  // in .env.local, so reading it directly stamped a localhost canonical into
+  // production metadata. SITE_URL resolves the Vercel-provided origins first
+  // and is the same constant CardInactiveScreen builds its WhatsApp link from,
+  // so the origin cannot drift between the two.
+  const metadataBase = new URL(SITE_URL);
+
   try {
     const customer = await getCustomerProfile(slug);
 
@@ -71,7 +76,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       const title = `${customer.name} | NFC Digital Profile`;
       const description = [customer.designation, customer.company].filter(Boolean).join(' at ') || customer.about || `Connect with ${customer.name}`;
       const image = customer.profileImage || customer.logo || '/og-image.png';
-      const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/card/${slug}`;
+      const canonicalUrl = `${SITE_URL}/card/${slug}`;
 
       return {
         metadataBase,
@@ -134,7 +139,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const description = [designation, company].filter(Boolean).join(' at ');
 
     const ogImage = details?.profileImage || details?.coverImage || '/og-image.png';
-    const canonicalUrl = `${process.env.NEXT_PUBLIC_APP_URL || ''}/card/${slug}`;
+    // Was `NEXT_PUBLIC_APP_URL || ''`, which produced a RELATIVE canonical
+    // ("/card/x") whenever the variable was unset - not a valid canonical at all.
+    const canonicalUrl = `${SITE_URL}/card/${slug}`;
 
     // common title for og and twitter
     const pageTitle = `${fullName} | NFC Digital Card`;
@@ -194,12 +201,28 @@ export const revalidate = 60;
 export default async function CardPage({ params }: PageProps) {
   const { slug } = await params;
 
+  // A QUERY FAILURE IS NOT A VERDICT ABOUT THE CARD.
+  //
+  // Both loads below used to swallow their error: the customer lookup fell
+  // through to `null` (so an existing profile ended at notFound(), a 404 for
+  // something that exists) and the card lookup returned the inactive screen
+  // outright - telling a paying customer their card was inactive because the
+  // database blinked. Both are false statements to the visitor, and the second
+  // generates a support message for every outage.
+  //
+  // The error is logged and rethrown instead, so Next renders app/error.tsx
+  // with a 500. "Something went wrong, try again" is honest; "your card is
+  // inactive, contact us to reactivate" is not.
+  //
+  // Only a lookup that SUCCEEDS and returns a row marked inactive reaches
+  // CardInactiveScreen; only one that succeeds and returns null reaches
+  // notFound().
   let customer: Awaited<ReturnType<typeof getCustomerProfile>>;
   try {
     customer = await getCustomerProfile(slug);
   } catch (error) {
     console.error('[card-page] Failed to load customer profile:', error);
-    customer = null;
+    throw error;
   }
 
   if (customer && !customer.isActive) {
@@ -216,7 +239,7 @@ export default async function CardPage({ params }: PageProps) {
     card = await getCard(slug);
   } catch (error) {
     console.error('[card-page] Failed to load card:', error);
-    return <CardInactiveScreen slug={slug} />;
+    throw error;
   }
 
   // Handle not found

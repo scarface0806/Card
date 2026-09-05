@@ -282,7 +282,12 @@ function transformOrder(order: AdminOrder, paymentRef: string | null): AdminOrde
 
 export function adminOrderNotificationSubject(data: AdminOrderNotificationData): string {
 	const name = display(data.customer.name) || "unknown";
-	return `New order — ${name} — ${data.cardDesign} — ${data.price} — ${data.orderNumber}`;
+	// One order can produce two alerts: one when it is placed (still unpaid) and
+	// one when payment clears. The prefix is what tells them apart in an inbox
+	// list, so an unpaid alert is never mistaken for a sale. Sortable either way
+	// because everything after the prefix keeps the same shape.
+	const prefix = data.paymentStatus === "PAID" ? "New order" : "New order (unpaid)";
+	return `${prefix} — ${name} — ${data.cardDesign} — ${data.price} — ${data.orderNumber}`;
 }
 
 function renderSocialLinksSection(links: SocialLink[]): string {
