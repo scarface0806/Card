@@ -7,6 +7,7 @@ import Footer from '@/layouts/Footer';
 import HeroSection from '@/sections/HeroSection';
 import type { ContactSource } from '@/components/ContactModal';
 import StickyMobileCTA from '@/components/StickyMobileCTA';
+import type { CardDesign } from '@/lib/products/cardDesign';
 
 const HowItWorksSection = dynamic(() => import('@/sections/HowItWorksSection'));
 const InteractiveCardShowcaseSection = dynamic(() => import('@/sections/InteractiveCardShowcaseSection'));
@@ -19,7 +20,16 @@ const ContactModal = dynamic(() => import('@/components/ContactModal'), {
 	ssr: false,
 });
 
-function HomeContent() {
+interface HomeClientProps {
+	/**
+	 * The catalogue, loaded and cached on the server by app/(frontend)/page.tsx
+	 * and threaded down to CardDesignsHomeSection. Without it that section
+	 * fetched on mount and showed "Loading card designs" on every visit.
+	 */
+	initialDesigns: CardDesign[];
+}
+
+function HomeContent({ initialDesigns }: HomeClientProps) {
 	const [isContactModalOpen, setIsContactModalOpen] = useState(false);
 	const [contactModalSource, setContactModalSource] = useState<ContactSource>('general');
 
@@ -34,7 +44,7 @@ function HomeContent() {
 			<main className="pt-20">
 				<HeroSection />
 				<HowItWorksSection />			<InteractiveCardShowcaseSection />				<FeaturesSection />
-				<CardDesignsHomeSection onContactClick={handleContactClick} />
+				<CardDesignsHomeSection onContactClick={handleContactClick} initialDesigns={initialDesigns} />
 				<TestimonialsSection />
 				<OtherCardsSolutionsSection onContactClick={handleContactClick} />
 				<FAQSection />
@@ -56,6 +66,6 @@ function HomeContent() {
 	);
 }
 
-export default function Home() {
-	return <HomeContent />;
+export default function HomeClient({ initialDesigns }: HomeClientProps) {
+	return <HomeContent initialDesigns={initialDesigns} />;
 }

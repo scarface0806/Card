@@ -1,82 +1,20 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Product } from "@prisma/client";
 import productService from "@/services/products";
 import { isAbortError, logFetchError } from "@/lib/fetch-utils";
-import { formatPrice } from "@/utils/formatPrice";
 import {
-  type CardTier,
-  deriveCardColor,
-  deriveCardTier,
-  effectivePrice,
-  hasDiscount,
-  tierLabel,
-} from "@/lib/products/presentation";
+  productToCardDesign,
+  type CardDesign,
+} from "@/lib/products/cardDesign";
 
 /**
- * The catalogue's view of a product.
- *
- * `id` is the Product id and is what /cards passes to checkout, so the page a
- * customer lands on is unambiguously the product they clicked. It used to pass
- * `slug`, which /create-card then looked up in a hardcoded array of card tiers
- * - no database slug was ever in that array, so every admin-created product
- * silently fell back to "Modern Minimalist, 599".
- *
- * THERE ARE NO FALLBACK DESIGNS IN THIS FILE ANY MORE. It used to seed itself
- * with six hardcoded cards at invented prices and fake ids "1".."6". When the
- * products API failed, /cards showed six products that did not exist, at
- * prices nobody had set, whose buy buttons led nowhere real. An honest empty
- * state is better than a confident wrong one.
+ * Re-exported so the many components that already import CardDesign from this
+ * hook keep working. The type and the transform now live in
+ * @/lib/products/cardDesign, because the server loader needs them too and a
+ * client hook cannot own them.
  */
-export interface CardDesign {
-  id: string;
-  name: string;
-  slug: string;
-  type: CardTier;
-  typeLabel: string;
-  /** What the customer is charged, formatted. */
-  price: string;
-  priceValue: number;
-  /** List price, only when a discount is active. For struck-through display. */
-  listPrice?: string;
-  color: string;
-  description?: string;
-  images: string[];
-  /**
-   * The card's back face, straight from `Product.backImage`.
-   *
-   * Optional: a product with no back image simply does not offer the flip.
-   * When it is absent, resolveCardBackImage() still tries the `-back` naming
-   * convention against `images[0]`, so artwork that predates the field keeps
-   * working.
-   */
-  backImage?: string;
-  cardType?: string;
-  material?: string;
-}
-
-function productToCardDesign(product: Product): CardDesign {
-  const tier = deriveCardTier(product);
-  const price = effectivePrice(product);
-
-  return {
-    id: product.id,
-    name: product.name,
-    slug: product.slug,
-    type: tier,
-    typeLabel: tierLabel(tier),
-    price: formatPrice(price),
-    priceValue: price,
-    listPrice: hasDiscount(product) ? formatPrice(product.price) : undefined,
-    color: deriveCardColor(product),
-    description: product.description || undefined,
-    images: product.images || [],
-    backImage: product.backImage || undefined,
-    cardType: product.cardType || undefined,
-    material: product.material || undefined,
-  };
-}
+export type { CardDesign };
 
 interface UseCardDesignsReturn {
   cardDesigns: CardDesign[];
@@ -86,12 +24,27 @@ interface UseCardDesignsReturn {
   refresh: () => Promise<void>;
 }
 
-export function useCardDesigns(): UseCardDesignsReturn {
-  const [cardDesigns, setCardDesigns] = useState<CardDesign[]>([]);
-  // Starts true and means what it says: there is genuinely nothing to render
-  // until the fetch resolves, because the state is no longer pre-seeded with
-  // invented products.
-  const [loading, setLoading] = useState(true);
+/**
+ * @param initialDesigns Catalogue already loaded on the server. When supplied,
+ *   the hook renders it immediately and does NOT fetch on mount - the data is
+ *   in the HTML, so a second request for the same rows would be pure waste and
+ *   would reintroduce the loading flash this change removes.
+ *
+ *   Omit it and the hook behaves exactly as before: empty, loading, fetch on
+ *   mount. `refresh()` still re-fetches in both modes.
+ */
+export function useCardDesigns(
+  initialDesigns?: CardDesign[]
+): UseCardDesignsReturn {
+  const hasInitial = Array.isArray(initialDesigns);
+
+  const [cardDesigns, setCardDesigns] = useState<CardDesign[]>(
+    initialDesigns ?? []
+  );
+  // Only true when there is genuinely nothing to render yet. Seeded from the
+  // server it starts false, which is what removes the "Loading card designs"
+  // state from the first paint.
+  const [loading, setLoading] = useState(!hasInitial);
   const [error, setError] = useState<string | null>(null);
 
   const fetchCardDesigns = useCallback(async (signal?: AbortSignal) => {
@@ -122,11 +75,14 @@ export function useCardDesigns(): UseCardDesignsReturn {
   }, []);
 
   useEffect(() => {
+    // Server-rendered catalogue: already on screen, nothing to fetch.
+    if (hasInitial) return;
+
     const controller = new AbortController();
     fetchCardDesigns(controller.signal);
 
     return () => controller.abort();
-  }, [fetchCardDesigns]);
+  }, [fetchCardDesigns, hasInitial]);
 
   // Arg-less wrapper so passing `refresh` to onClick cannot leak a
   // React event into the AbortSignal parameter.

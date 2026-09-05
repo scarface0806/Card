@@ -34,15 +34,25 @@ const includedFeatures = [
   { icon: Globe, title: 'Global reach', desc: 'Share your profile worldwide instantly.' },
 ];
 
-export default function CardsPage() {
+interface CardsClientProps {
+  /**
+   * The catalogue, already loaded and cached on the server by app/cards/page.tsx.
+   * Passing it in is what puts the cards in the prerendered HTML instead of
+   * behind a hydrate-then-fetch round trip, so the grid is on screen before any
+   * of this file's JavaScript has run.
+   */
+  initialDesigns: CardDesign[];
+}
+
+export default function CardsClient({ initialDesigns }: CardsClientProps) {
   const router = useRouter();
   const [selectedCard, setSelectedCard] = useState<CardDesign | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authMode, setAuthMode] = useState<'login' | 'signup'>('login');
 
-  // Use dynamic card designs
-  const { cardDesigns, loading } = useCardDesigns();
+  // Seeded from the server: `loading` is already false on the first render.
+  const { cardDesigns, loading } = useCardDesigns(initialDesigns);
 
   // Contact Modal State (lifted up for reuse)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);

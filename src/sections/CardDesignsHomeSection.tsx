@@ -15,14 +15,20 @@ import { ContactSource } from '@/components/ContactModal';
 
 interface CardDesignsHomeSectionProps {
   onContactClick: (source: ContactSource) => void;
+  /**
+   * The catalogue, loaded on the server by the home page. Optional so this
+   * section still works standalone, but the home page always passes it - that
+   * is what keeps "Loading card designs" out of the first paint.
+   */
+  initialDesigns?: CardDesign[];
 }
 
-export default function CardDesignsHomeSection({ onContactClick }: CardDesignsHomeSectionProps) {
+export default function CardDesignsHomeSection({ onContactClick, initialDesigns }: CardDesignsHomeSectionProps) {
   const router = useRouter();
   const [selectedCard, setSelectedCard] = useState<CardDesign | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const { cardDesigns, loading } = useCardDesigns();
+  const { cardDesigns, loading } = useCardDesigns(initialDesigns);
 
   const handlePreview = (card: CardDesign) => {
     setSelectedCard(card);
