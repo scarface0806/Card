@@ -63,7 +63,17 @@ export const metadata: Metadata = {
     robots: {
         index: true,
         follow: true,
-        googleBot: { index: true, follow: true, "max-image-preview": "large" },
+        googleBot: {
+            index: true,
+            follow: true,
+            // "large" opts into full-size image thumbnails in results; the two
+            // -1s remove Google's default caps on snippet length and video
+            // preview length. Without them Google applies conservative
+            // defaults and the listing shows less than it could.
+            "max-image-preview": "large",
+            "max-snippet": -1,
+            "max-video-preview": -1,
+        },
     },
     icons: {
         icon: [

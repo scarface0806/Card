@@ -34,8 +34,29 @@ function resolveSiteUrl(): string {
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
   if (appUrl) return trim(appUrl);
 
-  return "https://tapvyo-nfc-card.vercel.app";
+  return CANONICAL_ORIGIN;
 }
+
+/**
+ * The primary domain. The ONLY place it is written down.
+ *
+ * This is the last-resort fallback, not the normal path: production must set
+ * NEXT_PUBLIC_SITE_URL, because the Vercel branches above it would otherwise
+ * resolve to the *.vercel.app alias and stamp that host into every canonical,
+ * OG URL and sitemap entry - which is exactly the duplicate-content split this
+ * migration exists to end.
+ *
+ * Apex, not www. next.config.ts redirects www and the old Vercel alias here,
+ * so every host converges on one origin.
+ */
+export const CANONICAL_ORIGIN = "https://tapvyo.in";
+
+/**
+ * The pre-migration Vercel alias. Kept as a named constant ONLY so the
+ * redirect in next.config.ts and this file cannot drift. Do not use it to
+ * build URLs.
+ */
+export const LEGACY_VERCEL_HOST = "tapvyo-nfc-card.vercel.app";
 
 export const SITE_URL = resolveSiteUrl();
 
