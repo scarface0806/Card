@@ -12,6 +12,7 @@ import {
   SUPPORT_EMAIL,
 } from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 export default function Footer() {
   const currentYear = new Date().getFullYear();
@@ -126,6 +127,15 @@ export default function Footer() {
                 <span className="tv-small">{ADDRESS.full}</span>
               </li>
             </ul>
+
+            {/* Signups land in NewsletterSubscriber and appear in
+                /admin/newsletters. `relative` is required here: the form's
+                honeypot is absolutely positioned off-screen and needs this
+                column as its containing block, or it would offset from the
+                page and drag the layout sideways. */}
+            <div className="relative">
+              <NewsletterSignup source="footer" />
+            </div>
           </div>
         </div>
 
