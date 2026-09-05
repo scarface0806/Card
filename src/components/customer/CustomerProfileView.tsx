@@ -371,13 +371,13 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
           reach us; the one action they want before reading anything on the
           right. The only logo on the page is ours - see the note in the hero.
 
-          That action is Save contact, not Call. The bar is the only thing
-          guaranteed to be on screen the moment the card is tapped: at 390x844
-          the portrait plate and the name block push the hero's own CTA row to
-          roughly y=787, so a hero-only Save contact is at or below the fold on
-          a phone. This mirrors CardProfileView, which already carries Save
-          contact here. Call keeps its handler and moves into the hero's
-          secondary row. */}
+          That action is Save contact, and this is now the ONLY place it
+          appears. The bar is the only thing guaranteed to be on screen the
+          moment the card is tapped: at 390x844 the portrait plate and the name
+          block push the hero's CTA row to roughly y=755, so a hero-only Save
+          contact would sit at the fold on a phone. It used to render here AND
+          in the hero, which read as two competing action sets - the hero copy
+          is gone and the hero leads with Call instead. */}
       <div className="tv-profilebar">
         <div className="site-container">
           <div className="tv-profilebar-bar">
@@ -445,41 +445,32 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                     'NFC Digital Profile'}
                 </p>
 
-                {/* PRIMARY PAIR — Save contact / Share profile, directly under
-                    the name and designation. This is what a visitor who just
-                    tapped the card is here to do, so it leads.
+                {/* PRIMARY PAIR — Call / WhatsApp, directly under the name and
+                    designation. The two ways to actually reach this person, so
+                    they lead.
 
-                    Stacked full-width below sm, side by side from sm up. Not
-                    side by side on a phone: at 390px the container is 358px, so
-                    two abreast give ~173px each, while "Save contact" needs
-                    ~191px (label + 18px icon + 8px gap + 2x30px tv-btn-lg
-                    padding). Forcing it would truncate the label. Same
-                    flex-col sm:flex-row shape every other row on this page
-                    uses, so nothing new is introduced.
+                    Save contact is NOT repeated here. It lives once, in the
+                    profile bar above, which is fixed and therefore the only
+                    thing guaranteed to be on screen the moment the card is
+                    tapped - at 390x844 the portrait plate and the name block
+                    push this row to roughly y=755. Duplicating it in both
+                    places is what made the page read as two competing action
+                    sets; the bar keeps it, the hero does not.
 
-                    Tab order is DOM order: Save contact, then Share profile. */}
+                    Stacked full-width below sm, side by side from sm up - the
+                    same flex-col sm:flex-row shape every other row on this page
+                    uses. Both labels are short enough to sit abreast from 640px
+                    without truncating.
+
+                    Tab order is DOM order: Call, then WhatsApp. */}
                 <div className="flex flex-col sm:flex-row gap-3 mb-9">
-                  <SaveContactButton
-                    contact={vcardContact}
+                  <a
+                    href={`tel:${customer.phone}`}
                     className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
-                  />
-                  <ShareProfileButton
-                    title={`${customer.name} - Digital Profile`}
-                    text={shareText}
-                    url={profileUrl}
-                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
-                  />
-                </div>
-
-                {/* SECONDARY ROW — the conversation actions, plus Call, which
-                    moved down from the profile bar. Call takes the same
-                    tv-btn-secondary treatment as WhatsApp so the row reads as
-                    one set. Three abreast is fine here: they stack below sm and
-                    the labels are all short. */}
-                <div className="flex flex-col sm:flex-row gap-3 mb-9">
-                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block">
-                    Get in touch
-                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
+                    aria-label={`Call ${customer.name} on ${customer.phone}`}
+                  >
+                    <Phone className="w-[18px] h-[18px]" aria-hidden="true" />
+                    Call
                   </a>
                   {chatHref ? (
                     <a
@@ -492,13 +483,22 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                       WhatsApp
                     </a>
                   ) : null}
-                  <a
-                    href={`tel:${customer.phone}`}
+                </div>
+
+                {/* SECONDARY ROW — the lower-intent actions, one tier down.
+                    Share profile takes tv-btn-secondary so it cannot compete
+                    with Call above; Get in touch keeps its gilded treatment as
+                    the jump link to the contact form. */}
+                <div className="flex flex-col sm:flex-row gap-3 mb-9">
+                  <ShareProfileButton
+                    title={`${customer.name} - Digital Profile`}
+                    text={shareText}
+                    url={profileUrl}
                     className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
-                    aria-label={`Call ${customer.name} on ${customer.phone}`}
-                  >
-                    <Phone className="w-[18px] h-[18px]" aria-hidden="true" />
-                    Call
+                  />
+                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block">
+                    Get in touch
+                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                   </a>
                 </div>
 
