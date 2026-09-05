@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ChevronDown, LogOut, Package, User as UserIcon } from 'lucide-react';
@@ -34,6 +35,77 @@ interface AccountMenuProps {
   variant?: 'desktop' | 'mobile';
   /** Mobile panel closes itself after a navigation. */
   onNavigate?: () => void;
+}
+
+/**
+ * The signed-in user's picture, with the initial as the fallback.
+ *
+ * The Google avatar was being fetched and stored all along - google-complete
+ * saves `token.picture` onto User.avatar, and /api/auth/me returns it - but
+ * the header only ever drew `initialFor(user)`, so a Google account showed a
+ * letter instead of its photo. This renders the photo when there is one.
+ *
+ * FALLS BACK ON ERROR, not just on absence. A Google avatar URL can start
+ * 404ing or 403ing later (the account changes its picture, or the signed URL
+ * form changes), and a broken-image glyph in the header is worse than the
+ * initial that was there before. `failed` flips on the first error and the
+ * initial takes over.
+ *
+ * referrerPolicy="no-referrer" because googleusercontent rejects some requests
+ * that carry a Referer header, which shows up as an avatar that loads
+ * everywhere except production.
+ */
+function Avatar({ user, size = 32 }: { user: CurrentUser; size?: number }) {
+  const [failed, setFailed] = useState(false);
+  const src = user.avatar?.trim();
+
+  if (!src || failed) {
+    return (
+      <span
+        aria-hidden="true"
+        className="flex items-center justify-center rounded-full bg-[#C9A961]/20 text-sm font-semibold text-[#C9A961]"
+        style={{ width: size, height: size }}
+      >
+        {initialFor(user)}
+      </span>
+    );
+  }
+
+  // A data: URI cannot go through next/image - the optimizer parses `src` as a
+  // URL or path and throws on one. Real rows in this database hold both kinds:
+  // Google sign-in stores an https lh3.googleusercontent.com URL, while an
+  // uploaded avatar is stored inline as base64. So the remote URL is optimised
+  // and the inline one is rendered directly.
+  if (!/^https?:\/\//i.test(src)) {
+    return (
+      // A data: URI is not something next/image can take - see the note above.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={src}
+        alt=""
+        aria-hidden="true"
+        width={size}
+        height={size}
+        onError={() => setFailed(true)}
+        className="rounded-full object-cover"
+        style={{ width: size, height: size }}
+      />
+    );
+  }
+
+  return (
+    <Image
+      src={src}
+      alt=""
+      aria-hidden="true"
+      width={size}
+      height={size}
+      referrerPolicy="no-referrer"
+      onError={() => setFailed(true)}
+      className="rounded-full object-cover"
+      style={{ width: size, height: size }}
+    />
+  );
 }
 
 async function logout(): Promise<void> {
@@ -77,7 +149,10 @@ function MobileAccount({
 
   return (
     <div className="mt-6 space-y-3 border-t border-[#F1F3F1]/10 pt-6">
-      <p className="tv-mono">Signed in as {displayName(user)}</p>
+      <div className="flex items-center gap-3">
+        <Avatar user={user} size={36} />
+        <p className="tv-mono min-w-0 truncate">Signed in as {displayName(user)}</p>
+      </div>
 
       <Link
         href="/my-orders"
@@ -201,12 +276,7 @@ export default function AccountMenu({
         aria-haspopup="menu"
         className="tv-focus flex min-h-[44px] items-center gap-2 rounded-full px-2 text-[#A9B5B0] hover:text-[#F1F3F1] transition-colors"
       >
-        <span
-          aria-hidden="true"
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-[#C9A961]/20 text-sm font-semibold text-[#C9A961]"
-        >
-          {initialFor(user)}
-        </span>
+        <Avatar user={user} size={32} />
         <span className="max-w-[10ch] truncate text-sm">{displayName(user)}</span>
         <ChevronDown
           className={`h-4 w-4 transition-transform ${open ? 'rotate-180' : ''}`}
@@ -220,11 +290,14 @@ export default function AccountMenu({
           aria-label="Account"
           className="absolute right-0 top-full z-50 mt-2 w-56 overflow-hidden rounded-xl border border-[#F1F3F1]/12 bg-[#151C1A] shadow-xl"
         >
-          <div className="border-b border-[#F1F3F1]/10 px-4 py-3">
-            <p className="truncate text-sm font-semibold text-[#F1F3F1]">
-              {displayName(user)}
-            </p>
-            <p className="truncate text-xs text-[#A9B5B0]">{user.email}</p>
+          <div className="flex items-center gap-3 border-b border-[#F1F3F1]/10 px-4 py-3">
+            <Avatar user={user} size={36} />
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-[#F1F3F1]">
+                {displayName(user)}
+              </p>
+              <p className="truncate text-xs text-[#A9B5B0]">{user.email}</p>
+            </div>
           </div>
 
           <Link
