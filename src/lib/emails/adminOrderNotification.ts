@@ -139,7 +139,11 @@ function telLink(phone: string | null | undefined): string | null {
 
 function mailtoLink(email: string | null | undefined): string | null {
 	if (!email || !email.trim()) return null;
-	return `mailto:${encodeURIComponent(email.trim())}`;
+	// Encode the address, then put "@" back. encodeURIComponent turns it into
+	// %40, which is legal per RFC 6068 but which several mobile mail clients
+	// show literally instead of filling the To field - defeating the one-tap
+	// reply this link exists for. "@" needs no escaping in an addr-spec.
+	return `mailto:${encodeURIComponent(email.trim()).replace(/%40/g, "@")}`;
 }
 
 function waLink(phone: string | null | undefined): string | null {

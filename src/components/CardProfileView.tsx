@@ -295,13 +295,25 @@ export default function CardProfileView({ card }: CardProfileViewProps) {
                     'NFC Digital Card'}
                 </p>
 
+                {/* PRIMARY PAIR — Save contact / Share profile, directly under
+                    the name and designation, matching CustomerProfileView.
+
+                    Solid patina rather than the gilded ring: next to a
+                    transparent tv-btn-secondary, gilded reads as a second
+                    outline and the pair looks like two equal choices. Save
+                    contact is the one action a visitor came here for, so it
+                    takes the only solid fill on the page. Same tier either way
+                    - see the tier note above .tv-btn-gilded in globals.css.
+
+                    Stacked full-width below sm, side by side from sm up. At
+                    390px the container is 358px, so two abreast give ~173px
+                    each while "Save contact" needs ~191px at tv-btn-lg - it
+                    would truncate. Tab order is DOM order. */}
                 <div className="flex flex-col sm:flex-row gap-3 mb-6">
                   <SaveContactButton
                     contact={vcardContact}
-                    className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block"
-                  >
-                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
-                  </SaveContactButton>
+                    className="tv-btn tv-btn-lg tv-btn-primary tv-btn-block"
+                  />
                   <ShareProfileButton
                     title={`${fullName} - Digital Business Card`}
                     text={shareText}
@@ -310,6 +322,22 @@ export default function CardProfileView({ card }: CardProfileViewProps) {
                     label="Share profile"
                   />
                 </div>
+
+                {/* SECONDARY ROW — Call, the conversation action, one tier
+                    below the pair above. Reuses the same tel: href already used
+                    by the contact block further down; no new data. */}
+                {details.phone ? (
+                  <div className="flex flex-col sm:flex-row gap-3 mb-6">
+                    <a
+                      href={`tel:${details.phone}`}
+                      className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
+                      aria-label={`Call ${fullName} on ${details.phone}`}
+                    >
+                      <Phone className="w-[18px] h-[18px]" aria-hidden="true" />
+                      Call
+                    </a>
+                  </div>
+                ) : null}
 
                 {details.googleLocation ? (
                   <p className="tv-small mb-9">

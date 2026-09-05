@@ -217,8 +217,19 @@ describe('confirmation email content', () => {
     const html = await render(confirmationNoImage);
     const text = await render(confirmationNoImage, { plainText: true });
 
-    // No broken image placeholder at all.
-    expect(html).not.toMatch(/<img/i);
+    // No broken product-image placeholder. The brand mark is a separate <img>
+    // and is always present, so this asserts the absence of the ARTWORK
+    // specifically rather than of every image in the document.
+    expect(html).not.toMatch(/<img[^>]*alt="[^"]*NFC card"/i);
+
+    // The brand mark is the only image left, and it degrades to styled alt
+    // text when the client blocks images.
+    const logo = html.match(/<img[^>]*logo-small\.png[^>]*>/i)?.[0];
+    expect(logo).toBeDefined();
+    expect(logo).toMatch(/alt="TAPVYO"/);
+    expect(logo).toMatch(/width="140"/);
+    expect(logo).toMatch(/height="42"/);
+
     // And nothing informational was lost with it.
     expect(text).toContain('Premium Metal');
     expect(text).toContain('₹1,598');

@@ -454,6 +454,22 @@ class PaymentAdapterService {
     // catches anything that slips past it.
     if (claimed.count) {
       await sendOrderConfirmationEmail(params.existingOrderId);
+
+      // Admin notification for the UPI QR flow, mirroring the card path in
+      // verifyPayment above. Guarded by the same claim, so this polled endpoint
+      // cannot mail the admin twice for one order.
+      //
+      // Purely additive and invisible to the customer: sendAdminOrderNotification
+      // never throws on its own and this try/catch is the second guard, so a
+      // failure is logged and the paid response below is returned unchanged.
+      try {
+        await sendAdminOrderNotification(params.existingOrderId, capturedPayment.id);
+      } catch (err) {
+        console.error(
+          "[admin-notification] order " + params.existingOrderId + " notification threw: " +
+            (err instanceof Error ? err.message : String(err))
+        );
+      }
     }
 
     return {

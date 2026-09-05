@@ -1,35 +1,38 @@
+Subject: New order — Aarthi Venkatesan — Matte Black Metal NFC Card — 2,499 — TPV-2026-0417
+
 NEW ORDER NOTIFICATION
 
-Subject: New order — Jane Doe — Premium Metal NFC Card — ₹7,999 — ORD-7K2P-QM9X
+Subject: New order — Aarthi Venkatesan — Matte Black Metal NFC Card — 2,499 — TPV-2026-0417
 
 --- Order summary ---
-Order ref:    ORD-7K2P-QM9X
-Order ID:     671234567890abcdef123456
-Placed:       4 Sept 2026, 12:48:11 pm IST
-Paid:         4 Sept 2026, 12:50:33 pm IST
-Card design:  Premium Metal NFC Card [Premium]
-Price:        ₹7,999
+Order ref:    TPV-2026-0417
+Order ID:     cm5x8q2ka0001l904h7d3nvbz
+Placed:       5 Sept 2026, 02:42:44 pm IST
+Paid:         5 Sept 2026, 02:43:02 pm IST
+Card design:  Matte Black Metal NFC Card [Premium]
+Price:        2,499
 Payment ref:  pay_R9zK3mQ8nL2vP4
-Payment status: PAID [razorpay]
+Payment status: PAID [razorpay_upi]
 
 --- Items ---
-Premium Metal NFC Card ×1  ₹7,999  →  ₹7,999
+Matte Black Metal NFC Card ×1  ₹2,499  →  ₹2,499
 
 --- Customer details ---
-Name:    Jane Doe
-Designation: Founder & CEO
-Company: Acme Pvt Ltd
-Mobile:  +91 90800 86908
-Email:   jane.doe@acme.in
-Website: https://acme.in
+Name:    Aarthi Venkatesan
+Designation: Founder & Creative Director
+Company: Indigo Loom Studio
+Mobile:  +919840123456
+Email:   aarthi@indigoloom.in
+Website: https://indigoloom.in
 
 --- Social links ---
-Instagram: https://instagram.com/janedoe
-LinkedIn: https://linkedin.com/in/janedoe
-Profile URL: —
+LinkedIn: https://linkedin.com/in/aarthivenkatesan
+Instagram: https://instagram.com/indigoloom
+X: null
+Profile URL: https://tapvyo.com/p/aarthi-venkatesan
 
 --- Uploaded files ---
-ProfileImage: https://res.cloudinary.com/demo/image/upload/v1/profile.jpg
-Logo: —
+indigoloom-logo-primary.png: https://res.cloudinary.com/demo/image/upload/v1/logo.png
+aarthi-headshot.jpg: —
 
 Contact: tel · mailto · wa.me

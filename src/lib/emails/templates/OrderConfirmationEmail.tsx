@@ -18,11 +18,14 @@
  *   any of the visual changes here. The shared layout still owns those.
  * - Tables only. All CSS is inline. 600px max width. System font stack with a
  *   serif heading stack for the editorial feel.
- * - No <img> for the brand mark: the dark header carries a styled wordmark so
- *   a client with images blocked (the default in Outlook and unknown-sender
- *   Gmail) still reads correctly. The product artwork IS an <img>, gated on
- *   productImageUrl being an absolute https URL, so a missing artwork never
- *   leaves a broken-image icon behind.
+ * - The brand mark IS an <img>, but its alt text is styled to render as the
+ *   serif wordmark it replaced, so a client with images blocked (the default
+ *   in Outlook and unknown-sender Gmail) still shows "TAPVYO" on the dark band
+ *   rather than a broken-image icon. The product artwork is likewise an <img>,
+ *   gated on productImageUrl being an absolute https URL, so a missing artwork
+ *   never leaves a broken-image icon behind.
+ * - CTAs are table-cell "bulletproof" buttons, not padded anchors - Outlook's
+ *   Word rendering engine ignores padding on an inline element.
  * - The brand palette is the site's identity (dark navy surfaces) with an
  *   amber/gold accent. Buttons and the order reference use the accent so the
  *   customer has one obvious primary action without it blending into the
@@ -32,10 +35,10 @@
 import * as React from "react";
 import {
   Body,
-  Button,
   Container,
   Head,
   Html,
+  Img,
   Link,
   Preview,
   Section,
@@ -67,6 +70,13 @@ const PROOF_DEADLINE_LINE =
  * guessing in customer-facing copy.
  */
 const DELIVERY_TIMELINE_PLACEHOLDER = "[TODO: CONFIRM DELIVERY DAYS]";
+
+/**
+ * Brand mark. Absolute https, from SITE_URL rather than a hardcoded origin so
+ * a preview deploy points at its own copy instead of production's. The asset
+ * is public/logo-small.png, 200x60.
+ */
+const LOGO_URL = `${SITE_URL}/logo-small.png`;
 
 /**
  * Policy page URLs. Absolute so the email works from any recipient domain.
@@ -142,19 +152,32 @@ const header = {
   backgroundColor: C.headerBg,
   padding: "28px 32px 26px",
 } as const;
-const wordmark = {
+
+const logoCell = { textAlign: "center" as const } as const;
+
+/**
+ * The brand mark, and the alt-text fallback in one.
+ *
+ * Mail clients render an <img>'s alt text using the styles set on the img
+ * itself, so the serif face, size, colour and letter-spacing below do double
+ * duty: they lay out the logo when images load, and they render "TAPVYO" as a
+ * styled wordmark on the dark band when images are blocked - which is the
+ * default in Outlook and in Gmail for an unknown sender. That is why the
+ * separate serif wordmark this replaced is no longer needed.
+ *
+ * The source is 200x60; 140x42 keeps that 10:3 ratio so nothing is squashed.
+ */
+const logoImg = {
   color: C.headerInk,
+  display: "block" as const,
   fontFamily: FONT_SERIF,
   fontSize: "28px",
   fontWeight: 700,
   letterSpacing: "6px",
-  lineHeight: "32px",
-  margin: "0",
+  lineHeight: "42px",
+  margin: "0 auto",
+  maxWidth: "100%",
   textAlign: "center" as const,
-} as const;
-const wordmarkDot = {
-  color: C.headerMuted,
-  fontFamily: FONT_SERIF,
 } as const;
 const headerTagline = {
   color: C.headerMuted,
@@ -351,19 +374,8 @@ const infoTextLast = {
   margin: "0",
 } as const;
 
-const buttonPrimary = {
-  backgroundColor: C.accent,
-  borderRadius: "6px",
-  color: C.accentInk,
-  fontFamily: FONT_SANS,
-  fontSize: "15px",
-  fontWeight: 700,
-  letterSpacing: "0.3px",
-  padding: "14px 26px",
-  textDecoration: "none",
-  textAlign: "center" as const,
-  display: "inline-block" as const,
-} as const;
+// The CTA's own colours live inside BulletproofButton, because the fill has to
+// sit on a <td> rather than on the anchor - see the note there.
 const buttonRow = { margin: "0 0 22px", textAlign: "center" as const } as const;
 const buttonCaption = {
   color: C.muted,
@@ -460,6 +472,82 @@ function DetailRow({
   );
 }
 
+/**
+ * Bulletproof CTA.
+ *
+ * Replaces @react-email/components' <Button>, which renders a padded <a>.
+ * Outlook 2007-2019 lay the message out with the Word engine, and Word ignores
+ * padding on an inline element - so that anchor collapses to bare underlined
+ * text with no amber fill and no tap target. The fill has to come from a
+ * <td bgcolor>, and the padding from the cell, which Word does honour.
+ *
+ * bgcolor is set as an attribute as well as in the style: some clients strip
+ * the style attribute off a td but keep the presentational one, and the button
+ * must never render as white-on-white.
+ *
+ * The anchor keeps display:block and its own vertical padding so the whole
+ * cell is tappable rather than just the text - that is what carries the 44px
+ * minimum touch target on a phone.
+ */
+function BulletproofButton({
+  href,
+  label: labelText,
+}: {
+  href: string;
+  label: string;
+}) {
+  return (
+    <table
+      role="presentation"
+      cellPadding={0}
+      cellSpacing={0}
+      border={0}
+      align="center"
+      style={{ borderCollapse: "collapse", margin: "0 auto" }}
+    >
+      <tbody>
+        <tr>
+          <td
+            // Presentational attribute as well as the style: some clients
+            // strip style off a td but keep bgcolor, and the label must never
+            // end up white-on-white. React's td typings have no `bgcolor`, so
+            // it is spread in rather than passed as a prop.
+            {...({ bgcolor: C.accent } as { bgcolor: string })}
+            align="center"
+            style={{
+              backgroundColor: C.accent,
+              borderRadius: "6px",
+              // Horizontal only - the vertical padding lives on the anchor so
+              // the tap target and the fill are the same box.
+              padding: "0 26px",
+              textAlign: "center",
+            }}
+          >
+            <a
+              href={href}
+              style={{
+                color: C.accentInk,
+                display: "block",
+                fontFamily: FONT_SANS,
+                fontSize: "15px",
+                fontWeight: 700,
+                letterSpacing: "0.3px",
+                // 15px text at ~20px line-height plus 12px top and bottom
+                // clears the 44px minimum.
+                lineHeight: "20px",
+                padding: "12px 0",
+                textDecoration: "none",
+              }}
+            >
+              {labelText}
+            </a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Public API
 // ---------------------------------------------------------------------------
@@ -501,12 +589,21 @@ export function OrderConfirmationEmail(data: OrderConfirmationEmailData) {
                   image-blocked client still sees the brand.
               ---------------------------------------------------------------- */}
               <Section style={header}>
-                <Text style={wordmark}>
-                  {SITE_NAME.toUpperCase().slice(0, 3)}
-                  <span style={wordmarkDot}>
-                    {SITE_NAME.toUpperCase().slice(3)}
-                  </span>
-                </Text>
+                {/* Brand mark. The alt text is styled to match the wordmark
+                    below it, so a client with images blocked - the default in
+                    Outlook and in Gmail for an unknown sender - still shows
+                    "TAPVYO" in the serif face rather than a broken-image icon.
+                    Width and height are set as attributes so the header band
+                    reserves the right space before the image loads. */}
+                <Section style={logoCell}>
+                  <Img
+                    src={LOGO_URL}
+                    alt={SITE_NAME.toUpperCase()}
+                    width="140"
+                    height="42"
+                    style={logoImg}
+                  />
+                </Section>
                 <Section style={headerRuleCell}>
                   <table
                     role="presentation"
@@ -679,9 +776,7 @@ export function OrderConfirmationEmail(data: OrderConfirmationEmailData) {
                     visual, the bare URL is shown for clients that strip
                     buttons. */}
                 <Section style={buttonRow}>
-                  <Button href={trackUrl} style={buttonPrimary}>
-                    Track my order
-                  </Button>
+                  <BulletproofButton href={trackUrl} label="Track my order" />
                 </Section>
                 <Text style={buttonCaption}>
                   Or open this link directly:{" "}
