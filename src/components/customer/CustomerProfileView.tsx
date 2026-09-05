@@ -32,7 +32,6 @@ import { SITE_NAME, SITE_URL } from '@/lib/site-config';
 import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 import {
   SaveContactButton,
-  ShareProfileButton,
 } from '@/components/profile/SaveContactButton';
 import type { VCardContact } from '@/lib/vcard';
 
@@ -244,11 +243,10 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
    * window.location so it is correct during server rendering and never a
    * localhost link inside a shared message or a saved contact.
    */
+  // profileUrl is still needed: it is the URL written into the .vcf below, so
+  // a saved contact reopens the profile. The shareText that used to sit here
+  // went with the Share profile button.
   const profileUrl = `${SITE_URL}/card/${customer.slug}`;
-
-  const shareText = `Connect with ${customer.name}${
-    customer.designation ? ` - ${customer.designation}` : ''
-  }`;
 
   /** Contact data for the .vcf; serialised by src/lib/vcard.ts. */
   const vcardContact: VCardContact = useMemo(
@@ -485,22 +483,14 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                   ) : null}
                 </div>
 
-                {/* SECONDARY ROW — the lower-intent actions, one tier down.
-                    Share profile takes tv-btn-secondary so it cannot compete
-                    with Call above; Get in touch keeps its gilded treatment as
-                    the jump link to the contact form. */}
-                <div className="flex flex-col sm:flex-row gap-3 mb-9">
-                  <ShareProfileButton
-                    title={`${customer.name} - Digital Profile`}
-                    text={shareText}
-                    url={profileUrl}
-                    className="tv-btn tv-btn-lg tv-btn-secondary tv-btn-block"
-                  />
-                  <a href="#contact" className="tv-btn tv-btn-lg tv-btn-gilded tv-btn-block">
-                    Get in touch
-                    <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
-                  </a>
-                </div>
+                {/* No secondary CTA row. Share profile and the "Get in touch"
+                    jump link both used to sit here; they were removed so the
+                    hero carries exactly one pair of actions - Call and
+                    WhatsApp - and nothing competes with them.
+
+                    The #contact section itself is untouched and still further
+                    down the page; it is simply reached by scrolling now rather
+                    than by a button. */}
 
                 {socialLinks.length > 0 ? (
                   <ul className="flex flex-wrap gap-3">
