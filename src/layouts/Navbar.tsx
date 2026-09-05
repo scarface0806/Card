@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type MouseEvent } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, ArrowUpRight } from 'lucide-react';
@@ -33,6 +33,51 @@ export default function Navbar() {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  /**
+   * Same-page logo press: scroll to the top instead of a no-op navigation.
+   *
+   * Only intercepts when the current route already IS the logo's target -
+   * every other case falls through to Next's normal navigation, which scrolls
+   * to the top on its own.
+   *
+   * Honours prefers-reduced-motion: a smooth scroll of a long page is exactly
+   * the kind of large motion that setting exists to suppress.
+   */
+  const scrollToTop = (event: MouseEvent<HTMLAnchorElement>) => {
+    // Let modified clicks (new tab, new window) behave normally.
+    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+    event.preventDefault();
+    setIsOpen(false);
+
+    const reduceMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    window.scrollTo({ top: 0, behavior: reduceMotion ? 'auto' : 'smooth' });
+  };
+
+  const handleLogoClick = (event: MouseEvent<HTMLAnchorElement>) => {
+    if (pathname !== ROUTES.HOME) return;
+    scrollToTop(event);
+  };
+
+  /**
+   * Same-page nav link press, e.g. "Cards" while already on /cards.
+   *
+   * A hash link is left alone: "/#features" from the home page must jump to
+   * that section, and hijacking it to scroll to the top would break the one
+   * link on this list whose whole purpose is to move somewhere specific.
+   */
+  const handleNavLinkClick = (
+    event: MouseEvent<HTMLAnchorElement>,
+    href: string
+  ) => {
+    if (href.includes('#')) return;
+    if (pathname !== href) return;
+    scrollToTop(event);
+  };
 
   // Navigating with the panel open left it covering the new page. Adjusted
   // during render rather than in an effect: an effect would paint the new page
@@ -76,9 +121,15 @@ export default function Navbar() {
     >
       <div className="site-container">
         <div className="tv-nav-bar">
-          {/* Wordmark */}
+          {/* Wordmark. Clicking it from another page navigates home as usual.
+              Clicking it while ALREADY on the target page used to do nothing
+              at all - Next skips a navigation to the current route, so someone
+              scrolled down to the cards section on the home page pressed the
+              logo and the page did not move. A logo is expected to take you
+              back to the top, so that case scrolls instead. */}
           <Link
             href={ROUTES.HOME}
+            onClick={handleLogoClick}
             className="tv-focus flex min-h-[44px] items-center"
             aria-label="Tapvyo — home"
           >
@@ -91,6 +142,7 @@ export default function Navbar() {
               <li key={link.href}>
                 <Link
                   href={link.href}
+                  onClick={(event) => handleNavLinkClick(event, link.href)}
                   className="tv-navlink tv-focus"
                   aria-current={isActive(link.href) ? 'page' : undefined}
                 >
@@ -164,7 +216,10 @@ export default function Navbar() {
                         href={link.href}
                         className="tv-nav-mobile-link tv-focus"
                         aria-current={isActive(link.href) ? 'page' : undefined}
-                        onClick={() => setIsOpen(false)}
+                        onClick={(event) => {
+                          setIsOpen(false);
+                          handleNavLinkClick(event, link.href);
+                        }}
                       >
                         <span className="tv-nav-mobile-num" aria-hidden="true">
                           {String(index + 1).padStart(2, '0')}

@@ -82,11 +82,34 @@ export async function fetchCurrentUser(
   };
 }
 
+/**
+ * Last known session, shared by every mount in this page session.
+ *
+ * WHY THIS EXISTS: the header is rendered per page, so a client-side
+ * navigation unmounts and remounts it. Without this, every mount started at
+ * `loading` again, AccountMenu rendered nothing while the refetch was in
+ * flight, and the Login button visibly vanished and reappeared on each nav -
+ * taking the header's layout with it.
+ *
+ * It seeds the initial state only. The effect below still revalidates in the
+ * background on every mount, so a session that ends in another tab is picked
+ * up on the next navigation; the difference is that the UI now shows the
+ * previous answer while that happens instead of showing nothing.
+ *
+ * Module scope, so it resets on a full page load - which is exactly the
+ * lifetime a session answer should have on the client.
+ */
+let cachedState: State | null = null;
+
 export function useCurrentUser() {
-  const [state, setState] = useState<State>({ status: 'loading' });
+  const [state, setState] = useState<State>(cachedState ?? { status: 'loading' });
 
   const apply = useCallback((user: CurrentUser | null) => {
-    setState(user ? { status: 'signed-in', user } : { status: 'signed-out' });
+    const next: State = user
+      ? { status: 'signed-in', user }
+      : { status: 'signed-out' };
+    cachedState = next;
+    setState(next);
   }, []);
 
   useEffect(() => {

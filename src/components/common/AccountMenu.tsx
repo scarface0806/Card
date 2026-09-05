@@ -134,8 +134,22 @@ export default function AccountMenu({
     };
   }, [open]);
 
-  // Nothing while the session is unknown - see the file header.
-  if (state.status === 'loading') return null;
+  // Session still unknown - only ever on the very first load of a page
+  // session, because useCurrentUser now seeds from its module cache.
+  //
+  // The slot is RESERVED rather than collapsed. Returning null let the actions
+  // row reflow the moment the answer arrived, which is the header "changing
+  // design" as it settles. `invisible` is visibility:hidden, so this occupies
+  // exactly the Login button's box - same classes, same label, same metrics -
+  // without being seen or read out.
+  if (state.status === 'loading') {
+    if (variant === 'mobile') return null;
+    return (
+      <span aria-hidden="true" className="tv-btn tv-btn-secondary invisible">
+        Login
+      </span>
+    );
+  }
 
   if (state.status === 'signed-out') {
     if (variant === 'mobile') {

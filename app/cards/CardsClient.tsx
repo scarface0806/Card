@@ -1,15 +1,14 @@
 'use client';
 
 import { Suspense, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
-import CardPreviewModal from '@/components/CardPreviewModal';
 import NFCCard from '@/components/ui/NFCCard';
 import CardFlipImage from '@/components/ui/CardFlipImage';
 import CardArtwork from '@/components/ui/CardArtwork';
-import ContactModal, { ContactSource } from '@/components/ContactModal';
-import AuthModal from '@/components/AuthModal';
+import type { ContactSource } from '@/components/ContactModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import { motion } from 'framer-motion';
 import {
@@ -24,6 +23,23 @@ import {
 } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import SelectionNotice from './SelectionNotice';
+
+/**
+ * The three modals are code-split and mounted only while open.
+ *
+ * They were static imports rendered unconditionally with `isOpen={false}`, so
+ * every visitor to /cards downloaded, parsed and hydrated all three - a card
+ * preview, a contact form and a full auth form - before seeing a single card,
+ * for UI most of them never open. That is the bulk of Lighthouse's "unused
+ * JavaScript" on this route.
+ *
+ * ssr:false because none of them render anything until opened by a click, so
+ * there is nothing for the server to usefully produce. This mirrors the
+ * pattern app/(frontend)/HomeClient.tsx already uses for ContactModal.
+ */
+const CardPreviewModal = dynamic(() => import('@/components/CardPreviewModal'), { ssr: false });
+const ContactModal = dynamic(() => import('@/components/ContactModal'), { ssr: false });
+const AuthModal = dynamic(() => import('@/components/AuthModal'), { ssr: false });
 
 const includedFeatures = [
   { icon: InfinityIcon, title: 'Free hosting forever', desc: 'Your profile stays live without extra cost.' },
@@ -405,27 +421,35 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
 
       <Footer />
 
-      {/* Preview Modal */}
-      <CardPreviewModal
-        isOpen={isPreviewOpen}
-        onClose={() => setIsPreviewOpen(false)}
-        card={selectedCard}
-      />
+      {/* Each modal is mounted only while open. The `isOpen` prop is kept as
+          well, so each keeps its own open/close transition - the guard decides
+          whether the component exists at all, the prop decides how it animates. */}
+      {isPreviewOpen ? (
+        <CardPreviewModal
+          isOpen={isPreviewOpen}
+          onClose={() => setIsPreviewOpen(false)}
+          card={selectedCard}
+        />
+      ) : null}
 
       {/* Contact Modal (Single instance for all contact buttons) */}
-      <ContactModal
-        isOpen={isContactModalOpen}
-        onClose={closeContactModal}
-        source={contactModalSource}
-      />
+      {isContactModalOpen ? (
+        <ContactModal
+          isOpen={isContactModalOpen}
+          onClose={closeContactModal}
+          source={contactModalSource}
+        />
+      ) : null}
 
       {/* Auth Modal */}
-      <AuthModal
-        isOpen={isAuthOpen}
-        mode={authMode}
-        onClose={() => setIsAuthOpen(false)}
-        onModeChange={setAuthMode}
-      />
+      {isAuthOpen ? (
+        <AuthModal
+          isOpen={isAuthOpen}
+          mode={authMode}
+          onClose={() => setIsAuthOpen(false)}
+          onModeChange={setAuthMode}
+        />
+      ) : null}
     </div>
   );
 }

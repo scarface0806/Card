@@ -140,12 +140,6 @@ body {
 /* ========================================
    ADMIN SURFACE SYSTEM
    ======================================== */
-.admin-shell {
-  background-image:
-    radial-gradient(900px 500px at 100% -5%, rgba(74, 222, 128, 0.08), transparent 60%),
-    radial-gradient(700px 420px at 0% 0%, rgba(52, 211, 153, 0.06), transparent 62%),
-    linear-gradient(180deg, #0b1020 0%, #090f1d 100%);
-}
 
 /* ----------------------------------------
    SINGLE CONTENT GUTTER
@@ -198,13 +192,6 @@ body {
    ======================================== */
 
 /* Display - Hero headlines: 64-72px */
-.heading-display {
-  font-size: 2.75rem;
-  line-height: 1.08;
-  font-weight: 800;
-  letter-spacing: -0.025em;
-  color: var(--color-text-dark);
-}
 
 @media (min-width: 640px) {
   .heading-display {
@@ -247,13 +234,6 @@ body {
 }
 
 /* H2 - Card titles, subsections: 28-32px */
-.heading-2 {
-  font-size: 1.5rem;
-  line-height: 1.2;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  color: var(--color-text-dark);
-}
 
 @media (min-width: 768px) {
   .heading-2 {
@@ -324,51 +304,12 @@ body {
 }
 
 /* Small: 14px */
-.text-small {
-  font-size: 0.875rem;
-  line-height: 1.5;
-  font-weight: 400;
-  color: var(--color-text-light);
-}
 
 /* Label text */
-.text-label {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  color: var(--color-primary);
-}
 
-.heading-4 {
-  font-size: 1rem;
-  line-height: 1.35;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  color: var(--color-text-dark);
-}
 
-.heading-5 {
-  font-size: 0.9375rem;
-  line-height: 1.4;
-  font-weight: 600;
-  color: var(--color-text-dark);
-}
 
-.heading-6 {
-  font-size: 0.875rem;
-  line-height: 1.45;
-  font-weight: 600;
-  color: var(--color-text-dark);
-}
 
-.text-caption {
-  font-size: 0.75rem;
-  line-height: 1.4;
-  font-weight: 500;
-  color: var(--color-text-muted);
-}
 
 /* ========================================
    SHADOW SYSTEM - 3 Elevation Levels
@@ -376,11 +317,6 @@ body {
    ======================================== */
 
 /* Level 1 - Subtle (cards at rest) */
-.shadow-1 {
-  box-shadow: 
-    0 1px 3px rgba(0, 0, 0, 0.06),
-    0 2px 6px rgba(74, 222, 128, 0.04);
-}
 
 /* Level 2 - Medium (hover states, elevated cards) */
 .shadow-2 {
@@ -391,12 +327,6 @@ body {
 }
 
 /* Level 3 - High (modals, dropdowns) */
-.shadow-3 {
-  box-shadow: 
-    0 4px 10px rgba(0, 0, 0, 0.08),
-    0 12px 28px rgba(74, 222, 128, 0.08),
-    0 28px 56px rgba(0, 0, 0, 0.06);
-}
 
 /* ========================================
    GLOBAL CONTAINER SYSTEM
@@ -463,10 +393,6 @@ body {
   }
 }
 
-.section-spacing-lg {
-  padding-top: 80px;
-  padding-bottom: 80px;
-}
 
 @media (min-width: 768px) {
   .section-spacing-lg {
@@ -486,11 +412,6 @@ body {
    GRID SYSTEM
    12-column grid for complex layouts
    ======================================== */
-.grid-12 {
-  display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 24px;
-}
 
 @media (min-width: 768px) {
   .grid-12 {
@@ -505,10 +426,7 @@ body {
 }
 
 /* Common grid spans */
-.col-span-full { grid-column: span 12; }
-.col-span-6 { grid-column: span 12; }
 .col-span-4 { grid-column: span 12; }
-.col-span-3 { grid-column: span 6; }
 
 @media (min-width: 768px) {
   .col-span-6 { grid-column: span 6; }
@@ -553,10 +471,6 @@ body {
   border-radius: 10px;
 }
 
-.btn-md {
-  height: 48px;
-  padding: 0 24px;
-}
 
 .btn-lg {
   height: 56px;
@@ -642,20 +556,7 @@ body {
   transform: translateY(-4px);
 }
 
-.card-flat {
-  background: linear-gradient(to bottom, #0f172a, #020617);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
 
-.card-elevated {
-  background: linear-gradient(to bottom, #0f172a, #020617);
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 
-    0 2px 6px rgba(0, 0, 0, 0.3),
-    0 6px 16px rgba(74, 222, 128, 0.08);
-}
 
 .card-padding {
   padding: 24px;
@@ -667,9 +568,6 @@ body {
   }
 }
 
-.card-padding-sm {
-  padding: 16px;
-}
 
 @media (min-width: 768px) {
   .card-padding-sm {
@@ -800,32 +698,13 @@ body {
 }
 
 /* Page enter animation */
-.animate-page-enter {
-  animation: page-enter var(--duration-standard) var(--ease-premium) forwards;
-}
 
-.animate-fade-in {
-  animation: fade-in var(--duration-standard) var(--ease-premium) forwards;
-}
 
-.animate-fade-in-up {
-  animation: fade-in-up var(--duration-slow) var(--ease-premium) forwards;
-}
 
-.animate-scale-in {
-  animation: scale-in var(--duration-standard) var(--ease-premium) forwards;
-}
 
 /* Staggered animation delays */
-.animate-delay-1 { animation-delay: 50ms; }
-.animate-delay-2 { animation-delay: 100ms; }
-.animate-delay-3 { animation-delay: 150ms; }
-.animate-delay-4 { animation-delay: 200ms; }
 
 /* Hover transitions - premium timing */
-.hover-lift {
-  transition: transform var(--duration-standard) var(--ease-premium);
-}
 
 .hover-lift:hover {
   transform: translateY(var(--card-hover-lift));
@@ -857,76 +736,35 @@ body {
 }
 
 /* Text colors using tokens */
-.text-dark { color: var(--color-text-dark); }
-.text-medium { color: var(--color-text-medium); }
-.text-light { color: var(--color-text-light); }
 .text-muted { color: var(--color-text-muted); }
 .text-primary { color: var(--color-primary); }
-.text-primary-dark { color: var(--color-primary-dark); }
 
 /* Background colors */
-.bg-base { background: var(--color-bg-base); }
-.bg-subtle { background: var(--color-bg-subtle); }
-.bg-muted { background: var(--color-bg-muted); }
-.bg-primary-dark { background: var(--color-primary-dark); }
 
 .hover\:bg-primary-dark:hover {
   background: var(--color-primary-dark);
 }
 
 /* Overflow utility */
-.overflow-visible-all {
-  overflow: visible !important;
-}
 
 .overflow-visible-all * {
   overflow: visible !important;
 }
 
 /* Content max-widths for readability */
-.max-w-content { max-width: 680px; }
-.max-w-content-lg { max-width: 800px; }
-.max-w-content-xl { max-width: 960px; }
 
 /* ========================================
    PREMIUM SECTION BACKGROUNDS
    Alternating backgrounds for visual rhythm
    ======================================== */
-.section-alt {
-  background: linear-gradient(180deg, #f5f9f5 0%, #eef5ee 100%);
-}
 
-.section-warm {
-  background: linear-gradient(180deg, #fafdfb 0%, #f3f8f3 100%);
-}
 
-.section-teal-soft {
-  background: linear-gradient(180deg, rgba(240, 253, 250, 0.5) 0%, rgba(236, 253, 245, 0.3) 100%);
-}
 
 /* Hero gradient mesh background */
-.hero-mesh {
-  background-color: #ffffff;
-  background-image:
-    radial-gradient(at 20% 30%, hsla(120, 60%, 90%, 0.35) 0px, transparent 55%),
-    radial-gradient(at 90% 15%, hsla(60, 100%, 90%, 0.20) 0px, transparent 50%),
-    radial-gradient(at 55% 95%, hsla(120, 55%, 92%, 0.20) 0px, transparent 52%),
-    radial-gradient(at 5% 70%, hsla(120, 50%, 95%, 0.25) 0px, transparent 48%);
-}
 
 /* ========================================
    PREMIUM FORM INPUTS
    ======================================== */
-.input-premium {
-  width: 100%;
-  padding: 14px 20px;
-  border-radius: 12px;
-  background: #f8fafa;
-  border: 1.5px solid var(--color-border-light);
-  color: var(--color-text-dark);
-  font-size: 0.9375rem;
-  transition: all var(--duration-standard) var(--ease-premium);
-}
 
 .input {
   width: 100%;
@@ -964,10 +802,6 @@ body {
 /* ========================================
    SECTION DIVIDER
    ======================================== */
-.section-divider {
-  height: 1px;
-  background: linear-gradient(90deg, transparent 0%, var(--color-border-light) 30%, var(--color-border-light) 70%, transparent 100%);
-}
 
 /* ========================================
    FRONTEND DARK THEME (Scoped)
@@ -1126,11 +960,6 @@ body {
    ======================================== */
 
 /* Admin container with proper spacing */
-.admin-container {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 24px;
-}
 
 @media (min-width: 768px) {
   .admin-container {
@@ -1154,13 +983,6 @@ body {
 }
 
 /* Admin page title */
-.admin-title {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #ffffff;
-  margin-bottom: 8px;
-  letter-spacing: -0.02em;
-}
 
 @media (min-width: 768px) {
   .admin-title {
@@ -1169,17 +991,8 @@ body {
 }
 
 /* Admin page description */
-.admin-description {
-  font-size: 0.9375rem;
-  color: #94A3B8;
-  margin-bottom: 32px;
-  line-height: 1.5;
-}
 
 /* Admin section header */
-.admin-section-header {
-  margin-bottom: 24px;
-}
 
 @media (min-width: 768px) {
   .admin-section-header {
@@ -1188,13 +1001,6 @@ body {
 }
 
 /* Admin section title */
-.admin-section-title {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #F8FAFC;
-  margin-bottom: 8px;
-  letter-spacing: -0.01em;
-}
 
 /* Admin filter bar */
 .admin-filter-bar {
@@ -1242,34 +1048,12 @@ body {
 }
 
 /* Admin form group */
-.admin-form-group {
-  margin-bottom: 20px;
-}
 
 .admin-form-group:last-child {
   margin-bottom: 0;
 }
 
-.admin-form-label {
-  display: block;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #CBD5E1;
-  margin-bottom: 8px;
-  letter-spacing: 0.02em;
-}
 
-.admin-form-input {
-  width: 100%;
-  padding: 12px 16px;
-  background: #020617;
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #F8FAFC;
-  font-size: 0.9375rem;
-  font-family: inherit;
-  transition: all 200ms ease;
-}
 
 .admin-form-input:focus {
   outline: none;
@@ -1293,27 +1077,8 @@ body {
   box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
 }
 
-.admin-form-error {
-  font-size: 0.8125rem;
-  color: #ef4444;
-  margin-top: 4px;
-  font-weight: 500;
-}
 
 /* Admin form textarea */
-.admin-form-textarea {
-  width: 100%;
-  min-height: 120px;
-  padding: 12px 16px;
-  background: #020617;
-  border: 1.5px solid rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-  color: #F8FAFC;
-  font-size: 0.9375rem;
-  font-family: inherit;
-  resize: vertical;
-  transition: all 200ms ease;
-}
 
 .admin-form-textarea:focus {
   outline: none;
@@ -1322,11 +1087,6 @@ body {
 }
 
 /* Admin button group */
-.admin-button-group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
 
 .admin-button-group.centered {
   justify-content: center;
@@ -1351,37 +1111,11 @@ body {
 }
 
 /* Admin status badge variations */
-.admin-status-success {
-  background: rgba(74, 222, 128, 0.15);
-  color: #4ade80;
-  border-color: rgba(74, 222, 128, 0.3);
-}
 
-.admin-status-warning {
-  background: rgba(251, 191, 36, 0.15);
-  color: #fbbf24;
-  border-color: rgba(251, 191, 36, 0.3);
-}
 
-.admin-status-error {
-  background: rgba(239, 68, 68, 0.15);
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.3);
-}
 
-.admin-status-info {
-  background: rgba(59, 130, 246, 0.15);
-  color: #3b82f6;
-  border-color: rgba(59, 130, 246, 0.3);
-}
 
 /* Admin loading skeleton */
-.admin-skeleton {
-  background: linear-gradient(90deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 100%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 2s infinite;
-  border-radius: 8px;
-}
 
 @keyframes skeleton-loading {
   0% { background-position: 200% 0; }
@@ -1389,83 +1123,17 @@ body {
 }
 
 /* Admin empty state */
-.admin-empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 48px 20px;
-  text-align: center;
-}
 
-.admin-empty-state-icon {
-  width: 64px;
-  height: 64px;
-  margin-bottom: 16px;
-  padding: 16px;
-  background: rgba(74, 222, 128, 0.1);
-  border-radius: 12px;
-  color: #94A3B8;
-}
 
-.admin-empty-state-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #F8FAFC;
-  margin-bottom: 8px;
-}
 
-.admin-empty-state-description {
-  font-size: 0.875rem;
-  color: #94A3B8;
-  max-width: 400px;
-}
 
 /* Admin alert/notification */
-.admin-alert {
-  padding: 16px;
-  border-radius: 8px;
-  border-left: 4px solid;
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
 
-.admin-alert-success {
-  background: rgba(74, 222, 128, 0.1);
-  border-color: #4ade80;
-  color: #4ade80;
-}
 
-.admin-alert-error {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: #ef4444;
-  color: #ef4444;
-}
 
-.admin-alert-warning {
-  background: rgba(251, 191, 36, 0.1);
-  border-color: #fbbf24;
-  color: #fbbf24;
-}
 
-.admin-alert-info {
-  background: rgba(59, 130, 246, 0.1);
-  border-color: #3b82f6;
-  color: #3b82f6;
-}
 
-.admin-alert-icon {
-  flex-shrink: 0;
-  width: 20px;
-  height: 20px;
-}
 
-.admin-alert-content {
-  flex: 1;
-  font-size: 0.9375rem;
-}
 
 /* Admin responsive utilities */
 @media (max-width: 639px) {
@@ -1481,33 +1149,11 @@ body {
 }
 
 /* Admin text utilities */
-.admin-text-sm { font-size: 0.875rem; }
-.admin-text-base { font-size: 0.9375rem; }
-.admin-text-lg { font-size: 1rem; }
-.admin-text-xl { font-size: 1.125rem; }
 
-.admin-text-muted { color: #94A3B8; }
-.admin-text-light { color: #CBD5E1; }
-.admin-text-strong { color: #F8FAFC; font-weight: 600; }
 
 /* Admin spacing utilities - 8px grid */
-.admin-gap-2 { gap: 8px; }
-.admin-gap-3 { gap: 12px; }
-.admin-gap-4 { gap: 16px; }
-.admin-gap-5 { gap: 20px; }
-.admin-gap-6 { gap: 24px; }
 
-.admin-p-2 { padding: 8px; }
-.admin-p-3 { padding: 12px; }
-.admin-p-4 { padding: 16px; }
-.admin-p-5 { padding: 20px; }
-.admin-p-6 { padding: 24px; }
 
-.admin-mb-2 { margin-bottom: 8px; }
-.admin-mb-3 { margin-bottom: 12px; }
-.admin-mb-4 { margin-bottom: 16px; }
-.admin-mb-5 { margin-bottom: 20px; }
-.admin-mb-6 { margin-bottom: 24px; }
 
 /* ============================================================================
    TAPVYO DESIGN SYSTEM  (namespaced .tv-*)

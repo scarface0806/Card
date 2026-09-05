@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
-import { Inter, Plus_Jakarta_Sans, Fraunces, Manrope, JetBrains_Mono } from 'next/font/google';
+import { Inter, Fraunces, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site-config';
 
 const inter = Inter({
@@ -10,18 +11,16 @@ const inter = Inter({
     display: 'swap',
 });
 
-const plusJakarta = Plus_Jakarta_Sans({
-    variable: '--font-space-grotesk',
-    subsets: ['latin'],
-    weight: ['400', '500', '600', '700', '800'],
-    display: 'swap',
-});
-
 /* ---------------------------------------------------------------------------
    Tapvyo display/body/utility faces.
-   Inter and Plus Jakarta above are still loaded: the admin panel and the other
-   frontend pages reference --font-inter and --font-space-grotesk, so removing
-   them would restyle surfaces outside this redesign's scope.
+
+   Plus Jakarta Sans (--font-space-grotesk) was REMOVED. Its only consumers
+   were Heading.tsx and four section components - PremiumPricing, PremiumBento,
+   PremiumNavbar/Hero, CurvedFeature, PricingPreview, TemplatePreview - none of
+   which were rendered by any route. The font was downloading five weights on
+   every page for markup that never existed. Inter stays: globals.css sets it
+   as the `body` face, so it is genuinely the base for anything the tv-*
+   system does not override.
    --------------------------------------------------------------------------- */
 
 // Display. Optical-sized, high-contrast serif; used for headings only.
@@ -30,7 +29,21 @@ const fraunces = Fraunces({
     variable: '--font-display',
     subsets: ['latin'],
     display: 'swap',
-    axes: ['SOFT', 'WONK', 'opsz'],
+    /**
+     * `opsz` ONLY. Every rule that uses this face pins SOFT and WONK to 0
+     * (`font-variation-settings: "SOFT" 0, "WONK" 0` - see .tv-display and the
+     * three other display rules in globals.css), and 0 is Fraunces's own
+     * default for both. Shipping those two axes therefore bought nothing and
+     * cost a great deal: a variable font's file size scales with the axes it
+     * carries, and this was the single largest asset on the site at 118 KB,
+     * preloaded on every page.
+     *
+     * `opsz` stays because `font-optical-sizing: auto` genuinely uses it.
+     *
+     * Rendering is unchanged: with the axes gone the font renders at its
+     * defaults, which are the values those rules were pinning it to anyway.
+     */
+    axes: ['opsz'],
 });
 
 // Body.
@@ -89,6 +102,25 @@ export const metadata: Metadata = {
         ],
     },
     manifest: '/manifest.json',
+
+    /**
+     * Google Search Console site verification.
+     *
+     * Next renders this as <meta name="google-site-verification" content="..." />
+     * in <head>, which is exactly what GSC's "HTML tag" method looks for. Set it
+     * here rather than hand-writing the tag: a raw <meta> in a layout is easy to
+     * lose in a refactor, and Next dedupes/owns the head.
+     *
+     * The token is NOT a secret - it is public in the HTML by design, and only
+     * proves domain control to Google. It stays hardcoded so verification cannot
+     * silently break because an env var was missed on a deploy.
+     *
+     * Do not remove it after verification passes. Google re-checks periodically
+     * and will un-verify the property if the tag disappears.
+     */
+    verification: {
+        google: 'Y8T-zHOqJkpI6tbMRjRHRhcca_6XYfixjeiTLyz7OIA',
+    },
     openGraph: {
         type: 'website',
         siteName: SITE_NAME,
@@ -120,9 +152,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en" suppressHydrationWarning>
-            <body className={`${inter.variable} ${plusJakarta.variable} ${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
+            <body className={`${inter.variable} ${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
                 {children}
                 <JsonLd />
+                {/* Renders nothing outside a production build - see the note in
+                    the component. Placed last so it can never sit ahead of page
+                    content in the document order. */}
+                <GoogleAnalytics />
             </body>
         </html>
     );

@@ -80,6 +80,13 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     optimizePackageImports: ["lucide-react", "@heroicons/react", "framer-motion"],
+
+    // NOT `optimizeCss: true`. It was tried for the render-blocking-CSS finding
+    // and does nothing on this project: `next build` here runs Turbopack, which
+    // reports the flag as enabled ("✓ optimizeCss") but never invokes the
+    // critical-CSS step - the built HTML still carried two blocking
+    // stylesheets and zero inlined <style>. Critters/beasties integration is
+    // webpack-only. Re-enabling it needs a webpack build, not just the flag.
   },
 };
 

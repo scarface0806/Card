@@ -1,0 +1,506 @@
+<title>Tapvyo SEO Audit</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&family=Public+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ground: #F7F8FA;
+    --surface: #FFFFFF;
+    --surface-sunk: #EEF1F5;
+    --ink: #14181F;
+    --ink-2: #3D4654;
+    --ink-3: #6B7688;
+    --rule: #DDE2E9;
+    --rule-strong: #C5CDD8;
+    --accent: #1F4E79;
+    --accent-soft: #E7EFF6;
+    --crit: #B42318;
+    --crit-soft: #FEF3F2;
+    --warn: #B54708;
+    --warn-soft: #FFFAEB;
+    --pass: #067647;
+    --pass-soft: #ECFDF3;
+    --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+    --sans: "Public Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    --serif: "Newsreader", Georgia, "Times New Roman", serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --ground: #0F1319;
+      --surface: #161B23;
+      --surface-sunk: #1C222C;
+      --ink: #E8ECF2;
+      --ink-2: #B4BECD;
+      --ink-3: #7E8A9C;
+      --rule: #262D38;
+      --rule-strong: #333C4A;
+      --accent: #7FB0DC;
+      --accent-soft: #16232F;
+      --crit: #F97066;
+      --crit-soft: #2A1512;
+      --warn: #F5A623;
+      --warn-soft: #2A1F0E;
+      --pass: #47CD89;
+      --pass-soft: #0E2419;
+    }
+  }
+  :root[data-theme="dark"] {
+    --ground: #0F1319;
+    --surface: #161B23;
+    --surface-sunk: #1C222C;
+    --ink: #E8ECF2;
+    --ink-2: #B4BECD;
+    --ink-3: #7E8A9C;
+    --rule: #262D38;
+    --rule-strong: #333C4A;
+    --accent: #7FB0DC;
+    --accent-soft: #16232F;
+    --crit: #F97066;
+    --crit-soft: #2A1512;
+    --warn: #F5A623;
+    --warn-soft: #2A1F0E;
+    --pass: #47CD89;
+    --pass-soft: #0E2419;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--ground);
+    color: var(--ink);
+    font-family: var(--sans);
+    font-size: 16px;
+    line-height: 1.6;
+    margin: 0;
+    padding: 0 20px 96px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; }
+
+  /* ---- masthead ---- */
+  .masthead { padding: 56px 0 28px; border-bottom: 2px solid var(--ink); }
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 14px;
+  }
+  h1 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: clamp(2.1rem, 1.4rem + 2.6vw, 3.1rem);
+    line-height: 1.08;
+    letter-spacing: -.02em;
+    margin: 0 0 16px;
+    text-wrap: balance;
+  }
+  .standfirst {
+    font-size: 1.075rem;
+    color: var(--ink-2);
+    max-width: 62ch;
+    margin: 0 0 22px;
+  }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--ink-3);
+    padding-bottom: 4px;
+  }
+  .meta-row b { color: var(--ink-2); font-weight: 500; }
+
+  /* ---- scoreboard ---- */
+  .board {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--rule);
+    border: 1px solid var(--rule);
+    margin: 32px 0 0;
+  }
+  .board div { background: var(--surface); padding: 16px 18px; }
+  .board .n {
+    font-family: var(--mono);
+    font-size: 1.85rem;
+    font-weight: 500;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    display: block;
+    margin-bottom: 7px;
+  }
+  .board .l {
+    font-family: var(--mono);
+    font-size: 10.5px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+  }
+  .n.crit { color: var(--crit); }
+  .n.warn { color: var(--warn); }
+  .n.pass { color: var(--pass); }
+  .n.neu  { color: var(--ink-2); }
+
+  h2 {
+    font-family: var(--serif);
+    font-weight: 500;
+    font-size: 1.72rem;
+    letter-spacing: -.015em;
+    margin: 62px 0 6px;
+    padding-top: 22px;
+    border-top: 1px solid var(--rule-strong);
+    text-wrap: balance;
+  }
+  h2 + .lede { color: var(--ink-2); margin: 0 0 26px; max-width: 64ch; }
+
+  h3 {
+    font-family: var(--sans);
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 34px 0 8px;
+    letter-spacing: -.005em;
+  }
+  p { max-width: 68ch; }
+
+  /* ---- findings ---- */
+  .find {
+    border-left: 3px solid var(--rule-strong);
+    padding: 2px 0 2px 20px;
+    margin: 0 0 30px;
+  }
+  .find.c { border-left-color: var(--crit); }
+  .find.w { border-left-color: var(--warn); }
+  .find.g { border-left-color: var(--pass); }
+
+  .find-head {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 7px;
+  }
+  .tag {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    padding: 3px 7px;
+    white-space: nowrap;
+  }
+  .tag.c { background: var(--crit-soft); color: var(--crit); }
+  .tag.w { background: var(--warn-soft); color: var(--warn); }
+  .tag.g { background: var(--pass-soft); color: var(--pass); }
+  .find-title {
+    font-weight: 700;
+    font-size: 1.045rem;
+    letter-spacing: -.005em;
+  }
+  .find p { margin: 0 0 10px; }
+  .find p:last-child { margin-bottom: 0; }
+
+  .ev {
+    font-family: var(--mono);
+    font-size: 12.5px;
+    line-height: 1.65;
+    background: var(--surface-sunk);
+    border-left: 2px solid var(--rule-strong);
+    padding: 11px 14px;
+    margin: 0 0 12px;
+    overflow-x: auto;
+    white-space: pre;
+    color: var(--ink-2);
+  }
+  code {
+    font-family: var(--mono);
+    font-size: .875em;
+    background: var(--surface-sunk);
+    padding: 1.5px 5px;
+    color: var(--ink);
+  }
+  .fix {
+    font-size: .945rem;
+    color: var(--ink-2);
+    border-top: 1px dotted var(--rule-strong);
+    padding-top: 9px;
+    margin-top: 12px !important;
+  }
+  .fix b {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 3px;
+    font-weight: 500;
+  }
+
+  /* ---- tables ---- */
+  .tw { overflow-x: auto; margin: 0 0 26px; }
+  table { border-collapse: collapse; width: 100%; font-size: .9rem; min-width: 500px; }
+  th {
+    text-align: left;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--ink-3);
+    font-weight: 500;
+    padding: 0 14px 8px 0;
+    border-bottom: 1px solid var(--rule-strong);
+  }
+  td {
+    padding: 9px 14px 9px 0;
+    border-bottom: 1px solid var(--rule);
+    vertical-align: top;
+  }
+  td.m { font-family: var(--mono); font-size: .82rem; font-variant-numeric: tabular-nums; white-space: nowrap; }
+  .bad { color: var(--crit); }
+  .ok { color: var(--pass); }
+
+  ul, ol { max-width: 68ch; padding-left: 20px; }
+  li { margin-bottom: 7px; }
+  ol.steps { counter-reset: s; list-style: none; padding-left: 0; }
+  ol.steps li {
+    counter-increment: s;
+    position: relative;
+    padding-left: 38px;
+    margin-bottom: 15px;
+  }
+  ol.steps li::before {
+    content: counter(s);
+    position: absolute;
+    left: 0;
+    top: 1px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-soft);
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    font-variant-numeric: tabular-nums;
+  }
+  .ta { font-family: "Noto Sans Tamil", var(--sans); }
+  footer {
+    margin-top: 64px;
+    padding-top: 20px;
+    border-top: 1px solid var(--rule);
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink-3);
+  }
+  a { color: var(--accent); }
+  a:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+</style>
+
+<div class="wrap">
+
+<header class="masthead">
+  <p class="eyebrow">Technical SEO Audit · Tamil Nadu Market</p>
+  <h1>Tapvyo Search Audit</h1>
+  <p class="standfirst">A full review of the live build — metadata, structured data, indexability and local-search readiness — measured against the production output, not the source. Ordered by revenue impact.</p>
+  <div class="meta-row">
+    <span><b>Domain</b> tapvyo.in</span>
+    <span><b>Pages crawled</b> 24</span>
+    <span><b>Method</b> Prerendered HTML + live DB</span>
+    <span><b>Date</b> 5 Sep 2026</span>
+  </div>
+</header>
+
+<div class="board">
+  <div><span class="n crit">5</span><span class="l">Critical</span></div>
+  <div><span class="n warn">5</span><span class="l">High</span></div>
+  <div><span class="n neu">3</span><span class="l">Medium</span></div>
+  <div><span class="n pass">5</span><span class="l">Already solid</span></div>
+</div>
+
+<h2>The headline</h2>
+<p class="lede">The technical foundation is genuinely good — better than most sites at this stage. What's missing is everything that makes Google understand you are a <em>Tamil Nadu business selling a product at a price</em>. That gap is where all the revenue is.</p>
+
+<p>You are invisible for the searches that convert. Not because of a penalty or a crawl problem, but because nothing on the site says <em>where you are</em> or <em>what things cost</em>. A person in Coimbatore searching “nfc business card near me” has no way to reach you, and Google has no signal to serve you.</p>
+
+<p>There is also one active defect that will fail Google's Rich Results Test today, and one claim on the homepage that is a genuine liability. Both are quick fixes.</p>
+
+<h2>Critical</h2>
+<p class="lede">Fix these first. Items 1–3 are the difference between ranking in Tamil Nadu and not existing there.</p>
+
+<div class="find c">
+  <div class="find-head"><span class="tag c">Critical</span><span class="find-title">No LocalBusiness schema — you cannot enter the local pack</span></div>
+  <p>The site emits <code>Organization</code>, which tells Google you're a company. It does not emit <code>LocalBusiness</code>, which tells Google you're a company <em>with a physical location that serves a geographic area</em>. Those are different eligibility paths, and only the second one feeds the map pack.</p>
+  <p>For a Trichy-based business whose entire realistic market is Tamil Nadu, this is the single most valuable missing tag on the site.</p>
+  <p class="fix"><b>Fix</b>Add <code>LocalBusiness</code> (or <code>Store</code>) with <code>areaServed: "Tamil Nadu"</code>, <code>geo</code> coordinates, <code>openingHoursSpecification</code> and <code>priceRange</code>. Emit it on the homepage and <code>/contact-us</code> only — not sitewide.</p>
+</div>
+
+<div class="find c">
+  <div class="find-head"><span class="tag c">Critical</span><span class="find-title">Product schema states prices that do not exist</span></div>
+  <p>Your global JSON-LD hardcodes an <code>AggregateOffer</code>. I compared it against the live database. It is wrong in three fields at once:</p>
+  <div class="ev">Schema claims          Database reality
+─────────────────────  ──────────────────────────
+lowPrice    599        ₹599   Elegant &amp; Professional
+highPrice   799        ₹999   black card
+offerCount  6          2 active products</div>
+  <p>Publishing a <code>highPrice</code> of ₹799 when your actual top product is ₹999 is a price mismatch. Google treats structured data that contradicts the visible page as a manual-action risk, and it will fail validation regardless.</p>
+  <p class="fix"><b>Fix</b>Generate the offer block from the same query <code>/cards</code> already uses, so the numbers cannot drift. If pricing is dynamic, it must be derived, never typed.</p>
+</div>
+
+<div class="find c">
+  <div class="find-head"><span class="tag c">Critical</span><span class="find-title">Product schema is emitted on every page, including Contact and Privacy</span></div>
+  <p>The <code>&lt;JsonLd /&gt;</code> component sits in the root layout, so all 24 pages declare the same <code>Product</code> and <code>AggregateOffer</code> — your privacy policy currently tells Google it is a purchasable NFC card priced from ₹599.</p>
+  <p>Product markup on a non-product page is invalid structured data. Combined with the wrong prices above, this is the highest-risk item on the site.</p>
+  <p class="fix"><b>Fix</b>Keep <code>Organization</code> and <code>WebSite</code> sitewide — those are correct there. Move <code>Product</code> to <code>/cards</code> and to per-card pages once they exist.</p>
+</div>
+
+<div class="find c">
+  <div class="find-head"><span class="tag c">Critical</span><span class="find-title">Unverifiable rating and customer-count claims on the homepage</span></div>
+  <p>Two claims sit in the hero at <code>HeroSection.tsx:98–99</code>:</p>
+  <div class="ev">4.9/5
+Trusted by 10,000+ professionals</div>
+  <p>The database holds 2 products and no review table. These figures cannot be substantiated. Beyond the Google risk, unsubstantiated superiority claims are actionable under the Consumer Protection Act 2019 — and India's ASCI has pursued exactly this pattern.</p>
+  <p><strong>One thing was done right:</strong> no <code>aggregateRating</code> appears in your JSON-LD. That is the difference between a copy problem and a structured-data manual action. Do not let a future change wire this figure into schema.</p>
+  <p class="fix"><b>Fix</b>Replace with facts you can defend — cards shipped, institutions served, cities delivered to, year founded — and render each only when it has a real value.</p>
+</div>
+
+<div class="find c">
+  <div class="find-head"><span class="tag c">Critical</span><span class="find-title">Zero location targeting anywhere on the site</span></div>
+  <p>I searched every page for Tamil Nadu city names. Outside a shipping-policy line and a map caption, there is nothing. No page title, heading or description contains “Tamil Nadu”, “Chennai”, “Coimbatore”, “Madurai” or “Trichy”.</p>
+  <p>In this category Indian buyers search locally and commercially — “nfc card chennai”, “visiting card coimbatore”, “nfc business card price india”. You currently rank for none of that shape of query because you have no page addressing it.</p>
+  <p class="fix"><b>Fix</b>City landing pages, each with genuinely local content — Tirupur knitwear exporters, Sivakasi printing, Trichy education. Templated pages with the city name swapped get flagged as doorway pages, so uniqueness matters more than page count.</p>
+</div>
+
+<h2>High priority</h2>
+
+<div class="find w">
+  <div class="find-head"><span class="tag w">High</span><span class="find-title">Titles are 13–25 characters and carry no keywords</span></div>
+  <p>This is the cheapest large win available. Google gives you roughly 60 characters; you're using a fifth of that, with no product term, no location and no price.</p>
+  <div class="tw"><table>
+    <thead><tr><th>Page</th><th>Len</th><th>Current title</th></tr></thead>
+    <tbody>
+      <tr><td class="m">/blog</td><td class="m bad">13</td><td>Blog | Tapvyo</td></tr>
+      <tr><td class="m">/products</td><td class="m bad">17</td><td>Products | Tapvyo</td></tr>
+      <tr><td class="m">/services</td><td class="m bad">17</td><td>Services | Tapvyo</td></tr>
+      <tr><td class="m">/about-us</td><td class="m bad">17</td><td>About Us | Tapvyo</td></tr>
+      <tr><td class="m">/how-to-use</td><td class="m bad">21</td><td>How It Works | Tapvyo</td></tr>
+      <tr><td class="m">/cards</td><td class="m bad">25</td><td>NFC Card Designs | Tapvyo</td></tr>
+    </tbody>
+  </table></div>
+  <p><code>/cards</code> is your most commercial page and its title is three generic words. A rewrite costs nothing and changes what you're eligible to rank for:</p>
+  <div class="ev">Before  NFC Card Designs | Tapvyo
+After   NFC Business Cards from ₹599 | Tamil Nadu | Tapvyo</div>
+  <p class="fix"><b>Fix</b>Every title: primary keyword, then a differentiator (price or location), then brand. Keep under 60 characters.</p>
+</div>
+
+<div class="find w">
+  <div class="find-head"><span class="tag w">High</span><span class="find-title">FAQ sections exist but emit no FAQPage schema</span></div>
+  <p>The homepage runs a real FAQ accordion. None of it is marked up, so you forfeit a free rich result that visibly expands your listing and pushes competitors down the page.</p>
+  <p class="fix"><b>Fix</b>Build <code>FAQPage</code> from the same array the accordion renders, so the two can never drift apart.</p>
+</div>
+
+<div class="find w">
+  <div class="find-head"><span class="tag w">High</span><span class="find-title">No BreadcrumbList on any page</span></div>
+  <p>Breadcrumb markup replaces the raw URL in search results with a readable path. Absent sitewide, and it becomes more valuable the moment city and product pages exist.</p>
+  <p class="fix"><b>Fix</b>Add <code>BreadcrumbList</code> to every non-home page.</p>
+</div>
+
+<div class="find w">
+  <div class="find-head"><span class="tag w">High</span><span class="find-title">No per-product pages, and the slugs are machine noise</span></div>
+  <p>There is no <code>/cards/[slug]</code> route, so each card has no page to rank, no <code>Product</code> schema of its own, and no long-tail entry point. Worse, the slugs already in the database are auto-generated:</p>
+  <div class="ev">product-mmx6fgf8-ibt1   ← "Elegant &amp; Professional"
+product-mtiyf5mk-xu8f   ← "black card"</div>
+  <p>Shipping those into URLs would bake meaningless strings into your permanent link structure. Fix the slugs <em>before</em> building the routes — changing them afterwards means redirects.</p>
+  <p class="fix"><b>Fix</b>Human slugs (<code>elegant-professional-nfc-card</code>), then build the route with per-card <code>Product</code> schema and unique metadata.</p>
+</div>
+
+<div class="find w">
+  <div class="find-head"><span class="tag w">High</span><span class="find-title">Content is thin on the pages that must convert</span></div>
+  <div class="tw"><table>
+    <thead><tr><th>Page</th><th>Words</th><th>Assessment</th></tr></thead>
+    <tbody>
+      <tr><td class="m">/</td><td class="m">1,082</td><td>Adequate</td></tr>
+      <tr><td class="m">/services</td><td class="m">733</td><td>Thin for a commercial page</td></tr>
+      <tr><td class="m">/how-to-use</td><td class="m">733</td><td>Thin for an informational page</td></tr>
+      <tr><td class="m">/cards</td><td class="m bad">699</td><td>Thin — this is your money page</td></tr>
+      <tr><td class="m">/about-us</td><td class="m bad">516</td><td>Thin — and About pages carry E-E-A-T weight</td></tr>
+    </tbody>
+  </table></div>
+  <p class="fix"><b>Fix</b>Bring <code>/cards</code> to 1,200+ with buying guidance: materials, NTAG chip differences, iPhone vs Android behaviour, what happens on tap. Use About to establish who actually runs this — a real Trichy business with named people beats a paragraph of positioning.</p>
+</div>
+
+<h2>The Tamil Nadu opportunity</h2>
+<p class="lede">This is where the growth is, and almost none of it is a code problem. Two of the three biggest levers sit outside the repository entirely.</p>
+
+<h3>1. Google Business Profile — do this before anything in this document</h3>
+<p>You are a physical business in Tiruchirappalli. For “near me” and city-qualified searches, GBP is the dominant ranking factor, ahead of everything on your website. Without a verified profile you cannot appear in the map pack at all, no matter how good the schema is.</p>
+<p>Verify the listing, categorise it as <em>Business card printing service</em> or <em>Digital printer</em>, add real photos of the cards, and start collecting genuine reviews. Real reviews also solve the 4.9/5 problem honestly — at which point <code>aggregateRating</code> becomes legitimately available to you.</p>
+
+<h3>2. NAP consistency — your address is incomplete everywhere</h3>
+<p>Name, Address, Phone must match character-for-character across your site, GBP and every directory. Yours is currently city-level only:</p>
+<div class="ev">Present   Tiruchirappalli, Tamil Nadu, India
+Missing   streetAddress, postalCode, geo coordinates</div>
+<p>Google cannot confidently place a business without a street address and PIN code. Add both to <code>site-config.ts</code>, then build citations on Justdial, IndiaMART and Sulekha — these carry real weight for Indian local search and are how B2B buyers here actually find suppliers.</p>
+
+<h3>3. Tamil language — a genuinely open field</h3>
+<p>The site is <code>lang="en"</code> with no <code>hreflang</code>. Tamil-language commercial search has a fraction of the competition of English, and your buyers — shop owners, clinics, small manufacturers — search in Tamil.</p>
+<p>Terms worth owning: <span class="ta">என்.எஃப்.சி கார்டு</span>, <span class="ta">டிஜிட்டல் விசிட்டிங் கார்டு</span>, <span class="ta">என்.எஃப்.சி விசிட்டிங் கார்டு விலை</span>.</p>
+<p><strong>Do not machine-translate.</strong> Poor Tamil reads as a scam to a native speaker and will cost you more trust than the traffic is worth. Commission real copy for a handful of pages rather than auto-generating the whole site.</p>
+
+<h3>4. The product category you are missing entirely</h3>
+<p>Google Review NFC cards — a card a customer taps to leave a Google review — are the highest-converting NFC product in the Indian market right now. Every competitor sells them. You have no page for it. It also sells to exactly the buyers you can reach locally: restaurants, salons, clinics, workshops.</p>
+
+<h2>What is already working</h2>
+<p class="lede">Worth stating plainly, because several of these are things sites at this stage usually get wrong.</p>
+
+<div class="find g">
+  <div class="find-head"><span class="tag g">Solid</span><span class="find-title">Domain and canonical architecture</span></div>
+  <p>One constant drives every URL on the site. All 24 pages emit correct canonicals and <code>og:url</code> on <code>tapvyo.in</code>, with no stray references to the old host. Most migrations leak; this one doesn't.</p>
+</div>
+
+<div class="find g">
+  <div class="find-head"><span class="tag g">Solid</span><span class="find-title">Sitemap and robots are generated, not hand-maintained</span></div>
+  <p>20 URLs, blog posts and tags pulled live from the database, sensible priorities, and admin/API/checkout correctly excluded. New posts appear without anyone remembering to add them.</p>
+</div>
+
+<div class="find g">
+  <div class="find-head"><span class="tag g">Solid</span><span class="find-title">No fake ratings in structured data</span></div>
+  <p>The 4.9/5 figure is on the page but never reaches JSON-LD. That restraint is the difference between rewriting a line of copy and recovering from a manual action.</p>
+</div>
+
+<div class="find g">
+  <div class="find-head"><span class="tag g">Solid</span><span class="find-title">/cards is server-rendered with ISR</span></div>
+  <p>Card names, prices and images are in the initial HTML. Googlebot sees a populated page without executing JavaScript — previously it saw an empty shell reading “Loading card designs”.</p>
+</div>
+
+<div class="find g">
+  <div class="find-head"><span class="tag g">Solid</span><span class="find-title">Clean heading structure and honest indexability</span></div>
+  <p>Exactly one <code>&lt;h1&gt;</code> on every public page. Transactional and authenticated routes are properly disallowed rather than left to leak into the index.</p>
+</div>
+
+<h2>Do it in this order</h2>
+<p class="lede">Sequenced by return per hour of work. The first three are days, not weeks, and unlock the rest.</p>
+
+<ol class="steps">
+  <li><strong>Claim and verify Google Business Profile.</strong> No code. Largest single lever on local visibility.</li>
+  <li><strong>Remove the 4.9/5 and 10,000+ claims.</strong> One file, minutes. Closes a legal and trust exposure.</li>
+  <li><strong>Fix the Product schema:</strong> correct the prices from the database, and stop emitting it on non-product pages. Clears a live validation failure.</li>
+  <li><strong>Rewrite all page titles and descriptions</strong> with real keywords, price and location. Biggest ranking gain per hour on this list.</li>
+  <li><strong>Add LocalBusiness schema</strong> with complete address, geo and areaServed — after the street address and PIN exist in config.</li>
+  <li><strong>Add FAQPage and BreadcrumbList</strong>, both built from data already on the pages.</li>
+  <li><strong>Fix product slugs, then build <code>/cards/[slug]</code></strong> with per-card metadata and schema. Slugs first — reordering costs redirects.</li>
+  <li><strong>Deepen <code>/cards</code> and <code>/about-us</code></strong> toward 1,200+ words of genuinely useful buying content.</li>
+  <li><strong>Build 5 tier-1 city pages</strong> — Chennai, Coimbatore, Madurai, Trichy, Salem — with real local economic context, not a find-and-replace.</li>
+  <li><strong>Launch the Google Review card line.</strong> Highest-converting gap in the catalogue.</li>
+  <li><strong>Add Tamil for the top pages</strong>, with human-written copy only.</li>
+</ol>
+
+<h2>Two things to be careful about</h2>
+<p>Both are traps this category falls into routinely, and both are hard to recover from.</p>
+<ul>
+  <li><strong>Doorway pages.</strong> Generating 80 city pages from one template with the name swapped is the classic way to earn a doorway-page action. Every city page needs genuinely different content. Gate it automatically — compare rendered text pairwise and fail the build above ~60% similarity — because it will not be caught by eye at that volume.</li>
+  <li><strong>Rating schema.</strong> Do not add <code>aggregateRating</code> until real reviews exist in a system you can point to. Structured-data manual actions are slow and painful to reverse, and the recovery costs far more than the rich result was ever worth.</li>
+</ul>
+
+<footer>
+  Audited against the production build (Next.js 16.1.6) and the live database, 5 September 2026 · 24 prerendered pages · 20 sitemap URLs · 2 active products
+</footer>
+
+</div>
