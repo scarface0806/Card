@@ -1,5 +1,5 @@
 import type { MetadataRoute } from 'next';
-import { SITE_URL } from '@/lib/site-config';
+import { CANONICAL_ORIGIN } from '@/lib/site-config';
 import { listPublishedForFeeds, listPublishedTags } from '@/lib/blog/queries';
 
 /**
@@ -21,6 +21,8 @@ const routes: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: '/shipping-policy', priority: 0.3, changeFrequency: 'yearly' },
 ];
 
+const SITEMAP_ORIGIN = CANONICAL_ORIGIN;
+
 /** Re-read at the same cadence as the blog pages themselves. */
 export const revalidate = 60;
 
@@ -28,7 +30,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const lastModified = new Date();
 
   const staticEntries: MetadataRoute.Sitemap = routes.map(({ path, priority, changeFrequency }) => ({
-    url: `${SITE_URL}${path}`,
+    url: `${SITEMAP_ORIGIN}${path}`,
     lastModified,
     changeFrequency,
     priority,
@@ -47,7 +49,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }
 
   const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
-    url: `${SITE_URL}/blog/${post.slug}`,
+    url: `${SITEMAP_ORIGIN}/blog/${post.slug}`,
     // The post's own last edit, not the build time — this is the field search
     // engines use to decide whether a recrawl is worth it.
     lastModified: post.updatedAt,
@@ -56,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   const tagEntries: MetadataRoute.Sitemap = tags.map(({ tag }) => ({
-    url: `${SITE_URL}/blog/tag/${encodeURIComponent(tag)}`,
+    url: `${SITEMAP_ORIGIN}/blog/tag/${encodeURIComponent(tag)}`,
     lastModified,
     changeFrequency: 'weekly',
     priority: 0.6,
