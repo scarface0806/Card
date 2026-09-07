@@ -7,20 +7,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        // Nothing behind auth, and nothing transactional, belongs in an index.
-        disallow: [
-          '/admin',
-          '/admin/',
-          '/api/',
-          '/dashboard',
-          '/login',
-          '/signup',
-          '/forgot-password',
-          '/reset-password',
-          '/my-orders',
-          '/order-success',
-          '/unauthorized',
-        ],
+        disallow: '/cgi-bin/',
       },
     ],
     sitemap: `${SITE_URL}/sitemap.xml`,
