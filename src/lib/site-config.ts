@@ -13,9 +13,9 @@
 /**
  * Public origin, used for metadataBase, canonicals, the sitemap and JSON-LD.
  *
- * Resolution order matters. NEXT_PUBLIC_APP_URL is "http://localhost:3000" in
- * .env.local, so it must come AFTER the Vercel-provided values or a production
- * build would stamp localhost into every canonical URL.
+ * Resolution order matters. Explicit configuration wins, while deployed
+ * Vercel hostnames fall back to the canonical domain so search engines do not
+ * receive preview or legacy-host URLs in canonical metadata and sitemaps.
  */
 function resolveSiteUrl(): string {
   const trim = (url: string) => (url.endsWith("/") ? url.slice(0, -1) : url);
@@ -23,16 +23,12 @@ function resolveSiteUrl(): string {
   const explicit = process.env.NEXT_PUBLIC_SITE_URL;
   if (explicit) return trim(explicit);
 
-  // Set by Vercel on production deployments; stable across deploys.
-  const vercelProd = process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL;
-  if (vercelProd) return `https://${vercelProd}`;
-
-  // Per-deployment preview URL.
-  const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL;
-  if (vercelUrl) return `https://${vercelUrl}`;
-
+  const isVercelDeployment = Boolean(
+    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ||
+      process.env.NEXT_PUBLIC_VERCEL_URL,
+  );
   const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (appUrl) return trim(appUrl);
+  if (appUrl && !isVercelDeployment) return trim(appUrl);
 
   return CANONICAL_ORIGIN;
 }
