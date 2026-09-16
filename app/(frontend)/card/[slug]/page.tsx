@@ -185,10 +185,17 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       },
     };
   } catch {
+    // Declaring neither `alternates` nor `robots` here meant this branch
+    // inherited both from the root layout: canonical "/" and index,follow. A
+    // database blink therefore published /card/<slug> as an indexable page
+    // claiming to BE the homepage. The page itself rethrows and renders a 500,
+    // so the only correct answer is this URL, and not indexed.
     return {
       metadataBase,
       title: 'Digital Business Card | Tapvyo',
       description: 'View this digital business card powered by Tapvyo NFC.',
+      alternates: { canonical: `/card/${slug}` },
+      robots: { index: false, follow: false },
     };
   }
 }

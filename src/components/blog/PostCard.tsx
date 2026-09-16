@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import type { PostSummary } from '@/lib/blog/types';
+import { coverAlt, coverSrc } from '@/lib/blog/images';
 
 interface PostCardProps {
   post: PostSummary;
@@ -16,40 +17,45 @@ interface PostCardProps {
  * link, so none of this ships to the browser as JavaScript.
  */
 export default function PostCard({ post, featured = false, priority = false }: PostCardProps) {
+  // Every card gets media now. A post with no cover of its own falls back to
+  // the branded plate rather than dropping the column: half the published
+  // posts have no cover, and a listing where some cards carry art and others
+  // start at the headline reads as broken rather than as a choice.
   const cover = post.coverImage;
+  const src = coverSrc(cover);
+  const alt = coverAlt(cover?.alt, post.title);
 
   return (
     <article
       className={
-        // A cover-less post drops the media column entirely rather than
-        // reserving an empty one — an unfilled 16:9 box reads as a broken
-        // image, not as a deliberate choice.
-        featured && cover
+        featured
           ? 'tv-panel overflow-hidden md:grid md:grid-cols-2'
           : 'tv-panel flex flex-col overflow-hidden'
       }
     >
-      {cover && (
-        <Link
-          href={`/blog/${post.slug}`}
-          className="tv-focus group block overflow-hidden"
-          tabIndex={-1}
-          aria-hidden="true"
-        >
-          <div className={`relative overflow-hidden bg-[var(--tv-graphite)] ${featured ? 'aspect-[16/10] h-full' : 'aspect-[16/9]'}`}>
-            <Image
-              src={cover.url}
-              alt={cover.alt}
-              fill
-              // Featured spans half the container on desktop, cards a third.
-              sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
-              priority={priority}
-              loading={priority ? undefined : 'lazy'}
-              className="object-cover transition-transform duration-500 group-hover:scale-[1.04]"
-            />
-          </div>
-        </Link>
-      )}
+      <Link
+        href={`/blog/${post.slug}`}
+        className="tv-focus group block overflow-hidden"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        {/* 16/9 at every breakpoint, matching the post hero, so a cover is
+            cropped the same way wherever it appears. The stored covers are 3:2,
+            so object-center decides what survives the crop — centre rather than
+            the default, which would bias toward the top of the frame. */}
+        <div className={`tv-blog-media relative overflow-hidden ${featured ? 'aspect-[16/9] h-full' : 'aspect-[16/9]'}`}>
+          <Image
+            src={src}
+            alt={alt}
+            fill
+            // Featured spans half the container on desktop, cards a third.
+            sizes={featured ? '(max-width: 768px) 100vw, 50vw' : '(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw'}
+            priority={priority}
+            loading={priority ? undefined : 'lazy'}
+            className="object-cover object-center transition-transform duration-500 group-hover:scale-[1.04]"
+          />
+        </div>
+      </Link>
 
       <div className={`flex flex-1 flex-col ${featured ? 'p-6 md:p-8' : 'p-5'}`}>
         {post.tags.length > 0 && (

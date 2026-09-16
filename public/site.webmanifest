@@ -2,6 +2,7 @@
   "name": "Tapvyo",
   "short_name": "Tapvyo",
   "description": "Modern NFC digital business cards. Share your professional details with a single tap.",
+  "id": "/",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",

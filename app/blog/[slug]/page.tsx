@@ -22,7 +22,8 @@ import {
 import { buildToc } from '@/lib/blog/toc';
 import { htmlToPlainText } from '@/lib/blog/sanitize';
 import { jsonLdScript, postJsonLd } from '@/lib/blog/jsonld';
-import { SITE_NAME, SITE_URL } from '@/lib/site-config';
+import { coverAlt, coverSrc } from '@/lib/blog/images';
+import { SITE_NAME, SITE_URL } from '@/lib/site';
 
 export const revalidate = 60;
 
@@ -71,7 +72,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       authors: [post.authorName],
       tags: post.tags,
       images: image
-        ? [{ url: image, width: post.coverImage?.width ?? 1200, height: post.coverImage?.height ?? 630, alt: post.coverImage?.alt ?? title }]
+        ? [{ url: image, width: post.coverImage?.width ?? 1200, height: post.coverImage?.height ?? 630, alt: coverAlt(post.coverImage?.alt, post.title) }]
         : [{ url: '/og-image.png', width: 1200, height: 630, alt: `${SITE_NAME} social preview` }],
     },
     twitter: {
@@ -165,21 +166,23 @@ export default async function BlogPostPage({ params }: PageProps) {
             </div>
           </header>
 
-          {post.coverImage && (
-            <div className="site-container mb-12 md:mb-16">
-              <div className="tv-figure-media relative aspect-[16/9] overflow-hidden rounded-2xl">
-                <Image
-                  src={post.coverImage.url}
-                  alt={post.coverImage.alt}
-                  fill
-                  // The only above-the-fold image on the page.
-                  priority
-                  sizes="(max-width: 1024px) 100vw, 1024px"
-                  className="object-cover"
-                />
-              </div>
+          {/* Always rendered. A post with no cover of its own gets the branded
+              plate, matching the listing card — see coverSrc(). 16/9 at every
+              breakpoint, object-center so the 3:2 source crops from the middle
+              rather than the top. */}
+          <div className="site-container mb-12 md:mb-16">
+            <div className="tv-blog-media relative aspect-[16/9] overflow-hidden rounded-2xl">
+              <Image
+                src={coverSrc(post.coverImage)}
+                alt={coverAlt(post.coverImage?.alt, post.title)}
+                fill
+                // The only above-the-fold image on the page.
+                priority
+                sizes="(max-width: 1024px) 100vw, 1024px"
+                className="object-cover object-center"
+              />
             </div>
-          )}
+          </div>
 
           <section className="tv-surface-ink tv-section-tight">
             <div className="site-container">

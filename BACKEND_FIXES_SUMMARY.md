@@ -151,7 +151,7 @@ ADMIN_EMAIL=santhoshuxui2023@gmail.com
 ADMIN_PASSWORD=[CHANGE TO NEW SECURE PASSWORD]
 JWT_SECRET=[GENERATE: openssl rand -hex 32]
 NEXTAUTH_SECRET=[GENERATE: openssl rand -hex 32]
-NEXTAUTH_URL=https://your-vercel-deployment.vercel.app
+NEXTAUTH_URL=https://tapvyo.in
 NODE_ENV=production
 ENABLE_MOCK_AUTH=false
 ```

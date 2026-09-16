@@ -1,4 +1,5 @@
-import { SITE_NAME, SITE_URL } from "@/lib/site-config";
+import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { BLOG_FALLBACK_COVER } from "@/lib/blog/images";
 import type { PostDetail, PostSummary } from "@/lib/blog/types";
 
 /** Absolute URL for a path, as every structured-data field requires. */
@@ -12,7 +13,11 @@ function absolute(path: string): string {
  */
 export function postJsonLd(post: PostDetail, plainTextBody: string) {
   const url = absolute(`/blog/${post.slug}`);
-  const image = post.ogImage || post.coverImage?.url;
+  // Google's Article guidance treats image as expected, not optional, and half
+  // the published posts carry no cover. The branded plate the page itself
+  // renders is the honest answer — the schema should describe what a reader
+  // sees, not omit the field.
+  const image = post.ogImage || post.coverImage?.url || absolute(BLOG_FALLBACK_COVER);
 
   const blogPosting = {
     "@type": "BlogPosting",
@@ -21,7 +26,7 @@ export function postJsonLd(post: PostDetail, plainTextBody: string) {
     headline: post.metaTitle || post.title,
     description: post.metaDescription || post.excerpt,
     url,
-    ...(image ? { image: [image] } : {}),
+    image: [image],
     datePublished: post.publishedAt ?? undefined,
     dateModified: post.updatedAt,
     author: { "@type": "Person", name: post.authorName },
@@ -66,7 +71,7 @@ export function blogJsonLd(posts: PostSummary[], path = "/blog", name = `${SITE_
       url: absolute(`/blog/${post.slug}`),
       datePublished: post.publishedAt ?? undefined,
       author: { "@type": "Person", name: post.authorName },
-      ...(post.coverImage ? { image: [post.coverImage.url] } : {}),
+      image: [post.coverImage?.url || absolute(BLOG_FALLBACK_COVER)],
     })),
   };
 }
