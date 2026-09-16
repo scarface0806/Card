@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { SITE_NAME, SITE_URL } from '@/lib/site-config';
+import { SITE_NAME } from '@/lib/site-config';
 
 /**
  * Builds a route's metadata.
@@ -46,7 +46,10 @@ export function pageMetadata({
       card: 'summary_large_image',
       title: `${title} | ${SITE_NAME}`,
       description,
-      images: [`${SITE_URL}/twitter-image.png`],
+      // Relative, like the OG image above, so metadataBase decides the origin.
+      // Built absolute from SITE_URL, this was the one image URL on the site
+      // that could still name a host metadataBase had ruled out.
+      images: ['/twitter-image.png'],
     },
   };
 }

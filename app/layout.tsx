@@ -3,7 +3,7 @@ import { Inter, Fraunces, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE, SITE_URL } from '@/lib/site-config';
+import { CANONICAL_ORIGIN, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site-config';
 
 const inter = Inter({
     variable: '--font-inter',
@@ -61,10 +61,18 @@ const jetbrainsMono = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
-    // metadataBase used to default to https://tapvyo.com, which does not
-    // resolve. Every OG and Twitter image URL it produced was dead. SITE_URL
-    // resolves to the actual deployment origin.
-    metadataBase: new URL(SITE_URL),
+    /**
+     * The origin every relative URL below resolves against — canonicals,
+     * OG URLs, Twitter images.
+     *
+     * CANONICAL_ORIGIN, not SITE_URL. SITE_URL is env-configurable, and on the
+     * production deployment it was resolving to the old tapvyo-nfc-card.vercel.app
+     * alias, which stamped a .vercel.app canonical onto every page on tapvyo.in.
+     * Google reads the canonical tag over the 308 redirect, so it indexed the
+     * pages under the old host. What a search engine is told is the site's
+     * address is not something a dashboard env var should be able to change.
+     */
+    metadataBase: new URL(CANONICAL_ORIGIN),
     title: {
         // Each route sets its own title; this is the suffix and the fallback.
         default: `${SITE_NAME} - ${SITE_TAGLINE}`,
@@ -88,20 +96,26 @@ export const metadata: Metadata = {
             "max-video-preview": -1,
         },
     },
+    /**
+     * One icon, declared once.
+     *
+     * This used to advertise five: the .ico, an SVG, and 192/512 PNGs. Google
+     * picks a single favicon per site and its own docs ask for one square
+     * source that is a multiple of 48px; handing it a pile of candidates in
+     * different formats gave it a choice it did not need to make. /favicon.ico
+     * now carries 16, 32, 48 and 96 in one file, so the tab, the bookmark bar
+     * and Google's 48px crawler are all served by the same URL.
+     *
+     * The PWA sizes are not dropped — they are declared in site.webmanifest,
+     * which is where an install prompt looks for them. They do not belong in
+     * <head> as well.
+     */
     icons: {
-        icon: [
-            { url: '/favicon.ico', sizes: 'any' },
-            { url: '/icon.svg', type: 'image/svg+xml' },
-            { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-            { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-        ],
+        icon: '/favicon.ico',
         shortcut: '/favicon.ico',
-        apple: '/apple-touch-icon.png',
-        other: [
-            { rel: 'maskable icon', url: '/icon-maskable-512.png', sizes: '512x512', type: 'image/png' },
-        ],
+        apple: '/apple-icon.png',
     },
-    manifest: '/manifest.json',
+    manifest: '/site.webmanifest',
 
     /**
      * Google Search Console site verification.

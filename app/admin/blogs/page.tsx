@@ -37,6 +37,7 @@ export default function AdminBlogsPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<AdminPostRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [openingEditor, setOpeningEditor] = useState(false);
 
   const [stats, setStats] = useState<BlogStats | null>(null);
   const [topPosts, setTopPosts] = useState<TopPost[]>([]);
@@ -104,6 +105,24 @@ export default function AdminBlogsPage() {
     fetchStats(controller.signal);
     return () => controller.abort();
   }, [fetchStats]);
+
+  // A post just written on /admin/blogs/new arrives here as ?created=<id> on
+  // its way to the editor. Routing the hand-off through this page is what puts
+  // the list in the history stack underneath the editor, so Back out of a
+  // freshly created post lands on the list rather than on nothing.
+  //
+  // The marker is stripped before the push, or Back would return to
+  // ?created=<id> and be thrown forward into the editor again. That is a
+  // search-param change on the route already rendering, which is the one thing
+  // replaceState may be used for here.
+  useEffect(() => {
+    const created = new URLSearchParams(window.location.search).get('created');
+    if (!created) return;
+
+    setOpeningEditor(true);
+    window.history.replaceState(window.history.state, '', '/admin/blogs');
+    router.push(`/admin/blogs/${created}/edit`);
+  }, [router]);
 
   const patch = (next: Partial<Filters>) =>
     setFilters((current) => ({ ...current, page: 1, ...next }));
@@ -187,6 +206,18 @@ export default function AdminBlogsPage() {
       ),
     },
   ];
+
+  // Mid hand-off from the create page. Showing the list for the one frame
+  // before the editor opens would read as a bounce; a placeholder does not.
+  if (openingEditor) {
+    return (
+      <main className="space-y-5">
+        <div className="tv-adm-skeleton h-10 w-56 rounded-lg" />
+        <div className="tv-adm-skeleton h-64 w-full rounded-xl" />
+        <span className="sr-only">Opening the editor…</span>
+      </main>
+    );
+  }
 
   return (
     <main className="space-y-6">

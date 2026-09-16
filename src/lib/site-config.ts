@@ -11,24 +11,54 @@
  */
 
 /**
+ * True for any *.vercel.app origin — the legacy alias, and every per-deploy
+ * preview hostname.
+ *
+ * These hosts may never become SITE_URL. A deployment served at tapvyo.in was
+ * stamping `<link rel="canonical" href="https://tapvyo-nfc-card.vercel.app/...">`
+ * onto every page, because an env var below resolved to the old alias. A
+ * canonical tag outranks a redirect: Google honoured it and indexed the pages
+ * under the .vercel.app host, which is the duplicate-content split the domain
+ * migration was supposed to end.
+ *
+ * So configuration no longer gets the final say on the canonical origin. An
+ * env var is a thing someone sets once in a dashboard and never looks at
+ * again; a wrong one must not be able to de-index the live domain.
+ */
+function isVercelHost(url: string): boolean {
+  try {
+    return new URL(url).hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
+
+/**
  * Public origin, used for metadataBase, canonicals, the sitemap and JSON-LD.
  *
- * Resolution order matters. Explicit configuration wins, while deployed
- * Vercel hostnames fall back to the canonical domain so search engines do not
- * receive preview or legacy-host URLs in canonical metadata and sitemaps.
+ * Explicit configuration wins — a local dev origin or a staging domain has to
+ * be settable — but only after it clears the *.vercel.app check above.
  */
 function resolveSiteUrl(): string {
   const trim = (url: string) => (url.endsWith("/") ? url.slice(0, -1) : url);
 
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
-  if (explicit) return trim(explicit);
-
-  const isVercelDeployment = Boolean(
-    process.env.NEXT_PUBLIC_VERCEL_PROJECT_PRODUCTION_URL ||
-      process.env.NEXT_PUBLIC_VERCEL_URL,
-  );
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL;
-  if (appUrl && !isVercelDeployment) return trim(appUrl);
+  for (const candidate of [
+    process.env.NEXT_PUBLIC_SITE_URL,
+    process.env.NEXT_PUBLIC_APP_URL,
+  ]) {
+    if (!candidate) continue;
+    const url = trim(candidate);
+    if (isVercelHost(url)) {
+      // Loud, because the deployment is configured wrong even though the site
+      // now behaves correctly. The build log is where someone will see it.
+      console.warn(
+        `[site-config] Ignoring Vercel origin "${url}" — falling back to ${CANONICAL_ORIGIN}. ` +
+          `Point NEXT_PUBLIC_SITE_URL at the real domain.`,
+      );
+      continue;
+    }
+    return url;
+  }
 
   return CANONICAL_ORIGIN;
 }
@@ -36,11 +66,11 @@ function resolveSiteUrl(): string {
 /**
  * The primary domain. The ONLY place it is written down.
  *
- * This is the last-resort fallback, not the normal path: production must set
- * NEXT_PUBLIC_SITE_URL, because the Vercel branches above it would otherwise
- * resolve to the *.vercel.app alias and stamp that host into every canonical,
- * OG URL and sitemap entry - which is exactly the duplicate-content split this
- * migration exists to end.
+ * This is the fallback AND the floor: resolveSiteUrl() above will not return a
+ * *.vercel.app origin, so an unset or misconfigured NEXT_PUBLIC_SITE_URL lands
+ * here rather than stamping the old alias into every canonical, OG URL and
+ * sitemap entry. Setting NEXT_PUBLIC_SITE_URL correctly is still the right
+ * thing to do; it is no longer load-bearing for the canonical domain.
  *
  * Apex, not www. next.config.ts redirects www and the old Vercel alias here,
  * so every host converges on one origin.

@@ -10,10 +10,16 @@ const routes: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
   { path: '/how-to-use', priority: 1.0, changeFrequency: 'monthly' },
   { path: '/cards', priority: 1.0, changeFrequency: 'weekly' },
+  { path: '/products', priority: 0.9, changeFrequency: 'weekly' },
+  // NOT /create-card. proxy.ts lists it in protectedRoutes, so an anonymous
+  // request 307s to /login — a sitemap entry for it would report a redirect
+  // rather than a page. It is in the robots.ts disallow list for the same
+  // reason. The public entry point to the buy flow is /cards.
   { path: '/services', priority: 1.0, changeFrequency: 'monthly' },
   { path: '/about-us', priority: 1.0, changeFrequency: 'monthly' },
   { path: '/contact-us', priority: 1.0, changeFrequency: 'monthly' },
   { path: '/preview-website', priority: 1.0, changeFrequency: 'monthly' },
+  { path: '/track-order', priority: 0.4, changeFrequency: 'yearly' },
   { path: '/blog', priority: 0.8, changeFrequency: 'daily' },
   { path: '/privacy-policy', priority: 0.3, changeFrequency: 'yearly' },
   { path: '/terms-conditions', priority: 0.3, changeFrequency: 'yearly' },

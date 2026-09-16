@@ -153,7 +153,21 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
       });
 
       if (!isEdit && payload.post?.id) {
-        router.replace(`/admin/blogs/${payload.post.id}/edit`);
+        // Keep writing in the editor, but with the posts list behind it.
+        //
+        // Replacing the create page straight with the editor left the browser's
+        // Back arrow dead whenever /admin/blogs/new was the tab's first entry —
+        // a refresh part-way through writing, a bookmark, or the sign-in
+        // redirect all produce that. The list hands over to the editor instead
+        // (see app/admin/blogs/page.tsx), so Back always has somewhere real to
+        // land. It has to be two separate router commits: replaceState alone
+        // keeps the create page's tree, which then renders an empty new-post
+        // form under the list's URL.
+        //
+        // The create page is deliberately left out of the history stack — a
+        // second save from a restored form would write a duplicate post rather
+        // than update the one just created.
+        router.replace(`/admin/blogs?created=${payload.post.id}`);
         return;
       }
 
