@@ -467,14 +467,23 @@ export default function PreviewWebsitePage() {
                   ))}
                 </ul>
 
+                {/* Built from ADDRESS rather than a pasted embed URL.
+                    The previous src was a `?pb=...` string — Google's internal
+                    encoding, with 10.8049,78.6197 baked into it. Those are
+                    Tiruchirappalli's coordinates, so the map kept pointing at
+                    the old city no matter what the rest of the page said, and
+                    nobody editing ADDRESS would ever have known.
+                    `?q=<place>&output=embed` is the documented key-free form
+                    and takes a plain place name, so the map follows the
+                    address automatically. */}
                 <div className="tv-embed">
                   <iframe
-                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d125323.41844138754!2d78.61970684999999!3d10.804972749999999!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3baaf50ff2aab12f%3A0xb20657c7e2b3eab9!2sTiruchirappalli%2C%20Tamil%20Nadu!5e0!3m2!1sen!2sin!4v1710744000000!5m2!1sen!2sin"
+                    src={`https://maps.google.com/maps?q=${encodeURIComponent(ADDRESS.full)}&output=embed`}
                     height={300}
                     allowFullScreen
                     loading="lazy"
                     referrerPolicy="no-referrer-when-downgrade"
-                    title="Map showing our location in Tiruchirappalli, Tamil Nadu"
+                    title={`Map showing our location in ${ADDRESS.city}, ${ADDRESS.state}`}
                   />
                 </div>
               </motion.div>

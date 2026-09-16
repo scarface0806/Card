@@ -46,6 +46,7 @@ import {
 } from "@react-email/components";
 
 import {
+  ADDRESS,
   PHONE_DISPLAY,
   SITE_HOST,
   SITE_NAME,
@@ -830,7 +831,7 @@ export function OrderConfirmationEmail(data: OrderConfirmationEmailData) {
                 </Text>
 
                 <Text style={footerAddress}>
-                  {SITE_NAME} &middot; Tiruchirappalli, Tamil Nadu, India
+                  {SITE_NAME} &middot; {ADDRESS.full}
                 </Text>
                 <Text style={footerLegal}>
                   You are getting this email because you placed an order at{" "}

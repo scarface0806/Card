@@ -137,7 +137,7 @@ describe('buildVCard', () => {
     phone: '7871361025',
     email: 'ravi@example.com',
     url: 'https://tapvyo.com/card/ravi-kumar',
-    address: 'Tiruchirappalli, Tamil Nadu, India',
+    address: 'Madurai, Tamil Nadu, India',
     note: 'NFC cards; digital profiles.',
     photoUrl: 'https://res.cloudinary.com/demo/image/upload/ravi.jpg',
   };
@@ -159,7 +159,7 @@ describe('buildVCard', () => {
     const card = buildVCard(full);
     expect(card).toContain('ORG:Acme Pvt Ltd\\, Chennai');
     expect(card).toContain('NOTE:NFC cards\\; digital profiles.');
-    expect(card).toContain('ADR;TYPE=WORK:;;Tiruchirappalli\\, Tamil Nadu\\, India;;;;');
+    expect(card).toContain('ADR;TYPE=WORK:;;Madurai\\, Tamil Nadu\\, India;;;;');
   });
 
   it('keeps N structured, escaping components but not the separators', () => {

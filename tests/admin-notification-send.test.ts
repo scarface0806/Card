@@ -3,7 +3,7 @@ import { describe, expect, it, vi, beforeEach } from 'vitest';
 const mocks = vi.hoisted(() => {
   const mockResendSend = vi.fn();
   const mockGetEmailFrom = vi.fn(() => "Tapvyo <noreply@tricomakes.in>");
-  const mockGetEmailReplyTo = vi.fn(() => "tapvyo@gmail.com");
+  const mockGetEmailReplyTo = vi.fn(() => "tapvyonfc@gmail.com");
   const mockGetResendClient = vi.fn(() => ({
     emails: {
       send: mockResendSend,
@@ -70,7 +70,7 @@ vi.mock('@/lib/prisma', () => ({
 vi.mock('@/lib/site-config', () => ({
   SITE_URL: 'https://tapvyo.com',
   SITE_NAME: 'Tapvyo',
-  SUPPORT_EMAIL: 'tapvyo@gmail.com',
+  SUPPORT_EMAIL: 'tapvyonfc@gmail.com',
 }));
 
 vi.mock('@/utils/formatPrice', () => ({
@@ -102,7 +102,7 @@ describe('sendAdminOrderNotification', () => {
     expect(call.to).toBe(ADMIN_NOTIFICATION_EMAIL);
     expect(call.to).toBe('tapvyonfc@gmail.com');
     expect(call.from).toBe('Tapvyo <noreply@tricomakes.in>');
-    expect(call.replyTo).toBe('tapvyo@gmail.com');
+    expect(call.replyTo).toBe('tapvyonfc@gmail.com');
     expect(typeof call.subject).toBe('string');
     expect(call.subject).toContain('Jane Doe');
     expect(call.subject).toContain('Premium Metal NFC Card');

@@ -119,18 +119,23 @@ export const WHATSAPP_NUMBER = '917871361025';
 export const PHONE_DISPLAY = '+91 78713 61025';
 
 /**
- * Confirmed by the business owner. Was hello@tapvyo.com - not a real mailbox,
- * and tapvyo.com is not even a registered domain. Order confirmations tell
- * customers to reply within 24 hours to correct what gets printed, so this
- * has to be an address someone actually reads.
+ * The public contact address. Confirmed by the business owner.
+ *
+ * History matters here, because this value has been wrong twice. It was first
+ * hello@tapvyo.com — not a mailbox, on a domain that is not registered. It was
+ * then tapvyo@gmail.com, which was a guess. It is now the address the owner
+ * actually reads, and the same one admin order notifications already went to.
+ *
+ * Order confirmations tell customers to reply within 24 hours to correct what
+ * gets printed, so a wrong value here silently loses print corrections.
  */
-export const SUPPORT_EMAIL = 'tapvyo@gmail.com';
+export const SUPPORT_EMAIL = 'tapvyonfc@gmail.com';
 
 export const ADDRESS = {
-  city: 'Tiruchirappalli',
+  city: 'Madurai',
   state: 'Tamil Nadu',
   country: 'India',
-  full: 'Tiruchirappalli, Tamil Nadu, India',
+  full: 'Madurai, Tamil Nadu, India',
 } as const;
 
 /** Default enquiry text prefilled into every WhatsApp deep link. */
@@ -147,13 +152,31 @@ export function whatsappLink(
  * Social profiles. `null` means "no confirmed profile" — callers MUST skip
  * nulls rather than render a link to a bare homepage.
  *
- * @needs-verification the three handles below were taken from the demo
- * profile page. `x` is null because no Tapvyo handle exists anywhere in the
- * codebase — the footer previously linked to `https://x.com`.
+ * Facebook and Instagram are confirmed. LinkedIn is still
+ * @needs-verification — it was taken from the demo profile page and has never
+ * been checked against a real account. `x` is null because no Tapvyo handle
+ * exists anywhere in the codebase; the footer previously linked to a bare
+ * `https://x.com`.
+ *
+ * Store the canonical profile URL only. Share links arrive carrying tracking
+ * parameters (`fbclid`, `igsh`, `utm_*`); those belong to the click that
+ * produced them, and these URLs are published in structured data.
  */
 export const SOCIAL_PROFILES: { name: string; url: string | null }[] = [
-  { name: 'Instagram', url: 'https://www.instagram.com/tapvyo' },
-  { name: 'Facebook', url: 'https://www.facebook.com/tapvyo' },
+  // Confirmed by the owner. The handle was already right; what the confirmation
+  // changed is that it is no longer a guess copied off the demo profile.
+  //
+  // The `?fbclid=...` on the link it was confirmed from is Facebook's
+  // click-tracking token, generated for whoever clicked it. It is stripped
+  // deliberately: it identifies a click, not the profile, and this URL is
+  // published in the Organization `sameAs` array and the site footer.
+  { name: 'Instagram', url: 'https://www.instagram.com/tapvyo/' },
+  // Confirmed by the owner. The numeric /people/<name>/<id>/ form is the real
+  // permalink for this page — facebook.com/tapvyo was a vanity URL that had
+  // never been claimed, so it 404'd. This URL is also what goes into the
+  // Organization `sameAs` array, where a dead link is worse than no link:
+  // Google uses those to confirm the business is the same entity across sites.
+  { name: 'Facebook', url: 'https://www.facebook.com/people/tapvyo/61594096016285/' },
   { name: 'LinkedIn', url: 'https://www.linkedin.com/company/tapvyo' },
   { name: 'X', url: null },
 ];

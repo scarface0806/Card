@@ -93,7 +93,7 @@ const send = vi.fn(async () => {
 vi.mock('@/lib/emails/resend', () => ({
   getResendClient: () => ({ emails: { send } }),
   getEmailFrom: () => 'Tapvyo Orders <orders@tapvyo.com>',
-  getEmailReplyTo: () => 'tapvyo@gmail.com',
+  getEmailReplyTo: () => 'tapvyonfc@gmail.com',
   // Business copy. Null here so these tests assert the customer path only.
   getEmailBcc: () => null,
 }));

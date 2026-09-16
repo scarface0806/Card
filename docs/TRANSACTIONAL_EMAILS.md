@@ -46,7 +46,7 @@ Set these in Vercel for **Production, Preview and Development**:
 | --- | --- | --- |
 | `RESEND_API_KEY` | **yes — secret** | from the Resend dashboard |
 | `RESEND_FROM_EMAIL` | yes | `Tapvyo <noreply@tricomakes.in>` |
-| `EMAIL_REPLY_TO` | yes | `tapvyo@gmail.com` |
+| `EMAIL_REPLY_TO` | yes | `tapvyonfc@gmail.com` |
 | `NEXT_PUBLIC_SITE_URL` | no (already used) | `https://tapvyo.com` |
 
 `RESEND_FROM_EMAIL` replaces the older `EMAIL_FROM`, which is still read as a
