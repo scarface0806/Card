@@ -20,7 +20,7 @@
  */
 
 import { Prisma } from "@prisma/client";
-import { render } from "@react-email/render";
+import { render } from "react-email";
 
 import prisma from "@/lib/prisma";
 import { SITE_URL } from "@/lib/site-config";

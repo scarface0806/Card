@@ -5,7 +5,7 @@
  */
 
 import * as React from "react";
-import { Section, Text } from "@react-email/components";
+import { Section, Text } from "react-email";
 
 import {
   OrderEmailLayout,
