@@ -24,6 +24,7 @@ import {
   InstagramIcon,
   LinkedInIcon,
   WhatsAppIcon,
+  YouTubeIcon,
 } from '@/components/icons/BrandIcons';
 import { BRAND } from '@/lib/brand';
 import BrandLogo from '@/components/common/BrandLogo';
@@ -62,6 +63,8 @@ type CustomerProfile = {
   facebookEnabled: boolean;
   behance?: string | null;
   behanceEnabled: boolean;
+  youtube?: string | null;
+  youtubeEnabled: boolean;
   mailApiEndpoint?: string | null;
   address?: string | null;
   mapEmbedUrl?: string | null;
@@ -216,6 +219,7 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
       { key: 'facebook', enabled: customer.facebookEnabled, url: normalizeUrl(customer.facebook), title: 'Facebook', icon: FacebookIcon },
       { key: 'linkedin', enabled: customer.linkedinEnabled, url: normalizeUrl(customer.linkedin), title: 'LinkedIn', icon: LinkedInIcon },
       { key: 'behance', enabled: customer.behanceEnabled, url: normalizeUrl(customer.behance), title: 'Behance', icon: BehanceIcon },
+      { key: 'youtube', enabled: customer.youtubeEnabled, url: normalizeUrl(customer.youtube), title: 'YouTube', icon: YouTubeIcon },
       { key: 'website', enabled: customer.websiteEnabled, url: normalizeUrl(customer.website), title: 'Website', icon: Globe },
     ].filter((item) => item.enabled && item.url),
     [customer]

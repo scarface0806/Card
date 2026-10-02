@@ -39,6 +39,7 @@ type CustomerDetail = {
   instagram?: string | null;
   facebook?: string | null;
   behance?: string | null;
+  youtube?: string | null;
   mapEmbedUrl?: string | null;
   profileImage?: string | null;
   logo?: string | null;

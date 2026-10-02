@@ -36,6 +36,8 @@ interface CustomerDetail {
   facebookEnabled: boolean;
   behance?: string | null;
   behanceEnabled: boolean;
+  youtube?: string | null;
+  youtubeEnabled: boolean;
   address?: string | null;
   mapEmbedUrl?: string | null;
   profileImage?: string | null;
@@ -65,6 +67,8 @@ type FormState = {
   facebookEnabled: boolean;
   behance: string;
   behanceEnabled: boolean;
+  youtube: string;
+  youtubeEnabled: boolean;
   address: string;
   mapEmbedUrl: string;
   imageUrl: string;
@@ -93,6 +97,8 @@ const emptyForm: FormState = {
   facebookEnabled: false,
   behance: '',
   behanceEnabled: false,
+  youtube: '',
+  youtubeEnabled: false,
   address: '',
   mapEmbedUrl: '',
   imageUrl: '',
@@ -163,6 +169,8 @@ export default function EditCustomerPage() {
           facebookEnabled: Boolean(customer.facebookEnabled),
           behance: customer.behance || '',
           behanceEnabled: Boolean(customer.behanceEnabled),
+          youtube: customer.youtube || '',
+          youtubeEnabled: Boolean(customer.youtubeEnabled),
           address: customer.address || '',
           mapEmbedUrl: customer.mapEmbedUrl || '',
           imageUrl: customer.profileImage || '',
@@ -190,6 +198,7 @@ export default function EditCustomerPage() {
       { key: 'instagram', label: 'Instagram' },
       { key: 'facebook', label: 'Facebook' },
       { key: 'behance', label: 'Behance' },
+      { key: 'youtube', label: 'YouTube' },
       { key: 'website', label: 'Website' },
     ],
     []
@@ -244,6 +253,8 @@ export default function EditCustomerPage() {
       body.append('facebookEnabled', String(form.facebookEnabled));
       body.append('behance', form.behance);
       body.append('behanceEnabled', String(form.behanceEnabled));
+      body.append('youtube', form.youtube);
+      body.append('youtubeEnabled', String(form.youtubeEnabled));
       body.append('address', form.address);
       body.append('mapEmbedUrl', form.mapEmbedUrl);
       body.append('imageUrl', form.imageUrl);

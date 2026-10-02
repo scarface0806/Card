@@ -46,6 +46,8 @@ async function createCustomerWithMongoFallback(params: {
     facebookEnabled: boolean;
     behance?: string | null;
     behanceEnabled: boolean;
+    youtube?: string | null;
+    youtubeEnabled: boolean;
     address?: string | null;
     mapEmbedUrl?: string | null;
     isActive: boolean;
@@ -84,6 +86,8 @@ async function createCustomerWithMongoFallback(params: {
     facebookEnabled: params.parsedData.facebookEnabled,
     behance: params.parsedData.behance || null,
     behanceEnabled: params.parsedData.behanceEnabled,
+    youtube: params.parsedData.youtube || null,
+    youtubeEnabled: params.parsedData.youtubeEnabled,
     address: params.parsedData.address || null,
     mapEmbedUrl: params.parsedData.mapEmbedUrl || null,
     logo: params.logo,
@@ -153,6 +157,8 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
       facebookEnabled: parseBoolean(formData.get("facebookEnabled")),
       behance: formData.get("behance"),
       behanceEnabled: parseBoolean(formData.get("behanceEnabled")),
+      youtube: formData.get("youtube"),
+      youtubeEnabled: parseBoolean(formData.get("youtubeEnabled")),
       address: formData.get("address"),
       mapEmbedUrl: formData.get("mapEmbedUrl"),
       isActive: parseBoolean(formData.get("isActive")),
@@ -196,6 +202,8 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
           facebookEnabled: parsed.data.facebookEnabled,
           behance: parsed.data.behance || null,
           behanceEnabled: parsed.data.behanceEnabled,
+          youtube: parsed.data.youtube || null,
+          youtubeEnabled: parsed.data.youtubeEnabled,
           address: parsed.data.address || null,
           mapEmbedUrl: parsed.data.mapEmbedUrl || null,
           logo,

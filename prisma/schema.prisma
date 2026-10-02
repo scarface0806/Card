@@ -355,6 +355,8 @@ model Customer {
   facebookEnabled  Boolean @default(false)
   behance          String?
   behanceEnabled   Boolean @default(false)
+  youtube          String?
+  youtubeEnabled   Boolean @default(false)
   address      String?
   mapEmbedUrl  String?
   logo         String?

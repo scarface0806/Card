@@ -32,6 +32,8 @@ type CustomerDetailDelegate = {
     facebookEnabled: boolean;
     behance: string | null;
     behanceEnabled: boolean;
+    youtube: string | null;
+    youtubeEnabled: boolean;
     address: string | null;
     mapEmbedUrl: string | null;
     logo: string | null;

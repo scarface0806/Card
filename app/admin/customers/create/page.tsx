@@ -33,6 +33,8 @@ interface FormState {
   facebookEnabled: boolean;
   behance: string;
   behanceEnabled: boolean;
+  youtube: string;
+  youtubeEnabled: boolean;
   address: string;
   mapEmbedUrl: string;
   imageUrl: string;
@@ -74,6 +76,8 @@ export default function CreateCustomerPage() {
     facebookEnabled: false,
     behance: '',
     behanceEnabled: false,
+    youtube: '',
+    youtubeEnabled: false,
     address: '',
     mapEmbedUrl: '',
     imageUrl: '',
@@ -98,6 +102,7 @@ export default function CreateCustomerPage() {
       { key: 'instagram', label: 'Instagram' },
       { key: 'facebook', label: 'Facebook' },
       { key: 'behance', label: 'Behance' },
+      { key: 'youtube', label: 'YouTube' },
       { key: 'website', label: 'Website' },
     ],
     []
@@ -193,6 +198,8 @@ export default function CreateCustomerPage() {
       body.append('facebookEnabled', String(form.facebookEnabled));
       body.append('behance', form.behance);
       body.append('behanceEnabled', String(form.behanceEnabled));
+      body.append('youtube', form.youtube);
+      body.append('youtubeEnabled', String(form.youtubeEnabled));
       body.append('address', form.address);
       body.append('mapEmbedUrl', form.mapEmbedUrl);
       body.append('imageUrl', form.imageUrl);
@@ -274,6 +281,8 @@ export default function CreateCustomerPage() {
         facebookEnabled: false,
         behance: '',
         behanceEnabled: false,
+        youtube: '',
+        youtubeEnabled: false,
         address: '',
         mapEmbedUrl: '',
         imageUrl: '',

@@ -177,6 +177,8 @@ export const customerCreateSchema = z.object({
   facebookEnabled: z.boolean().optional().default(false),
   behance: z.string().trim().max(255).optional().or(z.literal("")),
   behanceEnabled: z.boolean().optional().default(false),
+  youtube: z.string().trim().max(255).optional().or(z.literal("")),
+  youtubeEnabled: z.boolean().optional().default(false),
   address: z.string().trim().max(500).optional().or(z.literal("")),
   mapEmbedUrl: z.string().trim().max(2000).optional().or(z.literal("")),
   isActive: z.boolean().optional().default(true),
