@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { VIDEO_LINK_SLOTS } from "@/lib/video-links";
 import { OrderStatus } from "@prisma/client";
 import { sanitizePhoneValue } from "@/lib/validations/common";
 
@@ -179,6 +180,17 @@ export const customerCreateSchema = z.object({
   behanceEnabled: z.boolean().optional().default(false),
   youtube: z.string().trim().max(255).optional().or(z.literal("")),
   youtubeEnabled: z.boolean().optional().default(false),
+  videoLinksEnabled: z.boolean().optional().default(false),
+  videoLinks: z
+    .array(
+      z.object({
+        slot: z.number().int().min(1).max(VIDEO_LINK_SLOTS),
+        url: z.string().trim().min(1).max(500),
+        title: z.string().trim().max(120).nullish(),
+      })
+    )
+    .optional()
+    .default([]),
   address: z.string().trim().max(500).optional().or(z.literal("")),
   mapEmbedUrl: z.string().trim().max(2000).optional().or(z.literal("")),
   isActive: z.boolean().optional().default(true),

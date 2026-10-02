@@ -17,7 +17,7 @@
 
 import { useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { ArrowUpRight, Globe, Mail, MapPin, Phone } from 'lucide-react';
+import { ArrowUpRight, Globe, Mail, MapPin, Phone, Play } from 'lucide-react';
 import {
   BehanceIcon,
   FacebookIcon,
@@ -35,6 +35,12 @@ import {
   SaveContactButton,
 } from '@/components/profile/SaveContactButton';
 import type { VCardContact } from '@/lib/vcard';
+import {
+  extractYouTubeId,
+  normalizeVideoLinks,
+  youTubeThumbnail,
+  youTubeWatchUrl,
+} from '@/lib/video-links';
 
 type GalleryItem = {
   id: string;
@@ -65,6 +71,8 @@ type CustomerProfile = {
   behanceEnabled: boolean;
   youtube?: string | null;
   youtubeEnabled: boolean;
+  videoLinksEnabled?: boolean;
+  videoLinks?: Array<{ slot: number; url: string; title?: string | null }> | null;
   mailApiEndpoint?: string | null;
   address?: string | null;
   mapEmbedUrl?: string | null;
@@ -206,6 +214,30 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
     }
     return [...ordered, ...missing].sort((a, b) => a.slot - b.slot);
   }, [customer.galleries]);
+
+  /**
+   * The three video slots. A slot only earns a card once it holds a link we
+   * can resolve to a YouTube id - the thumbnail and the watch URL both come
+   * from that id, so a half-typed or non-YouTube URL is dropped rather than
+   * rendered as a broken tile.
+   */
+  const videoCards = useMemo(() => {
+    if (!customer.videoLinksEnabled) return [];
+
+    return normalizeVideoLinks(customer.videoLinks)
+      .map((link) => {
+        const videoId = extractYouTubeId(link.url);
+        if (!videoId) return null;
+
+        return {
+          slot: link.slot,
+          title: link.title || 'Watch the video',
+          href: youTubeWatchUrl(videoId),
+          thumbnail: youTubeThumbnail(videoId),
+        };
+      })
+      .filter((card): card is NonNullable<typeof card> => card !== null);
+  }, [customer.videoLinksEnabled, customer.videoLinks]);
 
   const socialLinks = useMemo(
     () => [
@@ -592,6 +624,65 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                         </span>
                       </figcaption>
                     </figure>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+          </section>
+        ) : null}
+
+        {/* VIDEOS - the gallery's sibling strip. Each tile is a plain link to
+            YouTube opened in a new tab rather than an embedded player: an
+            iframe per slot would pull YouTube's whole player bundle onto a
+            card that is usually opened on a phone over NFC. */}
+        {videoCards.length > 0 ? (
+          <section className="tv-surface-ink tv-section" id="videos">
+            <div className="site-container">
+              <motion.div {...fadeInUp} className="max-w-2xl mb-12 md:mb-16">
+                <p className="tv-eyebrow mb-6">Watch</p>
+                <h2 className="tv-h2">Videos.</h2>
+              </motion.div>
+
+              <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10">
+                {videoCards.map((video, index) => (
+                  <motion.li
+                    key={video.slot}
+                    initial={{ opacity: 0, y: 24 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true, margin: '-60px' }}
+                    transition={{ duration: 0.55, delay: (index % 3) * 0.08 }}
+                  >
+                    <a
+                      href={video.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="group block"
+                      aria-label={`${video.title} - opens on YouTube in a new tab`}
+                    >
+                      <figure className="tv-figure">
+                        <div className="tv-figure-media relative">
+                          <img
+                            src={video.thumbnail}
+                            alt={video.title}
+                            width={800}
+                            height={600}
+                            loading="lazy"
+                            decoding="async"
+                          />
+                          {/* Play badge - without it a thumbnail reads as one
+                              more gallery photo. */}
+                          <span className="pointer-events-none absolute inset-0 flex items-center justify-center">
+                            <span className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60 ring-1 ring-white/70 transition group-hover:bg-black/75">
+                              <Play className="h-6 w-6 translate-x-[1px] fill-white text-white" />
+                            </span>
+                          </span>
+                        </div>
+                        <figcaption className="tv-figure-cap">
+                          <h3 className="tv-h4">{video.title}</h3>
+                          <ArrowUpRight className="h-4 w-4 shrink-0" aria-hidden="true" />
+                        </figcaption>
+                      </figure>
+                    </a>
                   </motion.li>
                 ))}
               </ul>

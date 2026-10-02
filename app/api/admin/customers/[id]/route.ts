@@ -7,6 +7,7 @@ import { errorResponse, successResponse } from "@/lib/responses";
 import { customerCreateSchema } from "@/lib/validators";
 import { ObjectId } from "mongodb";
 import { saveUploadedImage } from "@/lib/local-upload";
+import { parseVideoLinksFromFormData } from "@/lib/video-links";
 import { getMongoDb } from "@/lib/mongodb";
 import { deleteCloudinaryImage, extractCloudinaryPublicIdFromUrl } from "@/lib/deleteCloudinaryImage";
 
@@ -239,6 +240,8 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
         behanceEnabled: parseBoolean(formData.get("behanceEnabled")),
         youtube: formData.get("youtube"),
         youtubeEnabled: parseBoolean(formData.get("youtubeEnabled")),
+        videoLinksEnabled: parseBoolean(formData.get("videoLinksEnabled")),
+        videoLinks: parseVideoLinksFromFormData(formData),
         address: formData.get("address"),
         mapEmbedUrl: formData.get("mapEmbedUrl"),
         isActive: parseBoolean(formData.get("isActive")),
@@ -278,6 +281,12 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
               behanceEnabled: parsed.data.behanceEnabled,
               youtube: parsed.data.youtube || null,
               youtubeEnabled: parsed.data.youtubeEnabled,
+              videoLinksEnabled: parsed.data.videoLinksEnabled,
+              videoLinks: parsed.data.videoLinks.map((link) => ({
+                slot: link.slot,
+                url: link.url,
+                title: link.title || null,
+              })),
               address: parsed.data.address || null,
               mapEmbedUrl: parsed.data.mapEmbedUrl || null,
               isActive: parsed.data.isActive,
@@ -410,6 +419,8 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
       behanceEnabled: body?.behanceEnabled,
       youtube: body?.youtube,
       youtubeEnabled: body?.youtubeEnabled,
+      videoLinksEnabled: body?.videoLinksEnabled,
+      videoLinks: Array.isArray(body?.videoLinks) ? body.videoLinks : undefined,
       address: body?.address,
       mapEmbedUrl: body?.mapEmbedUrl,
       isActive: typeof body?.isActive === "boolean" ? body.isActive : true,
@@ -444,6 +455,12 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
           behanceEnabled: parsed.data.behanceEnabled,
           youtube: parsed.data.youtube || null,
           youtubeEnabled: parsed.data.youtubeEnabled,
+          videoLinksEnabled: parsed.data.videoLinksEnabled,
+          videoLinks: parsed.data.videoLinks.map((link) => ({
+            slot: link.slot,
+            url: link.url,
+            title: link.title || null,
+          })),
           address: parsed.data.address || null,
           mapEmbedUrl: parsed.data.mapEmbedUrl || null,
           isActive: parsed.data.isActive,
@@ -510,6 +527,12 @@ async function putHandler(request: NextRequest, user: AuthUser, context: RoutePa
               behanceEnabled: parsed.data.behanceEnabled,
               youtube: parsed.data.youtube || null,
               youtubeEnabled: parsed.data.youtubeEnabled,
+              videoLinksEnabled: parsed.data.videoLinksEnabled,
+              videoLinks: parsed.data.videoLinks.map((link) => ({
+                slot: link.slot,
+                url: link.url,
+                title: link.title || null,
+              })),
               address: parsed.data.address || null,
               mapEmbedUrl: parsed.data.mapEmbedUrl || null,
               isActive: parsed.data.isActive,

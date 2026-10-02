@@ -357,6 +357,8 @@ model Customer {
   behanceEnabled   Boolean @default(false)
   youtube          String?
   youtubeEnabled   Boolean @default(false)
+  videoLinksEnabled Boolean @default(false)
+  videoLinks        CustomerVideoLink[]
   address      String?
   mapEmbedUrl  String?
   logo         String?
@@ -444,6 +446,15 @@ model EmailLog {
   @@unique([orderId, type])
   @@index([orderId])
   @@map("email_log")
+}
+
+/// The three video slots embedded on a customer. Unlike Gallery these own no
+/// uploaded file, so they ride on the customer document instead of a
+/// collection of their own - see src/lib/video-links.ts.
+type CustomerVideoLink {
+  slot  Int
+  url   String
+  title String?
 }
 
 model Gallery {

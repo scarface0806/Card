@@ -5,6 +5,7 @@ import { withRateLimit } from "@/lib/rate-limit";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { customerCreateSchema } from "@/lib/validators";
 import { saveUploadedImage } from "@/lib/local-upload";
+import { parseVideoLinksFromFormData } from "@/lib/video-links";
 import { generateUniqueCustomerSlug, resolveCustomerSlug } from "@/lib/customer-slug";
 import { ObjectId } from "mongodb";
 import { getMongoDb } from "@/lib/mongodb";
@@ -48,6 +49,8 @@ async function createCustomerWithMongoFallback(params: {
     behanceEnabled: boolean;
     youtube?: string | null;
     youtubeEnabled: boolean;
+    videoLinksEnabled: boolean;
+    videoLinks: Array<{ slot: number; url: string; title?: string | null }>;
     address?: string | null;
     mapEmbedUrl?: string | null;
     isActive: boolean;
@@ -88,6 +91,12 @@ async function createCustomerWithMongoFallback(params: {
     behanceEnabled: params.parsedData.behanceEnabled,
     youtube: params.parsedData.youtube || null,
     youtubeEnabled: params.parsedData.youtubeEnabled,
+    videoLinksEnabled: params.parsedData.videoLinksEnabled,
+    videoLinks: params.parsedData.videoLinks.map((link) => ({
+      slot: link.slot,
+      url: link.url,
+      title: link.title || null,
+    })),
     address: params.parsedData.address || null,
     mapEmbedUrl: params.parsedData.mapEmbedUrl || null,
     logo: params.logo,
@@ -159,6 +168,8 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
       behanceEnabled: parseBoolean(formData.get("behanceEnabled")),
       youtube: formData.get("youtube"),
       youtubeEnabled: parseBoolean(formData.get("youtubeEnabled")),
+      videoLinksEnabled: parseBoolean(formData.get("videoLinksEnabled")),
+      videoLinks: parseVideoLinksFromFormData(formData),
       address: formData.get("address"),
       mapEmbedUrl: formData.get("mapEmbedUrl"),
       isActive: parseBoolean(formData.get("isActive")),
@@ -204,6 +215,12 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
           behanceEnabled: parsed.data.behanceEnabled,
           youtube: parsed.data.youtube || null,
           youtubeEnabled: parsed.data.youtubeEnabled,
+          videoLinksEnabled: parsed.data.videoLinksEnabled,
+          videoLinks: parsed.data.videoLinks.map((link) => ({
+            slot: link.slot,
+            url: link.url,
+            title: link.title || null,
+          })),
           address: parsed.data.address || null,
           mapEmbedUrl: parsed.data.mapEmbedUrl || null,
           logo,

@@ -40,6 +40,8 @@ type CustomerDetail = {
   facebook?: string | null;
   behance?: string | null;
   youtube?: string | null;
+  videoLinksEnabled?: boolean;
+  videoLinks?: Array<{ slot: number; url: string; title?: string | null }> | null;
   mapEmbedUrl?: string | null;
   profileImage?: string | null;
   logo?: string | null;

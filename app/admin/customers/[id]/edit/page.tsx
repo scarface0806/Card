@@ -7,12 +7,19 @@ import { Loader2 } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { isAbortError } from '@/lib/fetch-utils';
+import { VIDEO_LINK_SLOTS, extractYouTubeId, normalizeVideoLinks, youTubeThumbnail } from '@/lib/video-links';
 
 interface GalleryItem {
   id: string;
   slot: number;
   image: string;
   hoverText?: string | null;
+}
+
+interface VideoLinkItem {
+  slot: number;
+  url: string;
+  title: string;
 }
 
 interface CustomerDetail {
@@ -38,6 +45,8 @@ interface CustomerDetail {
   behanceEnabled: boolean;
   youtube?: string | null;
   youtubeEnabled: boolean;
+  videoLinksEnabled?: boolean;
+  videoLinks?: Array<{ slot: number; url: string; title?: string | null }> | null;
   address?: string | null;
   mapEmbedUrl?: string | null;
   profileImage?: string | null;
@@ -74,6 +83,8 @@ type FormState = {
   imageUrl: string;
   isActive: boolean;
   enableGallery: boolean;
+  enableVideoLinks: boolean;
+  videoLinks: VideoLinkItem[];
   gallery: Array<{ id: string; slot: number; image: string; hoverText: string; file: File | null }>;
 };
 
@@ -104,6 +115,8 @@ const emptyForm: FormState = {
   imageUrl: '',
   isActive: true,
   enableGallery: true,
+  enableVideoLinks: false,
+  videoLinks: Array.from({ length: VIDEO_LINK_SLOTS }, (_, idx) => ({ slot: idx + 1, url: '', title: '' })),
   gallery: [],
 };
 
@@ -149,6 +162,15 @@ export default function EditCustomerPage() {
           };
         });
 
+        // Slots the customer has never filled still need a row in the form,
+        // same as the gallery above.
+        const storedVideoLinks = normalizeVideoLinks(customer.videoLinks);
+        const normalizedVideoLinks = Array.from({ length: VIDEO_LINK_SLOTS }, (_, idx) => {
+          const slot = idx + 1;
+          const existing = storedVideoLinks.find((item) => item.slot === slot);
+          return { slot, url: existing?.url || '', title: existing?.title || '' };
+        });
+
         setForm({
           name: customer.name || '',
           designation: customer.designation || '',
@@ -176,6 +198,8 @@ export default function EditCustomerPage() {
           imageUrl: customer.profileImage || '',
           isActive: Boolean(customer.isActive),
           enableGallery: normalizedGallery.some((item) => item.id),
+          enableVideoLinks: Boolean(customer.videoLinksEnabled),
+          videoLinks: normalizedVideoLinks,
           gallery: normalizedGallery,
         });
       } catch (error) {
@@ -226,6 +250,13 @@ export default function EditCustomerPage() {
     }));
   };
 
+  const updateVideoLink = (slot: number, key: 'url' | 'title', value: string) => {
+    setForm((current) => ({
+      ...current,
+      videoLinks: current.videoLinks.map((item) => (item.slot === slot ? { ...item, [key]: value } : item)),
+    }));
+  };
+
   const handleSave = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (!id) return;
@@ -260,6 +291,11 @@ export default function EditCustomerPage() {
       body.append('imageUrl', form.imageUrl);
       body.append('isActive', String(form.isActive));
       body.append('enableGallery', String(form.enableGallery));
+      body.append('videoLinksEnabled', String(form.enableVideoLinks));
+      form.videoLinks.forEach((item) => {
+        body.append(`videoUrl${item.slot}`, item.url);
+        body.append(`videoTitle${item.slot}`, item.title);
+      });
 
       if (form.enableGallery) {
         form.gallery.forEach((item) => {
@@ -483,6 +519,58 @@ export default function EditCustomerPage() {
           ) : (
             <div className="tv-adm-panel-pad">
               <p className="tv-adm-meta text-xs">Gallery is off. The profile shows no image strip.</p>
+            </div>
+          )}
+        </section>
+
+        {/* Video links. Same shape as the gallery panel, but a slot holds a
+            pasted YouTube URL instead of an upload - the thumbnail below is
+            derived from the id, so there is nothing to store or clean up. */}
+        <section className="tv-adm-panel">
+          <div className="tv-adm-panel-head">
+            <h2 className="tv-adm-panel-title">Video Links</h2>
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--tv-text)]">
+              <input type="checkbox" checked={form.enableVideoLinks} onChange={(e) => setToggle('enableVideoLinks', e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
+              Enable videos
+            </label>
+          </div>
+
+          {form.enableVideoLinks ? (
+            <div className="tv-adm-panel-pad grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {form.videoLinks.map((item) => {
+                const videoId = extractYouTubeId(item.url);
+                return (
+                  <div key={item.slot} className="rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-3">
+                    <p className="tv-adm-label">Video {item.slot}</p>
+                    <div className="mt-2 aspect-[16/10] overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[var(--tv-graphite)]">
+                      {videoId ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={youTubeThumbnail(videoId)} alt={`Video ${item.slot}`} className="h-full w-full object-cover" />
+                      ) : (
+                        <div className="flex h-full w-full items-center justify-center px-3 text-center text-xs font-semibold uppercase tracking-wider text-[var(--tv-text-muted)]">
+                          {item.url ? 'Not a YouTube link' : 'No Video'}
+                        </div>
+                      )}
+                    </div>
+                    <input
+                      value={item.url}
+                      onChange={(e) => updateVideoLink(item.slot, 'url', e.target.value)}
+                      placeholder="https://www.youtube.com/watch?v=..."
+                      className="tv-adm-input mt-3"
+                    />
+                    <input
+                      value={item.title}
+                      onChange={(e) => updateVideoLink(item.slot, 'title', e.target.value)}
+                      placeholder={`Video ${item.slot} title`}
+                      className="tv-adm-input mt-2"
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <div className="tv-adm-panel-pad">
+              <p className="tv-adm-meta text-xs">Videos are off. The profile shows no video strip.</p>
             </div>
           )}
         </section>

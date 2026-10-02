@@ -7,10 +7,16 @@ import { Copy, ExternalLink, Loader2, UploadCloud } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
 import ImageUpload from '@/components/admin/ImageUpload';
 import { logFetchError } from '@/lib/fetch-utils';
+import { VIDEO_LINK_SLOTS, extractYouTubeId, youTubeThumbnail } from '@/lib/video-links';
 
 interface GallerySlot {
   file: File | null;
   hoverText: string;
+}
+
+interface VideoSlot {
+  url: string;
+  title: string;
 }
 
 interface FormState {
@@ -41,6 +47,8 @@ interface FormState {
   profileImage: File | null;
   gallerySlots: GallerySlot[];
   enableGallery: boolean;
+  videoSlots: VideoSlot[];
+  enableVideoLinks: boolean;
 }
 
 interface CreatedState {
@@ -54,6 +62,7 @@ type ToastState = {
 };
 
 const defaultGallerySlots = () => Array.from({ length: 3 }, () => ({ file: null, hoverText: '' }));
+const defaultVideoSlots = () => Array.from({ length: VIDEO_LINK_SLOTS }, () => ({ url: '', title: '' }));
 
 export default function CreateCustomerPage() {
   const [form, setForm] = useState<FormState>({
@@ -84,6 +93,8 @@ export default function CreateCustomerPage() {
     profileImage: null,
     gallerySlots: defaultGallerySlots(),
     enableGallery: true,
+    videoSlots: defaultVideoSlots(),
+    enableVideoLinks: false,
   });
   const [submitting, setSubmitting] = useState(false);
   const [toast, setToast] = useState<ToastState | null>(null);
@@ -93,6 +104,14 @@ export default function CreateCustomerPage() {
   const galleryPreviews = useMemo(
     () => form.gallerySlots.map((slot) => (slot.file ? URL.createObjectURL(slot.file) : null)),
     [form.gallerySlots]
+  );
+  const videoPreviews = useMemo(
+    () =>
+      form.videoSlots.map((slot) => {
+        const videoId = extractYouTubeId(slot.url);
+        return videoId ? youTubeThumbnail(videoId) : null;
+      }),
+    [form.videoSlots]
   );
 
   const socialFields = useMemo(
@@ -161,6 +180,14 @@ export default function CreateCustomerPage() {
     });
   };
 
+  const handleVideoSlotChange = (index: number, key: keyof VideoSlot, value: string) => {
+    setForm((current) => {
+      const updatedSlots = [...current.videoSlots];
+      updatedSlots[index] = { ...updatedSlots[index], [key]: value };
+      return { ...current, videoSlots: updatedSlots };
+    });
+  };
+
   const copyLink = async () => {
     if (!created) return;
     try {
@@ -205,6 +232,11 @@ export default function CreateCustomerPage() {
       body.append('imageUrl', form.imageUrl);
       body.append('isActive', 'true');
       body.append('enableGallery', String(form.enableGallery));
+      body.append('videoLinksEnabled', String(form.enableVideoLinks));
+      form.videoSlots.forEach((slot, index) => {
+        body.append(`videoUrl${index + 1}`, slot.url);
+        body.append(`videoTitle${index + 1}`, slot.title);
+      });
 
       if (form.profileImage) body.append('profileImage', form.profileImage);
 
@@ -289,6 +321,8 @@ export default function CreateCustomerPage() {
         profileImage: null,
         gallerySlots: defaultGallerySlots(),
         enableGallery: true,
+        videoSlots: defaultVideoSlots(),
+        enableVideoLinks: false,
       });
     } catch (error) {
       setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to create customer' });
@@ -451,6 +485,41 @@ export default function CreateCustomerPage() {
                     )}
                   </div>
                   <input value={slot.hoverText} onChange={(e) => handleGalleryHoverText(index, e.target.value)} placeholder={`Image ${index + 1} hover text`} className="mt-3 w-full rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-3 py-2 text-xs text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </section>
+
+        {/* Video links - the gallery's sibling. Three pasted YouTube URLs; the
+            card renders each as a thumbnail that opens the video in a new tab,
+            so nothing is uploaded and nothing is embedded. */}
+        <section className="space-y-4 rounded-2xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] p-4">
+          <div className="flex items-center justify-between gap-4">
+            <h3 className="tv-adm-label">Video Links (3 YouTube URLs)</h3>
+            <label className="inline-flex items-center gap-2 text-sm text-[var(--tv-text)]">
+              <input type="checkbox" checked={form.enableVideoLinks} onChange={(e) => handleToggleChange('enableVideoLinks', e.target.checked)} className="h-4 w-4 rounded border-[rgba(241,243,241,0.18)] bg-[rgba(7,10,9,0.55)]" />
+              Enable Videos
+            </label>
+          </div>
+
+          {form.enableVideoLinks ? (
+            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+              {form.videoSlots.map((slot, index) => (
+                <div key={index} className="rounded-xl border border-[var(--tv-rule)] bg-[var(--tv-graphite)] p-3">
+                  <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-[var(--tv-text-muted)]">Video {index + 1}</p>
+                  <input value={slot.url} onChange={(e) => handleVideoSlotChange(index, 'url', e.target.value)} placeholder="https://www.youtube.com/watch?v=..." className="w-full rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-3 py-2 text-xs text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
+                  <div className="mt-3 overflow-hidden rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)]">
+                    {videoPreviews[index] ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={videoPreviews[index] as string} alt={`Video ${index + 1} thumbnail`} className="h-28 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-28 items-center justify-center px-3 text-center text-xs font-semibold uppercase tracking-wider text-[var(--tv-text-muted)]">
+                        {slot.url ? 'Not a YouTube link' : 'No Video'}
+                      </div>
+                    )}
+                  </div>
+                  <input value={slot.title} onChange={(e) => handleVideoSlotChange(index, 'title', e.target.value)} placeholder={`Video ${index + 1} title`} className="mt-3 w-full rounded-lg border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-3 py-2 text-xs text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
                 </div>
               ))}
             </div>

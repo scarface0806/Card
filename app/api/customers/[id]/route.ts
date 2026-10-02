@@ -34,6 +34,8 @@ type CustomerDetailDelegate = {
     behanceEnabled: boolean;
     youtube: string | null;
     youtubeEnabled: boolean;
+    videoLinksEnabled: boolean;
+    videoLinks: Array<{ slot: number; url: string; title: string | null }>;
     address: string | null;
     mapEmbedUrl: string | null;
     logo: string | null;
