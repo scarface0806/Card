@@ -340,6 +340,7 @@ model Customer {
   designation  String?
   company      String?
   about        String?
+  shortBio     String?
   phone        String
   email        String
   mailApiEndpoint String?

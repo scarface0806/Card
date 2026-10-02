@@ -24,6 +24,7 @@ interface FormState {
   designation: string;
   company: string;
   about: string;
+  shortBio: string;
   phone: string;
   email: string;
   mailApiEndpoint: string;
@@ -70,6 +71,7 @@ export default function CreateCustomerPage() {
     designation: '',
     company: '',
     about: '',
+    shortBio: '',
     phone: '',
     email: '',
     mailApiEndpoint: '',
@@ -209,6 +211,7 @@ export default function CreateCustomerPage() {
       body.append('designation', form.designation);
       body.append('company', form.company);
       body.append('about', form.about);
+      body.append('shortBio', form.shortBio);
       body.append('phone', form.phone);
       body.append('email', form.email);
       body.append('mailApiEndpoint', form.mailApiEndpoint);
@@ -298,6 +301,7 @@ export default function CreateCustomerPage() {
         designation: '',
         company: '',
         about: '',
+        shortBio: '',
         phone: '',
         email: '',
         mailApiEndpoint: '',
@@ -405,6 +409,13 @@ export default function CreateCustomerPage() {
             <input name="address" value={form.address} onChange={handleTextChange} className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
           </label>
         </div>
+
+        <label className="tv-adm-field-label">Short Bio (optional)
+          <textarea name="shortBio" value={form.shortBio} onChange={handleTextChange} maxLength={300} rows={2} placeholder="DJ | Video Editing | Photo Editing | Event Management" className="mt-2 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />
+          <span className="tv-adm-meta mt-1.5 block text-xs normal-case tracking-normal">
+            Shown under the name and company on the profile. Max 300 characters.
+          </span>
+        </label>
 
         <label className="tv-adm-field-label">About Us
           <textarea name="about" value={form.about} onChange={handleTextChange} className="mt-2 min-h-36 w-full rounded-xl border border-[var(--tv-rule)] bg-[rgba(7,10,9,0.55)] px-4 py-3 text-[var(--tv-text)] outline-none focus:border-[rgba(76,174,137,0.55)]" />

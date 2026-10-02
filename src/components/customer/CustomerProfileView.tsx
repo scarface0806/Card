@@ -55,6 +55,7 @@ type CustomerProfile = {
   designation?: string | null;
   company?: string | null;
   about?: string | null;
+  shortBio?: string | null;
   phone: string;
   email: string;
   website?: string | null;
@@ -474,10 +475,18 @@ export default function CustomerProfileView({ customer }: CustomerProfileViewPro
                     in the record - it is simply not drawn. */}
                 <p className="tv-eyebrow mb-6">Digital profile</p>
                 <h1 className="tv-display mb-4">{customer.name}</h1>
-                <p className="tv-lead mb-9 tv-measure-lead">
+                <p className={`tv-lead tv-measure-lead ${customer.shortBio?.trim() ? 'mb-3' : 'mb-9'}`}>
                   {[customer.designation, customer.company].filter(Boolean).join(' · ') ||
                     'NFC Digital Profile'}
                 </p>
+                {/* Optional one-or-two line bio set from the admin, sitting
+                    directly under the designation/company line. Quieter than
+                    the lead so the name still carries the hero. */}
+                {customer.shortBio?.trim() ? (
+                  <p className="mb-9 tv-measure-lead text-[15px] leading-relaxed text-[var(--tv-text-muted)] whitespace-pre-line">
+                    {customer.shortBio.trim()}
+                  </p>
+                ) : null}
 
                 {/* PRIMARY PAIR — Call / WhatsApp, directly under the name and
                     designation. The two ways to actually reach this person, so

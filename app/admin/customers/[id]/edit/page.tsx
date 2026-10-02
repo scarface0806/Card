@@ -28,6 +28,7 @@ interface CustomerDetail {
   designation?: string | null;
   company?: string | null;
   about?: string | null;
+  shortBio?: string | null;
   phone: string;
   email: string;
   mailApiEndpoint?: string | null;
@@ -61,6 +62,7 @@ type FormState = {
   designation: string;
   company: string;
   about: string;
+  shortBio: string;
   phone: string;
   email: string;
   mailApiEndpoint: string;
@@ -93,6 +95,7 @@ const emptyForm: FormState = {
   designation: '',
   company: '',
   about: '',
+  shortBio: '',
   phone: '',
   email: '',
   mailApiEndpoint: '',
@@ -176,6 +179,7 @@ export default function EditCustomerPage() {
           designation: customer.designation || '',
           company: customer.company || '',
           about: customer.about || '',
+          shortBio: customer.shortBio || '',
           phone: customer.phone || '',
           email: customer.email || '',
           mailApiEndpoint: customer.mailApiEndpoint || '',
@@ -268,6 +272,7 @@ export default function EditCustomerPage() {
       body.append('designation', form.designation);
       body.append('company', form.company);
       body.append('about', form.about);
+      body.append('shortBio', form.shortBio);
       body.append('phone', form.phone);
       body.append('email', form.email);
       body.append('mailApiEndpoint', form.mailApiEndpoint);
@@ -413,6 +418,12 @@ export default function EditCustomerPage() {
             <h2 className="tv-adm-panel-title">About</h2>
           </div>
           <div className="tv-adm-panel-pad">
+            <label className="tv-adm-field-label mb-4 block">Short Bio (optional)
+              <textarea value={form.shortBio} onChange={(e) => setText('shortBio', e.target.value)} maxLength={300} rows={2} placeholder="DJ | Video Editing | Photo Editing | Event Management" className="tv-adm-textarea mt-2" />
+              <span className="tv-adm-meta mt-1.5 block text-xs normal-case tracking-normal">
+                Shown under the name and company on the profile. Max 300 characters.
+              </span>
+            </label>
             <label className="tv-adm-field-label">About Us
               <textarea value={form.about} onChange={(e) => setText('about', e.target.value)} className="tv-adm-textarea mt-2" />
             </label>

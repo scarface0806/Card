@@ -29,6 +29,7 @@ type CustomerDetail = {
   designation?: string | null;
   company?: string | null;
   about?: string | null;
+  shortBio?: string | null;
   phone: string;
   email: string;
   slug: string;
@@ -153,6 +154,7 @@ export default function CustomerDetailPage() {
           <h2 className="tv-adm-label mb-3">Business</h2>
           <p className="text-sm text-[var(--tv-text)]">Designation: {customer.designation || '-'}</p>
           <p className="text-sm text-[var(--tv-text)]">Company: {customer.company || '-'}</p>
+          <p className="text-sm text-[var(--tv-text)]">Short Bio: {customer.shortBio || '-'}</p>
           <p className="text-sm text-[var(--tv-text)]">Website: {customer.website || '-'}</p>
         </div>
       </section>

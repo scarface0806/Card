@@ -163,6 +163,7 @@ export const customerCreateSchema = z.object({
   designation: z.string().trim().max(120).optional().or(z.literal("")),
   company: z.string().trim().max(120).optional().or(z.literal("")),
   about: z.string().trim().max(3000).optional().or(z.literal("")),
+  shortBio: z.string().trim().max(300).optional().or(z.literal("")),
   phone: z.string().trim().min(6, "Phone is required").max(30),
   email: z.string().trim().email("A valid email is required"),
   mailApiEndpoint: z.string().trim().max(2000).optional().or(z.literal("")),

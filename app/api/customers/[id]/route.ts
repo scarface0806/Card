@@ -17,6 +17,7 @@ type CustomerDetailDelegate = {
     designation: string | null;
     company: string | null;
     about: string | null;
+    shortBio: string | null;
     phone: string;
     email: string;
     mailApiEndpoint: string | null;

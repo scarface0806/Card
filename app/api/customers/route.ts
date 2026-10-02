@@ -32,6 +32,7 @@ async function createCustomerWithMongoFallback(params: {
     designation?: string | null;
     company?: string | null;
     about?: string | null;
+    shortBio?: string | null;
     phone: string;
     email: string;
     mailApiEndpoint?: string | null;
@@ -74,6 +75,7 @@ async function createCustomerWithMongoFallback(params: {
     designation: params.parsedData.designation || null,
     company: params.parsedData.company || null,
     about: params.parsedData.about || null,
+    shortBio: params.parsedData.shortBio || null,
     phone: params.parsedData.phone,
     email: params.parsedData.email,
     mailApiEndpoint: params.parsedData.mailApiEndpoint || null,
@@ -151,6 +153,7 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
       designation: formData.get("designation"),
       company: formData.get("company"),
       about: formData.get("about"),
+      shortBio: formData.get("shortBio"),
       phone: formData.get("phone"),
       email: formData.get("email"),
       mailApiEndpoint: formData.get("mailApiEndpoint") || formData.get("mailApiKey"),
@@ -200,6 +203,7 @@ async function postHandler(request: NextRequest, _user: AuthUser) {
           designation: parsed.data.designation || null,
           company: parsed.data.company || null,
           about: parsed.data.about || null,
+          shortBio: parsed.data.shortBio || null,
           mailApiEndpoint: parsed.data.mailApiEndpoint || null,
           website: parsed.data.website || null,
           websiteEnabled: parsed.data.websiteEnabled,
