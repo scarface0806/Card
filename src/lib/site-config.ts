@@ -123,7 +123,7 @@ export const PHONE_DISPLAY = '+91 78713 61025';
  *
  * History matters here, because this value has been wrong twice. It was first
  * hello@tapvyo.com — not a mailbox, on a domain that is not registered. It was
- * then tapvyo@gmail.com, which was a guess. It is now the address the owner
+ * then a guessed Gmail address without the "nfc". It is now the address the owner
  * actually reads, and the same one admin order notifications already went to.
  *
  * Order confirmations tell customers to reply within 24 hours to correct what

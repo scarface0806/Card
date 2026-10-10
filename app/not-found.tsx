@@ -7,6 +7,11 @@ export const metadata: Metadata = {
   title: 'Page not found',
   description: 'The page you were looking for does not exist.',
   robots: { index: false, follow: false },
+  // Without these the 404 inherits the root layout's canonical and og:url
+  // ("/"), so every missing URL — including /blog/page/N past the last page —
+  // declared itself a copy of the homepage.
+  alternates: { canonical: null },
+  openGraph: null,
 };
 
 export default function NotFound() {

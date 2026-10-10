@@ -470,7 +470,7 @@ export default function PreviewWebsitePage() {
                 {/* Built from ADDRESS rather than a pasted embed URL.
                     The previous src was a `?pb=...` string — Google's internal
                     encoding, with 10.8049,78.6197 baked into it. Those are
-                    Tiruchirappalli's coordinates, so the map kept pointing at
+                    the previous city's coordinates, so the map kept pointing at
                     the old city no matter what the rest of the page said, and
                     nobody editing ADDRESS would ever have known.
                     `?q=<place>&output=embed` is the documented key-free form

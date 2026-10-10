@@ -1,16 +1,15 @@
-import {
-  ADDRESS,
-  ACTIVE_SOCIAL_PROFILES,
-  CANONICAL_ORIGIN,
-  PHONE_E164,
-  SITE_DESCRIPTION,
-  SITE_NAME,
-  SUPPORT_EMAIL,
-} from '@/lib/site-config';
+import { CANONICAL_ORIGIN, SITE_DESCRIPTION, SITE_NAME } from '@/lib/site-config';
+import { BUSINESS } from '@/lib/site';
 
 /**
- * Organization + WebSite + Product structured data, emitted once from the root
+ * LocalBusiness + WebSite + Product structured data, emitted once from the root
  * layout.
+ *
+ * LocalBusiness rather than plain Organization: it is a subtype of
+ * Organization, so every `@id` reference to it below still holds, and it is the
+ * type Google reads for local (city-qualified, map pack) results. Every NAP
+ * field comes from BUSINESS, the same object the footer and contact page
+ * render, so the markup and the visible page can never disagree.
  *
  * Every URL is built from CANONICAL_ORIGIN rather than SITE_URL. This is what
  * tells Google which entity "Tapvyo" is and which domain it lives on, so it
@@ -20,10 +19,12 @@ import {
  * Server component - this never ships to the browser as JS, only as markup.
  */
 export default function JsonLd() {
+  const sameAs = Object.values(BUSINESS.socials).filter((url): url is string => Boolean(url));
+
   const organization = {
-    '@type': 'Organization',
+    '@type': 'LocalBusiness',
     '@id': `${CANONICAL_ORIGIN}/#organization`,
-    name: SITE_NAME,
+    name: BUSINESS.name,
     url: CANONICAL_ORIGIN,
     // Declared as an ImageObject with its dimensions: Google's logo guidelines
     // want a square image of at least 112x112, and stating the size saves it a
@@ -37,26 +38,26 @@ export default function JsonLd() {
     },
     image: `${CANONICAL_ORIGIN}/icon.png`,
     description: SITE_DESCRIPTION,
-    email: SUPPORT_EMAIL,
-    telephone: PHONE_E164,
+    email: BUSINESS.email,
+    telephone: BUSINESS.phoneSchema,
+    // No streetAddress or postalCode: neither has been confirmed, and an
+    // invented one would contradict the Google Business Profile.
     address: {
       '@type': 'PostalAddress',
-      addressLocality: ADDRESS.city,
-      addressRegion: ADDRESS.state,
-      addressCountry: 'IN',
+      addressLocality: BUSINESS.city,
+      addressRegion: BUSINESS.state,
+      addressCountry: BUSINESS.countryCode,
     },
     contactPoint: {
       '@type': 'ContactPoint',
       contactType: 'customer support',
-      telephone: PHONE_E164,
-      email: SUPPORT_EMAIL,
+      telephone: BUSINESS.phoneSchema,
+      email: BUSINESS.email,
       areaServed: 'IN',
       availableLanguage: ['en', 'ta'],
     },
     // Only profiles with a confirmed URL - sameAs must not contain dead links.
-    ...(ACTIVE_SOCIAL_PROFILES.length > 0
-      ? { sameAs: ACTIVE_SOCIAL_PROFILES.map((s) => s.url) }
-      : {}),
+    ...(sameAs.length > 0 ? { sameAs } : {}),
   };
 
   // No `potentialAction`/SearchAction: the site has no search page to point one

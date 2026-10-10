@@ -16,7 +16,7 @@ import { Prisma } from "@prisma/client";
 
 import prisma from "@/lib/prisma";
 import { formatPrice } from "@/utils/formatPrice";
-import { SITE_URL } from "@/lib/site-config";
+import { SITE_URL, SUPPORT_EMAIL } from "@/lib/site-config";
 
 import {
 	getEmailFrom,
@@ -25,10 +25,11 @@ import {
 } from "./resend";
 
 /**
- * Single, one-line change to retarget the admin notification.
+ * The business's public contact address (SUPPORT_EMAIL in site-config.ts), so
+ * the inbox customers write to and the inbox orders land in cannot diverge.
  * Not in .env — a code constant so the recipient is visible and version-controlled.
  */
-export const ADMIN_NOTIFICATION_EMAIL = "tapvyonfc@gmail.com";
+export const ADMIN_NOTIFICATION_EMAIL = SUPPORT_EMAIL;
 
 const SEND_TIMEOUT_MS = 12_000;
 

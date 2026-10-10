@@ -1,10 +1,12 @@
-import { SITE_NAME, SITE_URL } from "@/lib/site";
+import { SITE_NAME, SITE_URL, onSiteOrigin } from "@/lib/site";
 import { BLOG_FALLBACK_COVER } from "@/lib/blog/images";
 import type { PostDetail, PostSummary } from "@/lib/blog/types";
 
 /** Absolute URL for a path, as every structured-data field requires. */
 function absolute(path: string): string {
-  return path.startsWith("http") ? path : `${SITE_URL}${path}`;
+  // onSiteOrigin: image URLs come from the database and may predate the move
+  // off the *.vercel.app alias.
+  return path.startsWith("http") ? onSiteOrigin(path) : `${SITE_URL}${path}`;
 }
 
 /**
@@ -17,7 +19,7 @@ export function postJsonLd(post: PostDetail, plainTextBody: string) {
   // the published posts carry no cover. The branded plate the page itself
   // renders is the honest answer — the schema should describe what a reader
   // sees, not omit the field.
-  const image = post.ogImage || post.coverImage?.url || absolute(BLOG_FALLBACK_COVER);
+  const image = absolute(post.ogImage || post.coverImage?.url || BLOG_FALLBACK_COVER);
 
   const blogPosting = {
     "@type": "BlogPosting",
@@ -71,7 +73,7 @@ export function blogJsonLd(posts: PostSummary[], path = "/blog", name = `${SITE_
       url: absolute(`/blog/${post.slug}`),
       datePublished: post.publishedAt ?? undefined,
       author: { "@type": "Person", name: post.authorName },
-      image: [post.coverImage?.url || absolute(BLOG_FALLBACK_COVER)],
+      image: [absolute(post.coverImage?.url || BLOG_FALLBACK_COVER)],
     })),
   };
 }

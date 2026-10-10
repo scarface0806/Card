@@ -253,7 +253,10 @@ Powered by Tapvyo
 export async function sendCustomerLeadNotificationEmail(
   data: CustomerLeadNotificationData
 ): Promise<boolean> {
-  const siteUrl = process.env.NEXT_PUBLIC_APP_URL || process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  // SITE_URL, like the other senders in this file: reading the env vars raw
+  // skipped the *.vercel.app guard in site-config and could email a link to
+  // the retired alias (which now returns DEPLOYMENT_NOT_FOUND).
+  const siteUrl = SITE_URL;
   const profileUrl = `${siteUrl}/card/${data.customerSlug}`;
   const subject = `New NFC Profile Message from ${data.visitorName}`;
 

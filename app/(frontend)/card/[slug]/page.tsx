@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 import CardProfileView from '@/components/CardProfileView';
 import CustomerProfileView from '@/components/customer/CustomerProfileView';
 import CardInactiveScreen from '@/components/CardInactiveScreen';
-import { SITE_URL } from '@/lib/site-config';
+import { SITE_URL } from '@/lib/site';
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -53,9 +53,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { slug } = await params;
   // SITE_URL, not NEXT_PUBLIC_APP_URL. That variable is "http://localhost:3000"
   // in .env.local, so reading it directly stamped a localhost canonical into
-  // production metadata. SITE_URL resolves the Vercel-provided origins first
-  // and is the same constant CardInactiveScreen builds its WhatsApp link from,
-  // so the origin cannot drift between the two.
+  // production metadata. SITE_URL from '@/lib/site' is the fixed production
+  // origin (https://tapvyo.in), so no env var can move these canonicals.
   const metadataBase = new URL(SITE_URL);
 
   try {

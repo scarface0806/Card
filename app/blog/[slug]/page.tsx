@@ -23,7 +23,7 @@ import { buildToc } from '@/lib/blog/toc';
 import { htmlToPlainText } from '@/lib/blog/sanitize';
 import { jsonLdScript, postJsonLd } from '@/lib/blog/jsonld';
 import { coverAlt, coverSrc } from '@/lib/blog/images';
-import { SITE_NAME, SITE_URL } from '@/lib/site';
+import { SITE_NAME, SITE_URL, onSiteOrigin } from '@/lib/site';
 
 export const revalidate = 60;
 
@@ -52,8 +52,12 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
   const title = post.metaTitle || post.title;
   const description = post.metaDescription || post.excerpt;
-  const canonical = post.canonicalUrl || `/blog/${post.slug}`;
-  const image = post.ogImage || post.coverImage?.url;
+  // onSiteOrigin: both fields are admin-entered and stored in the database, so
+  // a value saved while the site lived on the old *.vercel.app alias would
+  // otherwise be published as-is.
+  const canonical = post.canonicalUrl ? onSiteOrigin(post.canonicalUrl) : `/blog/${post.slug}`;
+  const rawImage = post.ogImage || post.coverImage?.url;
+  const image = rawImage ? onSiteOrigin(rawImage) : undefined;
 
   return {
     title,
@@ -64,7 +68,8 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       type: 'article',
       siteName: SITE_NAME,
       locale: 'en_IN',
-      url: `${SITE_URL}/blog/${post.slug}`,
+      // Always the same value as the canonical tag above.
+      url: canonical,
       title: `${title} | ${SITE_NAME}`,
       description,
       publishedTime: post.publishedAt ?? undefined,
@@ -79,7 +84,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       card: 'summary_large_image',
       title: `${title} | ${SITE_NAME}`,
       description,
-      images: [image || `${SITE_URL}/og-image.png`],
+      images: [image || '/og-image.png'],
     },
   };
 }

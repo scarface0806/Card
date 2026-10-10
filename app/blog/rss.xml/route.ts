@@ -1,5 +1,7 @@
 import { listPublishedForFeeds } from "@/lib/blog/queries";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_URL, SUPPORT_EMAIL } from "@/lib/site-config";
+import { SITE_DESCRIPTION, SUPPORT_EMAIL } from "@/lib/site-config";
+// The fixed production origin: feed readers and crawlers store these links.
+import { SITE_NAME, SITE_URL } from "@/lib/site";
 
 export const runtime = "nodejs";
 

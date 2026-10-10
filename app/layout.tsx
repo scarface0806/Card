@@ -3,7 +3,8 @@ import { Inter, Fraunces, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
-import { CANONICAL_ORIGIN, SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site-config';
+import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site-config';
+import { SITE_URL } from '@/lib/site';
 
 const inter = Inter({
     variable: '--font-inter',
@@ -65,14 +66,15 @@ export const metadata: Metadata = {
      * The origin every relative URL below resolves against — canonicals,
      * OG URLs, Twitter images.
      *
-     * CANONICAL_ORIGIN, not SITE_URL. SITE_URL is env-configurable, and on the
-     * production deployment it was resolving to the old tapvyo-nfc-card.vercel.app
-     * alias, which stamped a .vercel.app canonical onto every page on tapvyo.in.
-     * Google reads the canonical tag over the 308 redirect, so it indexed the
-     * pages under the old host. What a search engine is told is the site's
-     * address is not something a dashboard env var should be able to change.
+     * SITE_URL from '@/lib/site' — the hardcoded https://tapvyo.in, not the
+     * env-configurable SITE_URL in site-config. An env var once resolved to the
+     * old tapvyo-nfc-card.vercel.app alias, which stamped a .vercel.app
+     * canonical onto every page on tapvyo.in. Google reads the canonical tag
+     * over the 308 redirect, so it indexed the pages under the old host. What a
+     * search engine is told is the site's address is not something a dashboard
+     * env var should be able to change.
      */
-    metadataBase: new URL(CANONICAL_ORIGIN),
+    metadataBase: new URL(SITE_URL),
     title: {
         // Each route sets its own title; this is the suffix and the fallback.
         default: `${SITE_NAME} - ${SITE_TAGLINE}`,

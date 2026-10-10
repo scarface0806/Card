@@ -3,6 +3,7 @@
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
+import { BUSINESS } from '@/lib/site';
 
 /**
  * Hardcoded, NOT `new Date()`. A policy's last-updated date has to be the date
@@ -73,7 +74,7 @@ export default function TermsPage() {
         'Your digital profile is created by Tapvyo using the details you submit at the time of ordering. Updating a profile does not require reprinting your card, as the link encoded on the NFC chip does not change.',
       bullets: [
         'Profiles are not self-editable. There is no customer-facing editor, and changes to a published profile are made by our team on request.',
-        'Any change to your profile after the order is placed must be requested from Tapvyo directly. Update requests are accepted on WhatsApp at +91 78713 61025. Please include your Order ID and the details you want changed.',
+        `Any change to your profile after the order is placed must be requested from Tapvyo directly. Update requests are accepted on WhatsApp at ${BUSINESS.phone}. Please include your Order ID and the details you want changed.`,
         'Each update request is charged ₹49 (inclusive of applicable taxes), payable before the update is made. One request covers the set of changes submitted in that single message.',
         'Update requests are processed within 1 working day of payment being received.',
         'The ₹49 charge applies per request, not per field. If further changes are requested later, a fresh ₹49 charge applies.',
