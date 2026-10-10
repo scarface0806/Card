@@ -24,6 +24,7 @@ import { htmlToPlainText } from '@/lib/blog/sanitize';
 import { jsonLdScript, postJsonLd } from '@/lib/blog/jsonld';
 import { coverAlt, coverSrc } from '@/lib/blog/images';
 import { SITE_NAME, SITE_URL, onSiteOrigin } from '@/lib/site';
+import { postCanonical, postSeoTitle } from '@/lib/blog/seo';
 
 export const revalidate = 60;
 
@@ -50,12 +51,15 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: 'Post not found', robots: { index: false, follow: false } };
   }
 
-  const title = post.metaTitle || post.title;
+  // Brand suffix stripped: the root layout's "%s | Tapvyo" template adds it.
+  const title = postSeoTitle(post);
   const description = post.metaDescription || post.excerpt;
-  // onSiteOrigin: both fields are admin-entered and stored in the database, so
-  // a value saved while the site lived on the old *.vercel.app alias would
-  // otherwise be published as-is.
-  const canonical = post.canonicalUrl ? onSiteOrigin(post.canonicalUrl) : `/blog/${post.slug}`;
+  // Always the post's own URL, never the stored canonicalUrl override — see
+  // postCanonical() for the 404 that override once produced.
+  const canonical = postCanonical(post.slug);
+  // onSiteOrigin: admin-entered and stored in the database, so a value saved
+  // while the site lived on the old *.vercel.app alias would otherwise be
+  // published as-is.
   const rawImage = post.ogImage || post.coverImage?.url;
   const image = rawImage ? onSiteOrigin(rawImage) : undefined;
 

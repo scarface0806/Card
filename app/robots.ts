@@ -2,8 +2,8 @@ import type { MetadataRoute } from 'next';
 import { CANONICAL_ORIGIN } from '@/lib/site-config';
 
 /**
- * CANONICAL_ORIGIN, not SITE_URL — the sitemap URL and `host` here are read by
- * crawlers, so they name the real domain regardless of how a deployment is
+ * CANONICAL_ORIGIN, not SITE_URL — the sitemap URL here is read by
+ * crawlers, so it names the real domain regardless of how a deployment is
  * configured.
  *
  * Nothing that affects how a page is rendered or indexed is blocked. In
@@ -38,6 +38,8 @@ export default function robots(): MetadataRoute.Robots {
       },
     ],
     sitemap: `${CANONICAL_ORIGIN}/sitemap.xml`,
-    host: CANONICAL_ORIGIN,
+    // No `host`: "Host:" is a Yandex-only directive that Google ignores and
+    // flags as unrecognised. The canonical domain is set by canonical tags and
+    // the redirects in next.config.ts.
   };
 }

@@ -18,7 +18,6 @@ interface UserData {
 const NAV_LINKS = [
   { label: 'Home', href: ROUTES.HOME },
   { label: 'Cards', href: ROUTES.CARDS },
-  { label: 'Products', href: ROUTES.PRODUCTS },
 ];
 
 export default function DashboardPage() {

@@ -1,5 +1,6 @@
 import { SITE_NAME, SITE_URL, onSiteOrigin } from "@/lib/site";
 import { BLOG_FALLBACK_COVER } from "@/lib/blog/images";
+import { postAuthorJsonLd, postSeoTitle, stripBrandSuffix } from "@/lib/blog/seo";
 import type { PostDetail, PostSummary } from "@/lib/blog/types";
 
 /** Absolute URL for a path, as every structured-data field requires. */
@@ -25,13 +26,14 @@ export function postJsonLd(post: PostDetail, plainTextBody: string) {
     "@type": "BlogPosting",
     "@id": `${url}#post`,
     mainEntityOfPage: { "@type": "WebPage", "@id": url },
-    headline: post.metaTitle || post.title,
+    // Without the " | Tapvyo" suffix some stored titles carry.
+    headline: postSeoTitle(post),
     description: post.metaDescription || post.excerpt,
     url,
     image: [image],
     datePublished: post.publishedAt ?? undefined,
     dateModified: post.updatedAt,
-    author: { "@type": "Person", name: post.authorName },
+    author: postAuthorJsonLd(post.authorName),
     publisher: { "@id": `${SITE_URL}/#organization` },
     ...(post.tags.length > 0 ? { keywords: post.tags.join(", ") } : {}),
     ...(post.category ? { articleSection: post.category } : {}),
@@ -68,11 +70,11 @@ export function blogJsonLd(posts: PostSummary[], path = "/blog", name = `${SITE_
     blogPost: posts.map((post) => ({
       "@type": "BlogPosting",
       "@id": `${absolute(`/blog/${post.slug}`)}#post`,
-      headline: post.title,
+      headline: stripBrandSuffix(post.title),
       description: post.excerpt,
       url: absolute(`/blog/${post.slug}`),
       datePublished: post.publishedAt ?? undefined,
-      author: { "@type": "Person", name: post.authorName },
+      author: postAuthorJsonLd(post.authorName),
       image: [absolute(post.coverImage?.url || BLOG_FALLBACK_COVER)],
     })),
   };

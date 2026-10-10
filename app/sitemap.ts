@@ -23,18 +23,15 @@ import { isIndexableTag, MIN_POSTS_FOR_INDEXABLE_TAG } from '@/lib/blog/tag-inde
 const routes: { path: string; priority: number; changeFrequency: MetadataRoute.Sitemap[number]['changeFrequency'] }[] = [
   { path: '/', priority: 1.0, changeFrequency: 'weekly' },
 
-  // The buy flow.
+  // The catalogue. /cards is the one catalogue page: /products 301s to it
+  // (next.config.ts), so listing it here would submit a redirect.
   //
-  // CAUTION: /create-card is listed in `protectedRoutes` in proxy.ts, so an
-  // anonymous request — Googlebot included — is 307'd to /login. Search Console
-  // will report this entry as "Page with redirect" and will not index it. Its
-  // metadata is clean (no noindex); the gate is what stops it. Removing
-  // "/create-card" from that array in proxy.ts is what makes this entry
-  // resolvable; order creation stays protected either way, because
-  // `protectedApiRoutes` gates /api/orders and the payment routes separately.
-  { path: '/create-card', priority: 0.9, changeFrequency: 'monthly' },
+  // NOT /create-card, /login, /signup, /dashboard, /my-orders or any other
+  // private or post-checkout route. /create-card is behind the login gate in
+  // proxy.ts and disallowed in robots.ts, so Googlebot only ever sees the
+  // login page there. Every path in this list must be public, indexable and
+  // not disallowed in robots.ts.
   { path: '/cards', priority: 0.9, changeFrequency: 'weekly' },
-  { path: '/products', priority: 0.9, changeFrequency: 'weekly' },
 
   { path: '/services', priority: 0.8, changeFrequency: 'monthly' },
   { path: '/how-to-use', priority: 0.8, changeFrequency: 'monthly' },
@@ -57,7 +54,9 @@ export const revalidate = 60;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const staticEntries: MetadataRoute.Sitemap = routes.map(({ path, priority, changeFrequency }) => ({
-    url: `${SEO_ORIGIN}${path}`,
+    // Homepage as "https://tapvyo.in" with no trailing slash — the exact form
+    // its canonical tag renders, and the form the JSON-LD @ids use.
+    url: path === '/' ? SEO_ORIGIN : `${SEO_ORIGIN}${path}`,
     changeFrequency,
     priority,
   }));

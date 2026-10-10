@@ -15,9 +15,9 @@ import { listPublishedTags } from '@/lib/blog/queries';
  * matters: the crawler should still walk through to the posts it lists.
  *
  * The threshold lifts itself as the blog grows. Nothing needs editing when a
- * tag reaches its third post; the next build simply includes it.
+ * tag reaches its fifth post; the next build simply includes it.
  */
-export const MIN_POSTS_FOR_INDEXABLE_TAG = 3;
+export const MIN_POSTS_FOR_INDEXABLE_TAG = 5;
 
 export function isIndexableTag(postCount: number): boolean {
   return postCount >= MIN_POSTS_FOR_INDEXABLE_TAG;

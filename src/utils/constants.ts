@@ -37,7 +37,6 @@ export const ROUTES = {
   ABOUT: '/about-us',
   BLOG: '/blog',
   HOW_TO_USE: '/how-to-use',
-  PRODUCTS: '/products',
   SERVICES: '/services',
   // /order is a permanent redirect to /create-card (see next.config.ts).
   // CTAs point at the canonical route directly so there is no extra hop.

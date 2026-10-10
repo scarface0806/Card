@@ -2,7 +2,7 @@ import { CANONICAL_ORIGIN, SITE_DESCRIPTION, SITE_NAME } from '@/lib/site-config
 import { BUSINESS } from '@/lib/site';
 
 /**
- * LocalBusiness + WebSite + Product structured data, emitted once from the root
+ * LocalBusiness + WebSite structured data, emitted once from the root
  * layout.
  *
  * LocalBusiness rather than plain Organization: it is a subtype of
@@ -72,32 +72,9 @@ export default function JsonLd() {
     publisher: { '@id': `${CANONICAL_ORIGIN}/#organization` },
   };
 
-  const product = {
-    '@type': 'Product',
-    '@id': `${CANONICAL_ORIGIN}/#product`,
-    name: 'Tapvyo NFC Digital Business Card',
-    description:
-      'An NFC business card that shares your contact details with a single tap, bundled with a free lifetime digital profile page.',
-    brand: { '@id': `${CANONICAL_ORIGIN}/#organization` },
-    category: 'Business Cards',
-    url: `${CANONICAL_ORIGIN}/cards`,
-    // Prices come from the product catalogue; 599 is the entry price every
-    // fallback design carries. No aggregateRating is claimed here - see the
-    // handover note about the "4.9/5" figure.
-    offers: {
-      '@type': 'AggregateOffer',
-      priceCurrency: 'INR',
-      lowPrice: '599',
-      highPrice: '799',
-      offerCount: '6',
-      availability: 'https://schema.org/InStock',
-      seller: { '@id': `${CANONICAL_ORIGIN}/#organization` },
-    },
-  };
-
   const graph = {
     '@context': 'https://schema.org',
-    '@graph': [organization, website, product],
+    '@graph': [organization, website],
   };
 
   return (

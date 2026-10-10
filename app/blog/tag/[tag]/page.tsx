@@ -3,6 +3,7 @@ import BlogListing from '@/components/blog/BlogListing';
 import { listPublishedTags } from '@/lib/blog/queries';
 import { pageMetadata } from '@/lib/page-metadata';
 import { SITE_NAME } from '@/lib/site';
+import { tagLabel } from '@/lib/blog/seo';
 import { isIndexableTag, publishedPostCountForTag } from '@/lib/blog/tag-indexing';
 
 export const revalidate = 60;
@@ -23,8 +24,9 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const count = await publishedPostCountForTag(tag);
 
   const base = pageMetadata({
-    title: `${tag} posts`,
-    description: `Every ${SITE_NAME} article tagged "${tag}" — guides and notes on NFC cards, digital profiles and networking.`,
+    // "NFC Articles", not "nfc posts": the template appends " | Tapvyo".
+    title: `${tagLabel(tag)} Articles`,
+    description: `Every ${SITE_NAME} article tagged "${tagLabel(tag)}" — guides and notes on NFC cards, digital profiles and networking.`,
     path: `/blog/tag/${encodeURIComponent(tag)}`,
   });
 

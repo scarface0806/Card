@@ -19,6 +19,8 @@ export const dynamic = 'force-dynamic';
 export const metadata: Metadata = {
   title: 'Draft preview',
   robots: { index: false, follow: false, nocache: true },
+  // Otherwise inherited from the root layout: canonical "/".
+  alternates: { canonical: null },
 };
 
 type PageProps = {

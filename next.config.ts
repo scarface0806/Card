@@ -36,6 +36,13 @@ const nextConfig: NextConfig = {
       // that supports ?template=. /order carried no functionality of its own.
       { source: "/order", destination: "/create-card", permanent: true },
 
+      // /products and /cards both listed the same catalogue from the same
+      // Product table, so the two competed as duplicates. /cards is the main
+      // page: it is server-rendered with every design, while /products loaded
+      // at most six on the client. An explicit 301 rather than `permanent`
+      // (308) because a 301 was asked for; search engines treat them the same.
+      { source: "/products", destination: "/cards", statusCode: 301 },
+
       // ---------------------------------------------------------------------
       // DOMAIN MIGRATION -> tapvyo.in
       //

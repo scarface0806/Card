@@ -5,6 +5,7 @@ import prisma from "@/lib/prisma";
 import { adminListQuerySchema, postWriteSchema } from "@/lib/blog/schemas";
 import { listAdminPosts } from "@/lib/blog/queries";
 import { buildPostData, resolveSlug } from "@/lib/blog/persist";
+import { canonicalUrlError } from "@/lib/blog/seo";
 import { toAdminPostRow } from "@/lib/blog/types";
 import { previewToken } from "@/lib/blog/tokens";
 
@@ -46,6 +47,12 @@ async function createHandler(request: NextRequest) {
     }
 
     const slug = await resolveSlug(parsed.data.slug, parsed.data.title);
+
+    // Checked against the slug the post will actually get, after resolveSlug
+    // has de-duplicated it.
+    const canonicalError = canonicalUrlError(parsed.data.canonicalUrl, slug);
+    if (canonicalError) return errorResponse(canonicalError, 400);
+
     const post = await prisma.post.create({
       data: buildPostData(parsed.data, slug),
     });

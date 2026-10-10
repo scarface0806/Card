@@ -12,6 +12,7 @@ import {
   resolveSlug,
 } from "@/lib/blog/persist";
 import { toAdminPostRow, toPostDetail } from "@/lib/blog/types";
+import { canonicalUrlError } from "@/lib/blog/seo";
 import { previewToken } from "@/lib/blog/tokens";
 import type { Post } from "@prisma/client";
 
@@ -89,6 +90,12 @@ async function updateHandler(request: NextRequest, _user: unknown, context?: Rou
     }
 
     const slug = await resolveSlug(merged.data.slug, merged.data.title, id);
+
+    // Validated on the merged record, so a post already holding a bad override
+    // has to have it corrected or cleared on its next save.
+    const canonicalError = canonicalUrlError(merged.data.canonicalUrl, slug);
+    if (canonicalError) return errorResponse(canonicalError, 400);
+
     const data = buildPostData(merged.data, slug, existing);
 
     const updated = await prisma.post.update({ where: { id }, data });

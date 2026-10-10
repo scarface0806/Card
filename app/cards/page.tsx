@@ -18,6 +18,7 @@
  * the window is what it is.
  */
 
+import ProductJsonLd from '@/components/ProductJsonLd';
 import { getCardDesigns } from '@/lib/products/getCardDesigns';
 
 import CardsClient from './CardsClient';
@@ -34,5 +35,10 @@ export const revalidate = 300;
 export default async function CardsPage() {
   const cardDesigns = await getCardDesigns();
 
-  return <CardsClient initialDesigns={cardDesigns} />;
+  return (
+    <>
+      <ProductJsonLd designs={cardDesigns} />
+      <CardsClient initialDesigns={cardDesigns} />
+    </>
+  );
 }

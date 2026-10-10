@@ -11,6 +11,7 @@
  * /cards, so the two pages share one database read per revalidate window.
  */
 
+import ProductJsonLd from '@/components/ProductJsonLd';
 import { getCardDesigns } from '@/lib/products/getCardDesigns';
 
 import HomeClient from './HomeClient';
@@ -26,5 +27,10 @@ export const revalidate = 300;
 export default async function Home() {
   const cardDesigns = await getCardDesigns();
 
-  return <HomeClient initialDesigns={cardDesigns} />;
+  return (
+    <>
+      <ProductJsonLd designs={cardDesigns} />
+      <HomeClient initialDesigns={cardDesigns} />
+    </>
+  );
 }

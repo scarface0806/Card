@@ -407,12 +407,12 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
               <Counter value={form.metaDescription.length} limit={DESCRIPTION_LIMIT} />
             </Field>
 
-            <Field label="Canonical URL" hint="Only set this if the post was first published elsewhere.">
+            <Field label="Canonical URL" hint="Leave empty. The canonical is always this post's own URL; any other value is rejected on save.">
               <input
                 className="admin-form-input"
                 value={form.canonicalUrl}
                 onChange={(event) => set('canonicalUrl', event.target.value)}
-                placeholder="https://example.com/original-article"
+                placeholder="Leave empty"
                 inputMode="url"
               />
             </Field>
