@@ -3,6 +3,7 @@ import { Inter, Fraunces, Manrope, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 import JsonLd from '@/components/JsonLd';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
+import MetaPixel from '@/components/MetaPixel';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site-config';
 import { SITE_URL } from '@/lib/site';
 
@@ -175,6 +176,7 @@ export default function RootLayout({
                     the component. Placed last so it can never sit ahead of page
                     content in the document order. */}
                 <GoogleAnalytics />
+                <MetaPixel />
             </body>
         </html>
     );

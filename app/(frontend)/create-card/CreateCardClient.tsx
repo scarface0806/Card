@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useForm, FormProvider, type FieldErrors } from 'react-hook-form';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
@@ -26,6 +26,7 @@ import {
   type CreateCardFormValues,
 } from '@/lib/validations/createCardFormSchema';
 import { descriptionLines } from '@/lib/products/presentation';
+import { storePendingPurchase, trackEvent, type AnalyticsItem } from '@/lib/analytics';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   loading: () => (
@@ -60,6 +61,8 @@ export default function CreateCardClient({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
   const router = useRouter();
+  // begin_checkout is sent once per visit, not again on every payment retry.
+  const checkoutTrackedRef = useRef(false);
   const { initiatePayment, isLoading: isPaymentLoading, status: paymentStatus } = useRazorpayPayment();
 
   const methods = useForm({
@@ -138,6 +141,19 @@ export default function CreateCardClient({
     setIsSubmitting(true);
     setPaymentError(null);
 
+    // One card per order. `product.price` is what the server charges.
+    const analyticsItems: AnalyticsItem[] = [
+      { item_id: product.id, item_name: product.name, price: product.price, quantity: 1 },
+    ];
+    if (!checkoutTrackedRef.current) {
+      checkoutTrackedRef.current = true;
+      trackEvent('begin_checkout', {
+        currency: 'INR',
+        value: product.price,
+        items: analyticsItems,
+      });
+    }
+
     try {
       const uploads = {
         profileImage: data.uploads?.profileImage?.[0],
@@ -180,6 +196,13 @@ export default function CreateCardClient({
       // server-side. A cancelled or failed payment leaves the order PENDING.
       if (paymentResponse.success) {
         localStorage.setItem('lastOrderId', orderId);
+        // Sent by /order-success, once - see trackPurchaseOnce.
+        storePendingPurchase({
+          transaction_id: orderId,
+          value: product.price,
+          currency: 'INR',
+          items: analyticsItems,
+        });
         router.push(`${ROUTES.ORDER_SUCCESS}?orderId=${orderId}`);
         return;
       }

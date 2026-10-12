@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ADDRESS, PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-config';
 import { contactFormSchema, type ContactFormValues } from '@/lib/validations/contactFormSchema';
+import { trackEvent } from '@/lib/analytics';
 
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
@@ -88,6 +89,7 @@ export default function ContactUsPage() {
         throw new Error(payload.error || payload.message || 'Failed to submit message');
       }
 
+      trackEvent('generate_lead', { form_type: 'contact' });
       setSubmitted(true);
       reset();
       setTimeout(() => setSubmitted(false), 3000);

@@ -1,4 +1,14 @@
+'use client';
+
+import { useEffect } from 'react';
+import { usePathname } from 'next/navigation';
 import Script from 'next/script';
+import {
+  GA_MEASUREMENT_ID,
+  handleContactLinkClick,
+  isAnalyticsExcludedPath,
+  setAnalyticsDisabled,
+} from '@/lib/analytics';
 
 /**
  * GA4, loaded the Next.js way.
@@ -29,19 +39,38 @@ import Script from 'next/script';
  */
 
 /**
- * Measurement ID. Public by design - it is visible in the page source of every
- * site that uses GA4, and identifies the property, not an account.
+ * Measurement ID: GA_MEASUREMENT_ID in src/lib/analytics.ts. Public by design -
+ * it is visible in the page source of every site that uses GA4, and identifies
+ * the property, not an account. Overridable via NEXT_PUBLIC_GA_ID, but it
+ * defaults to the real ID so analytics cannot silently stop working because an
+ * env var was missed on a deploy.
  *
- * Overridable via NEXT_PUBLIC_GA_ID so a second property (a staging one, say)
- * can be pointed at without editing code, but it defaults to the real ID so
- * analytics cannot silently stop working because an env var was missed on a
- * deploy.
+ * EXCLUDED ROUTES: /admin and /dashboard, and everything under them. Landing
+ * on one directly never loads gtag. Navigating to one client-side after gtag
+ * has loaded on a public page sets Google's documented `ga-disable-<ID>` flag,
+ * which makes gtag drop every hit - including the automatic page_view GA4
+ * sends on history changes - until the visitor is back on a public page.
  */
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-PMLBD2Q7ZQ';
 
 export default function GoogleAnalytics() {
+  const pathname = usePathname();
+  const excluded = isAnalyticsExcludedPath(pathname);
+
+  // Set during render, not in an effect: the router pushes the new URL in an
+  // insertion effect, and gtag's history listener must already see the flag.
+  setAnalyticsDisabled(excluded);
+
+  // whatsapp_click / phone_click / email_click for every such link on the site.
+  // trackEvent itself skips excluded routes and a missing gtag.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== 'production') return;
+    document.addEventListener('click', handleContactLinkClick, { capture: true });
+    return () => document.removeEventListener('click', handleContactLinkClick, { capture: true });
+  }, []);
+
   if (process.env.NODE_ENV !== 'production') return null;
   if (!GA_MEASUREMENT_ID) return null;
+  if (excluded) return null;
 
   return (
     <>

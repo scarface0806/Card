@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, User, Building2, Phone, Palette } from 'lucide-react';
+import { trackEvent } from '@/lib/analytics';
 
 export type ContactSource = 'custom' | 'school' | 'business' | 'corporate' | 'general';
 
@@ -91,6 +92,8 @@ export default function ContactModal({ isOpen, onClose, source }: ContactModalPr
         throw new Error(payload.error || 'Failed to submit inquiry');
       }
 
+      // Every source here is a bulk order or quote enquiry.
+      trackEvent('generate_lead', { form_type: 'bulk_order' });
       setFormData({ fullName: '', companyName: '', contactNumber: '', message: '', hasOwnDesign: '', email: '' });
       onClose();
     } catch (error) {

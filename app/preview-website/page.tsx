@@ -36,6 +36,7 @@ import {
   ShareProfileButton,
 } from '@/components/profile/SaveContactButton';
 import type { VCardContact } from '@/lib/vcard';
+import { trackEvent } from '@/lib/analytics';
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
@@ -201,6 +202,7 @@ export default function PreviewWebsitePage() {
         );
       }
 
+      trackEvent('generate_lead', { form_type: 'contact' });
       form.reset();
       setSubmitState({ status: 'success' });
     } catch (error) {

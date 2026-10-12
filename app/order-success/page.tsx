@@ -2,7 +2,7 @@
 
 import { PHONE_DISPLAY, PHONE_E164, SUPPORT_EMAIL } from '@/lib/site-config';
 
-import { Suspense } from 'react';
+import { Suspense, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import MotionLink from '@/components/MotionLink';
 import Navbar from '@/layouts/Navbar';
@@ -10,10 +10,18 @@ import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 import { CheckCircle, Mail, Phone, Home, Layout } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
+import { trackPurchaseOnce } from '@/lib/analytics';
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
-  const orderId = searchParams.get('orderId') || 'ORD-XXXX-XXXX';
+  const orderIdParam = searchParams.get('orderId');
+  const orderId = orderIdParam || 'ORD-XXXX-XXXX';
+
+  // GA4 purchase. Sent only for an order checkout just paid for, and only
+  // once per order: a refresh, or the /dashboard link back here, sends nothing.
+  useEffect(() => {
+    if (orderIdParam) trackPurchaseOnce(orderIdParam);
+  }, [orderIdParam]);
 
   const containerVariants = {
     hidden: { opacity: 0, y: 10 },
