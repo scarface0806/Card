@@ -12,12 +12,11 @@ import { motion } from 'framer-motion';
  * date the visitor loaded it, and `new Date()` in a client component is a
  * hydration mismatch whenever server and browser disagree on timezone.
  *
- * This page's wording is unchanged by the profile-update rule; the date below
- * is simply the value the old `new Date()` was already rendering.
+ * Last changed to add section 4 (Google Analytics and the Meta Pixel).
  *
  * BUMP THIS whenever the wording below changes.
  */
-const LAST_UPDATED = 'September 5, 2026';
+const LAST_UPDATED = 'October 12, 2026';
 
 export default function PrivacyPolicyPage() {
   const sections = [
@@ -37,17 +36,22 @@ export default function PrivacyPolicyPage() {
         'Tapvyo uses the collected data for various purposes: to provide and maintain our service, to notify you about changes to our service, to allow you to participate in interactive features, to provide customer support, to gather analysis or valuable information to improve our service, to monitor the usage of our service, and to detect, prevent and address technical and security issues.',
     },
     {
-      title: '4. Security',
+      title: '4. Cookies, Analytics and Advertising',
+      content:
+        'Tapvyo uses Google Analytics to understand how our website is used, and the Meta Pixel to measure and improve our ads on Facebook and Instagram. These tools may use cookies and collect information such as the pages you visit, your device and browser type, your approximate location, and actions you take on our website, such as placing an order or clicking to contact us. We do not sell your personal information. You can control or delete cookies through your browser settings, opt out of Google Analytics by installing the Google Analytics Opt-out Browser Add-on (tools.google.com/dlpage/gaoptout), and manage how ads are shown to you in your Facebook and Instagram ad preference settings.',
+    },
+    {
+      title: '5. Security',
       content:
         'The security of your data is important to us but remember that no method of transmission over the Internet or method of electronic storage is 100% secure. While we strive to use commercially acceptable means to protect your personal data, we cannot guarantee its absolute security.',
     },
     {
-      title: '5. Changes to This Privacy Policy',
+      title: '6. Changes to This Privacy Policy',
       content:
         'We may update our Privacy Policy from time to time. We will notify you of any changes by posting the new Privacy Policy on this page and updating the "effective date" at the top of this Privacy Policy. You are advised to review this Privacy Policy periodically for any changes.',
     },
     {
-      title: '6. Contact Us',
+      title: '7. Contact Us',
       content:
         `If you have any questions about this Privacy Policy, please contact us at: ${SUPPORT_EMAIL} or ${PHONE_DISPLAY}`,
     },
