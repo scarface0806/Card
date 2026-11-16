@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 type PageProps = { params: Promise<{ tag: string }> };
 
-export function readTag(raw: string): string {
+function readTag(raw: string): string {
   return decodeURIComponent(raw).trim().toLowerCase();
 }
 

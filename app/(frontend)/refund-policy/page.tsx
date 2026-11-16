@@ -28,13 +28,18 @@
 
 import type { ReactNode } from 'react';
 
-import { PHONE_DISPLAY, SUPPORT_EMAIL, whatsappLink } from '@/lib/site-config';
+import {
+  PHONE_DISPLAY,
+  REPLACEMENT_GUARANTEE_DAYS,
+  SUPPORT_EMAIL,
+  whatsappLink,
+} from '@/lib/site-config';
 
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
 import { motion } from 'framer-motion';
 
-const LAST_UPDATED = 'September 5, 2026';
+const LAST_UPDATED = 'November 16, 2026';
 
 type Section = {
   title: string;
@@ -65,10 +70,22 @@ export default function RefundPolicyPage() {
       content:
         'Custom-design orders and bulk orders of 25 cards or more are non-cancellable and non-refundable once you have approved the design proof. Design approval is the point at which we commit materials and production time to your order. Please check the proof carefully - spelling of names, designations, phone numbers and company details - before approving it, because corrections after approval require a new order.',
     },
+    // TODO(owner): review this section before publishing. It is DRAFT wording
+    // for the 30-day NFC replacement guarantee advertised next to every "Get
+    // your card" button (REPLACEMENT_GUARANTEE_TEXT in site-config.ts). Check
+    // the window, the 48-hour transit-damage deadline, who pays return
+    // shipping, and whether you want the old card back. Kept as section 5 so
+    // the "section 6 / 9" cross-references elsewhere on this page still hold.
     {
-      title: '5. Damaged, defective or non-working cards',
-      content:
-        'If your card arrives physically damaged, or the NFC chip does not respond when tapped, we will replace it free of charge. Replacement, not a refund, is the remedy for these cases - you receive a working card at no additional cost, including shipping. To claim a replacement, report the issue within 48 hours [CONFIRM] of delivery using the contact details in section 9.',
+      title: `5. Free replacement guarantee and damaged cards`,
+      content: `NFC not working? We replace it free within ${REPLACEMENT_GUARANTEE_DAYS} days. If the NFC chip on your card does not respond when tapped within ${REPLACEMENT_GUARANTEE_DAYS} days of delivery, we will send you a new card free of charge, including shipping. Replacement, not a refund, is the remedy for these cases - you receive a working card at no additional cost.`,
+      bullets: [
+        `The ${REPLACEMENT_GUARANTEE_DAYS}-day window starts on the delivery date shown in your order tracking.`,
+        'It covers a chip that does not respond on a phone with NFC hardware switched on. Your card also carries a QR code on the back, which opens the same profile on any phone.',
+        'If your card arrives physically damaged in transit, report it within 48 hours [CONFIRM] of delivery so we can file a claim with the courier.',
+        'Damage caused after delivery is not covered - see section 7.',
+        'To claim, contact us using the details in section 9 with your Order ID and the evidence described in section 6.',
+      ],
     },
     {
       title: '6. Evidence required for a damage claim',

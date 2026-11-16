@@ -7,6 +7,7 @@ import { User, Globe, Wifi, ArrowUpRight, MessageCircle } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/utils/constants';
 import { PHONE_DISPLAY, whatsappLink } from '@/lib/site-config';
+import ReplacementGuarantee from '@/components/trust/ReplacementGuarantee';
 
 export default function HowToUsePage() {
   const steps = [
@@ -259,6 +260,8 @@ export default function HowToUsePage() {
                     View card designs
                   </Link>
                 </div>
+
+                <ReplacementGuarantee className="mt-4 lg:justify-end" />
 
                 <p className="tv-small mt-5 lg:text-right">
                   Need something customised?{' '}

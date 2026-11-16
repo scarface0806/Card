@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, X } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
+import { REPLACEMENT_GUARANTEE_DAYS } from '@/lib/site-config';
 
 /**
  * Sticky Mobile CTA
@@ -46,7 +47,12 @@ export default function StickyMobileCTA() {
               {/* Value prop */}
               <div className="flex-1 min-w-0">
                 <p className="tv-h4 truncate">Ready when you are</p>
-                <p className="tv-small truncate">No renewal fees</p>
+                {/* Room for one short line only, so the replacement guarantee
+                    takes it - the hero and every in-page CTA carry the full
+                    REPLACEMENT_GUARANTEE_TEXT from site-config. */}
+                <p className="tv-small truncate">
+                  Free NFC replacement · {REPLACEMENT_GUARANTEE_DAYS} days
+                </p>
               </div>
 
               {/* Tier 1 gilded, same label as every other primary action. */}

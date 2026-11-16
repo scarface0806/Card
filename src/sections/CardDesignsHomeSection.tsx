@@ -11,6 +11,7 @@ import CardFlipImage from '@/components/ui/CardFlipImage';
 import CardArtwork from '@/components/ui/CardArtwork';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import { ROUTES } from '@/utils/constants';
+import ProductAssurances from '@/components/trust/ProductAssurances';
 import { cardAspectClass } from '@/lib/products/orientation';
 import { ContactSource } from '@/components/ContactModal';
 
@@ -257,6 +258,7 @@ export default function CardDesignsHomeSection({ onContactClick, initialDesigns 
                 <p className="tv-body tv-measure-body">
                   One-time payment. No renewal fees. Profile updates ₹49 each.
                 </p>
+                <ProductAssurances show={['qr', 'guarantee']} className="mt-5" />
               </div>
 
               <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end items-start sm:items-center gap-x-6 gap-y-4">

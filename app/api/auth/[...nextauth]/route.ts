@@ -9,7 +9,7 @@ const nextAuthSecret = process.env.NEXTAUTH_SECRET;
 // Only configure NextAuth when all required env vars are present
 const isNextAuthConfigured = !!(googleClientId && googleClientSecret && nextAuthSecret);
 
-export const authOptions: NextAuthOptions = {
+const authOptions: NextAuthOptions = {
   providers: isNextAuthConfigured
     ? [
         GoogleProvider({

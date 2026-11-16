@@ -5,6 +5,7 @@ import { CreditCard, ShieldCheck } from 'lucide-react';
 import type { SelectedProduct } from '@/lib/products/selection';
 import { formatPrice } from '@/utils/formatPrice';
 import { ROUTES } from '@/utils/constants';
+import ProductAssurances from '@/components/trust/ProductAssurances';
 
 interface PaymentFormProps {
   /**
@@ -97,6 +98,10 @@ export default function PaymentForm({ product }: PaymentFormProps) {
         <p className="tv-small mt-3">
           One-time payment · No renewals · Profile updates ₹49 each
         </p>
+
+        {/* Delivery time, QR backup and replacement guarantee. Mobile only:
+            on desktop the order rail beside the form already shows them. */}
+        <ProductAssurances className="mt-4 lg:hidden" />
       </section>
 
       {/* Payment method — Razorpay Checkout covers every method natively,

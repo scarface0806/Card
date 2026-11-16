@@ -27,6 +27,7 @@ import {
 } from '@/lib/validations/createCardFormSchema';
 import { descriptionLines } from '@/lib/products/presentation';
 import { storePendingPurchase, trackEvent, type AnalyticsItem } from '@/lib/analytics';
+import ProductAssurances from '@/components/trust/ProductAssurances';
 
 const CardLivePreview = dynamic(() => import('@/components/CardLivePreview'), {
   loading: () => (
@@ -408,6 +409,12 @@ export default function CreateCardClient({
                     </li>
                   ))}
                 </ul>
+
+                <hr className="tv-rule my-5" />
+
+                {/* Mobile gets the same three lines in step 5's summary
+                    (PaymentForm), since this rail is desktop-only. */}
+                <ProductAssurances />
 
                 <p className="tv-mono mt-5">Preview updates as you type</p>
               </div>

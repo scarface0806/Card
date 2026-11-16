@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import SelectionNotice from './SelectionNotice';
+import ProductAssurances from '@/components/trust/ProductAssurances';
 import { cardAspectClass } from '@/lib/products/orientation';
 
 /**
@@ -168,6 +169,11 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
             <Suspense fallback={null}>
               <SelectionNotice />
             </Suspense>
+
+            {/* Delivery, QR backup and replacement guarantee, stated once for
+                the whole catalogue rather than repeated on every tile. Values
+                come from site-config.ts. */}
+            <ProductAssurances className="mb-8 md:mb-10 md:flex md:flex-wrap md:gap-x-8 md:space-y-0" />
 
             {/* Products are fetched client-side, so the skeleton is real: there
                 is nothing to show until they arrive. The hook no longer seeds
@@ -400,7 +406,6 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
               <p className="tv-body tv-measure-body">
                 Our team will help you pick the right card for your brand.
               </p>
-              <p className="tv-mono mt-5">Trusted by 10,000+ professionals worldwide</p>
             </div>
 
             <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end items-start sm:items-center gap-x-6 gap-y-4">

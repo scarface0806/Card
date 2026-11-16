@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import Link from 'next/link';
 import { ROUTES } from '@/utils/constants';
-import { whatsappLink } from '@/lib/site-config';
+import { DELIVERY_TEXT, QR_BACKUP_TEXT, whatsappLink } from '@/lib/site-config';
 
 // `content` is usually a plain string. The update answer needs a real WhatsApp
 // link inside the prose, so the field is a ReactNode and the panel renders it
@@ -20,8 +20,14 @@ const faqItems: { id: string; title: string; content: React.ReactNode }[] = [
   {
     id: 'q2',
     title: 'Will this work with all phones?',
-    content:
-      'Yes! NFC is compatible with most modern smartphones including all iPhones (iPhone 6 and later) and Android devices. Your customers simply tap their phone to their card to access your information.',
+    // "All iPhones (iPhone 6 and later)" was wrong: the iPhone 6 cannot read
+    // NFC tags, and only the XS / XR and newer read them without an app.
+    content: `Most modern smartphones read it with a tap: iPhone XS / XR and newer, and most Android phones with NFC switched on. ${QR_BACKUP_TEXT}`,
+  },
+  {
+    id: 'q2b',
+    title: "What if a phone doesn't have NFC?",
+    content: `${QR_BACKUP_TEXT} They point the phone camera at the code and your profile opens, exactly as it does with a tap.`,
   },
   {
     id: 'q3',
@@ -52,13 +58,14 @@ const faqItems: { id: string; title: string; content: React.ReactNode }[] = [
     id: 'q5',
     title: 'What about security and privacy?',
     content:
-      'We use bank-level encryption to protect your data. You maintain full control over what information is shared. Your personal data is never shared with third parties.',
+      'Your profile shows only the details you choose to publish. You maintain full control over what information is shared. Your personal data is never shared with third parties.',
   },
   {
     id: 'q6',
     title: 'How long does delivery take?',
-    content:
-      'Standard delivery takes 7-10 business days within India. Express delivery (3-5 days) is available for an additional charge. International shipping is available on request.',
+    // From DELIVERY_TEXT in site-config.ts, so it always matches /cards and
+    // checkout. The old "7-10 business days / express 3-5" text contradicted it.
+    content: `${DELIVERY_TEXT}. International shipping is available on request.`,
   },
 ];
 

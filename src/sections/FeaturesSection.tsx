@@ -4,6 +4,7 @@ import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
 import { Smartphone, Zap, Shield, Globe, BarChart3, Lock, ArrowUpRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
+import ReplacementGuarantee from '@/components/trust/ReplacementGuarantee';
 
 // `span` drives the bento layout: the first tile is wide, the rest sit in a
 // tighter rhythm beside it, so this reads as a composed block rather than
@@ -35,9 +36,11 @@ const features = [
     span: '',
   },
   {
+    // Was "Encrypted - bank-level encryption", a claim nothing in the stack
+    // backs up. This states what is actually true.
     icon: Shield,
-    title: 'Encrypted',
-    description: 'Bank-level encryption protects your personal information.',
+    title: 'Your details, your call',
+    description: 'Your profile shows only the details you choose to publish.',
     span: '',
   },
   {
@@ -131,9 +134,12 @@ export default function FeaturesSection() {
           {/* The old line read "No hidden charges. No renewal fees." Profile
               updates are ₹49 each, so the fee is stated here rather than left
               for the customer to discover later. */}
-          <p className="tv-small">
-            One-time payment. No renewal fees. Profile updates ₹49 each.
-          </p>
+          <div className="space-y-1.5">
+            <p className="tv-small">
+              One-time payment. No renewal fees. Profile updates ₹49 each.
+            </p>
+            <ReplacementGuarantee />
+          </div>
         </motion.div>
       </div>
     </section>

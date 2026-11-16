@@ -1,8 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowUpRight, Star } from 'lucide-react';
+import { ArrowUpRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
+import TrustStats from '@/components/trust/TrustStats';
+import ReplacementGuarantee from '@/components/trust/ReplacementGuarantee';
 import NFCCard, { NFC_CARD_DEMO } from '@/components/ui/NFCCard';
 
 /* The staggered fade-up variants that used to live here were removed with the
@@ -50,7 +52,7 @@ export default function HeroSection() {
               profile in seconds — no apps, no typing, nothing to install.
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 mb-10">
+            <div className="flex flex-col sm:flex-row gap-3 mb-4">
               {/* Plain Links. The hover lift these had is already in the
                   .tv-btn CSS (transform: translateY(-2px) on :hover), so the
                   motion wrappers were paying a JS cost to duplicate a rule the
@@ -74,16 +76,12 @@ export default function HeroSection() {
               </Link>
             </div>
 
-            {/* Social proof. Figures are unchanged. */}
-            <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
-              <span className="flex gap-0.5" aria-hidden="true">
-                {[...Array(5)].map((_, i) => (
-                  <Star key={i} className="w-4 h-4 fill-[#C9A961] text-[#C9A961]" />
-                ))}
-              </span>
-              <span className="tv-mono !text-[#F1F3F1] !tracking-[0.08em]">4.9/5</span>
-              <span className="tv-small">Trusted by 10,000+ professionals</span>
-            </div>
+            <ReplacementGuarantee className="mb-10" />
+
+            {/* Social proof from TRUST_STATS in site-config.ts. Renders nothing
+                until a real value is filled in - the old "4.9/5, trusted by
+                10,000+ professionals" line had no source and was removed. */}
+            <TrustStats />
           </div>
 
           {/* RIGHT - The object itself. Also plain: this held the card image,

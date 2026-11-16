@@ -4,6 +4,7 @@ import MotionLink from '@/components/MotionLink';
 import { motion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
 import { ROUTES } from '@/utils/constants';
+import ReplacementGuarantee from '@/components/trust/ReplacementGuarantee';
 
 const steps = [
   {
@@ -79,6 +80,7 @@ export default function HowItWorksSection() {
                   <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
                 </MotionLink>
                 <p className="tv-small mt-3">Takes less than 5 minutes.</p>
+                <ReplacementGuarantee className="mt-1.5" />
               </div>
             </div>
           </motion.div>
@@ -113,6 +115,7 @@ export default function HowItWorksSection() {
               <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
             </MotionLink>
             <p className="tv-small mt-3">Takes less than 5 minutes.</p>
+            <ReplacementGuarantee className="mt-1.5" />
           </div>
         </div>
       </div>

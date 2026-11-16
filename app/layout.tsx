@@ -4,6 +4,7 @@ import './globals.css';
 import JsonLd from '@/components/JsonLd';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import MetaPixel from '@/components/MetaPixel';
+import FloatingWhatsApp from '@/components/FloatingWhatsApp';
 import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from '@/lib/site-config';
 import { SITE_URL } from '@/lib/site';
 
@@ -171,6 +172,8 @@ export default function RootLayout({
         <html lang="en" suppressHydrationWarning>
             <body className={`${inter.variable} ${fraunces.variable} ${manrope.variable} ${jetbrainsMono.variable} antialiased`} suppressHydrationWarning>
                 {children}
+                {/* Hides itself on admin, dashboard and customer profile pages. */}
+                <FloatingWhatsApp />
                 <JsonLd />
                 {/* Renders nothing outside a production build - see the note in
                     the component. Placed last so it can never sit ahead of page

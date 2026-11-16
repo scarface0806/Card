@@ -358,7 +358,6 @@ export default function ServicesPage() {
                 From NFC cards to full-scale digital solutions — we help brands grow
                 faster and smarter.
               </p>
-              <p className="tv-mono mt-5">Trusted by 10,000+ professionals worldwide</p>
             </div>
 
             <div className="lg:col-span-5 flex flex-col sm:flex-row lg:justify-end gap-3">

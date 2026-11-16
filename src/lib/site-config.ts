@@ -119,17 +119,20 @@ export const WHATSAPP_NUMBER = '917871361025';
 export const PHONE_DISPLAY = '+91 78713 61025';
 
 /**
- * The public contact address. Confirmed by the business owner.
+ * The public contact address, set by the business owner.
  *
- * History matters here, because this value has been wrong twice. It was first
+ * History matters here, because this value has been wrong before. It was first
  * hello@tapvyo.com — not a mailbox, on a domain that is not registered. It was
- * then a guessed Gmail address without the "nfc". It is now the address the owner
- * actually reads, and the same one admin order notifications already went to.
+ * then a guessed Gmail address, then tapvyonfc@gmail.com. It is now an address
+ * on the site's own domain.
  *
- * Order confirmations tell customers to reply within 24 hours to correct what
- * gets printed, so a wrong value here silently loses print corrections.
+ * This one constant feeds the footer, contact and policy pages, JSON-LD, the
+ * order emails' reply-to (unless EMAIL_REPLY_TO overrides it) AND the admin
+ * order alerts (ADMIN_NOTIFICATION_EMAIL). Order confirmations tell customers to
+ * reply within 24 hours to correct what gets printed, so this mailbox must
+ * exist and be read, or print corrections and order alerts are silently lost.
  */
-export const SUPPORT_EMAIL = 'tapvyonfc@gmail.com';
+export const SUPPORT_EMAIL = 'hello@tapvyo.in';
 
 export const ADDRESS = {
   city: 'Madurai',
@@ -147,6 +150,73 @@ export function whatsappLink(
 ): string {
   return `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
+
+/** Prefilled text for the floating WhatsApp button shown site-wide. */
+export const WHATSAPP_FLOATING_MESSAGE = "Hi Tapvyo, I'd like to know more about NFC cards";
+
+/* ---------------------------------------------------------------------------
+   PROMISES AND SOCIAL PROOF
+
+   Everything the site claims about delivery, replacements, ratings and
+   customers lives here, so a claim is changed in one place and never asserted
+   anywhere it has not been checked. Only put REAL, verifiable values here.
+   --------------------------------------------------------------------------- */
+
+/** Delivery estimates in working days. Shown on /cards, checkout and the FAQ. */
+export const DELIVERY_DAYS = {
+  tamilNadu: '3-5',
+  restOfIndia: '5-8',
+} as const;
+
+export const DELIVERY_TEXT = `Delivered in ${DELIVERY_DAYS.tamilNadu} working days across Tamil Nadu, ${DELIVERY_DAYS.restOfIndia} days rest of India`;
+
+/** Every card carries a printed QR code that opens the same profile. */
+export const QR_BACKUP_TEXT =
+  'Every card has a QR code on the back, so it works even on phones without NFC.';
+
+/**
+ * Replacement guarantee. The full terms are section 5 of /refund-policy - keep
+ * the two in step if the window changes.
+ */
+export const REPLACEMENT_GUARANTEE_DAYS = 30;
+export const REPLACEMENT_GUARANTEE_TEXT = `NFC not working? Free replacement within ${REPLACEMENT_GUARANTEE_DAYS} days.`;
+
+export interface TrustStat {
+  /** e.g. "Cards delivered". */
+  label: string;
+  /** e.g. "1,200+". Leave EMPTY until you have a real number - an empty value hides the stat. */
+  value: string;
+}
+
+/**
+ * The stats strip under the homepage hero. A stat with an empty value is not
+ * rendered at all, and the strip disappears when every value is empty - so
+ * fill these in only with numbers you can stand behind.
+ */
+export const TRUST_STATS: TrustStat[] = [
+  { label: 'Google rating', value: '' },
+  { label: 'Cards delivered', value: '' },
+  { label: 'Businesses served', value: '' },
+];
+
+export interface Testimonial {
+  name: string;
+  /** e.g. "Real estate agent". */
+  role: string;
+  /** e.g. "Madurai". */
+  city: string;
+  quote: string;
+  /** Optional customer photo (Cloudinary URL recommended). */
+  photoUrl?: string;
+  /** Optional link to a video testimonial (YouTube, Instagram...). */
+  videoUrl?: string;
+}
+
+/**
+ * Real customer testimonials, with the customer's permission. The homepage
+ * section is hidden entirely while this list is empty.
+ */
+export const TESTIMONIALS: Testimonial[] = [];
 
 /**
  * Social profiles. `null` means "no confirmed profile" — callers MUST skip
