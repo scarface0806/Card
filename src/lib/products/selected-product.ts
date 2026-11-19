@@ -30,10 +30,13 @@ import {
   deriveCardColor,
   deriveCardTier,
   deriveFeatureBullets,
+  designFeeFor,
   effectivePrice,
   hasDiscount,
+  orderTotalFor,
   tierLabel,
 } from "./presentation";
+import { normalizeOrientation } from "./orientation";
 import type { SelectedProduct, SelectedProductResult } from "./selection";
 
 // Re-exported so server-side callers can keep importing everything from one
@@ -60,6 +63,9 @@ const PRODUCT_SELECT = {
   cardType: true,
   material: true,
   color: true,
+  orientation: true,
+  isCustomDesign: true,
+  designFee: true,
   isActive: true,
 } as const;
 
@@ -75,8 +81,15 @@ function toSelectedProduct(row: {
   cardType: string | null;
   material: string | null;
   color: string | null;
+  orientation: string | null;
+  isCustomDesign: boolean | null;
+  designFee: number | null;
 }): SelectedProduct {
-  const price = effectivePrice(row);
+  // `price` is the full amount charged - for a Customised Card, the card plus
+  // the design fee (orderTotalFor). cardPrice and designFee are the breakdown.
+  const price = orderTotalFor(row);
+  const cardPrice = effectivePrice(row);
+  const designFee = designFeeFor(row);
   const tier = deriveCardTier(row);
 
   return {
@@ -87,7 +100,15 @@ function toSelectedProduct(row: {
     tierLabel: tierLabel(tier),
     price,
     priceFormatted: formatPrice(price),
-    listPriceFormatted: hasDiscount(row) ? formatPrice(row.price) : null,
+    cardPrice,
+    cardPriceFormatted: formatPrice(cardPrice),
+    designFee,
+    designFeeFormatted: formatPrice(designFee),
+    isCustomDesign: row.isCustomDesign === true,
+    orientation: normalizeOrientation(row.orientation),
+    // Struck-through "was" price, on the same basis as `price`: the full list
+    // price plus the (undiscounted) design fee.
+    listPriceFormatted: hasDiscount(row) ? formatPrice(row.price + designFee) : null,
     description: row.description,
     imageUrl: row.images?.[0] || null,
     backImageUrl: row.backImage || null,

@@ -7,6 +7,7 @@ import { errorResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
 import { OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
 import { getMongoDb } from "@/lib/mongodb";
+import { ourCloudinaryCloudName, resolveCustomDesignOrder } from "@/lib/custom-card-artwork";
 import {
   SELECTED_PRODUCT_MESSAGES,
   getPurchasableProduct,
@@ -143,6 +144,8 @@ export async function POST(request: NextRequest) {
       website,
       paymentMethod,
       profileData,
+      customFrontImageUrl,
+      customBackImageUrl,
     } = parsed.data;
 
     // A SIGNED-IN CUSTOMER IS NOW REQUIRED TO PLACE AN ORDER.
@@ -183,11 +186,32 @@ export async function POST(request: NextRequest) {
 
     const product = productResult.product;
 
+    // Customised Card: both artwork URLs must be this customer's own uploads.
+    // For every other product this returns all-null fields and the body's
+    // artwork URLs (if any) are ignored.
+    const customDesign = resolveCustomDesignOrder({
+      product,
+      frontUrl: customFrontImageUrl,
+      backUrl: customBackImageUrl,
+      userId: user.id,
+      cloudName: ourCloudinaryCloudName(),
+    });
+    if (!customDesign.ok) {
+      return errorResponse(customDesign.error, 400);
+    }
+
     const qty = quantity ?? 1;
-    const unitPrice = product.price;
-    const subtotal = unitPrice * qty;
+    // The card alone. `product.price` includes any design fee (it is the
+    // all-in amount shown at checkout), so the line item uses cardPrice and
+    // the fee is added once per order below. For a regular product cardPrice
+    // equals price and designFee is 0, so these numbers are unchanged.
+    const unitPrice = product.cardPrice;
+    const designFee = customDesign.fields.designFee ?? 0;
+    const subtotal = unitPrice * qty + designFee;
     const shipping = 0; // Free shipping
     const tax = 0;
+    // Order.total is what /api/payment/order charges: 699 for a 599 card
+    // with a 100 design fee.
     const total = subtotal + shipping + tax;
 
     const orderItem = {
@@ -195,7 +219,7 @@ export async function POST(request: NextRequest) {
       productName: product.name,
       quantity: qty,
       price: unitPrice,
-      total: subtotal,
+      total: unitPrice * qty,
     };
 
     const orderData = {
@@ -222,6 +246,8 @@ export async function POST(request: NextRequest) {
       productTier: product.tierLabel,
       productImageUrl: product.imageUrl,
       profileData: profileData ?? null,
+      // Design fee and artwork (Customised Card only; null otherwise).
+      ...customDesign.fields,
       items: [orderItem],
       subtotal,
       discount: 0,

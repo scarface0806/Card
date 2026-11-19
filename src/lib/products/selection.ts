@@ -19,10 +19,25 @@ export interface SelectedProduct {
   slug: string;
   tier: CardTier;
   tierLabel: string;
-  /** What the customer is charged, in rupees. Authoritative. */
+  /**
+   * What the customer is charged, in rupees. Authoritative. For a Customised
+   * Card this INCLUDES the design charge (cardPrice + designFee), so every
+   * "amount charged" surface - the pay button, the step-5 total, analytics -
+   * stays correct without knowing about custom designs.
+   */
   price: number;
   /** `price`, formatted through the one shared helper. */
   priceFormatted: string;
+  /** The card alone (sale price when active), before any design charge. */
+  cardPrice: number;
+  cardPriceFormatted: string;
+  /** Design charge in rupees; 0 unless isCustomDesign. */
+  designFee: number;
+  designFeeFormatted: string;
+  /** Customer uploads their own front and back artwork at checkout. */
+  isCustomDesign: boolean;
+  /** "horizontal" | "vertical" - drives the artwork size guidance. */
+  orientation: string;
   /** List price, only when a discount is active. For struck-through display. */
   listPriceFormatted: string | null;
   description: string | null;

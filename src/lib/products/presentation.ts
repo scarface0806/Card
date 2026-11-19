@@ -22,6 +22,8 @@ export interface ProductPresentationInput {
   cardType?: string | null;
   color?: string | null;
   material?: string | null;
+  isCustomDesign?: boolean | null;
+  designFee?: number | null;
 }
 
 /** Price at or above which an unlabelled product reads as premium. */
@@ -51,6 +53,30 @@ export function effectivePrice(product: ProductPresentationInput): number {
     return salePrice;
   }
   return price;
+}
+
+/**
+ * The design charge for a Customised Card product, in rupees. 0 for every
+ * other product, and for a custom-design product with no fee set.
+ *
+ * isCustomDesign is optional in the schema and null on older products, so
+ * anything but an explicit `true` means "not a custom design".
+ */
+export function designFeeFor(product: ProductPresentationInput): number {
+  if (product.isCustomDesign !== true) return 0;
+  const fee = product.designFee;
+  return typeof fee === "number" && Number.isFinite(fee) && fee > 0 ? fee : 0;
+}
+
+/**
+ * The full amount for one card: the effective card price plus any design
+ * charge. A sale price discounts the card only - the design fee is fixed.
+ *
+ * POST /api/orders writes this into Order.total, which is what Razorpay
+ * charges, so the catalogue, checkout and the gateway all agree.
+ */
+export function orderTotalFor(product: ProductPresentationInput): number {
+  return effectivePrice(product) + designFeeFor(product);
 }
 
 /** True when there is a discount worth showing struck through. */

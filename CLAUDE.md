@@ -95,6 +95,17 @@ PaymentLog claim), marks the order PAID, sends the customer confirmation (Resend
 de-duplicated via EmailLog) and the admin alert. The Razorpay **webhook only updates
 PaymentLog** — it does not fulfil. Then `/order-success?orderId=`.
 
+**Customised Card** (`Product.isCustomDesign` + `designFee`, both optional; null = off).
+Unrelated to `cardType: "custom"`, which is the enquiry-only "talk to our team" tier.
+Price = `orderTotalFor()` in `src/lib/products/presentation.ts` (sale price + fee); on
+`SelectedProduct` / `CardDesign`, `price` is that all-in amount and `cardPrice` /
+`designFee` are the breakdown. Customers upload front/back to
+`POST /api/uploads/custom-card` (login, per-user Mongo rate limit, magic-byte check,
+10MB, Cloudinary `custom-cards/<userId>/`); `POST /api/orders` accepts only URLs in that
+folder (`resolveCustomDesignOrder` in `src/lib/custom-card-artwork.ts`) and stores
+`designFee` + `custom*ImageUrl/PublicId` on the Order. Shared Mongo rate limiter:
+`src/lib/mongo-rate-limit.ts`.
+
 Email: Resend (`src/lib/emails/*`) for order/status/password-reset/admin alerts;
 nodemailer (`src/lib/email.ts`, SMTP env vars not in `.env.example`) for leads,
 newsletters and the NFC-link email.

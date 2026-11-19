@@ -30,7 +30,10 @@ export default function CardDesignsHomeSection({ onContactClick, initialDesigns 
   const [selectedCard, setSelectedCard] = useState<CardDesign | null>(null);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
 
-  const { cardDesigns, loading } = useCardDesigns(initialDesigns);
+  const { cardDesigns: allDesigns, loading } = useCardDesigns(initialDesigns);
+  // Customised Card products live only on /cards, in their own section with
+  // the upload explanation and price breakdown this grid has no room for.
+  const cardDesigns = allDesigns.filter((design) => !design.isCustomDesign);
 
   const handlePreview = (card: CardDesign) => {
     setSelectedCard(card);

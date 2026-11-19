@@ -13,6 +13,7 @@ import BusinessDetailsForm from '@/forms/BusinessDetailsForm';
 import SocialLinksForm from '@/forms/SocialLinksForm';
 import UploadForm from '@/forms/UploadForm';
 import PaymentForm from '@/forms/PaymentForm';
+import CustomArtworkForm from '@/forms/CustomArtworkForm';
 import { motion } from 'framer-motion';
 import { createOrder } from '@/services/api';
 import { FORM_STEPS, ROUTES } from '@/utils/constants';
@@ -94,6 +95,10 @@ export default function CreateCardClient({
         profileImage: null,
         logo: null,
       },
+      customArtwork: {
+        front: null,
+        back: null,
+      },
       payment: {
         method: 'card',
         terms: false,
@@ -127,6 +132,22 @@ export default function CreateCardClient({
    * had not been shown yet: onSubmit never fired, Continue did nothing at all,
    * and the errors landed on inputs that were not on screen.
    */
+  /** Sets a field error on each missing side, so CustomArtworkForm shows it. */
+  const hasBothArtworkSides = () => {
+    const artwork = methods.getValues('customArtwork');
+    let ok = true;
+    for (const side of ['front', 'back'] as const) {
+      if (!artwork?.[side]?.url) {
+        methods.setError(`customArtwork.${side}`, {
+          type: 'required',
+          message: `Please upload the card ${side}.`,
+        });
+        ok = false;
+      }
+    }
+    return ok;
+  };
+
   const goToNextStep = async () => {
     const stepFields = getStepFieldNames(currentStep);
     const isCurrentStepValid = stepFields.length === 0 || (await methods.trigger(stepFields));
@@ -135,10 +156,24 @@ export default function CreateCardClient({
       return;
     }
 
+    // Customised Card: both artwork images are required to leave step 4. Not
+    // in the zod schema because the same form serves every product, and only
+    // custom-design products need them. The server re-checks on order.
+    if (currentStep === 4 && product.isCustomDesign && !hasBothArtworkSides()) {
+      return;
+    }
+
     setCurrentStep((step) => Math.min(step + 1, 5));
   };
 
   const placeOrder = async (data: FormData) => {
+    // Safety net, like onInvalid below: never create a custom-design order
+    // without its artwork - send the customer back to the upload step.
+    if (product.isCustomDesign && !hasBothArtworkSides()) {
+      setCurrentStep(4);
+      return;
+    }
+
     setIsSubmitting(true);
     setPaymentError(null);
 
@@ -174,6 +209,7 @@ export default function CreateCardClient({
         socialLinks: data.socialLinks,
         uploads,
         payment: data.payment,
+        customArtwork: product.isCustomDesign ? data.customArtwork : undefined,
       });
 
       if (!result.success || !result.orderId) {
@@ -285,7 +321,17 @@ export default function CreateCardClient({
                     {currentStep === 1 && <PersonalDetailsForm />}
                     {currentStep === 2 && <BusinessDetailsForm />}
                     {currentStep === 3 && <SocialLinksForm />}
-                    {currentStep === 4 && <UploadForm />}
+                    {currentStep === 4 && (
+                      <>
+                        <UploadForm />
+                        {product.isCustomDesign && (
+                          <>
+                            <hr className="tv-rule" />
+                            <CustomArtworkForm orientation={product.orientation === 'vertical' ? 'vertical' : 'horizontal'} />
+                          </>
+                        )}
+                      </>
+                    )}
                     {currentStep === 5 && <PaymentForm product={product} />}
                   </FormProvider>
 
@@ -379,6 +425,12 @@ export default function CreateCardClient({
                 {product.listPriceFormatted && (
                   <p className="tv-small mt-1 text-right line-through">
                     {product.listPriceFormatted}
+                  </p>
+                )}
+
+                {product.isCustomDesign && (
+                  <p className="tv-small mt-1 text-right">
+                    {product.cardPriceFormatted} card + {product.designFeeFormatted} design charge
                   </p>
                 )}
 

@@ -100,6 +100,20 @@ model Product {
   // groups horizontal cards ahead of vertical ones.
   orientation String?
 
+  // "Customised Card": the customer uploads their own front and back artwork
+  // at checkout, and pays `designFee` on top of the card price.
+  //
+  // OPTIONAL rather than `Boolean @default(false)` for the same reason as
+  // orientation: products created before this field have no value stored, and
+  // null is read as false everywhere (see designFeeFor in
+  // lib/products/presentation.ts). Nothing needs backfilling.
+  //
+  // Unrelated to cardType "custom", which is the enquiry-only "talk to our
+  // team" tier and never reaches checkout.
+  isCustomDesign Boolean?
+  // Rupees, on top of the (sale) price. Only read when isCustomDesign is true.
+  designFee      Float?
+
   // Relations
   orderItems OrderItem[]
 
@@ -144,6 +158,16 @@ model Order {
   // price they actually paid. cardType above is the name snapshot.
   productTier     String?
   productImageUrl String?
+
+  // Customised Card orders only (null on every other order). designFee is the
+  // fee as charged, snapshotted like the price above. The artwork is the
+  // customer's own upload, stored in Cloudinary under custom-cards/<userId>/;
+  // the publicIds are kept so the files can be found or cleaned up later.
+  designFee           Float?
+  customFrontImageUrl String?
+  customBackImageUrl  String?
+  customFrontPublicId String?
+  customBackPublicId  String?
 
   // Order details
   items    OrderItem[]

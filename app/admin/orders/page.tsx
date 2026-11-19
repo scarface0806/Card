@@ -6,6 +6,7 @@ import StatusBadge from '@/components/admin/StatusBadge';
 import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import RightDrawer from '@/components/ui/RightDrawer';
+import OrderArtworkPanel from '@/components/admin/OrderArtworkPanel';
 import { ShoppingCart, Filter, RefreshCw } from 'lucide-react';
 import { isAbortError, logFetchError } from '@/lib/fetch-utils';
 
@@ -16,6 +17,8 @@ interface OrderRow {
   phone: string;
   company: string;
   cardType: string;
+  /** Customised Card order - shown as a badge next to the card type. */
+  isCustomDesign: boolean;
   price: string;
   statusTone: 'pending' | 'completed' | 'cancelled';
   statusLabel: string;
@@ -47,6 +50,10 @@ interface OrderDetails {
   cardType?: string | null;
   price?: number | null;
   total: number;
+  /** Customised Card only. */
+  designFee?: number | null;
+  customFrontImageUrl?: string | null;
+  customBackImageUrl?: string | null;
   status: string;
   createdAt: string;
   notes?: string | null;
@@ -139,6 +146,32 @@ function getStatusPresentation(rawStatus: string): {
   return { tone: 'pending', label: 'Pending' };
 }
 
+/** A Customised Card order: carries a design fee or uploaded artwork. */
+function isCustomDesignOrder(order: {
+  designFee?: number | null;
+  customFrontImageUrl?: string | null;
+  customBackImageUrl?: string | null;
+}): boolean {
+  return Boolean(order.designFee || order.customFrontImageUrl || order.customBackImageUrl);
+}
+
+/**
+ * The amount for the Price column. Order.price is the CARD price only, so a
+ * Customised Card order shows its total (card + design charge) - otherwise a
+ * ₹699 order would be listed as ₹599. Every other order keeps price ?? total,
+ * exactly as before.
+ */
+function orderAmount(order: {
+  price?: number | null;
+  total?: number | null;
+  designFee?: number | null;
+  customFrontImageUrl?: string | null;
+  customBackImageUrl?: string | null;
+}): number {
+  if (isCustomDesignOrder(order)) return order.total ?? order.price ?? 0;
+  return order.price ?? order.total ?? 0;
+}
+
 function buildOrderRow(details: OrderDetails): OrderRow {
   const presentation = getStatusPresentation(details.status);
   return {
@@ -148,7 +181,8 @@ function buildOrderRow(details: OrderDetails): OrderRow {
     phone: details.guestPhone || details.user?.phone || '-',
     company: details.company || '-',
     cardType: details.cardType || '-',
-    price: `₹${(details.price ?? details.total ?? 0).toLocaleString()}`,
+    isCustomDesign: isCustomDesignOrder(details),
+    price: `₹${orderAmount(details).toLocaleString()}`,
     statusTone: presentation.tone,
     statusLabel: presentation.label,
     createdDate: new Date(details.createdAt).toLocaleDateString(),
@@ -253,7 +287,7 @@ export default function OrdersPage() {
         const phone = order.guestPhone || order.user?.phone || order.shippingAddress?.phone || '-';
         const company = order.company || '-';
         const cardType = order.cardType || order.items?.[0]?.productName || '-';
-        const price = order.price ?? order.total ?? 0;
+        const price = orderAmount(order);
         const status = getStatusPresentation(order.status);
 
         return {
@@ -263,6 +297,7 @@ export default function OrdersPage() {
           phone,
           company,
           cardType,
+          isCustomDesign: isCustomDesignOrder(order),
           price: `₹${price.toLocaleString()}`,
           statusTone: status.tone,
           statusLabel: status.label,
@@ -664,7 +699,16 @@ export default function OrdersPage() {
           { key: 'customerName', label: 'Customer Name' },
           { key: 'phone', label: 'Phone' },
           { key: 'company', label: 'Company' },
-          { key: 'cardType', label: 'Card Type' },
+          {
+            key: 'cardType',
+            label: 'Card Type',
+            render: (_value, row) => (
+              <span className="inline-flex flex-wrap items-center gap-2">
+                {row.cardType}
+                {row.isCustomDesign && <span className="tv-tag tv-tag-brass">Custom design</span>}
+              </span>
+            ),
+          },
           { key: 'price', label: 'Price' },
           {
             key: 'statusTone',
@@ -765,6 +809,15 @@ export default function OrdersPage() {
                 </div>
               </section>
 
+              {/* Customised Card: the customer's front/back artwork. Renders
+                  nothing for other orders. */}
+              <OrderArtworkPanel
+                orderNumber={selectedOrder.orderNumber}
+                frontUrl={selectedOrder.customFrontImageUrl}
+                backUrl={selectedOrder.customBackImageUrl}
+                designFee={selectedOrder.designFee}
+              />
+
               <section className="space-y-3">
                 <h3 className="tv-adm-label">Shipping Address</h3>
                 <div className="bg-[var(--tv-slate)] rounded-lg p-4">
@@ -789,9 +842,18 @@ export default function OrdersPage() {
                       <span>Subtotal</span>
                       <span>₹{(selectedOrder.price ?? selectedOrder.total ?? 0).toLocaleString()}</span>
                     </div>
+                    {/* The design charge is its own line; without it the
+                        Tax row below (total minus card price) would report
+                        the ₹100 fee as tax. */}
+                    {selectedOrder.designFee ? (
+                      <div className="flex items-center justify-between text-[var(--tv-text)]">
+                        <span>Design charge</span>
+                        <span>₹{selectedOrder.designFee.toLocaleString()}</span>
+                      </div>
+                    ) : null}
                     <div className="flex items-center justify-between text-[var(--tv-text)]">
                       <span>Tax</span>
-                      <span>₹{Math.max((selectedOrder.total ?? 0) - (selectedOrder.price ?? selectedOrder.total ?? 0), 0).toLocaleString()}</span>
+                      <span>₹{Math.max((selectedOrder.total ?? 0) - (selectedOrder.price ?? selectedOrder.total ?? 0) - (selectedOrder.designFee ?? 0), 0).toLocaleString()}</span>
                     </div>
                     <div className="border-t border-[var(--tv-rule)] pt-2 flex items-center justify-between text-[var(--tv-text)] font-semibold">
                       <span>Total Amount</span>

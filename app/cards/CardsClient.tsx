@@ -24,6 +24,7 @@ import {
 import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import SelectionNotice from './SelectionNotice';
 import ProductAssurances from '@/components/trust/ProductAssurances';
+import CustomDesignSection from '@/components/cards/CustomDesignSection';
 import { cardAspectClass } from '@/lib/products/orientation';
 
 /**
@@ -72,6 +73,11 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
   // Seeded from the server: `loading` is already false on the first render.
   const { cardDesigns, loading } = useCardDesigns(initialDesigns);
 
+  // Customised Card products are bought differently (own artwork + design
+  // charge), so they get their own section below the grid.
+  const regularDesigns = cardDesigns.filter((design) => !design.isCustomDesign);
+  const customDesigns = cardDesigns.filter((design) => design.isCustomDesign);
+
   // Contact Modal State (lifted up for reuse)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactModalSource, setContactModalSource] = useState<ContactSource>('general');
@@ -91,7 +97,9 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
   };
 
   const handleBuyNow = (card: CardDesign) => {
-    if (card.type === 'custom') {
+    // A Customised Card always goes to checkout, even if someone also gave it
+    // the enquiry-only "custom" card type.
+    if (card.type === 'custom' && !card.isCustomDesign) {
       openContactModal('custom');
       return;
     }
@@ -208,7 +216,7 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                {cardDesigns.map((card, index) => (
+                {regularDesigns.map((card, index) => (
                   <motion.article
                     key={card.id}
                     {...cardReveal(index)}
@@ -332,6 +340,8 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
                 ))}
               </div>
             )}
+
+            {!loading && <CustomDesignSection designs={customDesigns} onSelect={handleBuyNow} />}
           </div>
         </section>
       </main>

@@ -25,6 +25,14 @@ export type ProductFormValues = {
    * vertical one below it.
    */
   orientation: CardOrientation;
+  /**
+   * "Customised Card": the customer uploads their own front and back artwork
+   * at checkout and pays `designFee` on top of `price`. The total is computed
+   * server-side from these two fields - nothing in the storefront hardcodes it.
+   */
+  isCustomDesign: boolean;
+  /** Rupees. Only saved while isCustomDesign is ticked. */
+  designFee: number;
 };
 
 type ProductFormProps = {
@@ -42,6 +50,8 @@ const DEFAULT_VALUES: ProductFormValues = {
   image: '',
   backImage: '',
   orientation: DEFAULT_ORIENTATION,
+  isCustomDesign: false,
+  designFee: 0,
 };
 
 export default function ProductForm({ initialValues, onSubmit, submitLabel, submitting = false, onCancel }: ProductFormProps) {
@@ -101,6 +111,12 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
       return;
     }
 
+    // Mirrors parseCustomDesignInput on the server, which is the real check.
+    if (values.isCustomDesign && (!Number.isFinite(values.designFee) || values.designFee <= 0)) {
+      setLocalError('Design fee must be greater than 0 for a customised design');
+      return;
+    }
+
     // Deliberately no validation on backImage: it is optional, and an empty
     // string is a legitimate value meaning "this card has no back".
     setLocalError(null);
@@ -111,6 +127,8 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
       image: values.image,
       backImage: values.backImage.trim(),
       orientation: values.orientation,
+      isCustomDesign: values.isCustomDesign,
+      designFee: values.isCustomDesign ? Number(values.designFee) : 0,
     });
   };
 
@@ -159,6 +177,48 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
           step="0.01"
           disabled={submitting}
         />
+      </div>
+
+      {/* CUSTOMISED DESIGN. Ticking this sends the product to its own
+          "Customised card" section on /cards, asks the customer for front and
+          back artwork at checkout, and adds the design fee to the total.
+          Unrelated to the enquiry-only "custom" card type. */}
+      <div>
+        <label className="flex min-h-[44px] items-center gap-3 cursor-pointer">
+          <input
+            type="checkbox"
+            checked={values.isCustomDesign}
+            onChange={(e) => setValues((prev) => ({ ...prev, isCustomDesign: e.target.checked }))}
+            disabled={submitting}
+            className="h-4 w-4 accent-[#C9A961]"
+          />
+          <span className="tv-adm-field-label">Customised design (customer uploads front &amp; back artwork)</span>
+        </label>
+
+        {values.isCustomDesign && (
+          <div className="mt-2">
+            <label htmlFor="product-design-fee" className="tv-adm-field-label mb-1.5 block">
+              Design charge (₹, added to the price)
+            </label>
+            <input
+              id="product-design-fee"
+              type="number"
+              value={values.designFee}
+              onChange={(e) => setValues((prev) => ({ ...prev, designFee: Number(e.target.value) }))}
+              className="tv-adm-input"
+              min={1}
+              step="1"
+              disabled={submitting}
+            />
+            <p className="mt-2 text-xs text-[var(--tv-text-muted)]">
+              Customer pays price + design charge
+              {Number.isFinite(values.price) && values.designFee > 0
+                ? ` = ₹${Number(values.price) + Number(values.designFee)}`
+                : ''}
+              .
+            </p>
+          </div>
+        )}
       </div>
 
       {/* CARD SHAPE. Chosen before the uploads on purpose: it switches the two

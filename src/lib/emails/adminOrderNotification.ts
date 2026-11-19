@@ -56,6 +56,10 @@ const ADMIN_ORDER_SELECT = {
 	profileData: true,
 	cardId: true,
 	items: true,
+	// Customised Card only (null otherwise).
+	designFee: true,
+	customFrontImageUrl: true,
+	customBackImageUrl: true,
 } satisfies Prisma.OrderSelect;
 
 type AdminOrder = Prisma.OrderGetPayload<{ select: typeof ADMIN_ORDER_SELECT }>;
@@ -247,8 +251,41 @@ function extractUploadedFiles(profileData: unknown): UploadedFile[] {
 	return files;
 }
 
+/**
+ * Customised Card artwork, listed FIRST among the uploaded files: it is what
+ * gets printed, so it should be the first link the admin sees. Each is a
+ * direct link to the customer's original upload in Cloudinary.
+ */
+function customArtworkFiles(order: AdminOrder): UploadedFile[] {
+	const files: UploadedFile[] = [];
+	if (order.customFrontImageUrl) {
+		files.push({ name: "Card front (customer artwork)", url: order.customFrontImageUrl });
+	}
+	if (order.customBackImageUrl) {
+		files.push({ name: "Card back (customer artwork)", url: order.customBackImageUrl });
+	}
+	return files;
+}
+
 function transformOrder(order: AdminOrder, paymentRef: string | null): AdminOrderNotificationData {
 	const profileUrl = resolveProfileUrl(order.cardId);
+
+	const items = (order.items || []).map((item) => ({
+		productName: item.productName,
+		quantity: item.quantity,
+		price: item.price,
+		total: item.total,
+	}));
+	// The design charge is stored on the order, not as an OrderItem. Listing it
+	// as its own line keeps the items table adding up to the total.
+	if (order.designFee && order.designFee > 0) {
+		items.push({
+			productName: "Design charge (customer artwork)",
+			quantity: 1,
+			price: order.designFee,
+			total: order.designFee,
+		});
+	}
 
 	return {
 		orderId: order.id,
@@ -271,13 +308,8 @@ function transformOrder(order: AdminOrder, paymentRef: string | null): AdminOrde
 		},
 		socialLinks: extractSocialLinks(order.profileData),
 		profileUrl,
-		uploadedFiles: extractUploadedFiles(order.profileData),
-		items: (order.items || []).map((item) => ({
-			productName: item.productName,
-			quantity: item.quantity,
-			price: item.price,
-			total: item.total,
-		})),
+		uploadedFiles: [...customArtworkFiles(order), ...extractUploadedFiles(order.profileData)],
+		items,
 	};
 }
 

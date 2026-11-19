@@ -108,6 +108,11 @@ export const createOrderSchema = z.object({
   website: z.string().optional(),
   paymentMethod: z.string().optional(),
   profileData: z.unknown().optional(),
+  // Customised Card artwork, as returned by /api/uploads/custom-card. Only a
+  // shape check here; POST /api/orders verifies each URL is in our Cloudinary
+  // cloud and in THIS customer's custom-cards/<userId>/ folder.
+  customFrontImageUrl: z.string().max(500).optional(),
+  customBackImageUrl: z.string().max(500).optional(),
 });
 
 // Card update schema allows partial details

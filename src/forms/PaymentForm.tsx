@@ -56,17 +56,28 @@ export default function PaymentForm({ product }: PaymentFormProps) {
         </h3>
 
         <div className="tv-summary">
+          {/* A Customised Card is itemised - card, then design charge - so
+              the total below is visibly the sum of the two. product.price
+              already includes the fee (it is what gets charged). The struck
+              list price is on that same all-in basis, so it is only shown on
+              the single-line layout where it lines up with the total. */}
           <div className="tv-summary-row">
             <span className="tv-summary-key">{product.name}</span>
             <span className="tv-summary-val">
-              {product.priceFormatted}
-              {product.listPriceFormatted && (
+              {product.isCustomDesign ? product.cardPriceFormatted : product.priceFormatted}
+              {product.listPriceFormatted && !product.isCustomDesign && (
                 <span className="ml-2 line-through opacity-60">
                   {product.listPriceFormatted}
                 </span>
               )}
             </span>
           </div>
+          {product.isCustomDesign && (
+            <div className="tv-summary-row">
+              <span className="tv-summary-key">Design charge (your own artwork)</span>
+              <span className="tv-summary-val">{product.designFeeFormatted}</span>
+            </div>
+          )}
           <div className="tv-summary-row">
             <span className="tv-summary-key">Card type</span>
             <span

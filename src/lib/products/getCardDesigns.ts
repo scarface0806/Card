@@ -63,6 +63,8 @@ const CATALOGUE_SELECT = {
   material: true,
   color: true,
   orientation: true,
+  isCustomDesign: true,
+  designFee: true,
 } as const;
 
 /**

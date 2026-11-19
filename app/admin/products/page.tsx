@@ -18,6 +18,9 @@ interface ProductItem {
   backImage: string;
   /** Card shape. Absent on products that predate the field, read as horizontal. */
   orientation: CardOrientation;
+  /** Customised Card: customer uploads their own artwork and pays designFee. */
+  isCustomDesign: boolean;
+  designFee: number | null;
   createdAt: string;
 }
 
@@ -62,6 +65,8 @@ export default function ProductsPage() {
         image: product.image || '',
         orientation: product.orientation === 'vertical' ? 'vertical' : 'horizontal',
         backImage: product.backImage || '',
+        isCustomDesign: product.isCustomDesign === true,
+        designFee: typeof product.designFee === 'number' ? product.designFee : null,
         createdAt: product.createdAt,
       }));
 
@@ -211,6 +216,8 @@ export default function ProductsPage() {
                       image: activeProduct.image,
                       orientation: activeProduct.orientation,
                       backImage: activeProduct.backImage,
+                      isCustomDesign: activeProduct.isCustomDesign,
+                      designFee: activeProduct.designFee ?? 0,
                     }
                   : undefined
               }

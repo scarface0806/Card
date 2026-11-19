@@ -185,4 +185,45 @@ describe('sendAdminOrderNotification', () => {
     expect(paidSubject).toContain('New order —');
     expect(paidSubject).not.toContain('unpaid');
   });
+
+  it('links the front and back artwork and lists the design charge on a Customised Card order', async () => {
+    const prismaMock = vi.mocked((await import('@/lib/prisma')).default.order.findUnique);
+    mocks.mockResendSend.mockResolvedValue({ data: { id: 'email_2' }, error: null });
+
+    const front = 'https://res.cloudinary.com/tapvyo/image/upload/v1/custom-cards/u1/front1.png';
+    const back = 'https://res.cloudinary.com/tapvyo/image/upload/v1/custom-cards/u1/back1.png';
+
+    prismaMock.mockResolvedValueOnce({
+      ...mockOrder,
+      cardType: 'Customised Card',
+      price: 599,
+      total: 699,
+      designFee: 100,
+      customFrontImageUrl: front,
+      customBackImageUrl: back,
+      items: [
+        { productId: 'prod_custom', productName: 'Customised Card', quantity: 1, price: 599, total: 599 },
+      ],
+    } as any);
+
+    await sendAdminOrderNotification('ord_123', 'pay_R9zK3mQ8nL2vP4');
+
+    const call = mocks.mockResendSend.mock.calls[0][0] as Record<string, string>;
+    for (const body of [call.html, call.text]) {
+      expect(body).toContain(front);
+      expect(body).toContain(back);
+      expect(body).toContain('Design charge');
+    }
+    expect(call.html).toContain('Card front (customer artwork)');
+    expect(call.subject).toContain('₹699');
+  });
+
+  it('adds no artwork or design charge to a regular order', async () => {
+    mocks.mockResendSend.mockResolvedValue({ data: { id: 'email_3' }, error: null });
+    await sendAdminOrderNotification('ord_123', 'pay_R9zK3mQ8nL2vP4');
+
+    const call = mocks.mockResendSend.mock.calls[0][0] as Record<string, string>;
+    expect(call.html).not.toContain('customer artwork');
+    expect(call.text).not.toContain('Design charge');
+  });
 });

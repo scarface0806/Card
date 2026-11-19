@@ -18,8 +18,10 @@ import {
   type CardTier,
   deriveCardColor,
   deriveCardTier,
+  designFeeFor,
   effectivePrice,
   hasDiscount,
+  orderTotalFor,
   tierLabel,
 } from "@/lib/products/presentation";
 import {
@@ -39,9 +41,19 @@ export interface CardDesign {
   slug: string;
   type: CardTier;
   typeLabel: string;
-  /** What the customer is charged, formatted. */
+  /**
+   * What the customer is charged, formatted. For a Customised Card this is the
+   * card plus the design charge - see orderTotalFor.
+   */
   price: string;
   priceValue: number;
+  /** "Customised Card": the customer uploads their own front and back artwork. */
+  isCustomDesign: boolean;
+  /** The card alone, formatted - the first half of the custom-design breakdown. */
+  cardPrice: string;
+  /** Design charge, formatted. Only meaningful when isCustomDesign. */
+  designFee: string;
+  designFeeValue: number;
   /** List price, only when a discount is active. For struck-through display. */
   listPrice?: string;
   color: string;
@@ -78,6 +90,8 @@ export interface CardDesignSource {
   material?: string | null;
   color?: string | null;
   orientation?: string | null;
+  isCustomDesign?: boolean | null;
+  designFee?: number | null;
 }
 
 export function productToCardDesign(product: CardDesignSource): CardDesign {
@@ -87,7 +101,9 @@ export function productToCardDesign(product: CardDesignSource): CardDesign {
   const source = product as unknown as Parameters<typeof deriveCardTier>[0];
 
   const tier = deriveCardTier(source);
-  const price = effectivePrice(source);
+  const cardPrice = effectivePrice(source);
+  const designFee = designFeeFor(source);
+  const price = orderTotalFor(source);
 
   return {
     id: product.id,
@@ -97,7 +113,12 @@ export function productToCardDesign(product: CardDesignSource): CardDesign {
     typeLabel: tierLabel(tier),
     price: formatPrice(price),
     priceValue: price,
-    listPrice: hasDiscount(source) ? formatPrice(product.price) : undefined,
+    isCustomDesign: product.isCustomDesign === true,
+    cardPrice: formatPrice(cardPrice),
+    designFee: formatPrice(designFee),
+    designFeeValue: designFee,
+    // Same basis as `price`: full list price plus the (never discounted) fee.
+    listPrice: hasDiscount(source) ? formatPrice(product.price + designFee) : undefined,
     color: deriveCardColor(source),
     description: product.description || undefined,
     images: product.images || [],

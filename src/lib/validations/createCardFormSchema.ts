@@ -14,6 +14,16 @@ const sanitizePhone = (value: string) => {
 
 const urlOrHandleSchema = z.string().trim().default('').refine((value) => !value || /^(https?:\/\/)/i.test(value) || /^@?[A-Za-z0-9._-]+$/.test(value), { message: 'Enter a valid link (example: https://yoursite.com)' });
 
+/** One uploaded artwork image, as POST /api/uploads/custom-card returns it. */
+const uploadedArtworkSchema = z.object({
+  url: z.string().url(),
+  publicId: z.string().min(1),
+  width: z.number(),
+  height: z.number(),
+});
+
+export type UploadedArtwork = z.infer<typeof uploadedArtworkSchema>;
+
 export const createCardFormSchema = z.object({
   personalDetails: z.object({
     name: z.string().trim().min(2, 'Please enter your name').max(50, 'Please enter your name').refine((value) => /^[A-Za-z][A-Za-z\s.'-]*$/.test(value), { message: 'Name can only contain letters' }).refine((value) => !/\d/.test(value), { message: 'Name cannot contain numbers' }),
@@ -43,6 +53,15 @@ export const createCardFormSchema = z.object({
     profileImage: z.any().nullable().optional(),
     logo: z.any().nullable().optional(),
   }).default({}),
+  // Customised Card only: the front and back artwork, as returned by
+  // POST /api/uploads/custom-card. URLs and public ids - never the file or a
+  // base64 copy, which would bloat the order body. Optional here because most
+  // products have none; CreateCardClient requires both on step 4 when the
+  // product is a custom design, and POST /api/orders re-checks them.
+  customArtwork: z.object({
+    front: uploadedArtworkSchema.nullable(),
+    back: uploadedArtworkSchema.nullable(),
+  }).default({ front: null, back: null }),
   payment: z.object({
     method: z.string().default('card'),
     terms: z.boolean().refine((value) => value === true, { message: 'Please accept the terms to continue' }),

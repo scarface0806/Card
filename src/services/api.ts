@@ -39,6 +39,11 @@ export interface OrderData {
     method?: string;
     terms?: boolean;
   };
+  /** Customised Card only: the uploaded front/back artwork. */
+  customArtwork?: {
+    front?: { url: string } | null;
+    back?: { url: string } | null;
+  };
 }
 
 // Mock API functions
@@ -69,6 +74,10 @@ export const createOrder = async (data: OrderData) => {
       address: data.businessDetails.address,
       paymentMethod: data.payment?.method || 'card',
       profileData: data,
+      // Only the URLs; the server derives everything else and verifies they
+      // are this customer's own uploads.
+      customFrontImageUrl: data.customArtwork?.front?.url || undefined,
+      customBackImageUrl: data.customArtwork?.back?.url || undefined,
     }),
   });
 

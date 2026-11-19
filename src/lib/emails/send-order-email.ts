@@ -85,6 +85,8 @@ const ORDER_EMAIL_SELECT = {
   productImageUrl: true,
   items: true,
   total: true,
+  // Customised Card design charge, null on every other order.
+  designFee: true,
   // Resolved to the public profile URL when the card already exists.
   cardId: true,
   courierName: true,
@@ -476,6 +478,15 @@ async function buildEmail(
       // formatPrice is the same helper the catalogue and checkout use, so the
       // figure here is identical to the one on the payment step.
       amountPaid: formatPrice(order.total ?? 0),
+      // The card is whatever the total was beyond the fee, so the two lines
+      // always add up to amountPaid even on an old or hand-edited order.
+      designCharge:
+        order.designFee && order.designFee > 0
+          ? {
+              cardPrice: formatPrice(Math.max((order.total ?? 0) - order.designFee, 0)),
+              designFee: formatPrice(order.designFee),
+            }
+          : null,
       proof: {
         name: order.guestName || "Not given",
         designation: order.designation,

@@ -178,6 +178,39 @@ describe('confirmation email content', () => {
     expect(text).not.toContain('₹599');
   });
 
+  it('itemises the design charge on a Customised Card order', async () => {
+    const custom = OrderConfirmationEmail({
+      orderRef: ORDER_REF,
+      trackUrl: TRACK_URL,
+      productName: 'Customised Card',
+      productTier: 'Basic',
+      productImageUrl: null,
+      quantity: 1,
+      amountPaid: '₹699',
+      designCharge: { cardPrice: '₹599', designFee: '₹100' },
+      proof: {
+        name: 'Jane Doe',
+        designation: 'Founder',
+        company: null,
+        mobile: '+91 90800 86908',
+        email: 'buyer@example.com',
+      },
+      profileUrl: null,
+    });
+    const text = await render(custom, { plainText: true });
+
+    expect(text).toContain('Card price');
+    expect(text).toContain('₹599');
+    expect(text).toContain('Design charge');
+    expect(text).toContain('₹100');
+    expect(text).toContain('₹699');
+  });
+
+  it('shows no design charge line on a regular order', async () => {
+    const text = await render(confirmation, { plainText: true });
+    expect(text).not.toContain('Design charge');
+  });
+
   it('names the product in the subject line', () => {
     const subject = orderConfirmationSubject({
       orderRef: ORDER_REF,

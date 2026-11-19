@@ -3,6 +3,7 @@ import { withAdmin } from "@/lib/auth-middleware";
 import type { AuthUser } from "@/lib/auth";
 import { errorResponse, successResponse } from "@/lib/responses";
 import prisma from "@/lib/prisma";
+import { parseCustomDesignInput, type CustomDesignInput } from "@/lib/products/custom-design-input";
 
 export const runtime = "nodejs";
 
@@ -18,6 +19,8 @@ const PRODUCT_SELECT = {
   images: true,
   backImage: true,
   orientation: true,
+  isCustomDesign: true,
+  designFee: true,
   cardType: true,
   material: true,
   color: true,
@@ -45,7 +48,7 @@ type ProductInput = {
    * "horizontal" so nothing downstream has to. See lib/products/orientation.ts.
    */
   orientation: string;
-};
+} & CustomDesignInput;
 
 function normalizeProductInput(payload: unknown): ProductInput {
   if (!payload || typeof payload !== "object") {
@@ -86,6 +89,7 @@ function normalizeProductInput(payload: unknown): ProductInput {
     imageUrl: String(input.imageUrl || "").trim() || undefined,
     backImage: backImage || null,
     orientation,
+    ...parseCustomDesignInput(input),
   };
 }
 
@@ -99,6 +103,8 @@ function mapProduct(p: {
   images: string[];
   backImage: string | null;
   orientation: string | null;
+  isCustomDesign: boolean | null;
+  designFee: number | null;
   cardType: string | null;
   material: string | null;
   color: string | null;
@@ -118,6 +124,9 @@ function mapProduct(p: {
     // Nullable, not "": the client treats absent as "this card has no back".
     backImage: p.backImage || null,
     orientation: p.orientation || "horizontal",
+    // null on products that predate the field - reported as false.
+    isCustomDesign: p.isCustomDesign === true,
+    designFee: p.designFee ?? null,
     cardType: p.cardType,
     material: p.material,
     color: p.color,
@@ -179,6 +188,8 @@ async function createProductHandler(request: NextRequest, _user: AuthUser) {
         images: [parsed.image],
         backImage: parsed.backImage,
         orientation: parsed.orientation,
+        isCustomDesign: parsed.isCustomDesign,
+        designFee: parsed.designFee,
         slug: `product-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 6)}`,
         isActive: true,
         tags: [],

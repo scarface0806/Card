@@ -77,6 +77,12 @@ export interface OrderConfirmationEmailData extends OrderEmailBase {
    * from the checkout page.
    */
   amountPaid: string;
+  /**
+   * Customised Card orders only: the breakdown of amountPaid, so the customer
+   * sees the design charge as its own line. Null for every other order, and
+   * the summary is then unchanged. Formatted with the same helper.
+   */
+  designCharge?: { cardPrice: string; designFee: string } | null;
   /** Exactly as submitted on the checkout form - this is what gets printed. */
   proof: {
     name: string;

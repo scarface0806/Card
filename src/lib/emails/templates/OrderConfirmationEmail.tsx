@@ -566,6 +566,7 @@ export function OrderConfirmationEmail(data: OrderConfirmationEmailData) {
     productImageUrl,
     quantity,
     amountPaid,
+    designCharge,
     proof,
     profileUrl,
   } = data;
@@ -662,6 +663,14 @@ export function OrderConfirmationEmail(data: OrderConfirmationEmailData) {
                     <DetailRow label="Card type" value={productTier} />
                   ) : null}
                   <DetailRow label="Quantity" value={String(quantity)} />
+                  {/* Customised Card: itemise so the total is visibly
+                      card + design charge. */}
+                  {designCharge ? (
+                    <>
+                      <DetailRow label="Card price" value={designCharge.cardPrice} />
+                      <DetailRow label="Design charge" value={designCharge.designFee} />
+                    </>
+                  ) : null}
                   <DetailRow
                     label="Amount paid"
                     value={amountPaid}
