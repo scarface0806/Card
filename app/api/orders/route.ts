@@ -7,7 +7,11 @@ import { errorResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
 import { OrderStatus, PaymentStatus, Prisma, Role } from "@prisma/client";
 import { getMongoDb } from "@/lib/mongodb";
-import { ourCloudinaryCloudName, resolveCustomDesignOrder } from "@/lib/custom-card-artwork";
+import {
+  ourCloudinaryCloudName,
+  resolveCustomDesignOrder,
+  resolveProfilePhoto,
+} from "@/lib/custom-card-artwork";
 import {
   SELECTED_PRODUCT_MESSAGES,
   getPurchasableProduct,
@@ -146,6 +150,7 @@ export async function POST(request: NextRequest) {
       profileData,
       customFrontImageUrl,
       customBackImageUrl,
+      profileImageUrl,
     } = parsed.data;
 
     // A SIGNED-IN CUSTOMER IS NOW REQUIRED TO PLACE AN ORDER.
@@ -200,6 +205,17 @@ export async function POST(request: NextRequest) {
       return errorResponse(customDesign.error, 400);
     }
 
+    // Profile photo (optional, every product). Must be this customer's own
+    // upload in profile-photos/<userId>/.
+    const profilePhoto = resolveProfilePhoto({
+      url: profileImageUrl,
+      userId: user.id,
+      cloudName: ourCloudinaryCloudName(),
+    });
+    if (!profilePhoto.ok) {
+      return errorResponse(profilePhoto.error, 400);
+    }
+
     const qty = quantity ?? 1;
     // The card alone. `product.price` includes any design fee (it is the
     // all-in amount shown at checkout), so the line item uses cardPrice and
@@ -248,6 +264,7 @@ export async function POST(request: NextRequest) {
       profileData: profileData ?? null,
       // Design fee and artwork (Customised Card only; null otherwise).
       ...customDesign.fields,
+      ...profilePhoto.fields,
       items: [orderItem],
       subtotal,
       discount: 0,

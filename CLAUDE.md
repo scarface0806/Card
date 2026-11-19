@@ -106,6 +106,15 @@ folder (`resolveCustomDesignOrder` in `src/lib/custom-card-artwork.ts`) and stor
 `designFee` + `custom*ImageUrl/PublicId` on the Order. Shared Mongo rate limiter:
 `src/lib/mongo-rate-limit.ts`.
 
+**Checkout uploads** (profile photo for every product, artwork for Customised Card)
+upload on select via `src/lib/checkout-upload-client.ts` → the same route with
+`purpose` `profile` (folder `profile-photos/<userId>/`) or `artwork`. The form holds
+`{url, publicId, width, height}`, never a File (a File in the JSON order body
+serialises to `{}`). The order stores `profileImageUrl/PublicId` after
+`resolveProfilePhoto`. A daily Vercel Cron (`vercel.json` →
+`/api/cron/cleanup-uploads`, needs `CRON_SECRET`) deletes uploads in those two folders
+older than 7 days that no order references (`src/lib/upload-cleanup.ts`).
+
 Email: Resend (`src/lib/emails/*`) for order/status/password-reset/admin alerts;
 nodemailer (`src/lib/email.ts`, SMTP env vars not in `.env.example`) for leads,
 newsletters and the NFC-link email.

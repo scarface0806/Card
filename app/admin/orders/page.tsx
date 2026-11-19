@@ -54,6 +54,8 @@ interface OrderDetails {
   designFee?: number | null;
   customFrontImageUrl?: string | null;
   customBackImageUrl?: string | null;
+  /** Checkout profile photo, any product. */
+  profileImageUrl?: string | null;
   status: string;
   createdAt: string;
   notes?: string | null;
@@ -809,13 +811,14 @@ export default function OrdersPage() {
                 </div>
               </section>
 
-              {/* Customised Card: the customer's front/back artwork. Renders
-                  nothing for other orders. */}
+              {/* Profile photo, plus the front/back artwork on a Customised
+                  Card order. Renders nothing when the order has no uploads. */}
               <OrderArtworkPanel
                 orderNumber={selectedOrder.orderNumber}
                 frontUrl={selectedOrder.customFrontImageUrl}
                 backUrl={selectedOrder.customBackImageUrl}
                 designFee={selectedOrder.designFee}
+                profilePhotoUrl={selectedOrder.profileImageUrl}
               />
 
               <section className="space-y-3">

@@ -44,9 +44,10 @@ const { POST } = await import('../app/api/uploads/custom-card/route');
 
 const JPEG_HEADER = [0xff, 0xd8, 0xff, 0xe0, 0, 0x10, 0x4a, 0x46, 0x49, 0x46, 0, 1];
 
-function upload(file: File | null) {
+function upload(file: File | null, purpose?: string) {
   const form = new FormData();
   if (file) form.append('file', file);
+  if (purpose !== undefined) form.append('purpose', purpose);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return POST(new Request('https://tapvyo.in/api/uploads/custom-card', { method: 'POST', body: form }) as any);
 }
@@ -64,6 +65,18 @@ describe('POST /api/uploads/custom-card', () => {
     const body = await res.json();
     expect(body).toMatchObject({ publicId: `custom-cards/${USER_ID}/abc`, width: 1011, height: 638 });
     expect(uploadToCloudinary).toHaveBeenCalledWith(expect.any(Buffer), `custom-cards/${USER_ID}`);
+  });
+
+  it('stores a profile photo in the customer profile-photos folder', async () => {
+    const res = await upload(new File([new Uint8Array(JPEG_HEADER)], 'me.jpg', { type: 'image/jpeg' }), 'profile');
+    expect(res.status).toBe(200);
+    expect(uploadToCloudinary).toHaveBeenCalledWith(expect.any(Buffer), `profile-photos/${USER_ID}`);
+  });
+
+  it('rejects an unknown purpose rather than picking a folder from it', async () => {
+    const res = await upload(new File([new Uint8Array(JPEG_HEADER)], 'x.jpg', { type: 'image/jpeg' }), 'admin/products');
+    expect(res.status).toBe(400);
+    expect(uploadToCloudinary).not.toHaveBeenCalled();
   });
 
   it('requires login', async () => {

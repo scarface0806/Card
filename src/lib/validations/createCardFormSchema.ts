@@ -50,7 +50,10 @@ export const createCardFormSchema = z.object({
     youtube: '',
   }),
   uploads: z.object({
-    profileImage: z.any().nullable().optional(),
+    // The uploaded photo's location, not a File: a File inside the JSON order
+    // body serialised to {} and the photo never arrived. See UploadForm.
+    profileImage: uploadedArtworkSchema.nullable().optional(),
+    // No longer shown at checkout; kept so older saved form shapes still parse.
     logo: z.any().nullable().optional(),
   }).default({}),
   // Customised Card only: the front and back artwork, as returned by

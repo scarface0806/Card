@@ -218,6 +218,21 @@ describe('sendAdminOrderNotification', () => {
     expect(call.subject).toContain('₹699');
   });
 
+  it('links the verified profile photo instead of the empty {} profileData used to carry', async () => {
+    const prismaMock = vi.mocked((await import('@/lib/prisma')).default.order.findUnique);
+    mocks.mockResendSend.mockResolvedValue({ data: { id: 'email_4' }, error: null });
+    const photo = 'https://res.cloudinary.com/tapvyo/image/upload/v1/profile-photos/u1/me1.jpg';
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    prismaMock.mockResolvedValueOnce({ ...mockOrder, profileImageUrl: photo } as any);
+    await sendAdminOrderNotification('ord_123', 'pay_R9zK3mQ8nL2vP4');
+
+    const call = mocks.mockResendSend.mock.calls[0][0] as Record<string, string>;
+    expect(call.html).toContain('Profile photo');
+    expect(call.html).toContain(photo);
+    expect(call.text).toContain(photo);
+  });
+
   it('adds no artwork or design charge to a regular order', async () => {
     mocks.mockResendSend.mockResolvedValue({ data: { id: 'email_3' }, error: null });
     await sendAdminOrderNotification('ord_123', 'pay_R9zK3mQ8nL2vP4');

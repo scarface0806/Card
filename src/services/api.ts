@@ -21,10 +21,11 @@ export interface OrderData {
     youtube?: string;
   };
   uploads: {
-    profileImage?: File;
-    logo?: File;
-    coverImage?: File;
-    gallery?: File[];
+    /**
+     * Where the profile photo was uploaded, NOT the File. A File in this JSON
+     * body serialised to {} - see src/forms/UploadForm.tsx.
+     */
+    profileImage?: { url: string } | null;
   };
   /**
    * The product being bought. Required.
@@ -78,6 +79,7 @@ export const createOrder = async (data: OrderData) => {
       // are this customer's own uploads.
       customFrontImageUrl: data.customArtwork?.front?.url || undefined,
       customBackImageUrl: data.customArtwork?.back?.url || undefined,
+      profileImageUrl: data.uploads?.profileImage?.url || undefined,
     }),
   });
 

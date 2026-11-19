@@ -4,30 +4,39 @@ import { authenticate } from "@/lib/auth-middleware";
 import { isCloudinaryConfigured, uploadToCloudinary } from "@/lib/cloudinary";
 import {
   MAX_ARTWORK_BYTES,
-  customCardFolder,
+  isUploadPurpose,
+  uploadFolder,
   validateArtworkFile,
+  type UploadPurpose,
 } from "@/lib/custom-card-artwork";
 import { consumeRateLimit, MongoRateLimitUnavailableError } from "@/lib/mongo-rate-limit";
 
 /**
  * POST /api/uploads/custom-card
  *
- * A signed-in customer uploads ONE artwork image (card front or back) for a
- * Customised Card order. Returns { url, publicId, width, height }; the checkout
- * keeps those in form state and POST /api/orders re-checks the URL belongs to
- * this customer before it is saved on the order.
+ * A signed-in customer uploads ONE checkout image. The `purpose` form field
+ * says which kind:
+ *  - "artwork" (default): card front or back for a Customised Card order,
+ *    stored under custom-cards/<userId>/.
+ *  - "profile": the profile photo from step 4, for every product, stored under
+ *    profile-photos/<userId>/. (The route keeps its original path; it now
+ *    serves both.)
+ * Returns { url, publicId, width, height }; the checkout keeps those in form
+ * state and POST /api/orders re-checks the URL belongs to this customer AND
+ * this purpose before it is saved on the order.
  *
  * Unlike /api/admin/upload this is customer-facing, so:
  *  - Login is required (the same auth-token JWT check as /api/orders).
  *  - It is rate-limited PER USER in the shared rate_limits collection, so a
  *    logged-in account cannot be used to fill our Cloudinary storage.
- *  - The folder is not taken from the request. It is always
- *    custom-cards/<userId>/, which is what lets the order route verify
- *    ownership by URL alone.
+ *  - The folder is not taken from the request - only the purpose is, from a
+ *    fixed list - and always ends in /<userId>/, which is what lets the order
+ *    route verify ownership by URL alone.
  *  - The file type is checked from its bytes, not just the declared MIME type.
  *
- * Uploads from a checkout that is abandoned stay in Cloudinary; there is no
- * cleanup job yet. The publicIds saved on orders make the used ones findable.
+ * Uploads from a checkout that is abandoned are removed by the daily cleanup
+ * job (app/api/cron/cleanup-uploads, lib/upload-cleanup.ts): anything in these
+ * folders older than 7 days that no order references is deleted.
  */
 
 export const runtime = "nodejs";
@@ -82,8 +91,17 @@ export async function POST(request: NextRequest) {
   }
 
   let file: FormDataEntryValue | null;
+  let purpose: UploadPurpose;
   try {
-    file = (await request.formData()).get("file");
+    const form = await request.formData();
+    file = form.get("file");
+    // Absent means "artwork", which is what every caller sent before profile
+    // photos used this route.
+    const rawPurpose = form.get("purpose") ?? "artwork";
+    if (!isUploadPurpose(rawPurpose)) {
+      return NextResponse.json({ error: "Invalid upload purpose." }, { status: 400 });
+    }
+    purpose = rawPurpose;
   } catch {
     return NextResponse.json({ error: "Invalid upload." }, { status: 400 });
   }
@@ -102,7 +120,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: validation.error }, { status: validation.status });
   }
 
-  const folder = customCardFolder(user.id);
+  const folder = uploadFolder(purpose, user.id);
 
   try {
     const { url, publicId, width, height } = await uploadToCloudinary(buffer, folder);

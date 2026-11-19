@@ -113,6 +113,9 @@ export const createOrderSchema = z.object({
   // cloud and in THIS customer's custom-cards/<userId>/ folder.
   customFrontImageUrl: z.string().max(500).optional(),
   customBackImageUrl: z.string().max(500).optional(),
+  // Profile photo from step 4, uploaded via /api/uploads/custom-card with
+  // purpose "profile". Verified the same way in POST /api/orders.
+  profileImageUrl: z.string().max(500).optional(),
 });
 
 // Card update schema allows partial details

@@ -4,7 +4,9 @@ import {
   MAX_ARTWORK_BYTES,
   detectImageType,
   parseOwnArtworkUrl,
+  parseOwnUploadUrl,
   resolveCustomDesignOrder,
+  resolveProfilePhoto,
   validateArtworkFile,
 } from '@/lib/custom-card-artwork';
 
@@ -192,5 +194,39 @@ describe('resolveCustomDesignOrder (POST /api/orders)', () => {
         customBackPublicId: null,
       },
     });
+  });
+});
+
+describe('profile photo uploads', () => {
+  const cloud = 'tapvyo';
+  const user = '64b7f0c2a1b2c3d4e5f60718';
+  const photo = `https://res.cloudinary.com/${cloud}/image/upload/v1/profile-photos/${user}/me1.jpg`;
+  const artwork = `https://res.cloudinary.com/${cloud}/image/upload/v1/custom-cards/${user}/front1.jpg`;
+
+  it('accepts the customer\'s own profile photo and returns its public id', () => {
+    expect(resolveProfilePhoto({ url: photo, userId: user, cloudName: cloud })).toEqual({
+      ok: true,
+      fields: { profileImageUrl: photo, profileImagePublicId: `profile-photos/${user}/me1` },
+    });
+  });
+
+  it('treats no photo as a valid order', () => {
+    for (const url of [undefined, null, '']) {
+      expect(resolveProfilePhoto({ url, userId: user, cloudName: cloud })).toEqual({
+        ok: true,
+        fields: { profileImageUrl: null, profileImagePublicId: null },
+      });
+    }
+  });
+
+  it("refuses a foreign URL or another customer's photo", () => {
+    expect(resolveProfilePhoto({ url: 'https://evil.example.com/me.jpg', userId: user, cloudName: cloud }).ok).toBe(false);
+    expect(resolveProfilePhoto({ url: photo, userId: '64b7f0c2a1b2c3d4e5f60719', cloudName: cloud }).ok).toBe(false);
+  });
+
+  it('keeps the two purposes apart - artwork is not a profile photo and vice versa', () => {
+    expect(resolveProfilePhoto({ url: artwork, userId: user, cloudName: cloud }).ok).toBe(false);
+    expect(parseOwnUploadUrl(photo, user, cloud, 'artwork')).toBeNull();
+    expect(parseOwnArtworkUrl(photo, user, cloud)).toBeNull();
   });
 });

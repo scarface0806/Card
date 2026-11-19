@@ -1,6 +1,9 @@
 /**
- * Customer-uploaded artwork for "Customised Card" products. SERVER-ONLY
- * (no secrets here, but nothing client-side needs it).
+ * Customer uploads at checkout: the profile photo (every product) and the
+ * front/back artwork for "Customised Card" products. SERVER-ONLY (no secrets
+ * here, but nothing client-side needs it). Each purpose has its own folder -
+ * see UPLOAD_FOLDER_ROOTS - and the cleanup job in lib/upload-cleanup.ts only
+ * ever touches those folders.
  *
  * Two jobs, both security boundaries:
  *
@@ -22,9 +25,30 @@ export const MAX_ARTWORK_BYTES = 10 * 1024 * 1024;
 export const ALLOWED_ARTWORK_TYPES = ['image/jpeg', 'image/png', 'image/webp'] as const;
 export type ArtworkMimeType = (typeof ALLOWED_ARTWORK_TYPES)[number];
 
-/** Cloudinary folder for one customer's uploads. */
+/**
+ * What a checkout upload is for. Each purpose has its own root folder, so the
+ * order route can check a URL is not just "this customer's" but the RIGHT
+ * kind - a profile photo cannot be submitted as card artwork, or vice versa.
+ */
+export type UploadPurpose = 'artwork' | 'profile';
+
+export const UPLOAD_FOLDER_ROOTS: Record<UploadPurpose, string> = {
+  artwork: 'custom-cards',
+  profile: 'profile-photos',
+};
+
+export function isUploadPurpose(value: unknown): value is UploadPurpose {
+  return value === 'artwork' || value === 'profile';
+}
+
+/** Cloudinary folder for one customer's uploads of one purpose. */
+export function uploadFolder(purpose: UploadPurpose, userId: string): string {
+  return `${UPLOAD_FOLDER_ROOTS[purpose]}/${userId}`;
+}
+
+/** Cloudinary folder for one customer's card artwork. */
 export function customCardFolder(userId: string): string {
-  return `custom-cards/${userId}`;
+  return uploadFolder('artwork', userId);
 }
 
 /**
@@ -118,6 +142,19 @@ export function parseOwnArtworkUrl(
   userId: string,
   cloudName: string | null
 ): { url: string; publicId: string } | null {
+  return parseOwnUploadUrl(rawUrl, userId, cloudName, 'artwork');
+}
+
+/**
+ * The same ownership check for any checkout upload: OUR cloud, THIS customer,
+ * and the folder for THIS purpose (custom-cards/ or profile-photos/).
+ */
+export function parseOwnUploadUrl(
+  rawUrl: unknown,
+  userId: string,
+  cloudName: string | null,
+  purpose: UploadPurpose
+): { url: string; publicId: string } | null {
   if (typeof rawUrl !== 'string' || !rawUrl || !cloudName || !userId) return null;
 
   let parsed: URL;
@@ -141,7 +178,7 @@ export function parseOwnArtworkUrl(
   // Optional version segment.
   rest = rest.replace(/^v\d+\//, '');
 
-  const folder = `${customCardFolder(userId)}/`;
+  const folder = `${uploadFolder(purpose, userId)}/`;
   if (!rest.startsWith(folder)) return null;
 
   const fileName = rest.slice(folder.length);
@@ -213,4 +250,32 @@ export function resolveCustomDesignOrder(input: {
       customBackPublicId: back.publicId,
     },
   };
+}
+
+/**
+ * The profile photo for POST /api/orders. Optional for every product - no URL
+ * means no photo. A URL that is sent must be this customer's own upload in
+ * profile-photos/<userId>/; anything else is refused rather than silently
+ * dropped, so a broken upload is noticed at checkout, not after printing.
+ */
+export function resolveProfilePhoto(input: {
+  url: unknown;
+  userId: string;
+  cloudName: string | null;
+}):
+  | { ok: true; fields: { profileImageUrl: string | null; profileImagePublicId: string | null } }
+  | { ok: false; error: string } {
+  if (input.url === undefined || input.url === null || input.url === '') {
+    return { ok: true, fields: { profileImageUrl: null, profileImagePublicId: null } };
+  }
+
+  const photo = parseOwnUploadUrl(input.url, input.userId, input.cloudName, 'profile');
+  if (!photo) {
+    return {
+      ok: false,
+      error: 'Your profile photo could not be verified. Please upload it again.',
+    };
+  }
+
+  return { ok: true, fields: { profileImageUrl: photo.url, profileImagePublicId: photo.publicId } };
 }

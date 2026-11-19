@@ -60,6 +60,8 @@ const ADMIN_ORDER_SELECT = {
 	designFee: true,
 	customFrontImageUrl: true,
 	customBackImageUrl: true,
+	// Verified checkout profile photo (any product).
+	profileImageUrl: true,
 } satisfies Prisma.OrderSelect;
 
 type AdminOrder = Prisma.OrderGetPayload<{ select: typeof ADMIN_ORDER_SELECT }>;
@@ -308,7 +310,15 @@ function transformOrder(order: AdminOrder, paymentRef: string | null): AdminOrde
 		},
 		socialLinks: extractSocialLinks(order.profileData),
 		profileUrl,
-		uploadedFiles: [...customArtworkFiles(order), ...extractUploadedFiles(order.profileData)],
+		// The verified profile photo column when the order has one. Older orders
+		// fall back to whatever profileData.uploads held - which, before the
+		// photo was actually uploaded, was an empty {} the list shows as "—".
+		uploadedFiles: [
+			...customArtworkFiles(order),
+			...(order.profileImageUrl
+				? [{ name: "Profile photo", url: order.profileImageUrl }]
+				: extractUploadedFiles(order.profileData)),
+		],
 		items,
 	};
 }

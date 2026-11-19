@@ -169,6 +169,13 @@ model Order {
   customFrontPublicId String?
   customBackPublicId  String?
 
+  // The customer's profile photo from checkout step 4, uploaded to Cloudinary
+  // under profile-photos/<userId>/ and verified as theirs by POST /api/orders.
+  // Before this existed the photo was a File object inside profileData, which
+  // JSON.stringify turned into {} - it never reached the server at all.
+  profileImageUrl      String?
+  profileImagePublicId String?
+
   // Order details
   items    OrderItem[]
   subtotal Float

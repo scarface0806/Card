@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useFormContext } from 'react-hook-form';
 import { AlertTriangle, CheckCircle2, RefreshCw, Upload } from 'lucide-react';
 import type { CardOrientation } from '@/lib/products/orientation';
@@ -9,10 +9,12 @@ import {
   isBelowRecommended,
   recommendedArtworkSize,
 } from '@/lib/products/custom-artwork-spec';
-import type {
-  CreateCardFormValues,
-  UploadedArtwork,
-} from '@/lib/validations/createCardFormSchema';
+import {
+  CHECKOUT_UPLOAD_TYPES,
+  precheckUpload,
+  uploadCheckoutImage,
+} from '@/lib/checkout-upload-client';
+import type { CreateCardFormValues } from '@/lib/validations/createCardFormSchema';
 
 /**
  * Step 4 for a Customised Card: the customer's own front and back artwork.
@@ -32,54 +34,19 @@ import type {
 
 type Side = 'front' | 'back';
 
-const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp'];
-const MAX_BYTES = 10 * 1024 * 1024;
-
 type SlotState =
   | { status: 'idle' }
   | { status: 'uploading'; progress: number }
   | { status: 'error'; message: string };
 
-function uploadArtwork(
-  file: File,
-  onProgress: (percent: number) => void
-): Promise<UploadedArtwork> {
-  // XMLHttpRequest rather than fetch: fetch has no upload progress events.
-  return new Promise((resolve, reject) => {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', '/api/uploads/custom-card');
-    xhr.upload.onprogress = (event) => {
-      if (event.lengthComputable) onProgress(Math.round((event.loaded / event.total) * 100));
-    };
-    xhr.onload = () => {
-      let body: { error?: string } & Partial<UploadedArtwork> = {};
-      try {
-        body = JSON.parse(xhr.responseText || '{}');
-      } catch {
-        // fall through to the generic message
-      }
-      if (xhr.status >= 200 && xhr.status < 300 && body.url && body.publicId) {
-        resolve({
-          url: body.url,
-          publicId: body.publicId,
-          width: Number(body.width) || 0,
-          height: Number(body.height) || 0,
-        });
-      } else if (xhr.status === 401) {
-        reject(new Error('Your session has expired. Please sign in again to upload.'));
-      } else {
-        reject(new Error(body.error || 'Upload failed. Please try again.'));
-      }
-    };
-    xhr.onerror = () => reject(new Error('Upload failed. Check your connection and try again.'));
-
-    const form = new FormData();
-    form.append('file', file);
-    xhr.send(form);
-  });
-}
-
-export default function CustomArtworkForm({ orientation }: { orientation: CardOrientation }) {
+export default function CustomArtworkForm({
+  orientation,
+  onBusyChange,
+}: {
+  orientation: CardOrientation;
+  /** Told while an upload is in flight, so checkout can hold "Continue". */
+  onBusyChange?: (busy: boolean) => void;
+}) {
   const {
     watch,
     setValue,
@@ -94,6 +61,13 @@ export default function CustomArtworkForm({ orientation }: { orientation: CardOr
   });
   const inputs = { front: useRef<HTMLInputElement>(null), back: useRef<HTMLInputElement>(null) };
 
+  const busy = slots.front.status === 'uploading' || slots.back.status === 'uploading';
+  useEffect(() => {
+    onBusyChange?.(busy);
+    // Cleared on unmount (going Back mid-upload), so "Continue" is not stuck.
+    return () => onBusyChange?.(false);
+  }, [busy, onBusyChange]);
+
   const size = recommendedArtworkSize(orientation);
 
   const setSlot = (side: Side, state: SlotState) =>
@@ -102,18 +76,15 @@ export default function CustomArtworkForm({ orientation }: { orientation: CardOr
   const handleFile = async (side: Side, file: File | undefined) => {
     if (!file) return;
 
-    if (!ACCEPTED.includes(file.type)) {
-      setSlot(side, { status: 'error', message: 'Please choose a JPEG, PNG or WEBP image.' });
-      return;
-    }
-    if (file.size > MAX_BYTES) {
-      setSlot(side, { status: 'error', message: 'That file is over 10MB. Please choose a smaller one.' });
+    const problem = precheckUpload(file);
+    if (problem) {
+      setSlot(side, { status: 'error', message: problem });
       return;
     }
 
     setSlot(side, { status: 'uploading', progress: 0 });
     try {
-      const uploaded = await uploadArtwork(file, (progress) =>
+      const uploaded = await uploadCheckoutImage(file, 'artwork', (progress) =>
         setSlot(side, { status: 'uploading', progress })
       );
       setValue(`customArtwork.${side}`, uploaded, { shouldDirty: true });
@@ -163,7 +134,7 @@ export default function CustomArtworkForm({ orientation }: { orientation: CardOr
                 ref={inputs[side]}
                 id={inputId}
                 type="file"
-                accept={ACCEPTED.join(',')}
+                accept={CHECKOUT_UPLOAD_TYPES.join(',')}
                 className="sr-only tv-dropzone-input"
                 aria-describedby={statusId}
                 aria-invalid={fieldError || slot.status === 'error' ? true : undefined}

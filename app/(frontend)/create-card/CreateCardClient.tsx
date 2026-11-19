@@ -110,9 +110,17 @@ export default function CreateCardClient({
 
   // One flag for every "do not let them click again" state - form submit,
   // order creation, the Checkout modal being open, and verification.
-  const isBusy = isSubmitting || isPaymentLoading;
-  const busyLabel =
-    paymentStatus === 'awaiting_payment'
+  // Step 4 uploads happen in the background as soon as a file is picked.
+  // Continue waits for them: leaving mid-upload would drop the photo or
+  // artwork from the order without the customer noticing.
+  const [photoUploading, setPhotoUploading] = useState(false);
+  const [artworkUploading, setArtworkUploading] = useState(false);
+  const uploadsBusy = photoUploading || artworkUploading;
+
+  const isBusy = isSubmitting || isPaymentLoading || uploadsBusy;
+  const busyLabel = uploadsBusy
+    ? 'Uploading...'
+    : paymentStatus === 'awaiting_payment'
       ? 'Waiting for payment...'
       : paymentStatus === 'verifying'
         ? 'Confirming payment...'
@@ -191,9 +199,10 @@ export default function CreateCardClient({
     }
 
     try {
+      // The uploaded photo's location (or null). It used to be the File itself,
+      // which the JSON order body could not carry - see UploadForm.
       const uploads = {
-        profileImage: data.uploads?.profileImage?.[0],
-        logo: data.uploads?.logo?.[0],
+        profileImage: data.uploads?.profileImage ?? null,
       };
 
       // Step 1: Create the order in the database. It lands as PENDING/unpaid -
@@ -323,11 +332,14 @@ export default function CreateCardClient({
                     {currentStep === 3 && <SocialLinksForm />}
                     {currentStep === 4 && (
                       <>
-                        <UploadForm />
+                        <UploadForm onBusyChange={setPhotoUploading} />
                         {product.isCustomDesign && (
                           <>
                             <hr className="tv-rule" />
-                            <CustomArtworkForm orientation={product.orientation === 'vertical' ? 'vertical' : 'horizontal'} />
+                            <CustomArtworkForm
+                              orientation={product.orientation === 'vertical' ? 'vertical' : 'horizontal'}
+                              onBusyChange={setArtworkUploading}
+                            />
                           </>
                         )}
                       </>
