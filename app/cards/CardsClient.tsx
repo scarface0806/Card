@@ -5,15 +5,11 @@ import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 import Navbar from '@/layouts/Navbar';
 import Footer from '@/layouts/Footer';
-import NFCCard from '@/components/ui/NFCCard';
-import CardFlipImage from '@/components/ui/CardFlipImage';
-import CardArtwork from '@/components/ui/CardArtwork';
+import CatalogueTile from '@/components/cards/CatalogueTile';
 import type { ContactSource } from '@/components/ContactModal';
 import OtherCardsSolutionsSection from '@/sections/OtherCardsSolutionsSection';
 import { motion } from 'framer-motion';
 import {
-  Eye,
-  ArrowUpRight,
   Globe,
   Zap,
   Users,
@@ -25,7 +21,7 @@ import { useCardDesigns, CardDesign } from '@/hooks/useCardDesigns';
 import SelectionNotice from './SelectionNotice';
 import ProductAssurances from '@/components/trust/ProductAssurances';
 import CustomDesignSection from '@/components/cards/CustomDesignSection';
-import { cardAspectClass } from '@/lib/products/orientation';
+import { normalizeOrientation } from '@/lib/products/orientation';
 
 /**
  * The three modals are code-split and mounted only while open.
@@ -78,6 +74,15 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
   const regularDesigns = cardDesigns.filter((design) => !design.isCustomDesign);
   const customDesigns = cardDesigns.filter((design) => design.isCustomDesign);
 
+  // One section per card shape - see the SPLIT BY ORIENTATION note in the JSX.
+  // filter() keeps the database order inside each group.
+  const horizontalDesigns = regularDesigns.filter(
+    (design) => normalizeOrientation(design.orientation) === 'horizontal'
+  );
+  const verticalDesigns = regularDesigns.filter(
+    (design) => normalizeOrientation(design.orientation) === 'vertical'
+  );
+
   // Contact Modal State (lifted up for reuse)
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [contactModalSource, setContactModalSource] = useState<ContactSource>('general');
@@ -114,24 +119,6 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
     router.push(`/create-card?productId=${encodeURIComponent(card.id)}`);
   };
 
-  /**
-   * Card reveal.
-   *
-   * This deliberately does NOT use parent-orchestrated variants
-   * (container `initial="hidden" animate="visible"` + `staggerChildren`).
-   * The grid's children mount only once the products have been fetched, which
-   * is after the parent's animation has finished - they mounted in the
-   * "hidden" state and never received the "visible" propagation, leaving every
-   * card stuck at opacity 0.
-   *
-   * Each card now animates itself on mount, with the stagger expressed as a
-   * per-index delay, so a list that changes identity still reveals correctly.
-   */
-  const cardReveal = (index: number) => ({
-    initial: { opacity: 0, y: 20 },
-    animate: { opacity: 1, y: 0 },
-    transition: { duration: 0.5, delay: Math.min(index, 8) * 0.06 },
-  });
 
   return (
     <div className="frontend-dark">
@@ -215,130 +202,62 @@ export default function CardsClient({ initialDesigns }: CardsClientProps) {
                 </button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
-                {regularDesigns.map((card, index) => (
-                  <motion.article
-                    key={card.id}
-                    {...cardReveal(index)}
-                    className="group tv-panel flex flex-col h-full overflow-hidden"
-                  >
-                    {/* Card Preview. The front face is unchanged; CardFlipImage
-                        adds the back behind it and the control to turn it over,
-                        and collapses back to exactly this markup when the card
-                        has no back image. */}
-                    <CardFlipImage
-                      frontSrc={card.images?.[0]}
-                      backImage={card.backImage}
-                      name={card.name}
-                      className={`${cardAspectClass(card.orientation)} overflow-hidden bg-[#E8E3D8]`}
-                      front={
-                        /* A photograph if the design has one; otherwise the
-                           finish is drawn. Every design carries a gradient, so
-                           nothing needs to fall back to a grey placeholder. */
-                        card.images?.[0] ? (
-                          <CardArtwork
-                            src={card.images[0]}
-                            alt={`${card.name} NFC card`}
-                            name={card.name}
-                            label={card.material || undefined}
-                            width={480}
-                            height={300}
-                            loading="lazy"
-                          />
-                        ) : (
-                          <NFCCard
-                            name={card.name}
-                            color={card.color}
-                            label={card.material || undefined}
-                          />
-                        )
-                      }
-                      overlay={
-                        /* Quick view. Revealed on focus-within as well as hover,
-                           so the button is reachable from the keyboard.
-
-                           The scrim is pointer-transparent so that clicking the
-                           artwork flips it; only the button itself takes the
-                           pointer, so Quick view behaves as it always has. */
-                        <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#12100C]/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
-                          <button
-                            onClick={() => handlePreview(card)}
-                            className="tv-btn tv-btn-secondary pointer-events-auto !text-[#F1F3F1] !border-[#F1F3F1]/45 !bg-[#12100C]/60"
-                          >
-                            <Eye className="w-4 h-4" aria-hidden="true" />
-                            Quick view
-                            <span className="sr-only"> of {card.name}</span>
-                          </button>
-                        </div>
-                      }
-                    />
-
-                    {/* Card Details */}
-                    <div className="flex flex-col grow tv-panel-pad">
-                      <div className="flex items-start justify-between gap-3 mb-3">
-                        <h2 className="tv-h4">{card.name}</h2>
-                        <span className="tv-mono shrink-0 pt-1">{card.typeLabel}</span>
-                      </div>
-
-                      {/* Price */}
-                      <div className="mb-4">
-                        <div className="flex items-baseline gap-2.5">
-                          <p
-                            className="text-2xl font-semibold text-[#12100C]"
-                            style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
-                          >
-                            {card.price}
-                          </p>
-                          {card.listPrice && (
-                            <p
-                              className="text-sm line-through text-[#4C534F]"
-                              style={{ fontFamily: 'var(--font-mono), ui-monospace, monospace' }}
-                            >
-                              {card.listPrice}
-                            </p>
-                          )}
-                        </div>
-                        {/* This line renders once per card, so the lifetime-website
-                            claim is deliberately not repeated here - it is made
-                            once, in the section below the grid. */}
-                        <p className="tv-small mt-1">
-                          {card.type === 'custom'
-                            ? 'Base NFC card price'
-                            : 'Includes your digital profile'}
-                        </p>
-                      </div>
-
-                      {/* The per-card spec bullets used to sit here. Removed
-                          from the tile on purpose: the same claims are made
-                          once, in the "Included with every card" grid below,
-                          and repeating them on every card only added height.
-                          `product.features` still carries them on the checkout
-                          rail — the data is intact, it is just not printed
-                          here. */}
-
-                      {/* Action. Custom designs open the enquiry modal, so they
-                          take the contact label rather than the buy label. */}
-                      <div className="mt-auto">
-                        <button
-                          onClick={() => handleBuyNow(card)}
-                          className={`tv-btn w-full ${
-                            card.type === 'custom' ? 'tv-btn-secondary' : 'tv-btn-gilded'
-                          }`}
-                        >
-                          {card.type === 'custom' ? (
-                            <span>Talk to our team</span>
-                          ) : (
-                            <>
-                              <span>Get your card</span>
-                              <ArrowUpRight className="w-[18px] h-[18px]" aria-hidden="true" />
-                            </>
-                          )}
-                        </button>
-                      </div>
+              <>
+                {/* SPLIT BY ORIENTATION. All products used to share one
+                    1/2/3-column grid. A portrait tile (1:1.6) is much taller
+                    than a landscape one, so a row mixing the two stretched the
+                    landscape tiles to match, leaving a large empty gap above
+                    their buttons. Each shape now gets its own section and its
+                    own grid, so every row holds tiles of one height. Database
+                    order is kept within each group. */}
+                {horizontalDesigns.length > 0 && (
+                  <section aria-labelledby="cards-horizontal-heading">
+                    <div className="max-w-2xl mb-8 md:mb-10">
+                      <p className="tv-eyebrow mb-5">Landscape</p>
+                      <h2 id="cards-horizontal-heading" className="tv-h2 mb-3">Horizontal Cards</h2>
+                      <p className="tv-body">The classic landscape card.</p>
                     </div>
-                  </motion.article>
-                ))}
-              </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 md:gap-6">
+                      {horizontalDesigns.map((card, index) => (
+                        <CatalogueTile
+                          key={card.id}
+                          card={card}
+                          index={index}
+                          onPreview={handlePreview}
+                          onBuy={handleBuyNow}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
+
+                {verticalDesigns.length > 0 && (
+                  <section
+                    aria-labelledby="cards-vertical-heading"
+                    className={horizontalDesigns.length > 0 ? 'mt-16 md:mt-24 pt-12 md:pt-16 border-t border-[#12100C]/12' : ''}
+                  >
+                    <div className="max-w-2xl mb-8 md:mb-10">
+                      <p className="tv-eyebrow mb-5">Portrait</p>
+                      <h2 id="cards-vertical-heading" className="tv-h2 mb-3">Vertical Cards</h2>
+                      <p className="tv-body">The same card, stood on its end.</p>
+                    </div>
+                    {/* Portrait tiles are narrower, so more columns on wide
+                        screens. On a phone a single full-width portrait card
+                        would be ~550px tall, so it is capped and centred. */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5 md:gap-6 max-w-[360px] mx-auto sm:max-w-none">
+                      {verticalDesigns.map((card, index) => (
+                        <CatalogueTile
+                          key={card.id}
+                          card={card}
+                          index={index}
+                          onPreview={handlePreview}
+                          onBuy={handleBuyNow}
+                        />
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </>
             )}
 
             {!loading && <CustomDesignSection designs={customDesigns} onSelect={handleBuyNow} />}

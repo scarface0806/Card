@@ -45,8 +45,10 @@ import { isReplicaSetRequiredError } from "@/lib/replica-set";
  *    app/api/auth/[...nextauth]/route.ts rejects an unverified one, so this
  *    route can treat the address as proven and safely link it to an existing
  *    account of the same email.
- *  - A Google login NEVER grants ADMIN. An existing admin keeps their role; a
- *    newly created account is always CUSTOMER.
+ *  - A Google login NEVER grants ADMIN and never yields an ADMIN session. A
+ *    newly created account is always CUSTOMER. An existing ADMIN account keeps
+ *    its role in the database but gets NO app token here - it is sent to
+ *    /admin/login?error=use-password instead (see GET below).
  *  - The redirect target is validated to be a same-site relative path, so this
  *    route cannot be used as an open redirect.
  */
@@ -197,11 +199,25 @@ export async function GET(request: NextRequest) {
       return redirectTo(request, "/login?error=account_deactivated");
     }
 
+    // ADMIN ACCOUNTS NEVER GET A SESSION FROM GOOGLE SIGN-IN.
+    //
+    // This route used to sign `role: user.role` for an existing user, so
+    // signing in with Google on the admin's Gmail produced a full ADMIN session
+    // without /admin/login or its password. proxy.ts and withAdmin trust any
+    // ADMIN token, so the only safe fix is not to mint one here: no auth-token
+    // cookie, and a redirect to the admin login with an explanation. The user's
+    // role in the database is left alone.
+    if (user.role === Role.ADMIN) {
+      console.warn(`[Auth] Google sign-in refused for admin account: ${email}`);
+      return redirectTo(request, "/admin/login?error=use-password");
+    }
+
     // Same treatment a password signup gets, so a guest checkout followed by a
     // Google sign-in still lands the customer on their orders.
     const attached = await attachGuestOrders(user.id, email);
 
     // The app's own session, in the cookie the rest of the app actually reads.
+    // Reached only for non-admin roles (see the ADMIN check above).
     const appToken = generateToken({
       userId: user.id,
       email: user.email,

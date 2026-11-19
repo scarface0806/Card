@@ -1,13 +1,32 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import { useRouter } from 'next/navigation';
 import { Zap } from 'lucide-react';
 import AdminLoginForm from '@/components/admin/AdminLoginForm';
 import BrandLogo from '@/components/common/BrandLogo';
 
+/** The query string does not change while this page is open. */
+const noSubscribe = () => () => {};
+
 export default function AdminLoginPage() {
   const router = useRouter();
+
+  // Google sign-in on an admin account is refused by
+  // /api/auth/google-complete, which sends the admin here with
+  // ?error=use-password instead of issuing a session. Say why, or the bounce
+  // looks like a broken Google login. Read from window.location rather than
+  // useSearchParams, so this prerendered page needs no Suspense boundary;
+  // useSyncExternalStore gives `false` on the server and the real value after
+  // hydration, with no mismatch and no setState-in-effect.
+  const useGoogleRefused = useSyncExternalStore(
+    noSubscribe,
+    () => new URLSearchParams(window.location.search).get('error') === 'use-password',
+    () => false
+  );
+  const notice = useGoogleRefused
+    ? "Admin accounts can't use Google sign-in. Please sign in with your admin email and password."
+    : null;
 
   // Redirect guard - validate active admin session.
   useEffect(() => {
@@ -87,6 +106,11 @@ export default function AdminLoginPage() {
               <div className="mb-6 flex justify-center">
                 <BrandLogo size="large" variant="light" />
               </div>
+              {notice && (
+                <p role="alert" className="mb-4 rounded-lg border border-[var(--tv-brass)]/40 bg-[rgba(201,169,97,0.08)] px-3 py-2 text-sm text-[var(--tv-text)]">
+                  {notice}
+                </p>
+              )}
               <AdminLoginForm />
             </div>
 

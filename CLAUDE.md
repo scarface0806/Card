@@ -84,6 +84,11 @@ sign-in, then `/api/auth/google-complete` converts it to the app's `auth-token`.
 `proxy.ts` (jose) guards `/dashboard`, `/create-card`, `/my-orders` (login required) and
 `/admin/*` (role ADMIN). Admin API routes use `withAdmin` from
 `src/lib/auth-middleware.ts`. Roles: ADMIN, CUSTOMER.
+**Only `/api/admin/login` may mint a role-ADMIN token** (plus the dev-only mock branch
+in `/api/auth/login`, gated on `NODE_ENV === 'development'`). `/api/auth/login` returns
+403 for an ADMIN account (after the password check) and `google-complete` redirects an
+ADMIN to `/admin/login?error=use-password` with no cookie — proxy.ts and `withAdmin`
+trust any ADMIN token, so a new token-minting route must never sign `user.role` blindly.
 
 ## Orders & payments
 

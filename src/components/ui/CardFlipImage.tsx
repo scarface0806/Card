@@ -63,6 +63,13 @@ interface CardFlipImageProps {
   style?: React.CSSProperties;
   /** Classes for the back <img>. Defaults to filling the box. */
   imageClassName?: string;
+  /**
+   * Optional wrapper around the back <img>, for callers that lay the face out
+   * inside the box (padding, centring) rather than filling it - /cards shows
+   * the whole card face, uncropped, on a padded well. Omitted, the back face
+   * renders exactly as before, so other surfaces are unaffected.
+   */
+  backFaceClassName?: string;
   /** Corner the control sits in. Defaults to top-left, clear of the NFC mark. */
   controlClassName?: string;
   /** Controlled flip state. Omit to let the component own it. */
@@ -82,6 +89,7 @@ export default function CardFlipImage({
   className = '',
   style,
   imageClassName = 'h-full w-full object-cover',
+  backFaceClassName,
   controlClassName = 'left-3 top-3',
   flipped: flippedProp,
   onFlipChange,
@@ -136,13 +144,25 @@ export default function CardFlipImage({
           className="tv-flip-face tv-flip-face-back"
           aria-hidden={!showingBack || undefined}
         >
-          <CardArtwork
-            src={backSrc}
-            alt={`${name} NFC card, back`}
-            name={name}
-            label="Back"
-            className={imageClassName}
-          />
+          {backFaceClassName ? (
+            <div className={backFaceClassName}>
+              <CardArtwork
+                src={backSrc}
+                alt={`${name} NFC card, back`}
+                name={name}
+                label="Back"
+                className={imageClassName}
+              />
+            </div>
+          ) : (
+            <CardArtwork
+              src={backSrc}
+              alt={`${name} NFC card, back`}
+              name={name}
+              label="Back"
+              className={imageClassName}
+            />
+          )}
         </div>
       </div>
 

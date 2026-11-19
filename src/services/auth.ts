@@ -21,6 +21,12 @@ export interface AuthResponse {
    * existing orders straight to /my-orders. Absent on login.
    */
   attachedOrders?: number;
+  /**
+   * Where the API says this account must sign in instead. Set when an ADMIN
+   * account tries the customer login: /api/auth/login refuses it with 403 and
+   * `redirect: "/admin/login"`. The UI shows a link; it does not auto-redirect.
+   */
+  redirectTo?: string;
   data?: {
     token: string;
     user: {
@@ -51,6 +57,11 @@ export const loginUser = async (payload: LoginPayload): Promise<AuthResponse> =>
       return {
         success: false,
         message: data.error || 'Login failed',
+        // Only a same-site path is passed on; the link is built from it.
+        redirectTo:
+          typeof data.redirect === 'string' && data.redirect.startsWith('/') && !data.redirect.startsWith('//')
+            ? data.redirect
+            : undefined,
       };
     }
 

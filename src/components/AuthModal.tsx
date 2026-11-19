@@ -23,11 +23,14 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
   const [mobile, setMobile] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Set when the API refuses an admin account and names /admin/login. */
+  const [errorRedirect, setErrorRedirect] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
+    setErrorRedirect(null);
 
     try {
       let result;
@@ -53,6 +56,9 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
         router.refresh();
       } else {
         setError(result.message);
+        // Admin accounts are refused by the customer login (403) and pointed
+        // at /admin/login - shown as a link, never an automatic redirect.
+        setErrorRedirect(result.redirectTo || null);
       }
     } catch {
       setError('An unexpected error occurred. Please try again.');
@@ -117,9 +123,14 @@ export default function AuthModal({ isOpen, mode, onClose, onModeChange }: AuthM
 
               <form onSubmit={handleSubmit} className="tv-modal-body">
                 {error && (
-                  <p className="tv-form-error mb-4" role="alert">
-                    {error}
-                  </p>
+                  <div className="mb-4" role="alert">
+                    <p className="tv-form-error">{error}</p>
+                    {errorRedirect === '/admin/login' && (
+                      <a href="/admin/login" className="tv-btn-tertiary mt-2 inline-flex">
+                        Go to admin login
+                      </a>
+                    )}
+                  </div>
                 )}
 
                 {/* Name Field (Signup only) */}

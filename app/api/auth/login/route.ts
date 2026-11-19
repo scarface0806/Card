@@ -1,4 +1,4 @@
-import { NextRequest } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { verifyPassword, generateToken } from "@/lib/auth";
 import { Role } from "@prisma/client";
@@ -50,6 +50,12 @@ export async function POST(request: NextRequest) {
     const secureCookie = shouldUseSecureCookie(request);
 
     // ✨ Development mode: Allow mock login for testing
+    //
+    // The one other place an ADMIN token can be minted. Safe only because of
+    // BOTH conditions: NODE_ENV is "production" on every Vercel deployment
+    // (preview included) and in `next start`, so this branch cannot run on a
+    // deployed site even if ENABLE_MOCK_AUTH were set there by mistake. Do
+    // not loosen either condition.
     if (process.env.NODE_ENV === 'development' && process.env.ENABLE_MOCK_AUTH === 'true') {
       const body = await request.json();
       const parsed = loginSchema.safeParse(body);
@@ -149,7 +155,33 @@ export async function POST(request: NextRequest) {
       return errorResponse("Invalid email or password", 401);
     }
 
-    // Generate JWT token
+    // ADMIN ACCOUNTS NEVER GET A SESSION FROM THIS ROUTE.
+    //
+    // proxy.ts and withAdmin trust any token whose role is ADMIN, whoever
+    // minted it. This route used to sign `role: user.role`, so an admin's email
+    // and password typed into the CUSTOMER login produced a full admin session
+    // and skipped /admin/login - its stricter rate limit, and any check added
+    // there later (2FA). The only route allowed to issue role ADMIN is
+    // /api/admin/login.
+    //
+    // Placed AFTER the password check on purpose: a wrong password for an
+    // admin email gets the same generic 401 as anyone else, so this response
+    // only tells someone who already holds the correct password that the
+    // account is an admin.
+    //
+    // NextResponse.json rather than errorResponse(): the login UI reads
+    // `redirect` from the top level, and errorResponse() nests extra fields
+    // under `details`.
+    if (user.role === Role.ADMIN) {
+      console.warn(`[Auth] Admin account tried the customer login; refused: ${email}`);
+      const message = "Admin accounts must sign in at /admin/login";
+      return NextResponse.json(
+        { success: false, error: message, message, redirect: "/admin/login" },
+        { status: 403 }
+      );
+    }
+
+    // Generate JWT token. Reached only for non-admin roles (see above).
     const token = generateToken({
       userId: user.id,
       email: user.email,

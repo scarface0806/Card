@@ -45,6 +45,8 @@ function LoginForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [serverError, setServerError] = useState('');
+  /** Set when the API refuses an admin account and names /admin/login. */
+  const [serverRedirect, setServerRedirect] = useState<string | null>(null);
 
   /**
    * Show why a Google sign-in bounced back here.
@@ -78,6 +80,7 @@ function LoginForm() {
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     setServerError('');
+    setServerRedirect(null);
 
     try {
       const response = await loginUser({
@@ -107,6 +110,9 @@ function LoginForm() {
         }, 500);
       } else {
         setServerError(response.message || 'Login failed. Please try again.');
+        // An admin account is refused here (403) and told to use the admin
+        // login. Shown as a link, not an automatic redirect.
+        setServerRedirect(response.redirectTo || null);
       }
     } catch {
       setServerError('An error occurred. Please try again later.');
@@ -130,6 +136,11 @@ function LoginForm() {
           {serverError && (
             <div className="mb-6" role="alert">
               <p className="tv-form-error">{serverError}</p>
+              {serverRedirect === '/admin/login' && (
+                <a href="/admin/login" className="tv-btn-tertiary mt-2 inline-flex">
+                  Go to admin login
+                </a>
+              )}
             </div>
           )}
 

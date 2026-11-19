@@ -5,7 +5,7 @@ import { ArrowUpRight } from 'lucide-react';
 import CardArtwork from '@/components/ui/CardArtwork';
 import NFCCard from '@/components/ui/NFCCard';
 import type { CardDesign } from '@/lib/products/cardDesign';
-import { cardAspectClass } from '@/lib/products/orientation';
+import { FACE_AREA, FACE_IMAGE, WELL_SIZE } from '@/components/cards/CatalogueTile';
 import { ARTWORK_FILE_NOTE, recommendedArtworkSize } from '@/lib/products/custom-artwork-spec';
 
 /**
@@ -52,19 +52,24 @@ export default function CustomDesignSection({
               transition={{ duration: 0.5 }}
               className="group tv-panel flex flex-col h-full overflow-hidden"
             >
-              <div className={`${cardAspectClass(card.orientation)} overflow-hidden bg-[#E8E3D8]`}>
+              {/* Same artwork well as the catalogue tiles (CatalogueTile): the
+                  whole card face, uncropped, on padding. */}
+              <div className={`relative h-0 ${WELL_SIZE[card.orientation]} overflow-hidden bg-[#E8E3D8]`}>
                 {card.images?.[0] ? (
-                  <CardArtwork
-                    src={card.images[0]}
-                    alt={`${card.name} NFC card`}
-                    name={card.name}
-                    label={card.material || undefined}
-                    width={480}
-                    height={300}
-                    loading="lazy"
-                  />
+                  <div className={FACE_AREA}>
+                    <CardArtwork
+                      src={card.images[0]}
+                      alt={`${card.name} NFC card`}
+                      name={card.name}
+                      label={card.material || undefined}
+                      loading="lazy"
+                      className={FACE_IMAGE}
+                    />
+                  </div>
                 ) : (
-                  <NFCCard name={card.name} color={card.color} label={card.material || undefined} />
+                  <div className="absolute left-4 right-4 top-4 bottom-14 overflow-hidden rounded-[10px] shadow-[0_6px_18px_rgba(18,16,12,0.22)]">
+                    <NFCCard name={card.name} color={card.color} label={card.material || undefined} />
+                  </div>
                 )}
               </div>
 
