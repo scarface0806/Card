@@ -3,8 +3,64 @@ import bcrypt from 'bcryptjs';
 import { generateToken } from '@/lib/auth';
 import prisma from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/responses';
-import { checkRateLimit } from '@/lib/rate-limit';
+import { createHash } from 'node:crypto';
+import {
+  consumeRateLimit,
+  MongoRateLimitUnavailableError,
+  peekRateLimit,
+  resetRateLimit,
+  type RateWindow,
+} from '@/lib/mongo-rate-limit';
+import { getClientIp } from '@/lib/track-order-rate-limit';
 import { Role } from '@prisma/client';
+
+/**
+ * ADMIN LOGIN LIMITS - shared across every serverless instance.
+ *
+ * This route used checkRateLimit (src/lib/rate-limit.ts), which counts in a
+ * per-process Map. On Vercel each instance has its own Map, so spreading
+ * guesses across instances multiplied the "5 per minute" by the number of
+ * warm instances, and there was no lockout at all. These counters live in the
+ * MongoDB `rate_limits` collection (src/lib/mongo-rate-limit.ts), which every
+ * instance shares, and expire through its TTL index.
+ *
+ * Attempts (every request counts):
+ *  - 5 / minute per IP, checked before the body is read, as before.
+ *  - 5 / minute per account email.
+ * Lockout (only FAILED attempts count, checked before the password is):
+ *  - 10 failures / 15 min per email + IP pair.
+ *  - 30 failures / 15 min per email from ALL IPs - stops a slow attack spread
+ *    over many addresses.
+ * The pair key is what a normal attacker hits. Locking by email alone at 10
+ * would let anyone who knows the admin's address keep the real admin locked
+ * out by sending 10 wrong passwords every 15 minutes; the email-wide cap is
+ * high enough that this takes a deliberate, many-IP effort.
+ *
+ * Emails are SHA-256 hashed in the keys, so no address sits in rate_limits,
+ * and an unknown email is keyed and limited exactly like a real one.
+ */
+const ATTEMPTS_PER_MINUTE: readonly RateWindow[] = [
+  { name: 'minute', windowMs: 60 * 1000, limit: 5 },
+];
+const PAIR_LOCKOUT: readonly RateWindow[] = [
+  { name: 'lockout', windowMs: 15 * 60 * 1000, limit: 10 },
+];
+const EMAIL_LOCKOUT: readonly RateWindow[] = [
+  { name: 'lockout', windowMs: 15 * 60 * 1000, limit: 30 },
+];
+
+/** One message for every limit and lockout: it must not reveal whether the email exists. */
+const TOO_MANY_ATTEMPTS = 'Too many login attempts. Please try again later.';
+
+function hashEmail(email: string): string {
+  return createHash('sha256').update(email).digest('hex');
+}
+
+function tooManyAttempts(retryAfter?: number) {
+  const res = errorResponse(TOO_MANY_ATTEMPTS, 429);
+  if (retryAfter) res.headers.set('Retry-After', String(retryAfter));
+  return res;
+}
 
 const REQUIRED_AUTH_ENV_VARS = ['DATABASE_URL', 'JWT_SECRET'] as const;
 const missingAuthEnvVars = REQUIRED_AUTH_ENV_VARS.filter(
@@ -105,12 +161,15 @@ export async function POST(request: NextRequest) {
      * cost of a wrong guess here is the entire database.
      *
      * Checked BEFORE the body is parsed, so a flood cannot make us do work.
+     *
+     * Now the SHARED limiter (see ADMIN LOGIN LIMITS at the top of this file):
+     * the per-instance Map it replaced could be outrun by spreading requests
+     * across Vercel instances.
      */
-    const rateCheck = checkRateLimit(request, 5);
-    if (!rateCheck.ok) {
-      const res = errorResponse('Too many login attempts. Please try again later.', 429);
-      if (rateCheck.retryAfter) res.headers.set('Retry-After', String(rateCheck.retryAfter));
-      return res;
+    const ip = getClientIp(request.headers);
+    const ipCheck = await consumeRateLimit('admin-login-ip', ip, ATTEMPTS_PER_MINUTE);
+    if (!ipCheck.ok) {
+      return tooManyAttempts(ipCheck.retryAfter);
     }
 
     let body: { email?: unknown; password?: unknown } = {};
@@ -132,6 +191,33 @@ export async function POST(request: NextRequest) {
       return errorResponse('Password is required.', 400);
     }
 
+    // Per-account limits, BEFORE the database lookup and the password check,
+    // and identical for emails that do not exist - the 429 cannot be used to
+    // learn which addresses are real.
+    const emailKey = hashEmail(normalizedEmail);
+    const pairKey = `${emailKey}:${ip}`;
+
+    const emailCheck = await consumeRateLimit('admin-login-email', emailKey, ATTEMPTS_PER_MINUTE);
+    if (!emailCheck.ok) {
+      return tooManyAttempts(emailCheck.retryAfter);
+    }
+
+    const [pairLock, emailLock] = await Promise.all([
+      peekRateLimit('admin-login-fail-pair', pairKey, PAIR_LOCKOUT),
+      peekRateLimit('admin-login-fail-email', emailKey, EMAIL_LOCKOUT),
+    ]);
+    if (!pairLock.ok || !emailLock.ok) {
+      return tooManyAttempts(Math.max(pairLock.retryAfter ?? 0, emailLock.retryAfter ?? 0) || undefined);
+    }
+
+    // Every failed attempt below is recorded against both lockout counters
+    // BEFORE its (unchanged) response is returned.
+    const recordFailure = () =>
+      Promise.all([
+        consumeRateLimit('admin-login-fail-pair', pairKey, PAIR_LOCKOUT),
+        consumeRateLimit('admin-login-fail-email', emailKey, EMAIL_LOCKOUT),
+      ]);
+
     // Use Prisma (not direct MongoDB client) — more reliable connection on serverless
     const user = await prisma.user.findUnique({
       where: { email: email.toLowerCase() },
@@ -148,26 +234,37 @@ export async function POST(request: NextRequest) {
     });
 
     if (!user) {
+      await recordFailure();
       return errorResponse('User not found', 404);
     }
 
     if (user.isActive === false) {
+      await recordFailure();
       return errorResponse('Account has been deactivated', 403);
     }
 
     if (user.role !== Role.ADMIN) {
+      await recordFailure();
       return errorResponse('You are not authorized to access admin portal', 403);
     }
 
     if (!user.password) {
+      await recordFailure();
       return errorResponse('Invalid password', 401);
     }
 
     const isValidPassword = await bcrypt.compare(password, user.password);
 
     if (!isValidPassword) {
+      await recordFailure();
       return errorResponse('Invalid password', 401);
     }
+
+    // A correct password clears this email + IP's failures, so the admin's own
+    // earlier typos do not count toward a later lockout. The email-wide counter
+    // is deliberately NOT cleared: an attacker spraying from many IPs must not
+    // get a fresh allowance every time the real admin signs in.
+    await resetRateLimit('admin-login-fail-pair', pairKey, PAIR_LOCKOUT);
 
     return createAdminSuccessResponse({
       id: user.id,
@@ -178,6 +275,13 @@ export async function POST(request: NextRequest) {
       avatar: user.avatar ?? null,
     });
   } catch (error) {
+    // Fail closed: without the shared counters there is no brute-force limit,
+    // so no login is attempted at all.
+    if (error instanceof MongoRateLimitUnavailableError) {
+      console.error('[Admin Auth] Rate limiter unavailable; refusing login:', error.message);
+      return errorResponse('Authentication service unavailable. Please try again shortly.', 503);
+    }
+
     if (isDatabaseConnectivityError(error)) {
       console.error('[Admin Auth] Database connectivity error during login:', error);
       return errorResponse('Database service unavailable. Please try again shortly.', 503);

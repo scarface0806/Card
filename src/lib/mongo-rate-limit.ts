@@ -190,3 +190,113 @@ export async function consumeRateLimit(
     retryAfter: Math.max(1, Math.ceil(retryAfterMs / 1000)),
   };
 }
+
+/* ---------------------------------------------------------------------------
+   LOCKOUT SUPPORT - peekRateLimit / resetRateLimit
+
+   consumeRateLimit counts EVERY call. A lockout needs a second kind of
+   counter that only FAILURES increment, and that is CHECKED (without being
+   incremented) before the expensive or sensitive work runs:
+
+     1. peekRateLimit(failScope, key, windows)    - locked out? refuse first.
+     2. ...do the work (e.g. check the password)...
+     3. on failure: consumeRateLimit(failScope, key, windows)
+     4. on success: resetRateLimit(failScope, key, windows)   (optional)
+
+   Both use the same documents, key shape and sliding-window estimate as
+   consumeRateLimit, and both fail closed the same way.
+   --------------------------------------------------------------------------- */
+
+/** Connect for the lockout helpers. Mirrors consumeRateLimit's fail-closed checks. */
+async function openCounters(): Promise<Collection<CounterDoc>> {
+  if (!process.env.DATABASE_URL?.trim()) {
+    throw new MongoRateLimitUnavailableError("DATABASE_URL is not set");
+  }
+  try {
+    const db = await getMongoDb();
+    const collection = db.collection<CounterDoc>(COLLECTION);
+    await ensureTtlIndex(collection);
+    return collection;
+  } catch (error) {
+    throw new MongoRateLimitUnavailableError(
+      error instanceof Error ? error.message : "could not reach the database"
+    );
+  }
+}
+
+/**
+ * Would ONE more counted event exceed any window? Reads only - nothing is
+ * incremented. "Blocked" means used + 1 > limit, i.e. the same point at which
+ * consumeRateLimit would refuse the next call, so with limit 10 the 11th
+ * attempt is refused after 10 recorded failures.
+ *
+ * @throws MongoRateLimitUnavailableError when the limiter cannot run.
+ */
+export async function peekRateLimit(
+  scope: string,
+  key: string,
+  windows: readonly RateWindow[]
+): Promise<RateLimitDecision> {
+  const collection = await openCounters();
+  const now = Date.now();
+
+  let results: { used: number; resetAt: number }[];
+  try {
+    results = await Promise.all(
+      windows.map(async (spec) => {
+        const index = Math.floor(now / spec.windowMs);
+        const windowStart = index * spec.windowMs;
+        const docId = (i: number) => `${scope}:${spec.name}:${key}:${i}`;
+
+        const [current, previous] = await Promise.all([
+          collection.findOne({ _id: docId(index) }),
+          collection.findOne({ _id: docId(index - 1) }),
+        ]);
+
+        const previousWeight = (spec.windowMs - (now - windowStart)) / spec.windowMs;
+        return {
+          used: (current?.count ?? 0) + (previous?.count ?? 0) * previousWeight,
+          resetAt: windowStart + spec.windowMs,
+        };
+      })
+    );
+  } catch (error) {
+    throw new MongoRateLimitUnavailableError(
+      error instanceof Error ? error.message : "counter read failed"
+    );
+  }
+
+  const exceeded = results.filter((result, i) => result.used + 1 > windows[i].limit);
+  if (exceeded.length === 0) return { ok: true };
+
+  const retryAfterMs = Math.max(...exceeded.map((entry) => entry.resetAt - now));
+  return { ok: false, retryAfter: Math.max(1, Math.ceil(retryAfterMs / 1000)) };
+}
+
+/**
+ * Clear `key`'s counters (current and previous window) for every window, e.g.
+ * a user's failed-login count after a successful login.
+ *
+ * @throws MongoRateLimitUnavailableError when the limiter cannot run.
+ */
+export async function resetRateLimit(
+  scope: string,
+  key: string,
+  windows: readonly RateWindow[]
+): Promise<void> {
+  const collection = await openCounters();
+  const now = Date.now();
+
+  const ids = windows.flatMap((spec) => {
+    const index = Math.floor(now / spec.windowMs);
+    return [index, index - 1].map((i) => `${scope}:${spec.name}:${key}:${i}`);
+  });
+
+  try {
+    await collection.deleteMany({ _id: { $in: ids } });
+  } catch (error) {
+    throw new MongoRateLimitUnavailableError(
+      error instanceof Error ? error.message : "counter reset failed"
+    );
+  }
+}
