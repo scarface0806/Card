@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import { Eye, EyeOff, CheckCircle } from 'lucide-react';
+import TwoFactorCard from '@/components/admin/TwoFactorCard';
 
 export default function SecurityPage() {
   const [submitting, setSubmitting] = useState(false);
@@ -271,6 +272,7 @@ export default function SecurityPage() {
           </div>
         </div>
       </div>
+      <TwoFactorCard />
     </main>
   );
 }
