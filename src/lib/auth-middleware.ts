@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken, extractTokenFromHeader, AuthUser } from "@/lib/auth";
 import { Role } from "@prisma/client";
+import { adminNeeds2faSetup, is2faExemptPath } from "@/lib/admin-2fa-enforcement";
+import { sessionClaimsFromRequest } from "@/lib/admin-session-token";
 
 /**
  * Authenticate request and return user info
@@ -83,6 +85,12 @@ export function withAdmin(
         { error: "Access denied. Admin privileges required." },
         { status: 403 }
       );
+    }
+
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-enforcement.ts); no DB query.
+    if (adminNeeds2faSetup(sessionClaimsFromRequest(request)) && !is2faExemptPath(new URL(request.url).pathname)) {
+      const message = "Two-factor authentication setup required";
+      return NextResponse.json({ success: false, message, error: message }, { status: 403 });
     }
 
     return handler(request, user, context);

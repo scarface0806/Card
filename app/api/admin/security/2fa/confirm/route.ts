@@ -4,6 +4,7 @@ import { z } from "zod";
 
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { reissueAdminSession } from "@/lib/admin-session-token";
 import { errorResponse } from "@/lib/responses";
 import { MongoRateLimitUnavailableError } from "@/lib/mongo-rate-limit";
 import { decryptSecret, TwoFactorConfigError, TwoFactorDecryptError } from "@/lib/two-factor-crypto";
@@ -101,7 +102,14 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({ ok: true, backupCodes });
+    // Same body as before; the session cookies are re-issued so the token's
+    // twoFactorEnabled claim (ADMIN_2FA_REQUIRED) is true from now on.
+    return reissueAdminSession(NextResponse.json({ ok: true, backupCodes }), {
+      id: dbUser.id,
+      email: dbUser.email,
+      role: user.role,
+      twoFactorEnabled: true,
+    });
   } catch (error) {
     if (error instanceof MongoRateLimitUnavailableError || error instanceof TwoFactorConfigError) {
       return errorResponse("Authentication service unavailable. Please try again shortly.", 503);

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { adminNeeds2faSetup, is2faExemptPath } from "@/lib/admin-2fa-enforcement";
 
 // Routes that require authentication.
 //
@@ -44,6 +45,7 @@ interface JWTPayload {
   userId: string;
   email: string;
   role: "ADMIN" | "CUSTOMER";
+  twoFactorEnabled?: boolean; // admin sessions only (src/lib/admin-session-token.ts)
   iat?: number;
   exp?: number;
 }
@@ -66,6 +68,7 @@ async function verifyJWT(token: string): Promise<JWTPayload | null> {
       userId: String(verified.userId || ''),
       email: String(verified.email || ''),
       role: (verified.role as string) as "ADMIN" | "CUSTOMER",
+      twoFactorEnabled: verified.twoFactorEnabled === true,
       iat: verified.iat as number | undefined,
       exp: verified.exp as number | undefined,
     };
@@ -142,6 +145,13 @@ export async function proxy(request: NextRequest) {
     if (payload.role !== "ADMIN") {
       // Redirect non-admin users to unauthorized page or home
       return NextResponse.redirect(new URL("/unauthorized", request.url));
+    }
+
+    // ADMIN_2FA_REQUIRED: an admin without 2FA may only reach /admin/security
+    // until they enrol. Off unless the env var is exactly 'true'; no DB query,
+    // the claim is in the token (src/lib/admin-2fa-enforcement.ts).
+    if (adminNeeds2faSetup(payload) && !is2faExemptPath(pathname)) {
+      return NextResponse.redirect(new URL("/admin/security?reason=2fa-required", request.url), 302);
     }
   }
 

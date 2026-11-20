@@ -7,7 +7,8 @@
  * After a correct second factor the admin must end up with EXACTLY the
  * session a no-2FA admin gets from the password route:
  *
- *   JWT    generateToken({ userId, email, role })  (JWT_EXPIRES_IN, 7d)
+ *   JWT    mintAdminSessionToken (src/lib/admin-session-token.ts): the
+ *          generateToken claims + twoFactorEnabled  (JWT_EXPIRES_IN, 7d)
  *   body   successResponse({ message: 'Login successful', user, token, success: true })
  *   cookies auth-token, admin-token, token - httpOnly, secure in production,
  *          sameSite=lax, maxAge 7 days, path /
@@ -19,7 +20,7 @@
 
 import { Role } from '@prisma/client';
 
-import { generateToken } from '@/lib/auth';
+import { mintAdminSessionToken } from '@/lib/admin-session-token';
 import { successResponse } from '@/lib/responses';
 
 export interface AdminSessionUser {
@@ -29,16 +30,13 @@ export interface AdminSessionUser {
   role: Role;
   phone?: string | null;
   avatar?: string | null;
+  twoFactorEnabled?: boolean;
 }
 
 export async function issueAdminSession(
   user: AdminSessionUser
 ): Promise<{ cookies: string[]; body: Record<string, unknown> }> {
-  const token = generateToken({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-  });
+  const token = mintAdminSessionToken(user);
 
   const userData = {
     id: user.id,

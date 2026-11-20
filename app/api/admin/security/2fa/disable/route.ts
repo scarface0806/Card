@@ -10,6 +10,7 @@ import { consumeRateLimit, MongoRateLimitUnavailableError, type RateWindow } fro
 import { decryptSecret, TwoFactorConfigError } from "@/lib/two-factor-crypto";
 import { verifyBackupCode, verifyTotp } from "@/lib/two-factor";
 import { buildPendingCookieClear } from "@/lib/admin-2fa-pending";
+import { reissueAdminSession } from "@/lib/admin-session-token";
 
 /**
  * POST /api/admin/security/2fa/disable  { password, code }
@@ -132,8 +133,14 @@ export async function POST(request: NextRequest) {
       return reply(409, false, "Please retry");
     }
 
-    // g. Done.
-    return reply(200, true, "2FA disabled");
+    // g. Done. Same body; the session cookies are re-issued so the token's
+    // twoFactorEnabled claim (ADMIN_2FA_REQUIRED) is false from now on.
+    return reissueAdminSession(reply(200, true, "2FA disabled"), {
+      id: dbUser.id,
+      email: dbUser.email,
+      role: user.role,
+      twoFactorEnabled: false,
+    });
   } catch (error) {
     if (error instanceof MongoRateLimitUnavailableError || error instanceof TwoFactorConfigError) {
       return reply(503, false, "Authentication service unavailable. Please try again shortly.");

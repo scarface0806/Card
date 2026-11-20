@@ -62,3 +62,7 @@ Exit codes: `0` success, `1` usage / permission / not found / aborted, `2` unexp
   (script above) and re-enrol.** Keep it stable and backed up like any production secret.
 - **`JWT_SECRET`** signs sessions and the 5-minute pending-2FA token. Rotating it does not
   affect enrolled 2FA secrets.
+
+**Warning — `ADMIN_2FA_REQUIRED=true`:** an admin without 2FA can then only reach
+/admin/security, so anyone holding that admin's password can enrol their own authenticator
+before the real admin does. Turn enforcement on only after every admin has enrolled.

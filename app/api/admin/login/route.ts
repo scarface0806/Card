@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '@/lib/auth';
+import { mintAdminSessionToken } from '@/lib/admin-session-token';
 import prisma from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/responses';
 import { createHash } from 'node:crypto';
@@ -115,11 +115,7 @@ function createAdminSuccessResponse(user: {
   phone?: string | null;
   avatar?: string | null;
 }) {
-  const token = generateToken({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-  });
+  const token = mintAdminSessionToken(user);
 
   return createAuthResponse(token, {
     id: user.id,
