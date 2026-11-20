@@ -2,6 +2,7 @@ import { NextRequest, NextResponse, after } from "next/server";
 import prisma from "@/lib/prisma";
 import { sendAdminOrderNotification } from "@/lib/emails/adminOrderNotification";
 import { authenticate } from "@/lib/auth-middleware";
+import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse } from "@/lib/responses";
 import { createOrderSchema } from "@/lib/validators";
@@ -61,6 +62,10 @@ export async function GET(request: NextRequest) {
 
     if (!isAdmin) {
       where.userId = user.id;
+    } else {
+      // ADMIN_2FA_REQUIRED, admin branch only (src/lib/admin-2fa-route-guard.ts).
+      const twoFactorBlock = admin2faSetupBlock(request);
+      if (twoFactorBlock) return twoFactorBlock;
     }
 
     if (status) {

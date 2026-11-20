@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 
@@ -87,6 +88,9 @@ export async function GET(request: NextRequest) {
         { status: 403 }
       );
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     // Fetch all metrics in parallel for performance
     const monthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1);

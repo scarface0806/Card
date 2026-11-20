@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
 import { errorResponse } from "@/lib/responses";
 import { Role, OrderStatus, PaymentStatus, CardStatus } from "@prisma/client";
 import { sendEmail } from "@/lib/email";
@@ -55,6 +56,9 @@ export async function GET(request: NextRequest) {
     if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const id = getIdFromUrl(request.url);
 
@@ -104,6 +108,9 @@ export async function PATCH(request: NextRequest) {
     if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const id = getIdFromUrl(request.url);
     const body = await request.json();
@@ -193,9 +200,21 @@ export async function PATCH(request: NextRequest) {
       updateData[stageField] = new Date();
     }
 
+    // The card and its NFC email are only for a PAID order. Confirming an
+    // unpaid order still saves the status (the response is unchanged), but no
+    // live profile goes out until the money is in. "Paid" means paid once this
+    // request is applied, so an admin can record a manual payment and confirm
+    // in the same save.
+    const paidAfterThisUpdate = (paymentStatus || existingOrder.paymentStatus) === PaymentStatus.PAID;
+    if (normalizedStatus === OrderStatus.CONFIRMED && !paidAfterThisUpdate) {
+      console.warn(
+        `[admin-orders] order ${existingOrder.orderNumber} confirmed while unpaid; card and NFC email skipped`
+      );
+    }
+
     // Auto-create card when status is updated to CONFIRMED
     let createdCard: { id: string; slug: string } | null = null;
-    if (normalizedStatus === OrderStatus.CONFIRMED && !existingOrder.cardId && existingOrder.userId) {
+    if (normalizedStatus === OrderStatus.CONFIRMED && paidAfterThisUpdate && !existingOrder.cardId && existingOrder.userId) {
       try {
         // Generate unique slug
         const userIdPrefix = existingOrder.userId.substring(0, 6);
@@ -248,6 +267,7 @@ export async function PATCH(request: NextRequest) {
     // Send NFC link email when order is CONFIRMED (only once)
     if (
       normalizedStatus === OrderStatus.CONFIRMED &&
+      paidAfterThisUpdate &&
       !existingOrder.nfcLinkEmailSent
     ) {
       const recipientEmail = existingOrder.user?.email || existingOrder.guestEmail || null;
@@ -376,6 +396,9 @@ export async function DELETE(request: NextRequest) {
     if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const id = getIdFromUrl(request.url);
 

@@ -10,6 +10,7 @@ import ImageUpload from '@/components/admin/ImageUpload';
 import RichTextEditor from '@/components/admin/blog/RichTextEditor';
 import SerpPreview, { DESCRIPTION_LIMIT, TITLE_LIMIT } from '@/components/admin/blog/SerpPreview';
 import { slugify } from '@/lib/blog/slug';
+import { SITE_URL } from '@/lib/site';
 import { BLOG_UPLOAD_FOLDER } from '@/lib/blog/upload-client';
 import type { PostDetail, PostImageData } from '@/lib/blog/types';
 
@@ -23,6 +24,10 @@ const TABS: { key: TabKey; label: string }[] = [
 ];
 
 const EXCERPT_LIMIT = 320;
+const COVER_ALT_LIMIT = 200;
+
+/** "tapvyo.in" - the canonical origin without its scheme, for the slug preview. */
+const SITE_HOST = SITE_URL.replace(/^https?:\/\//, '');
 
 interface BlogFormProps {
   /** Absent on create, present on edit. */
@@ -117,6 +122,40 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
   const registerInlineImage = useCallback((image: PostImageData) => {
     setForm((current) => ({ ...current, galleryImages: [...current.galleryImages, image] }));
   }, []);
+
+  /**
+   * ImageUpload calls onUploadComplete from an effect that lists it as a
+   * dependency, so it must be referentially stable AND leave state untouched
+   * when nothing changed - same rule as ProductForm.tsx. The old inline arrow
+   * was a new function every render and always built a new coverImage, so
+   * the effect re-ran forever and fought the alt-text input. The functional
+   * updater also keeps the alt the admin is typing instead of a stale copy.
+   */
+  const handleCoverUpload = useCallback(
+    (url: string, publicId: string, meta?: { width: number | null; height: number | null }) => {
+      setForm((current) => {
+        const previous = current.coverImage;
+        if (previous && previous.url === url && previous.publicId === publicId) return current;
+        return {
+          ...current,
+          coverImage: {
+            url,
+            publicId,
+            alt: previous?.alt ?? '',
+            width: meta?.width ?? 1200,
+            height: meta?.height ?? 630,
+          },
+        };
+      });
+    },
+    []
+  );
+
+  const handleCoverRemove = useCallback(() => set('coverImage', null), [set]);
+
+  // Display only: a cover with no alt text is flagged before the save-time
+  // validation refuses to publish it.
+  const coverAltMissing = Boolean(form.coverImage) && !form.coverImage?.alt.trim();
 
   const previewHref = useMemo(
     () => (postId && previewToken ? `/blog/preview/${postId}?token=${previewToken}` : null),
@@ -259,7 +298,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
           <div className="tv-adm-panel tv-adm-panel-pad space-y-5">
             <Field label="Title" required>
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.title}
                 onChange={(event) => handleTitleChange(event.target.value)}
                 placeholder="How NFC business cards actually work"
@@ -270,7 +309,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
             <Field label="Slug" required hint="Lowercase words separated by hyphens. Changing it on a live post keeps the old URL working with a redirect.">
               <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
                 <input
-                  className="admin-form-input"
+                  className="tv-adm-input min-h-[44px] min-w-0 flex-1"
                   value={form.slug}
                   onChange={(event) => {
                     slugTouched.current = true;
@@ -280,7 +319,14 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
                 />
                 <SlugStatus state={slugState} />
               </div>
-              <p className="tv-adm-meta mt-1.5 text-xs">/blog/{form.slug || 'your-post-slug'}</p>
+              {/* The post's public URL, under the input it is built from. normal-case
+                  because tv-mono uppercases and a slug is always lowercase;
+                  break-all so a long slug wraps instead of scrolling at 375px. */}
+              <p className="tv-adm-meta mt-1.5 text-xs">
+                <span className="tv-mono normal-case break-all">
+                  {SITE_HOST}/blog/{form.slug || 'your-post-slug'}
+                </span>
+              </p>
             </Field>
 
             <Field label="Excerpt" required hint="Shown on the blog listing and used as the meta description fallback.">
@@ -309,50 +355,49 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
       {tab === 'media' && (
         <div className="space-y-5">
-          <div className="tv-adm-panel tv-adm-panel-pad space-y-5">
-            <ImageUpload
-              folder={BLOG_UPLOAD_FOLDER}
-              label="Cover image"
-              aspectRatio="landscape"
-              currentImageUrl={form.coverImage?.url}
-              onUploadComplete={(url, publicId, meta) =>
-                set('coverImage', {
-                  url,
-                  publicId,
-                  alt: form.coverImage?.alt ?? '',
-                  width: meta?.width ?? 1200,
-                  height: meta?.height ?? 630,
-                })
-              }
-            />
-
-            <Field
-              label="Cover alt text"
-              required
-              hint="Describes the image for screen readers and search engines. A post cannot be published without it."
-            >
-              <input
-                className="admin-form-input"
-                value={form.coverImage?.alt ?? ''}
-                onChange={(event) =>
-                  set('coverImage', form.coverImage ? { ...form.coverImage, alt: event.target.value } : null)
-                }
-                disabled={!form.coverImage}
-                placeholder="A metal NFC business card held above a phone"
-                maxLength={200}
+          {/* Uploader ~60% / alt text ~40% side by side on lg+, stacked below. */}
+          <div className="tv-adm-panel tv-adm-panel-pad grid grid-cols-1 gap-5 lg:grid-cols-[3fr_2fr]">
+            <div className="min-w-0">
+              <ImageUpload
+                folder={BLOG_UPLOAD_FOLDER}
+                label="Cover image"
+                aspectRatio="landscape"
+                currentImageUrl={form.coverImage?.url}
+                alt={form.coverImage?.alt}
+                onUploadComplete={handleCoverUpload}
+                onRemove={handleCoverRemove}
               />
-            </Field>
+            </div>
 
-            {form.coverImage && (
-              <button
-                type="button"
-                onClick={() => set('coverImage', null)}
-                className="tv-adm-action tv-adm-action--danger"
+            <div className="min-w-0">
+              <Field
+                label="Cover alt text"
+                required
+                hint={
+                  form.coverImage
+                    ? 'Describes the image for screen readers and search engines. A post cannot be published without it.'
+                    : 'Upload a cover image first'
+                }
               >
-                <Trash2 className="h-3.5 w-3.5" />
-                Remove cover image
-              </button>
-            )}
+                <input
+                  className={`tv-adm-input min-h-[44px] disabled:cursor-not-allowed disabled:opacity-60 ${
+                    coverAltMissing ? 'border-[var(--tv-brass)]' : ''
+                  }`}
+                  value={form.coverImage?.alt ?? ''}
+                  onChange={(event) =>
+                    set('coverImage', form.coverImage ? { ...form.coverImage, alt: event.target.value } : null)
+                  }
+                  disabled={!form.coverImage}
+                  aria-invalid={coverAltMissing || undefined}
+                  placeholder={form.coverImage ? 'A metal NFC business card held above a phone' : ''}
+                  maxLength={COVER_ALT_LIMIT}
+                />
+                {coverAltMissing ? (
+                  <p className="mt-1.5 text-xs text-[var(--tv-brass)]">Required before publishing</p>
+                ) : null}
+                <Counter value={(form.coverImage?.alt ?? '').length} limit={COVER_ALT_LIMIT} />
+              </Field>
+            </div>
           </div>
 
           <div className="tv-adm-panel">
@@ -368,10 +413,18 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
               {form.galleryImages.length > 0 && (
                 <ul className="mt-3 space-y-2">
                   {form.galleryImages.map((image) => (
-                    <li key={image.publicId} className="flex items-center gap-3">
+                    <li key={image.publicId} className="flex min-w-0 items-center gap-3">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={image.url} alt="" className="h-10 w-14 rounded border border-[var(--tv-rule)] object-cover" />
-                      <span className="truncate text-xs text-[var(--tv-text-muted)]">{image.alt || image.publicId}</span>
+                      <img src={image.url} alt="" className="h-12 w-16 shrink-0 rounded border border-[var(--tv-rule)] object-cover" />
+                      <span
+                        className="min-w-0 flex-1 truncate text-xs text-[var(--tv-text-muted)]"
+                        title={image.alt || image.publicId}
+                      >
+                        {image.alt || image.publicId}
+                      </span>
+                      {!image.alt ? (
+                        <span className="tv-adm-badge tv-adm-badge--brass shrink-0">alt missing</span>
+                      ) : null}
                     </li>
                   ))}
                 </ul>
@@ -386,7 +439,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
           <div className="tv-adm-panel tv-adm-panel-pad space-y-5">
             <Field label="Meta title" hint="Falls back to the post title.">
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.metaTitle}
                 onChange={(event) => set('metaTitle', event.target.value)}
                 maxLength={70}
@@ -409,7 +462,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
             <Field label="Canonical URL" hint="Leave empty. The canonical is always this post's own URL; any other value is rejected on save.">
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.canonicalUrl}
                 onChange={(event) => set('canonicalUrl', event.target.value)}
                 placeholder="Leave empty"
@@ -419,7 +472,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
             <Field label="Social share image" hint="Overrides the cover image on social cards. 1200x630 works best.">
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.ogImage}
                 onChange={(event) => set('ogImage', event.target.value)}
                 placeholder="https://res.cloudinary.com/…"
@@ -472,7 +525,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
             >
               <input
                 type="datetime-local"
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.publishedAt}
                 onChange={(event) => set('publishedAt', event.target.value)}
               />
@@ -480,7 +533,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
             <Field label="Author" required>
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.authorName}
                 onChange={(event) => set('authorName', event.target.value)}
                 maxLength={80}
@@ -489,7 +542,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
             <Field label="Tags" hint="Comma separated. Each tag gets its own archive page.">
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.tags}
                 onChange={(event) => set('tags', event.target.value)}
                 placeholder="nfc, business cards, networking"
@@ -498,7 +551,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
             <Field label="Category">
               <input
-                className="admin-form-input"
+                className="tv-adm-input min-h-[44px]"
                 value={form.category}
                 onChange={(event) => set('category', event.target.value)}
                 maxLength={60}
@@ -585,7 +638,7 @@ function Counter({ value, limit }: { value: number; limit: number }) {
 function SlugStatus({ state }: { state: SlugState }) {
   if (state.checking) {
     return (
-      <span className="tv-adm-meta inline-flex flex-shrink-0 items-center gap-1.5 text-xs">
+      <span className="tv-adm-meta inline-flex shrink-0 items-center gap-1.5 self-start text-xs sm:self-auto">
         <Loader2 className="h-3.5 w-3.5 animate-spin" />
         Checking
       </span>
@@ -595,12 +648,12 @@ function SlugStatus({ state }: { state: SlugState }) {
   if (state.available === null) return null;
 
   return state.available ? (
-    <span className="tv-adm-badge tv-adm-badge--patina flex-shrink-0">
+    <span className="tv-adm-badge tv-adm-badge--patina shrink-0 self-start sm:self-auto">
       <Check className="h-3 w-3" />
       Available
     </span>
   ) : (
-    <span className="tv-adm-badge tv-adm-badge--danger flex-shrink-0">
+    <span className="tv-adm-badge tv-adm-badge--danger shrink-0 self-start sm:self-auto">
       <X className="h-3 w-3" />
       {state.reason || 'Taken'}
     </span>

@@ -1,6 +1,6 @@
-import { NextRequest } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { generateToken } from '@/lib/auth';
+import { mintAdminSessionToken } from '@/lib/admin-session-token';
 import prisma from '@/lib/prisma';
 import { errorResponse, successResponse } from '@/lib/responses';
 import { createHash } from 'node:crypto';
@@ -12,6 +12,7 @@ import {
   type RateWindow,
 } from '@/lib/mongo-rate-limit';
 import { getClientIp } from '@/lib/track-order-rate-limit';
+import { buildPendingCookie, mintPendingToken } from '@/lib/admin-2fa-pending';
 import { Role } from '@prisma/client';
 
 /**
@@ -114,11 +115,7 @@ function createAdminSuccessResponse(user: {
   phone?: string | null;
   avatar?: string | null;
 }) {
-  const token = generateToken({
-    userId: user.id,
-    email: user.email,
-    role: user.role,
-  });
+  const token = mintAdminSessionToken(user);
 
   return createAuthResponse(token, {
     id: user.id,
@@ -230,6 +227,7 @@ export async function POST(request: NextRequest) {
         isActive: true,
         phone: true,
         avatar: true,
+        twoFactorEnabled: true,
       },
     });
 
@@ -265,6 +263,16 @@ export async function POST(request: NextRequest) {
     // is deliberately NOT cleared: an attacker spraying from many IPs must not
     // get a fresh allowance every time the real admin signs in.
     await resetRateLimit('admin-login-fail-pair', pairKey, PAIR_LOCKOUT);
+
+    // TWO-STEP LOGIN. With 2FA on, a correct password is only half the proof:
+    // issue a 5-minute pending cookie (src/lib/admin-2fa-pending.ts) and NO
+    // session. /api/admin/login/2fa issues the session after a valid code.
+    // Admins without 2FA fall through to the unchanged success path below.
+    if (user.twoFactorEnabled === true) {
+      const pending = NextResponse.json({ requires2fa: true }, { status: 200 });
+      pending.headers.append('Set-Cookie', buildPendingCookie(mintPendingToken(user.id)));
+      return pending;
+    }
 
     return createAdminSuccessResponse({
       id: user.id,

@@ -54,6 +54,23 @@ model User {
   emailVerified Boolean @default(false)
   isActive      Boolean @default(true)
 
+  // Two-factor authentication (TOTP), admin accounts. Data model only - no
+  // route reads these yet.
+  //
+  // Existing user documents have none of these fields and need no backfill:
+  // on MongoDB, Prisma (4.0+) returns a field's @default for a document that
+  // lacks it, and the two optional fields read as null.
+  //
+  // twoFactorSecret is NEVER stored in plain text: it holds AES-256-GCM
+  // ciphertext from src/lib/two-factor-crypto.ts (key in the server-only
+  // TWO_FACTOR_ENCRYPTION_KEY). twoFactorBackupCodes holds bcrypt hashes,
+  // each removed once used. twoFactorLastUsedStep is the TOTP time-step of
+  // the last accepted code, so the same code cannot be replayed.
+  twoFactorEnabled      Boolean  @default(false)
+  twoFactorSecret       String?
+  twoFactorBackupCodes  String[] @default([])
+  twoFactorLastUsedStep Int?
+
   // Relations
   orders Order[]
   cards  Card[]

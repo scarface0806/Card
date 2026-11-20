@@ -93,6 +93,7 @@ class PaymentAdapterService {
       select: {
         id: true,
         total: true,
+        status: true,
         paymentStatus: true,
         guestEmail: true,
         guestName: true,
@@ -103,6 +104,20 @@ class PaymentAdapterService {
     if (!order) {
       razorpayDebugger.log('ERROR', 'PaymentAdapter.createPaymentOrder', 'Order not found', { existingOrderId });
       throw new Error(`Order not found: ${existingOrderId}`);
+    }
+
+    // A cancelled or refunded order must not start a new payment. This is the
+    // only place it can be stopped: verifyPayment and the UPI check run AFTER
+    // Razorpay has captured the money, so they record the payment whatever the
+    // order status (it is real money and must stay visible for a refund).
+    // Every payment start - card checkout and UPI QR - comes through here
+    // before any PaymentLog row or Razorpay order exists.
+    if (order.status === "CANCELLED" || order.status === "REFUNDED") {
+      razorpayDebugger.log('WARN', 'PaymentAdapter.createPaymentOrder', 'Order can no longer be paid', {
+        existingOrderId,
+        status: order.status,
+      });
+      throw new Error("This order can no longer be paid");
     }
 
     if (order.paymentStatus === "PAID") {
@@ -271,6 +286,11 @@ class PaymentAdapterService {
           razorpayOrderId,
           razorpayPaymentId,
         });
+        // The log can be SUCCESS because the WEBHOOK got here first (its HMAC
+        // is checked before it writes). Returning without fulfilling left the
+        // order unpaid with no emails. fulfilPayment is idempotent, so on a
+        // plain replay this is a no-op.
+        await this.fulfilPayment({ existingOrderId, razorpayPaymentId, method: "razorpay" });
         return {
           success: true,
           message: "Payment already verified",
@@ -324,6 +344,10 @@ class PaymentAdapterService {
         razorpayOrderId,
         razorpayPaymentId,
       });
+      // Lost the claim to a concurrent verify or the webhook. The signature
+      // above proved this payment is real, so make sure the order is
+      // fulfilled even if the winner has not got that far (idempotent).
+      await this.fulfilPayment({ existingOrderId, razorpayPaymentId, method: "razorpay" });
       return {
         success: true,
         message: "Payment already verified",
@@ -332,44 +356,15 @@ class PaymentAdapterService {
       };
     }
 
-    // Step 5: Mark the order paid. Also guarded, so re-running is a no-op.
-    await prisma.order.updateMany({
-      where: { id: existingOrderId, paymentStatus: { not: "PAID" } },
-      data: {
-        paymentStatus: "PAID",
-        paymentMethod: "razorpay",
-        paymentId: razorpayPaymentId,
-        paidAt: new Date(),
-      },
-    });
+    // Steps 5-6: mark the order paid and send the emails - once, whichever of
+    // verify / UPI check / webhook gets there first (see fulfilPayment).
+    await this.fulfilPayment({ existingOrderId, razorpayPaymentId, method: "razorpay" });
 
     razorpayDebugger.log('SUCCESS', 'PaymentAdapter.verifyPayment', 'Payment verified and order fulfilled', {
       existingOrderId,
       razorpayOrderId,
       razorpayPaymentId,
     });
-
-    // Step 6: Order confirmation email.
-    //
-    // This is the server-side payment-success moment, and it runs only for the
-    // call that WON the fulfilment claim above - a replayed verify returns at
-    // step 2 and never reaches here, so the customer cannot be mailed twice.
-    // The email layer is additionally idempotent at the database level.
-    //
-    // Fired after the order write has committed, and it cannot throw: a
-    // provider outage records a failed email_log row and the customer still
-    // gets a successful payment response.
-    await sendOrderConfirmationEmail(existingOrderId);
-
-    console.log("[admin-notification] Triggering admin notification after customer email");
-    try {
-      await sendAdminOrderNotification(existingOrderId, razorpayPaymentId);
-    } catch (err) {
-      console.error(
-        "[admin-notification] order " + existingOrderId + " notification threw: " +
-          (err instanceof Error ? err.message : String(err))
-      );
-    }
 
     return {
       success: true,
@@ -419,6 +414,13 @@ class PaymentAdapterService {
     }
 
     if (paymentLog.status === "SUCCESS" && paymentLog.razorpayPaymentId) {
+      // Already claimed - possibly by the webhook, which does not stop at the
+      // log any more but may have crashed before the order write. Idempotent.
+      await this.fulfilPayment({
+        existingOrderId: params.existingOrderId,
+        razorpayPaymentId: paymentLog.razorpayPaymentId,
+        method: "razorpay_upi",
+      });
       return { success: true, paymentId: paymentLog.razorpayPaymentId, message: "Payment confirmed" };
     }
 
@@ -438,45 +440,90 @@ class PaymentAdapterService {
       data: { status: "SUCCESS", razorpayPaymentId: capturedPayment.id },
     });
 
-    await prisma.order.updateMany({
-      where: { id: params.existingOrderId, paymentStatus: { not: "PAID" } },
-      data: {
-        paymentStatus: "PAID",
-        paymentMethod: "razorpay_upi",
-        paymentId: capturedPayment.id,
-        paidAt: new Date(),
-      },
-    });
-
     // Same server-side payment-success moment for the UPI QR flow. This
-    // endpoint is polled, so it is reached repeatedly for one order - only the
-    // caller that won the claim above sends, and the email_log unique index
-    // catches anything that slips past it.
-    if (claimed.count) {
-      await sendOrderConfirmationEmail(params.existingOrderId);
-
-      // Admin notification for the UPI QR flow, mirroring the card path in
-      // verifyPayment above. Guarded by the same claim, so this polled endpoint
-      // cannot mail the admin twice for one order.
-      //
-      // Purely additive and invisible to the customer: sendAdminOrderNotification
-      // never throws on its own and this try/catch is the second guard, so a
-      // failure is logged and the paid response below is returned unchanged.
-      try {
-        await sendAdminOrderNotification(params.existingOrderId, capturedPayment.id);
-      } catch (err) {
-        console.error(
-          "[admin-notification] order " + params.existingOrderId + " notification threw: " +
-            (err instanceof Error ? err.message : String(err))
-        );
-      }
-    }
+    // endpoint is polled, so it is reached repeatedly for one order; called
+    // whether or not this poll won the claim, because fulfilPayment's own
+    // conditional order write is what makes the emails go out exactly once.
+    await this.fulfilPayment({
+      existingOrderId: params.existingOrderId,
+      razorpayPaymentId: capturedPayment.id,
+      method: "razorpay_upi",
+    });
 
     return {
       success: true,
       paymentId: capturedPayment.id,
       message: claimed.count ? "Payment confirmed" : "Payment already confirmed",
     };
+  }
+
+  /**
+   * Fulfil an order for a payment already proven real (checkout signature,
+   * webhook HMAC, or a captured payment read back from Razorpay). The ONLY
+   * place that marks an order paid and sends the payment emails.
+   *
+   * Every path calls it - verifyPayment, the UPI check and the webhook - and
+   * any of them may arrive first, so it must be safe to call any number of
+   * times. Before this existed, whichever path lost the PaymentLog claim
+   * returned early, and if the webhook won the order stayed unpaid with no
+   * emails.
+   *
+   *  - The order write is a compare-and-set on paymentStatus != PAID: only the
+   *    first call flips it, so paidAt is never overwritten and the emails go
+   *    out once. A later call is a logged no-op.
+   *  - Money is always recorded, whatever the order status (it is real money
+   *    and must be visible for a refund). A CANCELLED or REFUNDED order gets
+   *    no customer confirmation, but the admin alert still goes out - it is
+   *    how anyone learns a refund is due.
+   *  - Never throws on an email failure (both senders log instead).
+   */
+  async fulfilPayment(params: {
+    existingOrderId: string;
+    razorpayPaymentId: string;
+    method: "razorpay" | "razorpay_upi";
+  }): Promise<{ fulfilled: boolean }> {
+    const { existingOrderId, razorpayPaymentId, method } = params;
+
+    const written = await prisma.order.updateMany({
+      where: { id: existingOrderId, paymentStatus: { not: "PAID" } },
+      data: {
+        paymentStatus: "PAID",
+        paymentMethod: method,
+        paymentId: razorpayPaymentId,
+        paidAt: new Date(),
+      },
+    });
+
+    if (written.count !== 1) {
+      console.info(`[payment] order ${existingOrderId} already fulfilled`);
+      return { fulfilled: false };
+    }
+
+    const order = await prisma.order.findUnique({
+      where: { id: existingOrderId },
+      select: { status: true },
+    });
+    const closed = order?.status === "CANCELLED" || order?.status === "REFUNDED";
+
+    // Customer confirmation: idempotent at the database level too (EmailLog
+    // is unique on order + type). Skipped for a closed order - "your order is
+    // confirmed" would be false.
+    if (closed) {
+      console.warn(`[payment] order ${existingOrderId} paid while ${order?.status}; customer email skipped, refund due`);
+    } else {
+      await sendOrderConfirmationEmail(existingOrderId);
+    }
+
+    try {
+      await sendAdminOrderNotification(existingOrderId, razorpayPaymentId);
+    } catch (err) {
+      console.error(
+        "[admin-notification] order " + existingOrderId + " notification threw: " +
+          (err instanceof Error ? err.message : String(err))
+      );
+    }
+
+    return { fulfilled: true };
   }
 
   async attachQrCode(paymentLogId: string, razorpayQrCodeId: string): Promise<void> {

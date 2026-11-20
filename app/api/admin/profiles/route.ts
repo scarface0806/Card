@@ -4,8 +4,16 @@ import { withAdmin } from "@/lib/auth-middleware";
 import { errorResponse, successResponse } from "@/lib/responses";
 import { generateProfileSlug } from "@/lib/slug-generator";
 import { sendEmail } from "@/lib/email";
-import { OrderStatus } from "@prisma/client";
+import { OrderStatus, PaymentStatus } from "@prisma/client";
 import { APP_URL, SUPPORT_EMAIL } from "@/utils/constants";
+
+/** Order statuses at which a paid order may get its profile. */
+const PROFILE_ELIGIBLE_STATUSES: ReadonlySet<OrderStatus> = new Set([
+  OrderStatus.CONFIRMED,
+  OrderStatus.PROCESSING,
+  OrderStatus.SHIPPED,
+  OrderStatus.DELIVERED,
+]);
 
 // POST /api/admin/profiles - Create profile from order
 async function createProfileHandler(request: NextRequest) {
@@ -29,18 +37,19 @@ async function createProfileHandler(request: NextRequest) {
       return errorResponse("Order not found", 404);
     }
 
-    // Check if order is completed
-    if (order.status !== OrderStatus.DELIVERED && order.status !== OrderStatus.CONFIRMED) {
-      return errorResponse("Order must be confirmed or delivered to create profile", 400);
+    // Eligibility: the order must be confirmed or further along AND paid.
+    // Status alone was not enough - an unpaid order that reached CONFIRMED
+    // (by mistake, or by a customer before the PUT /api/orders/:id fix) got a
+    // live profile with no money collected.
+    if (!PROFILE_ELIGIBLE_STATUSES.has(order.status) || order.paymentStatus !== PaymentStatus.PAID) {
+      return errorResponse("Order is not eligible for profile creation", 409);
     }
 
-    // Check if profile already exists
-    const existingProfile = await prisma.card.findFirst({
-      where: { id: orderId }, // Use id or another field if orderId isn't on Card
-    });
-
-    if (existingProfile) {
-      return errorResponse("Profile already exists for this order", 400);
+    // One profile per order. Card has no order field; Order.cardId is the
+    // link. (The old check compared a CARD id with this ORDER id, so it never
+    // matched and every call created another card.)
+    if (order.cardId) {
+      return errorResponse("This order already has a profile", 409);
     }
 
     // Generate unique slug
@@ -95,6 +104,21 @@ async function createProfileHandler(request: NextRequest) {
         },
       },
     });
+
+    // Link the card to the order - only if no other request linked one first.
+    // Two concurrent calls can both pass the cardId check above; the loser's
+    // card is removed so the order ends up with exactly one.
+    const linked = await prisma.order.updateMany({
+      where: {
+        id: order.id,
+        OR: [{ cardId: null }, { cardId: { isSet: false } }],
+      },
+      data: { cardId: profile.id },
+    });
+    if (linked.count !== 1) {
+      await prisma.card.delete({ where: { id: profile.id } }).catch(() => {});
+      return errorResponse("This order already has a profile", 409);
+    }
 
     // Send notification email
     if (email) {

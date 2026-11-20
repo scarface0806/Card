@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
 import { Role } from "@prisma/client";
 import { errorResponse, successResponse } from "@/lib/responses";
 
@@ -22,6 +23,9 @@ export async function GET(request: NextRequest) {
       });
       return errorResponse("Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     console.info(`[Admin Stats] Fetching statistics for admin: ${user.email}`);
 
