@@ -240,3 +240,7 @@ analytics notes and a pre-deploy test checklist: [docs/BLOG.md](docs/BLOG.md).
 **Build Time**: ~2.0 seconds  
 
 Made with ❤️ by Tapvyo Development Team
+
+## Development
+
+Use Node 24 LTS. The test runner (vitest 4.1) fails to start on Node 26 ("Vitest failed to find the runner") until it is upgraded, so `.nvmrc` (`24`) and the `engines` field in `package.json` (`>=24 <25`) pin the project to the Node 24 line. Run `nvm use` (or install Node 24) before `npm test`.

@@ -2,6 +2,9 @@
   "name": "tapvyo-nfc",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "dev": "next dev",
     "dev:db": "node scripts/dev-with-db.js",
@@ -62,6 +65,7 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/sanitize-html": "^2.16.1",
+    "@vitest/coverage-v8": "^4.1.11",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
     "mongodb-memory-server": "^11.0.1",
