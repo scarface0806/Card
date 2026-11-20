@@ -1054,30 +1054,6 @@ body {
 }
 
 
-
-.admin-form-input:focus {
-  outline: none;
-  border-color: rgba(74, 222, 128, 0.5);
-  box-shadow: 0 0 0 3px rgba(74, 222, 128, 0.1);
-  background: rgba(255, 255, 255, 0.01);
-}
-
-.admin-form-input::placeholder {
-  color: #64748B;
-}
-
-.admin-form-input:disabled {
-  background: rgba(255, 255, 255, 0.02);
-  color: #94A3B8;
-  cursor: not-allowed;
-}
-
-.admin-form-input.error {
-  border-color: #ef4444;
-  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-}
-
-
 /* Admin form textarea */
 
 .admin-form-textarea:focus {

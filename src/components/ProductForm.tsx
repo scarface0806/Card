@@ -88,6 +88,18 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
     setBackImagePublicId(publicId);
   }, []);
 
+  // The uploader's own Remove clears the saved field too (it used to clear
+  // only its preview; the back image needed a second, separate button).
+  const handleFrontRemove = useCallback(() => {
+    setValues((prev) => ({ ...prev, image: '' }));
+    setProductImagePublicId(null);
+  }, []);
+
+  const handleBackRemove = useCallback(() => {
+    setValues((prev) => ({ ...prev, backImage: '' }));
+    setBackImagePublicId(null);
+  }, []);
+
   const submit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -261,47 +273,45 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
         </p>
       </div>
 
-      <div>
-        <ImageUpload
-          folder="admin/products"
-          label="Product Image"
-          aspectRatio={values.orientation === 'vertical' ? 'portrait' : 'landscape'}
-          currentImageUrl={values.image || undefined}
-          onUploadComplete={handleFrontUpload}
-        />
-        {productImagePublicId ? (
-          <p className="mt-2 text-xs text-[var(--tv-text-muted)]">Cloudinary ID: {productImagePublicId}</p>
-        ) : null}
-      </div>
+      {/* Front and back side by side on md+, stacked on mobile. */}
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        <div className="min-w-0">
+          <ImageUpload
+            folder="admin/products"
+            label="Product Image"
+            aspectRatio={values.orientation === 'vertical' ? 'portrait' : 'landscape'}
+            currentImageUrl={values.image || undefined}
+            alt={values.name ? `${values.name} — front` : undefined}
+            onUploadComplete={handleFrontUpload}
+            onRemove={handleFrontRemove}
+          />
+          {productImagePublicId ? (
+            <p className="tv-mono mt-2 truncate text-xs normal-case" title={productImagePublicId}>
+              Cloudinary ID: {productImagePublicId}
+            </p>
+          ) : null}
+        </div>
 
-      <div>
-        <ImageUpload
-          folder="admin/products"
-          label="Back Image (optional)"
-          aspectRatio={values.orientation === 'vertical' ? 'portrait' : 'landscape'}
-          currentImageUrl={values.backImage || undefined}
-          onUploadComplete={handleBackUpload}
-        />
-        <p className="mt-2 text-xs text-[var(--tv-text-muted)]">
-          Shown when a customer flips the card on the storefront. Leave empty and
-          the card simply does not flip.
-        </p>
-        {values.backImage ? (
-          <button
-            type="button"
-            onClick={() => {
-              setValues((prev) => ({ ...prev, backImage: '' }));
-              setBackImagePublicId(null);
-            }}
-            disabled={submitting}
-            className="tv-btn tv-btn-secondary mt-2 !min-h-[36px] !px-3 !text-xs disabled:opacity-50"
-          >
-            Remove back image
-          </button>
-        ) : null}
-        {backImagePublicId ? (
-          <p className="mt-2 text-xs text-[var(--tv-text-muted)]">Cloudinary ID: {backImagePublicId}</p>
-        ) : null}
+        <div className="min-w-0">
+          <ImageUpload
+            folder="admin/products"
+            label="Back Image (optional)"
+            aspectRatio={values.orientation === 'vertical' ? 'portrait' : 'landscape'}
+            currentImageUrl={values.backImage || undefined}
+            alt={values.name ? `${values.name} — back` : undefined}
+            onUploadComplete={handleBackUpload}
+            onRemove={handleBackRemove}
+          />
+          <p className="mt-2 text-xs text-[var(--tv-text-muted)]">
+            Shown when a customer flips the card on the storefront. Leave empty and
+            the card simply does not flip.
+          </p>
+          {backImagePublicId ? (
+            <p className="tv-mono mt-2 truncate text-xs normal-case" title={backImagePublicId}>
+              Cloudinary ID: {backImagePublicId}
+            </p>
+          ) : null}
+        </div>
       </div>
 
       {localError ? (
