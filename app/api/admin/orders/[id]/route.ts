@@ -200,9 +200,21 @@ export async function PATCH(request: NextRequest) {
       updateData[stageField] = new Date();
     }
 
+    // The card and its NFC email are only for a PAID order. Confirming an
+    // unpaid order still saves the status (the response is unchanged), but no
+    // live profile goes out until the money is in. "Paid" means paid once this
+    // request is applied, so an admin can record a manual payment and confirm
+    // in the same save.
+    const paidAfterThisUpdate = (paymentStatus || existingOrder.paymentStatus) === PaymentStatus.PAID;
+    if (normalizedStatus === OrderStatus.CONFIRMED && !paidAfterThisUpdate) {
+      console.warn(
+        `[admin-orders] order ${existingOrder.orderNumber} confirmed while unpaid; card and NFC email skipped`
+      );
+    }
+
     // Auto-create card when status is updated to CONFIRMED
     let createdCard: { id: string; slug: string } | null = null;
-    if (normalizedStatus === OrderStatus.CONFIRMED && !existingOrder.cardId && existingOrder.userId) {
+    if (normalizedStatus === OrderStatus.CONFIRMED && paidAfterThisUpdate && !existingOrder.cardId && existingOrder.userId) {
       try {
         // Generate unique slug
         const userIdPrefix = existingOrder.userId.substring(0, 6);
@@ -255,6 +267,7 @@ export async function PATCH(request: NextRequest) {
     // Send NFC link email when order is CONFIRMED (only once)
     if (
       normalizedStatus === OrderStatus.CONFIRMED &&
+      paidAfterThisUpdate &&
       !existingOrder.nfcLinkEmailSent
     ) {
       const recipientEmail = existingOrder.user?.email || existingOrder.guestEmail || null;

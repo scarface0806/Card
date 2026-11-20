@@ -93,6 +93,7 @@ class PaymentAdapterService {
       select: {
         id: true,
         total: true,
+        status: true,
         paymentStatus: true,
         guestEmail: true,
         guestName: true,
@@ -103,6 +104,20 @@ class PaymentAdapterService {
     if (!order) {
       razorpayDebugger.log('ERROR', 'PaymentAdapter.createPaymentOrder', 'Order not found', { existingOrderId });
       throw new Error(`Order not found: ${existingOrderId}`);
+    }
+
+    // A cancelled or refunded order must not start a new payment. This is the
+    // only place it can be stopped: verifyPayment and the UPI check run AFTER
+    // Razorpay has captured the money, so they record the payment whatever the
+    // order status (it is real money and must stay visible for a refund).
+    // Every payment start - card checkout and UPI QR - comes through here
+    // before any PaymentLog row or Razorpay order exists.
+    if (order.status === "CANCELLED" || order.status === "REFUNDED") {
+      razorpayDebugger.log('WARN', 'PaymentAdapter.createPaymentOrder', 'Order can no longer be paid', {
+        existingOrderId,
+        status: order.status,
+      });
+      throw new Error("This order can no longer be paid");
     }
 
     if (order.paymentStatus === "PAID") {

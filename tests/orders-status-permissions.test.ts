@@ -322,6 +322,7 @@ describe('regressions', () => {
   });
 
   it('admin PATCH /api/admin/orders/:id CONFIRMED still auto-creates the card', async () => {
+    orders.set(ORDER_ID, makeOrder({ paymentStatus: 'PAID' }));
     const res = await adminOrderRoute.PATCH(req('PATCH', `/api/admin/orders/${ORDER_ID}`, { token: admin(), body: { status: 'CONFIRMED' } }));
     expect(res.status).toBe(200);
     expect(cardCreate).toHaveBeenCalledTimes(1);
