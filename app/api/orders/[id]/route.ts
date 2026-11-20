@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
 import { Role, OrderStatus } from "@prisma/client";
 
 import { orderStatusSchema } from "@/lib/validators";
@@ -138,6 +139,12 @@ export async function GET(
       return errorResponse(error || "Unauthorized", 401);
     }
 
+    // ADMIN_2FA_REQUIRED, admin branch only (src/lib/admin-2fa-route-guard.ts).
+    if (user.role === Role.ADMIN) {
+      const twoFactorBlock = admin2faSetupBlock(request);
+      if (twoFactorBlock) return twoFactorBlock;
+    }
+
     const order = await prisma.order.findUnique({
       where: { id },
     });
@@ -196,6 +203,11 @@ export async function PUT(
     if (!isAdmin && !isOwner) {
       return errorResponse("Access denied", 403);
     }
+    // ADMIN_2FA_REQUIRED, admin branch only (src/lib/admin-2fa-route-guard.ts).
+    if (isAdmin) {
+      const twoFactorBlock = admin2faSetupBlock(request);
+      if (twoFactorBlock) return twoFactorBlock;
+    }
 
     // Update order
     const updatedOrder = await prisma.order.update({
@@ -245,6 +257,9 @@ export async function PATCH(
     if (user.role !== Role.ADMIN) {
       return errorResponse("Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const body = await request.json();
     const normalizedStatus = normalizePatchStatus(body?.status);
@@ -428,6 +443,9 @@ export async function DELETE(
     if (user.role !== Role.ADMIN) {
       return errorResponse("Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     if (!ObjectId.isValid(id)) {
       return errorResponse("Invalid order id", 400);

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
+import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
 import { checkRateLimit } from "@/lib/rate-limit";
 import { errorResponse } from "@/lib/responses";
 import { Role } from "@prisma/client";
@@ -25,6 +26,9 @@ export async function GET(request: NextRequest) {
     if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const id = getIdFromUrl(request.url);
 
@@ -57,6 +61,9 @@ export async function PATCH(request: NextRequest) {
     if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const id = getIdFromUrl(request.url);
     const body = await request.json();
@@ -124,6 +131,9 @@ export async function DELETE(request: NextRequest) {
     if (!user || user.role !== Role.ADMIN) {
       return errorResponse(error || "Admin access required", 403);
     }
+    // ADMIN_2FA_REQUIRED (src/lib/admin-2fa-route-guard.ts); no DB query.
+    const twoFactorBlock = admin2faSetupBlock(request);
+    if (twoFactorBlock) return twoFactorBlock;
 
     const id = getIdFromUrl(request.url);
 
