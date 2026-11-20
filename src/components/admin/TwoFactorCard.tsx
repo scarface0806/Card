@@ -12,9 +12,10 @@ import { CheckCircle, Copy, Download, ShieldCheck } from 'lucide-react';
  * required "I have saved these codes" tick before they disappear. They are
  * never fetched again: the server keeps only bcrypt hashes.
  *
- * When enabled: backup codes can be regenerated (password + a code, in an
- * inline form). "Disable 2FA" is shown but inactive - the disable route
- * arrives with the login update (Step 5), and until then the copy says so.
+ * When enabled: backup codes can be regenerated, and 2FA can be disabled -
+ * each through its own inline form needing the password AND a current
+ * authenticator code or an unused backup code. A failed disable keeps the
+ * form open with what was typed, so a typo can be corrected.
  *
  * Styling reuses the classes the password card on this page already uses
  * (graphite card, tv-adm-panel-title, the slate input, the brass button);
@@ -64,6 +65,44 @@ export default function TwoFactorCard() {
   const [regenPassword, setRegenPassword] = useState('');
   const [regenCode, setRegenCode] = useState('');
 
+  const [disableOpen, setDisableOpen] = useState(false);
+  const [disablePassword, setDisablePassword] = useState('');
+  const [disableCode, setDisableCode] = useState('');
+  const [notice, setNotice] = useState<string | null>(null);
+
+  const closeDisable = () => {
+    setDisableOpen(false);
+    setDisablePassword('');
+    setDisableCode('');
+  };
+
+  const disableTwoFactor = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const { ok, payload } = await postJson('/api/admin/security/2fa/disable', {
+        password: disablePassword,
+        code: disableCode,
+      });
+      if (!ok) {
+        // Keep the form open and the inputs as typed, so a typo can be fixed.
+        setError(messageFrom(payload, 'Could not disable 2FA.'));
+        return;
+      }
+      closeDisable();
+      setRegenOpen(false);
+      setEnrolment(null);
+      setEnabled(false);
+      setNotice(messageFrom(payload, '2FA disabled'));
+    } catch {
+      setError('Could not disable 2FA.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   useEffect(() => {
     let cancelled = false;
     fetch('/api/admin/security/2fa/status', { credentials: 'include' })
@@ -87,6 +126,7 @@ export default function TwoFactorCard() {
   const startEnrolment = async () => {
     setBusy(true);
     setError(null);
+    setNotice(null);
     try {
       const { ok, payload } = await postJson('/api/admin/security/2fa/start');
       if (!ok) {
@@ -200,10 +240,12 @@ export default function TwoFactorCard() {
       </div>
 
       <p className="text-sm text-[var(--tv-text-muted)] mb-6">
-        2FA will be required at sign-in once the login update is released.
+        While 2FA is on, signing in to the admin needs your password and a code from
+        your authenticator app (or a backup code).
       </p>
 
       <div aria-live="polite">
+        {notice && <p className="text-sm text-[var(--tv-patina)] mb-4">{notice}</p>}
         {loadError && <p className="text-sm text-[var(--tv-danger)] mb-4">{loadError}</p>}
         {error && <p role="alert" className="text-sm text-[var(--tv-danger)] mb-4">{error}</p>}
       </div>
@@ -334,13 +376,71 @@ export default function TwoFactorCard() {
             </button>
             <button
               type="button"
-              disabled
-              title="Available after the login update"
+              onClick={() => {
+                if (disableOpen) closeDisable();
+                else setDisableOpen(true);
+                setError(null);
+                setNotice(null);
+              }}
+              disabled={busy}
               className={SECONDARY_BUTTON}
+              aria-expanded={disableOpen}
             >
               Disable 2FA
             </button>
           </div>
+
+          {disableOpen && (
+            <form onSubmit={disableTwoFactor} className="space-y-4 rounded-xl border border-[rgba(224,122,110,0.30)] p-4">
+              <p className="text-sm text-[var(--tv-text)]">
+                Turning 2FA off removes your authenticator setup and all backup codes. Sign-in
+                will need only your password until you enable it again.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label htmlFor="disable-password" className="tv-adm-field-label">
+                    Password
+                  </label>
+                  <input
+                    id="disable-password"
+                    type="password"
+                    autoComplete="current-password"
+                    value={disablePassword}
+                    onChange={(e) => setDisablePassword(e.target.value)}
+                    disabled={busy}
+                    className={INPUT_CLASS}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label htmlFor="disable-code" className="tv-adm-field-label">
+                    Authenticator or backup code
+                  </label>
+                  <input
+                    id="disable-code"
+                    autoComplete="one-time-code"
+                    value={disableCode}
+                    onChange={(e) => setDisableCode(e.target.value.trim().slice(0, 20))}
+                    disabled={busy}
+                    className={`${INPUT_CLASS} font-mono tracking-widest`}
+                    required
+                  />
+                </div>
+              </div>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="submit"
+                  disabled={busy || !disablePassword || disableCode.length < 6}
+                  className="min-h-[44px] px-6 py-2.5 bg-[var(--tv-danger)] text-[var(--tv-ink)] rounded-xl font-semibold shadow-lg transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {busy ? 'Working…' : 'Disable 2FA'}
+                </button>
+                <button type="button" onClick={closeDisable} disabled={busy} className={SECONDARY_BUTTON}>
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
 
           {regenOpen && (
             <form onSubmit={regenerate} className="space-y-4 rounded-xl border border-[var(--tv-rule)] p-4">
