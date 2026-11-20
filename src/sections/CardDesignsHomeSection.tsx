@@ -118,15 +118,15 @@ export default function CardDesignsHomeSection({ onContactClick, initialDesigns 
                   variants={itemVariants}
                   className="group tv-panel flex flex-col h-full overflow-hidden"
                 >
-                  {/* Card Preview. The front face is unchanged; CardFlipImage
-                      adds the back behind it and the control to turn it over,
-                      and collapses back to exactly this markup when the card
-                      has no back image. */}
+                  {/* Card Preview: the front face only. showControl={false}
+                      removes the "View back" pill and click-to-flip; the back
+                      is shown in Quick View (Front/Back toggle). */}
                   <CardFlipImage
                     frontSrc={card.images?.[0]}
                     backImage={card.backImage}
                     name={card.name}
                     className={`${cardAspectClass(card.orientation)} overflow-hidden bg-[#151C1A]`}
+                    showControl={false}
                     front={
                       /* Photograph where there is one, the drawn finish
                          otherwise — same rule as the /cards catalogue. */
@@ -153,9 +153,9 @@ export default function CardDesignsHomeSection({ onContactClick, initialDesigns 
                          button stays focusable and the overlay reveals on
                          focus-within, not hover alone.
 
-                         The scrim is pointer-transparent so that clicking the
-                         artwork flips it; only the button itself takes the
-                         pointer, so Quick view behaves as it always has. */
+                         The scrim is pointer-transparent; only the button
+                         itself takes the pointer, so Quick view behaves as it
+                         always has. */
                       <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#070A09]/60 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
                         <button
                           onClick={() => handlePreview(card)}

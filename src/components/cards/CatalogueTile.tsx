@@ -25,20 +25,21 @@ import type { CardOrientation } from '@/lib/products/orientation';
  * edge, anything else is letterboxed inside it. Every tile in a section shares
  * the same well, so rows are level and the buttons line up.
  *
- * The deeper bottom padding (pb-14) holds the "View back" control, so it sits
- * BELOW the artwork instead of on it - it used to cover the artwork's own
- * heading. The NFC mark seen on some tiles is part of the uploaded artwork
- * itself, not drawn here, so nothing is layered over that corner any more.
+ * The tile shows the FRONT only. The back face is shown in Quick View
+ * (CardQuickViewModal: Front/Back toggle and arrow keys), so the tile has no
+ * "View back" pill and no click-to-flip, and the well's padding is the same
+ * on all four sides (1rem). The NFC mark seen on some tiles is part of the
+ * uploaded artwork itself, not drawn here.
  */
 
-/** Well height = inner card shape (width minus 2rem side padding) + 4.5rem vertical padding. */
+/** Well height = inner card shape (width minus 2rem side padding) + 2rem vertical padding (pt-4 + pb-4). */
 export const WELL_SIZE: Record<CardOrientation, string> = {
-  horizontal: 'pt-[calc((100%_-_2rem)/1.6_+_4.5rem)]',
-  vertical: 'pt-[calc((100%_-_2rem)*1.6_+_4.5rem)]',
+  horizontal: 'pt-[calc((100%_-_2rem)/1.6_+_2rem)]',
+  vertical: 'pt-[calc((100%_-_2rem)*1.6_+_2rem)]',
 };
 
 /** The card-shaped area inside the well. */
-export const FACE_AREA = 'absolute inset-0 flex items-center justify-center px-4 pt-4 pb-14';
+export const FACE_AREA = 'absolute inset-0 flex items-center justify-center px-4 pt-4 pb-4';
 
 /** The artwork at its natural shape, never cropped, with card corners and lift. */
 export const FACE_IMAGE =
@@ -67,9 +68,8 @@ export default function CatalogueTile({
       transition={{ duration: 0.5, delay: Math.min(index, 8) * 0.06 }}
       className="group tv-panel flex flex-col h-full overflow-hidden"
     >
-      {/* Card Preview. CardFlipImage adds the back behind the front face and
-          the control to turn it over, and collapses back to just the front
-          when the card has no back image. */}
+      {/* Card Preview: the front face only. showControl={false} removes the
+          "View back" pill and click-to-flip; the back is in Quick View. */}
       <CardFlipImage
         frontSrc={card.images?.[0]}
         backImage={card.backImage}
@@ -77,9 +77,7 @@ export default function CatalogueTile({
         className={`h-0 ${WELL_SIZE[card.orientation]} overflow-hidden bg-[#E8E3D8]`}
         backFaceClassName={FACE_AREA}
         imageClassName={FACE_IMAGE}
-        // Bottom-left, in the well's own padding - off the artwork on both
-        // orientations - and a full 44px tap target.
-        controlClassName="left-3 bottom-1.5 min-h-[44px] px-3.5"
+        showControl={false}
         front={
           /* A photograph if the design has one; otherwise the finish is drawn.
              Every design carries a gradient, so nothing needs to fall back to
@@ -98,7 +96,7 @@ export default function CatalogueTile({
           ) : (
             // The drawn face fills its box, so give it the exact card-shaped
             // area of the well.
-            <div className="absolute left-4 right-4 top-4 bottom-14 overflow-hidden rounded-[10px] shadow-[0_6px_18px_rgba(18,16,12,0.22)]">
+            <div className="absolute left-4 right-4 top-4 bottom-4 overflow-hidden rounded-[10px] shadow-[0_6px_18px_rgba(18,16,12,0.22)]">
               <NFCCard name={card.name} color={card.color} label={card.material || undefined} />
             </div>
           )
@@ -107,9 +105,8 @@ export default function CatalogueTile({
           /* Quick view. Revealed on focus-within as well as hover, so the
              button is reachable from the keyboard.
 
-             The scrim is pointer-transparent so that clicking the artwork
-             flips it; only the button itself takes the pointer, so Quick view
-             behaves as it always has. */
+             The scrim is pointer-transparent; only the button itself takes
+             the pointer, so Quick view behaves as it always has. */
           <div className="pointer-events-none absolute inset-0 z-20 flex items-center justify-center bg-[#12100C]/55 opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-focus-within:opacity-100">
             <button
               onClick={() => onPreview(card)}

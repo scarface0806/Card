@@ -67,7 +67,7 @@ export default function CustomDesignSection({
                     />
                   </div>
                 ) : (
-                  <div className="absolute left-4 right-4 top-4 bottom-14 overflow-hidden rounded-[10px] shadow-[0_6px_18px_rgba(18,16,12,0.22)]">
+                  <div className="absolute left-4 right-4 top-4 bottom-4 overflow-hidden rounded-[10px] shadow-[0_6px_18px_rgba(18,16,12,0.22)]">
                     <NFCCard name={card.name} color={card.color} label={card.material || undefined} />
                   </div>
                 )}

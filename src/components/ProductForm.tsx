@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import ImageUpload from '@/components/admin/ImageUpload';
 import {
   CARD_ORIENTATIONS,
@@ -54,16 +54,74 @@ const DEFAULT_VALUES: ProductFormValues = {
   designFee: 0,
 };
 
+/**
+ * Money inputs keep the RAW STRING the admin typed and are parsed only on
+ * submit. They used to be numbers updated with Number(e.target.value):
+ * Number("") is 0, so clearing snapped back to 0, and React does not rewrite a
+ * type="number" input whose parsed value is unchanged, so a leading "0" stayed
+ * on screen and typing appended to it ("05555555").
+ */
+
+/** Digits and at most one ".", max 2 decimals, no leading zeros ("0555" -> "555", "0.5" kept). */
+function sanitizePrice(raw: string): string {
+  let s = raw.replace(/[^0-9.]/g, '');
+  const dot = s.indexOf('.');
+  if (dot !== -1) s = s.slice(0, dot + 1) + s.slice(dot + 1).replace(/\./g, '').slice(0, 2);
+  if (s.startsWith('.')) s = `0${s}`;
+  return s.replace(/^0+(?=\d)/, '');
+}
+
+/** Whole rupees: digits only, no leading zeros. */
+function sanitizeWholeRupees(raw: string): string {
+  return raw.replace(/\D/g, '').replace(/^0+(?=\d)/, '');
+}
+
+/** The typed string as a number, or null when empty / not a number. */
+function parseMoney(input: string): number | null {
+  if (!input.trim()) return null;
+  const n = Number(input);
+  return Number.isFinite(n) ? n : null;
+}
+
+const formatINR = (n: number) => `₹${n.toLocaleString('en-IN', { maximumFractionDigits: 2 })}`;
+
+/** The editable strings for an incoming product (empty for a new one). */
+function moneyInputsFor(initial?: ProductFormValues) {
+  return {
+    price: initial ? String(initial.price) : '',
+    designFee: initial && initial.designFee > 0 ? String(initial.designFee) : '',
+  };
+}
+
 export default function ProductForm({ initialValues, onSubmit, submitLabel, submitting = false, onCancel }: ProductFormProps) {
   const [values, setValues] = useState<ProductFormValues>(initialValues || DEFAULT_VALUES);
+  const [priceInput, setPriceInput] = useState(() => moneyInputsFor(initialValues).price);
+  const [designFeeInput, setDesignFeeInput] = useState(() => moneyInputsFor(initialValues).designFee);
   const [localError, setLocalError] = useState<string | null>(null);
   const [productImagePublicId, setProductImagePublicId] = useState<string | null>(null);
   const [backImagePublicId, setBackImagePublicId] = useState<string | null>(null);
 
-  useEffect(() => {
+  /**
+   * Reset when a DIFFERENT product comes in. The admin page builds
+   * initialValues inline, so it is a new object on every parent render; an
+   * effect keyed on its identity reset the form (and would wipe a half-typed
+   * price) whenever the page re-rendered, e.g. when `saving` flipped. Keyed on
+   * content instead, and adjusted during render rather than in an effect, so
+   * there is no extra paint with the old values.
+   */
+  const initialKey = JSON.stringify(initialValues ?? null);
+  const [syncedKey, setSyncedKey] = useState(initialKey);
+  if (syncedKey !== initialKey) {
+    setSyncedKey(initialKey);
     setValues(initialValues || DEFAULT_VALUES);
+    const inputs = moneyInputsFor(initialValues);
+    setPriceInput(inputs.price);
+    setDesignFeeInput(inputs.designFee);
     setLocalError(null);
-  }, [initialValues]);
+  }
+
+  const parsedPrice = parseMoney(priceInput);
+  const parsedDesignFee = parseMoney(designFeeInput);
 
   const handleChange = (key: keyof ProductFormValues, value: string | number) => {
     setValues((prev) => ({ ...prev, [key]: value }));
@@ -113,7 +171,13 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
       return;
     }
 
-    if (!Number.isFinite(values.price) || values.price < 0) {
+    // Parsed here, and only here: the inputs hold the raw text.
+    const price = parsedPrice;
+    if (price === null) {
+      setLocalError('Price is required');
+      return;
+    }
+    if (price < 0) {
       setLocalError('Price must be a valid positive number');
       return;
     }
@@ -124,7 +188,8 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
     }
 
     // Mirrors parseCustomDesignInput on the server, which is the real check.
-    if (values.isCustomDesign && (!Number.isFinite(values.designFee) || values.designFee <= 0)) {
+    const designFee = parsedDesignFee;
+    if (values.isCustomDesign && (designFee === null || designFee <= 0)) {
       setLocalError('Design fee must be greater than 0 for a customised design');
       return;
     }
@@ -135,12 +200,12 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
     await onSubmit({
       name: values.name.trim(),
       description: values.description.trim(),
-      price: Number(values.price),
+      price,
       image: values.image,
       backImage: values.backImage.trim(),
       orientation: values.orientation,
       isCustomDesign: values.isCustomDesign,
-      designFee: values.isCustomDesign ? Number(values.designFee) : 0,
+      designFee: values.isCustomDesign && designFee !== null ? designFee : 0,
     });
   };
 
@@ -179,16 +244,30 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
 
       <div>
         <label htmlFor="product-price" className="tv-adm-field-label mb-1.5 block">Price</label>
-        <input
-          id="product-price"
-          type="number"
-          value={values.price}
-          onChange={(e) => handleChange('price', Number(e.target.value))}
-          className="tv-adm-input"
-          min={0}
-          step="0.01"
-          disabled={submitting}
-        />
+        {/* type="text", not "number": no spinner, no mouse-wheel price
+            changes, and the raw text is what the admin typed. */}
+        <div className="relative">
+          <span className="tv-adm-meta pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" aria-hidden="true">
+            ₹
+          </span>
+          <input
+            id="product-price"
+            type="text"
+            inputMode="decimal"
+            pattern="[0-9]*([.][0-9]{0,2})?"
+            autoComplete="off"
+            value={priceInput}
+            onChange={(e) => setPriceInput(sanitizePrice(e.target.value))}
+            className="tv-adm-input min-h-[44px] pl-8"
+            placeholder="599"
+            aria-describedby="product-price-formatted"
+            disabled={submitting}
+          />
+        </div>
+        {/* The amount as customers will read it, so an extra digit shows. */}
+        <p id="product-price-formatted" className="tv-mono mt-1.5 min-h-[1rem] text-xs normal-case" aria-live="polite">
+          {parsedPrice !== null ? formatINR(parsedPrice) : ''}
+        </p>
       </div>
 
       {/* CUSTOMISED DESIGN. Ticking this sends the product to its own
@@ -212,23 +291,32 @@ export default function ProductForm({ initialValues, onSubmit, submitLabel, subm
             <label htmlFor="product-design-fee" className="tv-adm-field-label mb-1.5 block">
               Design charge (₹, added to the price)
             </label>
-            <input
-              id="product-design-fee"
-              type="number"
-              value={values.designFee}
-              onChange={(e) => setValues((prev) => ({ ...prev, designFee: Number(e.target.value) }))}
-              className="tv-adm-input"
-              min={1}
-              step="1"
-              disabled={submitting}
-            />
-            <p className="mt-2 text-xs text-[var(--tv-text-muted)]">
-              Customer pays price + design charge
-              {Number.isFinite(values.price) && values.designFee > 0
-                ? ` = ₹${Number(values.price) + Number(values.designFee)}`
-                : ''}
-              .
+            <div className="relative">
+              <span className="tv-adm-meta pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-sm" aria-hidden="true">
+                ₹
+              </span>
+              <input
+                id="product-design-fee"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="off"
+                value={designFeeInput}
+                onChange={(e) => setDesignFeeInput(sanitizeWholeRupees(e.target.value))}
+                className="tv-adm-input min-h-[44px] pl-8"
+                placeholder="100"
+                aria-describedby="product-design-fee-formatted"
+                disabled={submitting}
+              />
+            </div>
+            <p id="product-design-fee-formatted" className="tv-mono mt-1.5 min-h-[1rem] text-xs normal-case" aria-live="polite">
+              {parsedDesignFee !== null ? formatINR(parsedDesignFee) : ''}
             </p>
+            {parsedPrice !== null && parsedDesignFee !== null ? (
+              <p className="mt-2 text-xs text-[var(--tv-text-muted)]">
+                Customer pays price + design charge = {formatINR(parsedPrice + parsedDesignFee)}.
+              </p>
+            ) : null}
           </div>
         )}
       </div>

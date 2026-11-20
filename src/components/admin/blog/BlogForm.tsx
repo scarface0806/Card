@@ -3,7 +3,7 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Check, ExternalLink, Loader2, Trash2, X } from 'lucide-react';
+import { AlertTriangle, Check, CheckCircle2, ExternalLink, Loader2, Trash2, X } from 'lucide-react';
 import AdminToast from '@/components/admin/AdminToast';
 import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import ImageUpload from '@/components/admin/ImageUpload';
@@ -13,6 +13,7 @@ import { slugify } from '@/lib/blog/slug';
 import { SITE_URL } from '@/lib/site';
 import { BLOG_UPLOAD_FOLDER } from '@/lib/blog/upload-client';
 import type { PostDetail, PostImageData } from '@/lib/blog/types';
+import { formatIst, fromIstInput, postPublicState, toIstInput } from '@/lib/blog/public-state';
 
 type TabKey = 'content' | 'media' | 'seo' | 'publish';
 
@@ -58,6 +59,21 @@ type FormState = {
 
 type SlugState = { checking: boolean; available: boolean | null; reason: string | null };
 
+/** A failed client-side check: what to say, and where the field lives. */
+type ValidationIssue = { message: string; tab: TabKey; fieldId: string };
+
+/**
+ * The banner at the top of the form. A save problem used to be a toast in a
+ * corner that was easy to miss, so a "Save & Publish" that failed validation
+ * left the post a draft without the admin noticing.
+ */
+type Banner =
+  | { tone: 'danger'; message: string }
+  | { tone: 'patina' | 'brass'; message: string; href?: string };
+
+/** What was last SAVED - drives the header badge and the slug warning. */
+type SavedState = { status: string; publishedAt: string | null; slug: string };
+
 export default function BlogForm({ postId, initial, initialPreviewToken }: BlogFormProps) {
   const router = useRouter();
   const isEdit = Boolean(postId);
@@ -70,6 +86,41 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
   const [toast, setToast] = useState<{ variant: 'success' | 'error' | 'info'; message: string } | null>(null);
   const [slugState, setSlugState] = useState<SlugState>({ checking: false, available: null, reason: null });
   const [previewToken, setPreviewToken] = useState(initialPreviewToken ?? '');
+  const [banner, setBanner] = useState<Banner | null>(null);
+  const [saved, setSaved] = useState<SavedState>(() => ({
+    status: initial?.status ?? 'DRAFT',
+    publishedAt: initial?.publishedAt ?? null,
+    slug: initial?.slug ?? '',
+  }));
+
+  // Field to focus once its tab has rendered. A ref, so setting it never
+  // causes a render of its own; the banner/tab state change that accompanies
+  // it does, and the effect below runs after that render commits.
+  const pendingFocus = useRef<string | null>(null);
+  useEffect(() => {
+    const id = pendingFocus.current;
+    if (!id) return;
+    pendingFocus.current = null;
+    const element = document.getElementById(id);
+    element?.scrollIntoView({ block: 'center' });
+    element?.focus({ preventScroll: true });
+  });
+
+  // "Now" for the Draft / Scheduled / Live labels, refreshed so a scheduled
+  // post flips to Live on screen when its time comes (no Date.now() in render).
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(Date.now()), 30_000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const savedPublic = isEdit ? postPublicState(saved.status, saved.publishedAt, new Date(now)) : 'draft';
+  // The date that WILL be saved, as typed (IST).
+  const typedPublishIso = fromIstInput(form.publishedAt);
+  const typedIsFuture = typedPublishIso !== null && new Date(typedPublishIso).getTime() > now;
+  // Changing a saved slug records a redirect from the old one (recordSlugChange
+  // on the PATCH route); only worth saying when the old URL is actually live.
+  const liveSlugChanged = savedPublic === 'live' && Boolean(saved.slug) && form.slug.trim() !== saved.slug;
 
   // Once the admin edits the slug by hand, the title stops driving it — an
   // auto-rewrite at that point would silently discard a deliberate choice.
@@ -165,14 +216,23 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
   async function save(publish: boolean) {
     const nextStatus = publish ? 'PUBLISHED' : form.status;
 
-    const validationError = validate(form, nextStatus);
-    if (validationError) {
-      setToast({ variant: 'error', message: validationError });
+    // A failed check is shown as a banner AND takes the admin to the field:
+    // switch to its tab and focus it, so nothing stays a draft unnoticed.
+    const issue = validate(form, nextStatus);
+    if (issue) {
+      setToast(null);
+      setBanner({
+        tone: 'danger',
+        message: publish ? `Not published: ${issue.message}` : issue.message,
+      });
+      setTab(issue.tab);
+      pendingFocus.current = issue.fieldId;
       return;
     }
 
     setSaving(true);
     setToast(null);
+    setBanner(null);
 
     try {
       const response = await fetch(isEdit ? `/api/admin/blogs/${postId}` : '/api/admin/blogs', {
@@ -186,10 +246,27 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
       if (!response.ok) throw new Error(payload.error || 'Failed to save post');
 
       if (payload.previewToken) setPreviewToken(payload.previewToken);
-      setToast({
-        variant: 'success',
-        message: publish ? 'Post published' : isEdit ? 'Post saved' : 'Draft created',
-      });
+
+      // Say what the PUBLIC will now see, from what the server saved (its
+      // slug can differ from the typed one after a collision, and an empty
+      // date was stamped server-side).
+      const savedPost = payload.post as { slug?: string; status?: string; publishedAt?: string | null } | undefined;
+      const savedState = savedPost?.slug
+        ? postPublicState(savedPost.status ?? nextStatus, savedPost.publishedAt ?? null)
+        : null;
+      if (publish && savedPost?.slug && savedState === 'live') {
+        setBanner({ tone: 'patina', message: 'Post published. It is live at', href: `/blog/${savedPost.slug}` });
+      } else if (savedPost?.slug && savedState === 'scheduled' && savedPost.publishedAt) {
+        setBanner({
+          tone: 'brass',
+          message: `Saved and scheduled for ${formatIst(savedPost.publishedAt)}. /blog/${savedPost.slug} will 404 until then.`,
+        });
+      } else {
+        setToast({
+          variant: 'success',
+          message: publish ? 'Post published' : isEdit ? 'Post saved' : 'Draft created',
+        });
+      }
 
       if (!isEdit && payload.post?.id) {
         // Keep writing in the editor, but with the posts list behind it.
@@ -212,11 +289,24 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
 
       // The saved slug can differ from the typed one if it collided.
       if (payload.post?.slug) {
-        setForm((current) => ({ ...current, slug: payload.post.slug, status: nextStatus }));
+        setForm((current) => ({
+          ...current,
+          slug: payload.post.slug,
+          status: nextStatus,
+          // Show the date the server actually stored (it stamps "now" when
+          // publishing with the field empty).
+          publishedAt: toIstInput(payload.post.publishedAt ?? null),
+        }));
+        setSaved({
+          status: payload.post.status ?? nextStatus,
+          publishedAt: payload.post.publishedAt ?? null,
+          slug: payload.post.slug,
+        });
       }
       router.refresh();
     } catch (error) {
-      setToast({ variant: 'error', message: error instanceof Error ? error.message : 'Failed to save post' });
+      // Same banner as a validation problem: a failed save must be obvious.
+      setBanner({ tone: 'danger', message: error instanceof Error ? error.message : 'Failed to save post' });
     } finally {
       setSaving(false);
     }
@@ -246,7 +336,17 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
     <main className="space-y-6">
       <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
         <div>
-          <h1 className="tv-adm-page-title">{isEdit ? 'Edit post' : 'New post'}</h1>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <h1 className="tv-adm-page-title">{isEdit ? 'Edit post' : 'New post'}</h1>
+            {/* What the public sees right now, from the last SAVE. */}
+            {savedPublic === 'live' ? (
+              <span className="tv-adm-badge tv-adm-badge--patina">Live</span>
+            ) : savedPublic === 'scheduled' && saved.publishedAt ? (
+              <span className="tv-adm-badge tv-adm-badge--brass">Scheduled · {formatIst(saved.publishedAt)}</span>
+            ) : (
+              <span className="tv-adm-badge tv-adm-badge--neutral">Draft</span>
+            )}
+          </div>
           <p className="tv-adm-page-sub mt-1">
             {isEdit ? 'Update the post, its media and how it appears in search.' : 'Write the post, then save it as a draft or publish it.'}
           </p>
@@ -276,6 +376,61 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
         </div>
       </div>
 
+      {/* A future publish date holds the post back: say so next to Publish. */}
+      {typedIsFuture && typedPublishIso ? (
+        <div className="tv-adm-alert tv-adm-alert--brass" role="status">
+          <AlertTriangle className="tv-adm-alert-icon mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          <p className="min-w-0 flex-1">
+            This post is scheduled and will 404 until {formatIst(typedPublishIso)}.{' '}
+            <button
+              type="button"
+              onClick={() => set('publishedAt', toIstInput(new Date()))}
+              className="tv-adm-action tv-adm-action--brass min-h-[44px]"
+            >
+              Publish now
+            </button>
+          </p>
+        </div>
+      ) : null}
+
+      {banner ? (
+        <div
+          className={`tv-adm-alert tv-adm-alert--${banner.tone}`}
+          role={banner.tone === 'danger' ? 'alert' : 'status'}
+        >
+          {banner.tone === 'danger' ? (
+            <AlertTriangle className="tv-adm-alert-icon mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          ) : (
+            <CheckCircle2 className="tv-adm-alert-icon mt-0.5 h-4 w-4 shrink-0" aria-hidden="true" />
+          )}
+          <p className="min-w-0 flex-1 break-words">
+            {banner.message}
+            {'href' in banner && banner.href ? (
+              <>
+                {' '}
+                <a
+                  href={banner.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tv-mono normal-case underline underline-offset-2"
+                >
+                  {SITE_HOST}
+                  {banner.href}
+                </a>
+              </>
+            ) : null}
+          </p>
+          <button
+            type="button"
+            onClick={() => setBanner(null)}
+            aria-label="Dismiss"
+            className="tv-adm-action tv-adm-action--icon min-h-[44px] min-w-[44px] shrink-0"
+          >
+            <X className="h-3.5 w-3.5" aria-hidden="true" />
+          </button>
+        </div>
+      ) : null}
+
       {toast && <AdminToast message={toast.message} variant={toast.variant} onClose={() => setToast(null)} />}
 
       <div className="tv-adm-tabs" role="tablist" aria-label="Post sections">
@@ -298,6 +453,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
           <div className="tv-adm-panel tv-adm-panel-pad space-y-5">
             <Field label="Title" required>
               <input
+                id="post-title"
                 className="tv-adm-input min-h-[44px]"
                 value={form.title}
                 onChange={(event) => handleTitleChange(event.target.value)}
@@ -327,10 +483,19 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
                   {SITE_HOST}/blog/{form.slug || 'your-post-slug'}
                 </span>
               </p>
+              {/* Display only. The PATCH route records the redirect when the
+                  slug actually changes on save (recordSlugChange). */}
+              {liveSlugChanged ? (
+                <p className="mt-1.5 text-xs text-[var(--tv-brass)]">
+                  This post is live. The old URL <span className="tv-mono normal-case break-all">/blog/{saved.slug}</span>{' '}
+                  will redirect here once you save.
+                </p>
+              ) : null}
             </Field>
 
             <Field label="Excerpt" required hint="Shown on the blog listing and used as the meta description fallback.">
               <textarea
+                id="post-excerpt"
                 className="tv-adm-textarea"
                 value={form.excerpt}
                 onChange={(event) => set('excerpt', event.target.value)}
@@ -341,7 +506,8 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
             </Field>
           </div>
 
-          <div className="tv-adm-panel tv-adm-panel-pad space-y-3">
+          {/* tabIndex -1: a validation failure can focus the section. */}
+          <div id="post-content" tabIndex={-1} className="tv-adm-panel tv-adm-panel-pad space-y-3 outline-none">
             <p className="tv-adm-field-label">Content</p>
             <RichTextEditor
               value={form.content}
@@ -357,7 +523,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
         <div className="space-y-5">
           {/* Uploader ~60% / alt text ~40% side by side on lg+, stacked below. */}
           <div className="tv-adm-panel tv-adm-panel-pad grid grid-cols-1 gap-5 lg:grid-cols-[3fr_2fr]">
-            <div className="min-w-0">
+            <div id="post-cover" tabIndex={-1} className="min-w-0 outline-none">
               <ImageUpload
                 folder={BLOG_UPLOAD_FOLDER}
                 label="Cover image"
@@ -380,6 +546,7 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
                 }
               >
                 <input
+                  id="post-cover-alt"
                   className={`tv-adm-input min-h-[44px] disabled:cursor-not-allowed disabled:opacity-60 ${
                     coverAltMissing ? 'border-[var(--tv-brass)]' : ''
                   }`}
@@ -520,19 +687,33 @@ export default function BlogForm({ postId, initial, initialPreviewToken }: BlogF
             </Field>
 
             <Field
-              label="Publish date"
-              hint="Leave blank to publish immediately. A future date holds the post back until then."
+              label="Publish date (IST)"
+              hint="Leave blank to publish immediately. A future date holds the post back until then. Always India time, whatever this computer's timezone."
             >
               <input
+                id="post-published-at"
                 type="datetime-local"
                 className="tv-adm-input min-h-[44px]"
                 value={form.publishedAt}
                 onChange={(event) => set('publishedAt', event.target.value)}
               />
+              {typedIsFuture && typedPublishIso ? (
+                <p className="mt-1.5 text-xs text-[var(--tv-brass)]">
+                  Scheduled: /blog/{form.slug || 'your-post-slug'} will 404 until {formatIst(typedPublishIso)}.{' '}
+                  <button
+                    type="button"
+                    onClick={() => set('publishedAt', toIstInput(new Date()))}
+                    className="tv-adm-action tv-adm-action--brass min-h-[44px]"
+                  >
+                    Publish now
+                  </button>
+                </p>
+              ) : null}
             </Field>
 
             <Field label="Author" required>
               <input
+                id="post-author"
                 className="tv-adm-input min-h-[44px]"
                 value={form.authorName}
                 onChange={(event) => set('authorName', event.target.value)}
@@ -673,7 +854,9 @@ function toFormState(initial?: PostDetail): FormState {
     authorName: initial?.authorName ?? 'Tapvyo',
     authorAvatar: initial?.authorAvatar ?? '',
     status: initial?.status ?? 'DRAFT',
-    publishedAt: toLocalInput(initial?.publishedAt ?? null),
+    // IST wall-clock time, whatever the browser's timezone. The old
+    // toLocalInput used the browser's zone, so the label could not say IST.
+    publishedAt: toIstInput(initial?.publishedAt ?? null),
     metaTitle: initial?.metaTitle ?? '',
     metaDescription: initial?.metaDescription ?? '',
     ogImage: initial?.ogImage ?? '',
@@ -687,15 +870,32 @@ function toFormState(initial?: PostDetail): FormState {
  * The server validates the same things again — this exists so the admin is
  * told what is missing before a round trip, not instead of the check.
  */
-function validate(form: FormState, status: 'DRAFT' | 'PUBLISHED'): string | null {
-  if (form.title.trim().length < 3) return 'Title must be at least 3 characters.';
-  if (form.excerpt.trim().length < 20) return 'Excerpt must be at least 20 characters.';
-  if (!form.content.trim() || form.content === '<p></p>') return 'The post has no content yet.';
-  if (!form.authorName.trim()) return 'An author name is required.';
+function validate(form: FormState, status: 'DRAFT' | 'PUBLISHED'): ValidationIssue | null {
+  // Each issue names the tab and the field, so the form can take the admin
+  // straight to it instead of leaving a message they might not see.
+  if (form.title.trim().length < 3) {
+    return { message: 'Title must be at least 3 characters.', tab: 'content', fieldId: 'post-title' };
+  }
+  if (form.excerpt.trim().length < 20) {
+    return { message: 'Excerpt must be at least 20 characters.', tab: 'content', fieldId: 'post-excerpt' };
+  }
+  if (!form.content.trim() || form.content === '<p></p>') {
+    return { message: 'The post has no content yet.', tab: 'content', fieldId: 'post-content' };
+  }
+  if (!form.authorName.trim()) {
+    return { message: 'An author name is required.', tab: 'publish', fieldId: 'post-author' };
+  }
+  if (form.publishedAt && !fromIstInput(form.publishedAt)) {
+    return { message: 'The publish date is not a valid date.', tab: 'publish', fieldId: 'post-published-at' };
+  }
 
   if (status === 'PUBLISHED') {
-    if (!form.coverImage) return 'A published post needs a cover image.';
-    if (!form.coverImage.alt.trim()) return 'The cover image needs alt text before publishing.';
+    if (!form.coverImage) {
+      return { message: 'A published post needs a cover image.', tab: 'media', fieldId: 'post-cover' };
+    }
+    if (!form.coverImage.alt.trim()) {
+      return { message: 'The cover image needs alt text before publishing.', tab: 'media', fieldId: 'post-cover-alt' };
+    }
   }
 
   return null;
@@ -721,7 +921,8 @@ function toPayload(form: FormState, status: 'DRAFT' | 'PUBLISHED') {
     authorName: form.authorName.trim(),
     authorAvatar: form.authorAvatar.trim(),
     status,
-    publishedAt: form.publishedAt ? new Date(form.publishedAt).toISOString() : null,
+    // The input is IST wall-clock time (see src/lib/blog/public-state.ts).
+    publishedAt: fromIstInput(form.publishedAt),
     metaTitle: form.metaTitle.trim(),
     metaDescription: form.metaDescription.trim(),
     ogImage: form.ogImage.trim(),
@@ -730,10 +931,3 @@ function toPayload(form: FormState, status: 'DRAFT' | 'PUBLISHED') {
   };
 }
 
-/** ISO -> the local `datetime-local` format, which has no timezone suffix. */
-function toLocalInput(iso: string | null): string {
-  if (!iso) return '';
-  const date = new Date(iso);
-  const offset = date.getTimezoneOffset() * 60_000;
-  return new Date(date.getTime() - offset).toISOString().slice(0, 16);
-}

@@ -12,6 +12,7 @@ import AdminConfirmPanel from '@/components/admin/AdminConfirmPanel';
 import BlogViewsChart from '@/components/admin/blog/BlogViewsChart';
 import { isAbortError } from '@/lib/fetch-utils';
 import type { AdminPostRow, BlogStats, TopPost, ViewsPoint } from '@/lib/blog/types';
+import { formatIst, postPublicState } from '@/lib/blog/public-state';
 
 const PER_PAGE = 10;
 
@@ -35,6 +36,7 @@ export default function AdminBlogsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [info, setInfo] = useState<string | null>(null);
   const [pendingDelete, setPendingDelete] = useState<AdminPostRow | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [openingEditor, setOpeningEditor] = useState(false);
@@ -174,19 +176,37 @@ export default function AdminBlogsPage() {
       render: (_value: unknown, row: AdminPostRow) => (
         <div className="min-w-0">
           <p className="truncate font-medium text-[var(--tv-text)]">{row.title}</p>
-          <p className="tv-adm-meta truncate text-xs">/blog/{row.slug}</p>
+          <div className="flex min-w-0 items-center gap-2">
+            <p className="tv-adm-meta truncate text-xs">/blog/{row.slug}</p>
+            {postPublicState(row.status, row.publishedAt) === 'live' ? (
+              <a
+                href={`/blog/${row.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tv-adm-action tv-adm-action--patina shrink-0"
+              >
+                View
+              </a>
+            ) : null}
+          </div>
         </div>
       ),
     },
     {
       key: 'status',
       label: 'Status',
-      render: (_value: unknown, row: AdminPostRow) => (
-        <StatusBadge
-          status={row.status === 'PUBLISHED' ? 'active' : 'pending'}
-          label={row.status === 'PUBLISHED' ? 'Published' : 'Draft'}
-        />
-      ),
+      // What the PUBLIC sees. "Published" used to cover scheduled posts too,
+      // which 404 until their date - so a post could look live and not be.
+      render: (_value: unknown, row: AdminPostRow) => {
+        const state = postPublicState(row.status, row.publishedAt);
+        return state === 'live' ? (
+          <StatusBadge status="active" label="Live" />
+        ) : state === 'scheduled' && row.publishedAt ? (
+          <StatusBadge status="pending" label={`Scheduled · ${formatIst(row.publishedAt)}`} />
+        ) : (
+          <StatusBadge status="inactive" label="Draft" />
+        );
+      },
     },
     {
       key: 'publishedAt',
@@ -248,6 +268,7 @@ export default function AdminBlogsPage() {
 
       {error && <AdminToast message={error} variant="error" onClose={() => setError(null)} />}
       {success && <AdminToast message={success} variant="success" onClose={() => setSuccess(null)} />}
+      {info && <AdminToast message={info} variant="info" onClose={() => setInfo(null)} />}
 
       <div className="admin-card-grid">
         <StatCard label="Total posts" value={stats?.totalPosts ?? 0} icon={<FileText className="h-4 w-4" />} color="blue" />
@@ -344,7 +365,20 @@ export default function AdminBlogsPage() {
             // The API already paginates, so DataTable renders exactly what it
             // was handed and the pager below drives the page.
             itemsPerPage={PER_PAGE}
-            onView={(row) => window.open(`/blog/${row.slug}`, '_blank', 'noopener,noreferrer')}
+            // Only a live post has a public page; anything else would open a
+            // 404. Its editor has the token-protected preview instead.
+            onView={(row) => {
+              const state = postPublicState(row.status, row.publishedAt);
+              if (state === 'live') {
+                window.open(`/blog/${row.slug}`, '_blank', 'noopener,noreferrer');
+              } else {
+                setInfo(
+                  state === 'scheduled' && row.publishedAt
+                    ? `Scheduled for ${formatIst(row.publishedAt)} - /blog/${row.slug} will 404 until then. Use Preview in the editor.`
+                    : `This post is a draft - /blog/${row.slug} will 404. Use Preview in the editor.`
+                );
+              }
+            }}
             onEdit={(row) => router.push(`/admin/blogs/${row.id}/edit`)}
             onDelete={(row) => setPendingDelete(row)}
           />
