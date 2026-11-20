@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 import { authenticate } from "@/lib/auth-middleware";
 import { admin2faSetupBlock } from "@/lib/admin-2fa-route-guard";
-import { Role, OrderStatus } from "@prisma/client";
+import { Role, OrderStatus, PaymentStatus } from "@prisma/client";
 
 import { orderStatusSchema } from "@/lib/validators";
 import { sendOrderStatusEmail } from "@/lib/emails/send-order-email";
@@ -165,7 +165,30 @@ export async function GET(
   }
 }
 
-// PUT /api/orders/:id - Update order (Admin only)
+/** The one refusal a customer gets; it never names the statuses that exist. */
+const CUSTOMER_STATUS_REFUSED = "You are not allowed to change this order to that status";
+
+const ORDER_WITH_USER = {
+  user: {
+    select: {
+      id: true,
+      name: true,
+      email: true,
+    },
+  },
+} as const;
+
+// PUT /api/orders/:id - Update order status.
+//
+// SECURITY: this used to let an order's OWNER set any status on it - mark an
+// unpaid order CONFIRMED or DELIVERED (which also passes the status gate in
+// POST /api/admin/profiles), or walk a SHIPPED order back to PENDING/REFUNDED.
+// Now:
+//   admin    - unchanged: any status, from any status, no side effects.
+//   customer - may only cancel their own order while it is PENDING and unpaid.
+//              Anything else is one 403 that does not reveal the status list.
+// Signed-out callers get 401 before the body is read or the order looked up,
+// so they cannot probe which order ids exist.
 export async function PUT(
   request: NextRequest,
   { params }: RouteParams
@@ -178,15 +201,25 @@ export async function PUT(
       return res;
     }
     const { user, error } = await authenticate(request);
+    if (!user) {
+      return errorResponse(error || "Unauthorized", 401);
+    }
     const { id } = await params;
+    const isAdmin = user.role === Role.ADMIN;
 
     // Get request body
     const body = await request.json();
-    const parsed = orderStatusSchema.safeParse(body);
-    if (!parsed.success) {
-      return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
+
+    // Admins: validated exactly as before (400 lists the valid statuses).
+    // Customers are not validated against the enum at all - see below.
+    let adminStatus: OrderStatus | null = null;
+    if (isAdmin) {
+      const parsed = orderStatusSchema.safeParse(body);
+      if (!parsed.success) {
+        return errorResponse(parsed.error.issues.map(e => e.message).join(", "), 400);
+      }
+      adminStatus = parsed.data.status;
     }
-    const { status } = parsed.data;
 
     // Check if order exists
     const existingOrder = await prisma.order.findUnique({
@@ -198,30 +231,54 @@ export async function PUT(
     }
 
     // ownership: admin or owner allowed
-    const isAdmin = user && user.role === Role.ADMIN;
-    const isOwner = user && existingOrder.userId === user.id;
-    if (!isAdmin && !isOwner) {
+    if (!isAdmin && existingOrder.userId !== user.id) {
       return errorResponse("Access denied", 403);
     }
-    // ADMIN_2FA_REQUIRED, admin branch only (src/lib/admin-2fa-route-guard.ts).
-    if (isAdmin) {
+
+    if (isAdmin && adminStatus) {
+      // ADMIN_2FA_REQUIRED, admin branch only (src/lib/admin-2fa-route-guard.ts).
       const twoFactorBlock = admin2faSetupBlock(request);
       if (twoFactorBlock) return twoFactorBlock;
+
+      // Update order
+      const updatedOrder = await prisma.order.update({
+        where: { id },
+        data: { status: adminStatus },
+        include: ORDER_WITH_USER,
+      });
+
+      return successResponse({
+        message: "Order updated successfully",
+        order: updatedOrder,
+      });
     }
 
-    // Update order
-    const updatedOrder = await prisma.order.update({
-      where: { id },
-      data: { status },
-      include: {
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
+    // Customer: the only change allowed is PENDING + unpaid -> CANCELLED.
+    // Checked before any enum validation, so a refused request learns nothing.
+    if (body?.status !== OrderStatus.CANCELLED) {
+      return errorResponse(CUSTOMER_STATUS_REFUSED, 403);
+    }
+
+    // One conditional write, so a payment verified at the same moment cannot
+    // leave a paid order cancelled: it only matches while the order is still
+    // this customer's, still PENDING and still not PAID.
+    const cancelled = await prisma.order.updateMany({
+      where: {
+        id,
+        userId: user.id,
+        status: OrderStatus.PENDING,
+        paymentStatus: { not: PaymentStatus.PAID },
       },
+      data: { status: OrderStatus.CANCELLED },
+    });
+    if (cancelled.count !== 1) {
+      return errorResponse(CUSTOMER_STATUS_REFUSED, 403);
+    }
+
+    // Same body as before: the updated order with its user.
+    const updatedOrder = await prisma.order.findUnique({
+      where: { id },
+      include: ORDER_WITH_USER,
     });
 
     return successResponse({
