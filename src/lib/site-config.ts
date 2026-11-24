@@ -134,6 +134,15 @@ export const PHONE_DISPLAY = '+91 78713 61025';
  */
 export const SUPPORT_EMAIL = 'hello@tapvyo.in';
 
+/**
+ * The address the site footer links to, set by the business owner. The footer
+ * shows only the short label (not the full address); clicking it opens a mail
+ * draft addressed to FOOTER_EMAIL. Deliberately separate from SUPPORT_EMAIL so
+ * changing it does not touch order-email reply-to or admin alerts.
+ */
+export const FOOTER_EMAIL = 'tapvyonfc@gmail.com';
+export const FOOTER_EMAIL_LABEL = 'tapvyonfc';
+
 export const ADDRESS = {
   city: 'Madurai',
   state: 'Tamil Nadu',

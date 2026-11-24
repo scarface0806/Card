@@ -6,10 +6,11 @@ import { ROUTES } from '@/utils/constants';
 import {
   ACTIVE_SOCIAL_PROFILES,
   ADDRESS,
+  FOOTER_EMAIL,
+  FOOTER_EMAIL_LABEL,
   PHONE_DISPLAY,
   PHONE_E164,
   SITE_NAME,
-  SUPPORT_EMAIL,
 } from '@/lib/site-config';
 import BrandLogo from '@/components/common/BrandLogo';
 import NewsletterSignup from '@/components/NewsletterSignup';
@@ -108,8 +109,12 @@ export default function Footer() {
                 <div className="w-8 h-8 rounded-lg bg-[#C9A961]/15 flex items-center justify-center shrink-0">
                   <Mail className="w-4 h-4 text-[#C9A961]" />
                 </div>
-                <a href={`mailto:${SUPPORT_EMAIL}`} className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors">
-                  {SUPPORT_EMAIL}
+                <a
+                  href={`mailto:${FOOTER_EMAIL}`}
+                  aria-label={`Email ${FOOTER_EMAIL}`}
+                  className="tv-small tv-focus inline-flex min-h-[44px] items-center hover:text-[#F1F3F1] transition-colors"
+                >
+                  {FOOTER_EMAIL_LABEL}
                 </a>
               </li>
               <li className="flex items-center gap-3">
